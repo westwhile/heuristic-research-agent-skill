@@ -1,0 +1,58 @@
+{
+  "schema": "research-evolution-phase0-acceptance/v1",
+  "artifact": "math-research-solve",
+  "version": "1.0.0",
+  "status": "hold",
+  "claim_boundary": "engineering_baseline_only",
+  "checks": {
+    "portable_checksums": "passed",
+    "portable_payload_vs_installed": "passed",
+    "portable_doctor": "passed",
+    "portable_install_dry_run": "passed",
+    "repository_unit_tests": "passed",
+    "windows_full_regression": "failed",
+    "permission_matrix": "present",
+    "public_artifact_path_and_secret_scan": "passed"
+  },
+  "regression_counts": {
+    "passed": 15,
+    "failed": 1,
+    "timed_out": 0,
+    "blocked": 3,
+    "not_run": 1
+  },
+  "release_decision": "do_not_commit_push_or_tag_from_this_acceptance",
+  "blocking_cases": [
+    {
+      "id": "test_math_research_v2_bundle_regression",
+      "classification": "baseline_regression_failure",
+      "reason": "generated startup-v2 differential expects a v2 route while the copied frozen SKILL retains the v1 route"
+    },
+    {
+      "id": "test_math_research_control_path_amendment_v2",
+      "classification": "environment_blocker",
+      "reason": "missing_installed_dpapi_manifest_key"
+    },
+    {
+      "id": "test_math_research_legacy_v1_compat",
+      "classification": "environment_blocker",
+      "reason": "missing_installed_dpapi_manifest_key"
+    },
+    {
+      "id": "skill_quick_validate",
+      "classification": "environment_blocker",
+      "reason": "missing_python_dependency_pyyaml"
+    },
+    {
+      "id": "test_math_research_legacy_successor_v8",
+      "classification": "missing_fixture",
+      "reason": "missing_required_read_only_legacy_project_fixture"
+    }
+  ],
+  "evidence": {
+    "portable_sha256": "b1738edf87fed49c2f16f75b08809b1b5cf831038e78ec195e91d2926d4a2ae9",
+    "payload_tree_sha256": "28f3dfeaa7edd4899e256106b55dc09b227439497691a953c541bfd6219677f5",
+    "installed_tree_sha256": "28f3dfeaa7edd4899e256106b55dc09b227439497691a953c541bfd6219677f5",
+    "regression_summary_sha256": "1018ccefe518fb517386e03fcbd8ec9f8453308a132f8b8e9a2612d5ce8dcbf5"
+  }
+}

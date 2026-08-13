@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments and local configuration
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Build and package output
+build/
+dist/
+*.egg-info/
+*.whl
+
+# Research runtime data (manifests/templates may be committed explicitly)
+data/
+artifacts/
+checkpoints/
+runs/
+reports/private/
+benchmarks/private/
+benchmarks/hidden/
+experience/local-private/
+skills/staging/
+skills/backups/
+
+# Credentials and local tools
+*.key
+*.pem
+credentials.json
+secrets.*
+.codex/
+.kimi/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+~$*

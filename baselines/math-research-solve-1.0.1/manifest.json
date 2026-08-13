@@ -1,0 +1,38 @@
+{
+  "artifact": {
+    "name": "math-research-solve",
+    "type": "portable-skill",
+    "version": "1.0.1"
+  },
+  "build": {
+    "date": "2026-08-13",
+    "source_tree_sha256": "1dbf2849550afc311602a388ad5ee888b23b7c73da1d2e44e1a67f53fb8f0a25"
+  },
+  "claim_boundary": "engineering_integrity_only",
+  "comparison": {
+    "extra_count": 0,
+    "mismatch_count": 0,
+    "missing_count": 0,
+    "status": "pass"
+  },
+  "installed_snapshot": {
+    "file_count": 79,
+    "locator": "local-installed-skill",
+    "tree_sha256": "1dbf2849550afc311602a388ad5ee888b23b7c73da1d2e44e1a67f53fb8f0a25"
+  },
+  "payload": {
+    "file_count": 79,
+    "root": "payload/math-research-solve",
+    "tree_sha256": "1dbf2849550afc311602a388ad5ee888b23b7c73da1d2e44e1a67f53fb8f0a25"
+  },
+  "portable": {
+    "archive_file_count": 87,
+    "byte_size": 557455,
+    "checksum_extra_count": 0,
+    "checksum_mismatch_count": 0,
+    "checksums_status": "pass",
+    "file_name": "math-research-solve-portable-1.0.1.zip",
+    "sha256": "2f6cb8760dcfdcbf7e7f9b016b035dd9f4fab63dd021c5a024053face6b54273"
+  },
+  "schema": "research-evolution-external-skill-baseline/v1"
+}

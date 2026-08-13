@@ -1,0 +1,56 @@
+# Heuristic Research Agent Skill
+
+面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
+
+本仓库当前处于 **repository bootstrap** 阶段。现阶段只冻结项目计划、模块职责、治理规则与目录 seam；尚未宣称任何研究执行器、Evaluator、Heuristic Learning 闭环或生产发布能力已经实现。
+
+## 项目目标
+
+平台把科研工作拆成两层：
+
+- 通用内核只处理 `ResearchTask`、`Claim`、`Evidence`、`Run`、`FailureObservation`、`EvaluationCase`、`CandidateBundle` 和 `PromotionDecision`；
+- 数学、量化、机器学习和深度学习的正确性规则由领域 Adapter 提供。
+
+核心边界：
+
+1. 工程测试通过不等于科研结论成立；
+2. 样例或合成数据成功不等于真实数据验收；
+3. 回测或样本外结果不等于真实可交易收益；
+4. Candidate 无权修改 Evaluator、读取 hidden case 或自行晋级；
+5. 生产运行只读取已批准且 hash-bound 的冻结 Heuristic snapshot。
+
+## 当前文档
+
+- [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
+- [总体架构](docs/architecture/ARCHITECTURE.md)
+- [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
+- [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
+- [math-research-solve 1.0.1 基线验收](reports/baseline/math-research-solve-1.0.1.md)
+- [ADR-0001：采用通用内核和领域 Adapter](docs/decisions/0001-core-and-domain-adapters.md)
+
+## 目录
+
+```text
+heuristic-research-agent-skill/
+├── .github/                  # PR 与 Issue 协作模板
+├── docs/                     # 计划、架构、治理和 ADR
+├── src/research_evolution/   # 通用内核与领域 Adapter
+├── schemas/                  # 版本化 JSON Schema
+├── benchmarks/               # 公开 benchmark 与私有 runner 接口
+├── baselines/                # 外部 baseline 的 manifest，不保存私有运行数据
+├── policies/                 # Promotion、隐私、资源与污染策略
+├── skills/                   # 未来可安装 Skill 的 staged payload
+├── scripts/                  # 可重复的验证、打包与发布脚本
+├── tests/                    # unit、contract、integration、e2e 和 fixtures
+└── reports/                  # 仅保留经过筛选的可发布报告或模板
+```
+
+## 当前状态
+
+- 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
+- 默认开发分支：`main`
+- 当前发布版本：无
+- Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
+- 首个功能目标：Phase 1 通用记录、Schema 与证据内核，然后进入 Math/Quant 双领域垂直切片
+
+提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

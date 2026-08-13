@@ -1,0 +1,303 @@
+{
+  "cases": [
+    {
+      "duration_seconds": 0.768,
+      "id": "test_math_research_platform",
+      "kind": "python_regression",
+      "observed_counts": {
+        "unittest_tests": 4
+      },
+      "return_code": 0,
+      "source_sha256": "f28b56d75fd72bf08944ca641ed8bf832490a858e16d22bef58dee4f614a8bde",
+      "status": "passed",
+      "stderr_bytes": 107,
+      "stderr_sha256": "36af3e16699f70d41ac6c09e0858d6d95a0c8e9152d39ac297d51ff6d7e0a804",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "duration_seconds": 3.145,
+      "id": "test_math_research_state_v9",
+      "kind": "python_regression",
+      "observed_counts": {
+        "unittest_tests": 22
+      },
+      "return_code": 0,
+      "source_sha256": "41c2b8b4bb36ca2a040444024581bfa284e47350e2017b28fd5071c47be41d20",
+      "status": "passed",
+      "stderr_bytes": 2772,
+      "stderr_sha256": "08fac24baab938f1880fd83e1204e05e17725c867ef47712c3980d2e91e40229",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "duration_seconds": 0.242,
+      "id": "test_math_research_ticket_preflight_v8",
+      "kind": "python_regression",
+      "observed_counts": {
+        "unittest_tests": 4
+      },
+      "return_code": 0,
+      "source_sha256": "b84593a6a2859b6f963b37eed6414cdd322a0925a62ffcb49b057f42d327d9ac",
+      "status": "passed",
+      "stderr_bytes": 603,
+      "stderr_sha256": "36f0504de7636e78cfdff4814a60d5b527b9ccfeb04bf446978d7d3f527264b5",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "duration_seconds": 3.02,
+      "id": "test_math_research_control_path_amendment_v2",
+      "kind": "powershell_regression",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "dd8b0d8cef385173c030957e399ed5909f3e4ac8bf0651a009bf227b762dc081",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 145,
+      "stdout_sha256": "09394f6a07ce4c8827353cc9622c666cb56bc666384f053f404f079f9583db62"
+    },
+    {
+      "duration_seconds": 26.101,
+      "id": "test_math_research_cycle_ledger",
+      "kind": "powershell_regression",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "28916e9ee27a8f620c84a25b2e16fbdf5b413977bd8c2b8051d85af7df12b0ce",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 984,
+      "stdout_sha256": "ecb8cdf03f5d82d94345099b09376ed356c77d6076e39069249db20c2b145514"
+    },
+    {
+      "duration_seconds": 197.729,
+      "id": "test_math_research_head_commit_v8",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "assertions": 160
+      },
+      "return_code": 0,
+      "source_sha256": "21a3d8629ac13a9cd34ec46bcba4753bd2ec88240c36bb5acc6518327d0a3b3a",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 248,
+      "stdout_sha256": "6148a0d0afd1f6f2d6bbd25b419800180e7c3282e7aa3e9296490fb8938fc88f"
+    },
+    {
+      "duration_seconds": 26.844,
+      "id": "test_math_research_launcher",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "failed": 0,
+        "passed": 22,
+        "skipped": 1
+      },
+      "return_code": 0,
+      "source_sha256": "074ec2dae9adb31e91a6f575586d6ee5acb5730c34d09c7f28343a945e2b50ac",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 3386,
+      "stdout_sha256": "81c3098898bad67f1bc45cca4af5f5428b1c8f906ffcfa0b8f4b43dc18f4ff7f"
+    },
+    {
+      "duration_seconds": 10.932,
+      "id": "test_math_research_launcher_v2",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "failed": 0,
+        "passed": 10
+      },
+      "return_code": 0,
+      "source_sha256": "09c8ee99d4e6cdd020a2d9e4fefd6b1932266a43085ff779fc3f3b8a16b472d0",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 1776,
+      "stdout_sha256": "b05f0903ea5a828b9638657db74b976ed8d1547f04ddfad5c165b8fad13ad599"
+    },
+    {
+      "id": "test_math_research_legacy_successor_v8",
+      "kind": "powershell_regression",
+      "reason": "missing_required_read_only_legacy_project_fixture",
+      "source_sha256": "a10c398a3f272d99198b3fff38fd4ad3478b78ffc54a5eafbfa18bd28456d042",
+      "status": "not_run"
+    },
+    {
+      "duration_seconds": 1.91,
+      "id": "test_math_research_legacy_v1_compat",
+      "kind": "powershell_regression",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "192c1b4e6bc41e856977f4dfa1fdc8da29d123cf2045f3f0bca91577c626a14e",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 109,
+      "stdout_sha256": "bc1b8d290e831f254b91a03d59ccab8c706148945786a706ab9a4061b2b2202e"
+    },
+    {
+      "duration_seconds": 14.2,
+      "id": "test_math_research_project_archive",
+      "kind": "powershell_regression",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "5ca7b7cec308e3716c8d497be2e6eb62bda5a094d30aa5cdd0dff897b8a49aff",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 1068,
+      "stdout_sha256": "acbb8c085ccbe81d7204237e36077e1d80a04d1fd23a0dea234caa550149be45"
+    },
+    {
+      "duration_seconds": 24.783,
+      "id": "test_math_research_startup_v1",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "assertions": 60
+      },
+      "return_code": 0,
+      "source_sha256": "ddf3c3b49f0b6e325bbf1d9bad8f61ec5fd589a18eabf5285945dd8dbac6c3eb",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 598,
+      "stdout_sha256": "e962ec088c48d75a33fe8a0f10015ed6a3a31cc34bffe23f216f625aa2faa12d"
+    },
+    {
+      "duration_seconds": 18.684,
+      "id": "test_math_research_startup_v3",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "assertions": 141
+      },
+      "return_code": 0,
+      "source_sha256": "3ca9212049c0d50bb809244edfed28c595810d74ec952fb086f61679925d4d41",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 677,
+      "stdout_sha256": "e5b2b4e22dc176b211e9884c770be479c33f5ccf3302e24a4e347dcf87375bba"
+    },
+    {
+      "duration_seconds": 71.616,
+      "id": "test_math_research_v2_bundle_regression",
+      "kind": "powershell_regression",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "faf6b514e27006a6ca72e88b2e6b24e1068d3e675ad9348fcaa598eddba49fb5",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 490,
+      "stdout_sha256": "99034146792e100bf10989b07759bead8c8363d5299b2fefe8c348bf750d788f"
+    },
+    {
+      "duration_seconds": 3.548,
+      "id": "test_math_research_v9",
+      "kind": "powershell_regression",
+      "observed_counts": {
+        "unittest_tests": 22
+      },
+      "return_code": 0,
+      "source_sha256": "eedd01ddfce6bd9a172067e0a242ab11f576cb8abb39f6fcda9c3c9e0325c734",
+      "status": "passed",
+      "stderr_bytes": 2772,
+      "stderr_sha256": "930d877686a2f7e53cb634d7a8e199bce7149d38efffbeccb6249c2968109df2",
+      "stdout_bytes": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "duration_seconds": 0.405,
+      "id": "benchmark_math_research_startup_v9",
+      "kind": "benchmark",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "a356d0154316ca303852433b23bc55c492d2bb7e8801a60c2db90b14899551ef",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 218,
+      "stdout_sha256": "695a3f930f764c109a057c3e26e48b0385be90e6655f47ac58402ba88ceb49e1"
+    },
+    {
+      "duration_seconds": 0.874,
+      "id": "math_research_platform_doctor",
+      "kind": "entrypoint_smoke",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "bd96f861e05a0ade27c14e16506dc7a2b089adc329fece307c4d1eae081e7cc1",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 309,
+      "stdout_sha256": "6752115ed785db3acb33bfdf6d219283a1b22fe26594e7ca587cc17a03a4f808"
+    },
+    {
+      "duration_seconds": 0.108,
+      "id": "math_research_platform_help",
+      "kind": "entrypoint_smoke",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "bd96f861e05a0ade27c14e16506dc7a2b089adc329fece307c4d1eae081e7cc1",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 758,
+      "stdout_sha256": "b12a0eb63b31bc4f0b1a4222032ba0354d3d43562d4c9bd27303ea615b44ac41"
+    },
+    {
+      "duration_seconds": 0.117,
+      "id": "math_research_state_v9_help",
+      "kind": "entrypoint_smoke",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "07c16b357a5b8f13ea9925021c858adf5c66f99c9fb15e7015bccf4e0305c581",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 300,
+      "stdout_sha256": "da394acb77d6e7179ef79d4239b57a9a0087c14b6661a1aed8757d3ba04f65ee"
+    },
+    {
+      "duration_seconds": 0.074,
+      "id": "skill_quick_validate",
+      "kind": "skill_validation",
+      "observed_counts": {},
+      "return_code": 0,
+      "source_sha256": "5347a0a09cfb546bba1c0d1a30dae0a233d9a05f57bd4e7877155c588bcdabf7",
+      "status": "passed",
+      "stderr_bytes": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 17,
+      "stdout_sha256": "6cf9e7f0d34ccd36dbd28f270cd28dd04277b2e1516bd4333ce7bb501d7b18d4"
+    }
+  ],
+  "claim_boundary": "engineering_regression_only",
+  "completed_at_utc": "2026-08-13T09:18:15.537389Z",
+  "counts": {
+    "blocked": 0,
+    "failed": 0,
+    "not_run": 1,
+    "passed": 19,
+    "timed_out": 0
+  },
+  "environment": {
+    "machine": "AMD64",
+    "python": "3.14.5",
+    "release": "11",
+    "system": "Windows"
+  },
+  "limitations": [
+    "Regression success does not establish mathematical research quality.",
+    "A blocked or not_run case prevents a full-suite PASS claim.",
+    "Raw logs are intentionally external to the public repository."
+  ],
+  "schema": "research-evolution-regression-summary/v1",
+  "started_at_utc": "2026-08-13T09:11:30.411546Z",
+  "status": "partial",
+  "suite": "math-research-solve-windows-baseline"
+}

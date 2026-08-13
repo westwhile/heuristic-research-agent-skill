@@ -1,0 +1,60 @@
+{
+  "schema": "research-evolution-permission-matrix/v1",
+  "version": 1,
+  "status": "bootstrap_policy",
+  "enforcement_status": {
+    "public_repository": "repository_rules_and_review",
+    "private_evaluator": "not_implemented",
+    "production_activation": "not_implemented"
+  },
+  "permissions": [
+    {
+      "actor": "production_executor",
+      "read": ["frozen_task", "promoted_snapshot", "authorized_project_inputs"],
+      "write": ["own_run_staging", "own_run_archive"],
+      "deny": ["candidate_registry", "public_evaluator", "private_cases", "hidden_cases", "champion_pointer"]
+    },
+    {
+      "actor": "experience_miner",
+      "read": ["explicitly_exported_experience_packets"],
+      "write": ["experience_store", "analysis_candidates", "case_candidates"],
+      "deny": ["authoritative_project_head", "production_skill", "private_cases", "hidden_cases", "champion_pointer"]
+    },
+    {
+      "actor": "candidate_builder",
+      "read": ["public_source", "public_experience", "public_cases", "promoted_baseline"],
+      "write": ["candidate_workspace", "candidate_bundle"],
+      "deny": ["public_evaluator", "private_evaluator", "private_cases", "hidden_cases", "production_install", "champion_pointer"]
+    },
+    {
+      "actor": "public_evaluator",
+      "read": ["immutable_candidate_bundle", "public_cases", "public_oracles", "evaluation_policy"],
+      "write": ["public_evaluation_report"],
+      "deny": ["candidate_bundle", "private_cases", "hidden_cases", "production_install", "champion_pointer"]
+    },
+    {
+      "actor": "private_evaluator",
+      "read": ["immutable_candidate_bundle", "private_cases", "hidden_cases", "private_oracles"],
+      "write": ["private_aggregate_report", "private_audit_log"],
+      "deny": ["candidate_bundle", "public_repository", "production_install", "champion_pointer", "raw_hidden_output_channel"]
+    },
+    {
+      "actor": "promotion_controller",
+      "read": ["candidate_manifest", "baseline_manifest", "evaluation_reports", "promotion_policy"],
+      "write": ["promotion_decision", "activation_receipt", "rollback_receipt", "champion_pointer"],
+      "deny": ["candidate_bundle", "evaluation_report", "hidden_case_content"]
+    },
+    {
+      "actor": "release_maintainer",
+      "read": ["reviewed_source", "test_reports", "release_manifest"],
+      "write": ["git_branch", "git_commit", "git_tag", "github_release"],
+      "deny": ["private_cases", "hidden_cases", "champion_pointer_without_promotion_decision"]
+    }
+  ],
+  "global_rules": [
+    "Candidate generation cannot read private or hidden evaluation content.",
+    "Evaluation cannot modify candidate bytes.",
+    "Git tag, GitHub release, Skill installation, and Champion promotion require separate receipts.",
+    "Policy declarations do not prove operating-system or CI isolation."
+  ]
+}

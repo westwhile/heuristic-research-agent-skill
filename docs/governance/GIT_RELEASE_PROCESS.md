@@ -1,0 +1,241 @@
+# Git、提交、推送、Tag 与 Release 流程
+
+## 1. 核心原则
+
+- `commit`、`push`、`merge`、`tag`、`GitHub Release`、`Skill 部署` 和 `Champion promotion` 是不同动作；
+- 每个动作分别验收，后一个动作不能反向证明前一个动作正确；
+- 未经用户明确批准，不执行 commit、push、merge、tag、Release 或部署；
+- 不 force-push `main`、release branch 或任何已共享分支；
+- 不移动、覆盖或删除已推送 Tag 来掩盖发布错误。
+
+## 2. 分支模型
+
+```text
+main                         已验收、可发布的历史
+bootstrap/*                  初始仓库建设
+feat/<scope>                 功能
+fix/<scope>                  缺陷修复
+docs/<scope>                 文档
+test/<scope>                 测试/benchmark
+release/vX.Y.Z               发布冻结
+hotfix/vX.Y.Z-<scope>        已发布版本紧急修复
+```
+
+分支必须从最新已验证 `main` 创建，禁止在 dirty worktree 切换分支。并行工作使用不同 worktree/分支，不共享同一 staging 目录。
+
+## 3. Commit 规范
+
+采用 Conventional Commits 子集：
+
+```text
+feat(core): add versioned claim records
+fix(quant): reject post-signal fundamentals
+test(evaluator): add false-completion mutation cases
+docs(plan): define phase 3 acceptance gates
+chore(repo): initialize research evolution project
+refactor(adapter): deepen evaluation contract seam
+```
+
+要求：
+
+- 每个 commit 只有一个可解释目的；
+- schema 与 migration/compatibility tests 同时提交；
+- Heuristic patch 与 regression case 同一 PR，必要时同一 commit；
+- 不提交生成报告、私有数据或大型 artifact；
+- commit message 不声称未被验收的科研能力。
+
+## 4. 本地提交 Gate
+
+提交前：
+
+```powershell
+git status --short --branch
+git diff --check
+git diff --stat
+git diff
+```
+
+然后运行当前 Phase 规定的验证，并保存机器可读报告。确认：
+
+- 变更仅包含 Issue/Phase 范围；
+- 没有凭据、绝对用户路径、private/hidden 内容；
+- 没有用户无关修改；
+- generated artifacts 被排除；
+- 测试、跳过和未运行项均被准确报告。
+
+只有在用户批准后执行：
+
+```powershell
+git add -- <reviewed paths>
+git diff --cached --check
+git diff --cached
+git commit -m "<type>(<scope>): <summary>"
+```
+
+禁止使用 `git add -A` 代替路径级审核。
+
+## 5. Push 与 PR Gate
+
+Push 前核对：
+
+```powershell
+git status --short --branch
+git log --oneline --decorate -n 10
+git remote -v
+git fetch --prune origin
+git rev-list --left-right --count origin/main...HEAD
+```
+
+用户批准后首次 push：
+
+```powershell
+git push -u origin <branch>
+```
+
+后续仅推当前分支：
+
+```powershell
+git push origin <branch>
+```
+
+然后：
+
+1. 核对远端 branch head SHA 等于本地 `HEAD`；
+2. 使用仓库 PR 模板创建 draft PR；
+3. 附测试、manifest、科研结论边界和回滚；
+4. CI 通过后才转 ready；
+5. 评审改动不重写共享历史，追加 commit；
+6. 合并方式在仓库策略确定后固定，避免混用造成 lineage 混乱。
+
+## 6. Phase Tag 规则
+
+使用 SemVer annotated tag：
+
+```text
+v0.1.0  repository/governance baseline
+v0.2.0  core records
+v0.3.0  math+quant vertical slices
+v0.4.0  public evaluator
+v0.5.0  experience/heuristic registry
+v0.6.0  ML adapter
+v0.7.0  DL adapter
+v0.8.0  candidate builder
+v0.9.0  private evaluator interface/promotion rehearsal
+v1.0.0  controlled production-ready governance baseline
+```
+
+预发布使用：
+
+```text
+v0.4.0-rc.1
+v1.0.0-rc.1
+```
+
+Tag 必须指向已合并到 `main` 的精确提交。创建前：
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git status --short --branch
+git log -1 --format=fuller
+git tag --list "vX.Y.Z"
+```
+
+重新从 clean checkout/worktree 运行 release tests，再生成：
+
+- source tree manifest；
+- SHA-256 checksums；
+- test/evaluation summary；
+- dependency/environment manifest；
+- changelog 与 known limitations。
+
+用户批准后创建 annotated tag：
+
+```powershell
+git tag -a vX.Y.Z -m "Release vX.Y.Z: <verified capability>"
+git show --stat --decorate vX.Y.Z
+```
+
+若本机配置了可信签名，可使用 `git tag -s`；不得因为没有签名而伪称 tag 已签名。
+
+Tag push 仍需单独批准：
+
+```powershell
+git push origin refs/tags/vX.Y.Z
+```
+
+Push 后通过 GitHub API/connector 核对远端 tag target SHA。
+
+## 7. GitHub Release
+
+Release 只从已核对的 Tag 创建。Release notes 至少包含：
+
+- 已实现能力；
+- 明确未实现/未验证能力；
+- schema/Adapter compatibility；
+- 测试与 evaluation 层级；
+- 数据、模型、硬件和平台限制；
+- breaking changes 和 migration；
+- checksums/manifest；
+- rollback target。
+
+公共 Release 不上传：
+
+- private/hidden cases；
+- 原始研究数据；
+- checkpoint；
+- 凭据或内部路径；
+- 未脱敏运行 trace。
+
+## 8. Skill 发布与安装
+
+如果某一版本包含可安装 Skill：
+
+1. 从 Tag checkout 创建 staged payload；
+2. 排除 repo metadata、tests cache、reports、backups 和 receiver config；
+3. 运行 Skill 自身 tests、`quick_validate.py` 和 `check_skill_install.ps1`；
+4. 对将覆盖的安装文件做备份和 pre-write hash；
+5. 用户批准后从同一 staging payload 同步到授权 roots；
+6. 从安装 root 重跑 tests 和 install check；
+7. 生成 installation receipt。
+
+GitHub Release 成功不等于 Skill 安装成功。
+
+## 9. Champion Promotion
+
+Champion promotion 需要：
+
+- Candidate bundle hash；
+- Champion baseline hash；
+- public/private/hidden report hash；
+- Promotion policy version；
+- 人工批准；
+- canary/rollback plan；
+- activation receipt。
+
+Git Tag 或 Skill 安装均不能自动修改 Champion pointer。
+
+## 10. 发布失败与修复
+
+- Tag 未 push：可删除本地错误 Tag，但须记录原因；
+- Tag 已 push：不移动 Tag；修复代码后发布新 patch，如 `v0.4.1`；
+- Release artifact 错误：先撤下错误 artifact/标记 Release，保留审计记录，再发新版本；
+- 部署失败：使用安装前备份，仅恢复本次覆盖文件；
+- Champion 退化：执行 Promotion receipt 对应 rollback，不删除历史评测和决策。
+
+## 11. 每阶段发布清单
+
+- [ ] Phase 验收项全部有证据
+- [ ] `main` clean，HEAD 与远端一致
+- [ ] 测试从 clean checkout 运行
+- [ ] 没有 private/hidden/secret/path 泄漏
+- [ ] Manifest 与 checksums 生成并验证
+- [ ] Changelog/known limitations 完成
+- [ ] 用户批准 commit（若尚未提交）
+- [ ] 用户批准 push
+- [ ] PR/CI/review 完成
+- [ ] 用户批准 annotated tag
+- [ ] 远端 Tag SHA 已核对
+- [ ] 用户批准 GitHub Release
+- [ ] Skill 安装另行批准
+- [ ] Champion promotion 另行批准

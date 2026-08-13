@@ -1,0 +1,43 @@
+{
+  "schema": "research-evolution-phase0-acceptance/v1",
+  "artifact": "math-research-solve",
+  "version": "1.0.1",
+  "status": "passed_with_deferred_capability",
+  "claim_boundary": "engineering_baseline_only",
+  "checks": {
+    "portable_checksums": "passed",
+    "portable_payload_vs_candidate": "passed",
+    "portable_payload_vs_installed": "passed",
+    "portable_doctor": "passed",
+    "portable_install_dry_run": "passed",
+    "repository_unit_tests": "passed",
+    "skill_quick_validate": "passed",
+    "windows_regression_in_candidate": "passed_with_one_deferred_case",
+    "windows_regression_in_installed_root": "passed_with_one_deferred_case",
+    "permission_matrix": "present",
+    "public_artifact_path_and_secret_scan": "passed"
+  },
+  "regression_counts": {
+    "passed": 19,
+    "failed": 0,
+    "timed_out": 0,
+    "blocked": 0,
+    "not_run": 1
+  },
+  "release_scope": {
+    "included": "repository foundation and reproducible math executor engineering baseline",
+    "excluded": "legacy successor end-to-end capability over a real 600+ artifact archive"
+  },
+  "deferred_gate": {
+    "id": "test_math_research_legacy_successor_v8",
+    "reason": "missing_required_read_only_legacy_project_fixture",
+    "closure_condition": "provide a genuine compatible 600+ artifact archive and pass the read-only source-integrity regression"
+  },
+  "release_decision": "eligible_for_user_diff_review_before_commit_push_or_tag",
+  "evidence": {
+    "portable_sha256": "2f6cb8760dcfdcbf7e7f9b016b035dd9f4fab63dd021c5a024053face6b54273",
+    "payload_tree_sha256": "1dbf2849550afc311602a388ad5ee888b23b7c73da1d2e44e1a67f53fb8f0a25",
+    "installed_tree_sha256": "1dbf2849550afc311602a388ad5ee888b23b7c73da1d2e44e1a67f53fb8f0a25",
+    "regression_summary_sha256": "58f26ebc1adc1fe0ff0431b15debe4dba240db8c0427128b31608dd1bb9fa0c5"
+  }
+}
