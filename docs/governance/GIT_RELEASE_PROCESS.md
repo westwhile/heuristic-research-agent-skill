@@ -23,6 +23,26 @@ hotfix/vX.Y.Z-<scope>        已发布版本紧急修复
 
 分支必须从最新已验证 `main` 创建，禁止在 dirty worktree 切换分支。并行工作使用不同 worktree/分支，不共享同一 staging 目录。
 
+### Windows/Codex 凭据边界
+
+GitHub CLI 默认把 OAuth Token 保存到 Windows Credential Manager/keyring。Codex 沙箱进程即使继承了同一个 `USERPROFILE`、`APPDATA` 和 GitHub CLI `hosts.yml`，也使用独立 Windows 身份，因此不能读取真实用户的 keyring 条目。此时沙箱内的 `gh auth status` 可能显示 Token 无效，而真实 Windows 用户上下文仍然有效。
+
+发布前运行：
+
+```powershell
+pwsh -NoProfile -File scripts/check_github_auth_context.ps1 -Json
+```
+
+- `authenticated`：当前真实用户 keyring 可用且账户符合预期；
+- `requires_windows_user_context`（退出码 3）：当前是 Codex 沙箱，应在受控真实用户上下文重跑；这不是 Token 过期；
+- `authentication_failed_in_user_context`（退出码 1）：真实用户认证确实失效，此时才执行 `gh auth login -h github.com`；
+- `environment_token_refused`（退出码 4）：检测到环境变量 Token 覆盖，先清除覆盖再使用 keyring；
+- `github_api_verification_failed`（退出码 6）：keyring 账号可读，但 GitHub API 验证失败；先检查网络并重试，不据此重新登录；
+- `unexpected_authenticated_account`（退出码 2）：认证有效但登录账号与预期不符，先切换 active 账号再发布；
+- `gh_cli_missing`（退出码 5）：未安装 GitHub CLI，先安装再运行发布流程。
+
+禁止使用 `--insecure-storage`、在 `hosts.yml` 中保存明文 Token、把 `GH_TOKEN`/`GITHUB_TOKEN` 固化到用户环境、仓库、日志或自动化脚本。Codex 发起需要 keyring 的 GitHub 操作时，应由执行层切换到真实 Windows 用户上下文，而不是把凭据复制进沙箱。
+
 ## 3. Commit 规范
 
 采用 Conventional Commits 子集：
