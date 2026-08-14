@@ -34,6 +34,8 @@
 ## 5. Git 与发布
 
 - 未经用户明确授权，不执行 commit、push、merge、tag、GitHub Release 或部署。
+- Windows Credential Manager/keyring 绑定真实用户身份；Codex 沙箱中的 `gh auth status` 可能因无法读取 keyring 而假报 Token 无效。GitHub 认证检查及需要认证的 `gh`/Git 写操作必须在真实 Windows 用户上下文执行，Codex 中应使用受控提权上下文。
+- 使用 `scripts/check_github_auth_context.ps1 -Json` 区分 `requires_windows_user_context` 与真实的 `authentication_failed_in_user_context`。前者不是 Token 过期，不得通过 `GH_TOKEN`、`GITHUB_TOKEN`、`--insecure-storage` 或把 Token 写入仓库/配置文件来绕过。
 - 功能工作使用短生命周期分支；PR 合并前必须有清洁测试、变更清单和回滚说明。
 - 发布 Tag 必须是 annotated tag，并指向已在 `main` 上验收的提交。
 - 不移动或重写已推送 Tag；修复使用新版本。
