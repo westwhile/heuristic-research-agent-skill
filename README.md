@@ -8,7 +8,7 @@
 
 平台把科研工作拆成两层：
 
-- 通用内核只处理 `ResearchTask`、`Claim`、`Evidence`、`Run`、`FailureObservation`、`EvaluationCase`、`CandidateBundle` 和 `PromotionDecision`；
+- 通用内核只处理 `ResearchTask`、`Claim`、`Evidence`、`Run`、`FailureObservation`、`ResearchCasePackage`、`ResearchPattern`、`EvaluationCase`、`CandidateBundle` 和 `PromotionDecision`；
 - 数学、量化、机器学习和深度学习的正确性规则由领域 Adapter 提供。
 
 核心边界：
@@ -18,6 +18,23 @@
 3. 回测或样本外结果不等于真实可交易收益；
 4. Candidate 无权修改 Evaluator、读取 hidden case 或自行晋级；
 5. 生产运行只读取已批准且 hash-bound 的冻结 Heuristic snapshot。
+
+## 研究记忆与子 Skill 生命周期
+
+困难科研问题和重大项目问题可以在收尾时形成 `ResearchCasePackage`，再从多个案例中蒸馏带有适用条件、禁用条件、反例和来源证据的 `ResearchPattern`。遇到新难题时，平台先检索这些 Pattern 作为启发，但不会把历史思路当成当前结论，也不会自动套用。
+
+只有当某个 Pattern 跨案例可复用、触发边界清晰、接口稳定并通过独立 fresh-session 前向测试时，才进入 Skill Incubator。生命周期固定为：
+
+```text
+Case Package
+→ Research Pattern
+→ staged Skill candidate
+→ approved canonical Skill
+→ controlled installation
+→ optional Default/Preset 或 Champion activation
+```
+
+中央库中的 Pattern、候选 Skill、正式 Skill 和各安装根相互分离；保存经验、发布 Skill、Git 发版、安装 Skill 和激活能力均需独立 Gate。
 
 ## 当前文档
 
@@ -39,7 +56,7 @@ heuristic-research-agent-skill/
 ├── benchmarks/               # 公开 benchmark 与私有 runner 接口
 ├── baselines/                # 外部 baseline 的 manifest，不保存私有运行数据
 ├── policies/                 # Promotion、隐私、资源与污染策略
-├── skills/                   # 未来可安装 Skill 的 staged payload
+├── skills/                   # 仓库内 Skill payload；Pattern/孵化草稿不得混入运行时发现根
 ├── scripts/                  # 可重复的验证、打包与发布脚本
 ├── tests/                    # unit、contract、integration、e2e 和 fixtures
 └── reports/                  # 仅保留经过筛选的可发布报告或模板
@@ -49,7 +66,7 @@ heuristic-research-agent-skill/
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前发布版本：无
+- 当前仓库 Tag：`v0.1.0`（repository/governance baseline，不代表功能平台已经发布）
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
 - 首个功能目标：Phase 1 通用记录、Schema 与证据内核，然后进入 Math/Quant 双领域垂直切片
 

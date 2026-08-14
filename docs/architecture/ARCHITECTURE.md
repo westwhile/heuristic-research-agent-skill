@@ -11,10 +11,14 @@
 +
 领域执行器/Skill
 +
+Research Memory 与 Pattern Registry
++
+Skill Incubator 与 Canonical Skill Library
++
 独立 Evaluator 与 Promotion Controller
 ```
 
-通用内核提供稳定 interface 和证据治理；Adapter 把领域语义翻译成通用对象；执行器完成研究；Evaluator 独立判断；Promotion Controller 决定候选是否能成为 Champion。
+通用内核提供稳定 interface 和证据治理；Adapter 把领域语义翻译成通用对象；执行器完成研究；Research Memory 保存案例并蒸馏可复核 Pattern；Skill Incubator 只在 Pattern 达到复用门槛后生成 staged candidate；Evaluator 独立判断；Publication 与 Promotion 分别决定候选能否进入中央库、安装根和 Champion。
 
 ## 2. 受信任关系
 
@@ -23,12 +27,18 @@ flowchart LR
     U["User / Research Owner"] --> T["Frozen Research Task"]
     T --> X["Domain Executor"]
     X --> A["Run Archive"]
-    A --> E["Experience Module"]
-    E --> C["Candidate Builder"]
-    C --> P["Public Evaluator"]
+    A --> R["Research Case Package"]
+    R --> E["Research Memory / Pattern Registry"]
+    E --> K["Retrieval Contract"]
+    K --> T
+    E --> I["Skill Incubator / Candidate Builder"]
+    I --> P["Public Evaluator"]
     P --> H["Private Evaluator"]
+    H --> B["Canonical Publication Gate"]
+    B --> L["Canonical Skill Library"]
+    L --> N["Controlled Installation"]
     H --> G["Promotion Controller"]
-    G --> S["Promoted Snapshot"]
+    G --> S["Promoted Heuristic Snapshot"]
     S --> X
 
     M["Math Adapter"] --> X
@@ -40,9 +50,12 @@ flowchart LR
 约束：
 
 - Executor 可以写自己的 run archive，但不能写 Evaluator；
-- Candidate Builder 可以读公开经验和公开 cases，但不能读 private/hidden；
+- Research Memory 只能从已授权 Case Package 蒸馏；检索结果是 hypothesis/inspiration，不是当前 Claim 的证据；
+- Pattern Registry、Skill Incubator、canonical `skills/` 和安装根是四个不同的存储/权限域；
+- Candidate Builder 可以读公开或明确授权的经验和 cases，但不能读 private/hidden；
 - Private Evaluator 只接收 immutable candidate bundle；
 - Promotion Controller 不修改评测结果，只消费 hash-bound report；
+- Canonical publication、Git 发布、Skill 安装和 Default/Preset/Champion activation 分别审批；
 - 已启动的 run 不读取“最新规则”，只读取创建时冻结的 promoted snapshot。
 
 ## 3. 通用领域模型
@@ -89,15 +102,40 @@ Run 冻结 executor、Adapter、资源、随机性、输入和版本。所有结
 - `FailureAnalysis` 是 append-only 的解释，可通过 `supersedes` 修订；
 - 根因默认是 hypothesis，只有复现、反事实修复和独立复核后才能晋级。
 
-### 3.6 EvaluationCase / EvaluationResult
+### 3.6 ResearchCasePackage
+
+`ResearchCasePackage` 是一次困难科研或重大项目问题的可审计 envelope，不是最终答案摘要。它绑定：
+
+- 冻结的 ResearchTask、Run、Claim、Evidence 和环境；
+- 输入、输出和中间产物的 locator/hash manifest；
+- 决策时间线、成功与失败路径、被否定假设、停止条件和未决问题；
+- privacy、copyright、redaction 和 export mode；
+- source project 与 successor lineage。
+
+Case Package 默认留在项目私有域。进入中央 Pattern Registry 前必须通过 eligibility 和 redaction Gate；大型数据、模型和受限正文只保存 locator/hash，不复制进公共仓库。
+
+### 3.7 ResearchPattern
+
+`ResearchPattern` 是跨一个或多个 Case 蒸馏出的可复核启发，至少包含 problem signature、scope、preconditions、contraindications、成功/失败策略、证据等级、来源 Case IDs、最后验证时间、stale/successor 状态和可选 promoted Skill pointer。
+
+Pattern 只帮助提出假设、检查遗漏和选择工具。它不能证明当前数学命题、实验结论、回测有效性或生产安全；当前 Run 必须重新验证，并把实际结果记录为 helped、neutral、harmed 或 not-applicable。
+
+### 3.8 EvaluationCase / EvaluationResult
 
 Case 冻结输入、Claim 类型、领域、split、资源、evaluation contract 和污染状态。Result 绑定 candidate、case、runner、环境和评分器。
 
-### 3.7 Heuristic / CandidateBundle / PromotionDecision
+### 3.9 Heuristic / CandidateBundle / SkillCandidateBundle / PromotionDecision
 
 - Heuristic 是经证据支持、具有作用域和回滚方式的行为策略；
 - CandidateBundle 是 immutable Skill/策略/配置/测试组合；
+- SkillCandidateBundle 额外绑定来源 Pattern/Case、trigger/exclusion contract、payload manifest、静态/动态验收、许可/隐私审查和 retirement plan；
 - PromotionDecision 是独立的批准或拒绝事实，不修改 candidate 或 report。
+
+### 3.10 PublicationReceipt / InstallationReceipt
+
+- `PublicationReceipt` 证明 approved candidate 已按预写 hash guard 发布为中央库 canonical Skill；
+- `InstallationReceipt` 证明某个 canonical 版本已同步到指定安装根并逐文件对账；
+- Git tag/Release、canonical publication、installation 和 Champion activation 不是同一事件，必须使用不同 receipt。
 
 ## 4. 深模块与 seam
 
@@ -125,7 +163,34 @@ build_evaluation_contract(case) -> EvaluationContract
 
 该 seam 只有在 Math 和 Quant 两个 Adapter 的 contract tests 同时通过后才视为成立。ML/DL 接入前可以修改尚未发布的 interface；发布后使用版本化扩展，不静默破坏旧 Adapter。
 
-### 4.3 Evaluation Module
+### 4.3 Research Memory Module
+
+Research Memory 复用现有 `experience` 边界，不另建一组只转发的浅层服务。它暴露：
+
+```text
+capture_case(run, artifacts, export_policy) -> ResearchCasePackage
+distill_patterns(case_set, review_contract) -> PatternProposalSet
+retrieve_patterns(problem_signature, policy) -> RankedPatternSet
+record_reuse_outcome(run, pattern_snapshot, outcome) -> ReuseEvent
+```
+
+它隐藏 redaction、manifest、去重、append-only lifecycle、索引和排序实现。首版只使用确定性 metadata/text 检索；只有 corpus 规模和评测证明需要第二种实现时，才增加 embedding/vector adapter，避免过早形成浅层端口。
+
+检索 contract 必须返回 applicability、contraindications、evidence、source、last-validated 和差异说明，允许合法空结果；相似度不得成为自动执行或晋级依据。
+
+### 4.4 Skill Incubator Module
+
+Skill Incubator 是 Pattern 到可评测 Skill payload 的唯一入口：
+
+```text
+propose_skill(pattern_set, skill_contract) -> SkillCandidateBundle
+validate_skill(candidate, suites) -> SkillCandidateReport
+plan_publication(candidate, target) -> PublicationPlan
+```
+
+它隐藏 Skill 初始化、progressive-disclosure 资源布局、manifest、trigger collision、candidate archive 和 staged diff。`plan_publication` 只生成计划和预期差异；真正中央库写入、Git 发布和安装由授权执行器完成。私有 source evidence 留在外部 manifest，不进入可安装 payload。
+
+### 4.5 Evaluation Module
 
 Evaluation interface：
 
@@ -137,17 +202,19 @@ compare(champion, challenger, policy) -> ComparisonReport
 
 它隐藏 runner 差异、重复运行、统计方法、oracle/evaluation contract 和报告编排。
 
-### 4.4 Promotion Module
+### 4.6 Publication 与 Promotion Module
 
 Promotion interface：
 
 ```text
+publish_canonical(candidate, decision, target) -> PublicationReceipt
+install_canonical(publication, target) -> InstallationReceipt
 decide(candidate, reports, policy) -> PromotionDecision
 activate(decision, target) -> PromotionReceipt
 rollback(receipt) -> RollbackReceipt
 ```
 
-`activate` 和 `rollback` 是高风险操作，必须独立授权。首版只实现 `decide` 的离线计划和人工 Gate。
+`publish_canonical`、`install_canonical`、`activate` 和 `rollback` 都是高风险操作，必须分别授权。首版只实现 publication/install 的离线计划、`decide` 和人工 Gate。中央库写入使用 staged mirror、预写目标 hash guard、逐文件 diff 与 receipt；安装根是中央库的派生副本，不允许多根并行手改。
 
 ## 5. 领域 Adapter 职责
 
@@ -217,10 +284,33 @@ L4 Production Canary Observation
 - 跨项目导出必须显式选择 `local_full`、`local_redacted`、`benchmark_candidate` 或 `metrics_only`；
 - 绝对路径、身份信息和受限正文默认被拒绝。
 
+中央 Skill 库使用可配置 `$SKILL_LIBRARY_ROOT`，逻辑布局如下：
+
+```text
+$SKILL_LIBRARY_ROOT/
+├── skills/                         # 仅 approved canonical Skill payload
+├── research-patterns/              # 不可被 Skill runtime 自动发现
+│   ├── math/
+│   ├── quant/
+│   ├── ml/
+│   ├── dl/
+│   └── project-engineering/
+├── skill-incubator/                # candidates/evaluations/rejected/archived
+└── catalogs/                       # 可重建索引，不是事实源
+```
+
+- Case Package 的事实源是项目 archive；中央库只保存经审批的脱敏导出或 locator/hash；
+- Pattern Registry 是可复核知识源，`catalogs/` 只是派生索引，损坏后必须能从 canonical records 重建；
+- staged Skill Candidate 不得放入自动发现的 `skills/`；只有 publication decision 通过后才能进入 canonical `skills/`；
+- canonical Skill 和 installed Skill 分离；同步后逐文件 hash 对账，receiver-owned metadata 由接收方重建或由比较器规范化排除；
+- Kimi 等接收方增加的 harness frontmatter 不属于可被中央 payload 覆盖删除的内容。
+
 ## 8. 版本兼容
 
 - Core schema 使用 `research-*/vN`；
 - Adapter 使用独立兼容版本；
 - Candidate manifest 同时绑定 Core、Adapter、Skill、Evaluator 和 Policy 版本；
+- ResearchPattern 记录 schema version、source Case hashes、last-validated 和 successor；过期 Pattern 不原地改写；
+- SkillCandidate manifest 绑定 Pattern snapshot、payload、测试、trigger contract 和 receiver compatibility；
 - 已发布的事实记录不原地迁移；新版本通过 importer 或 successor 读取；
-- Tag 不等于 Champion，Champion pointer 必须由 PromotionDecision 单独更新。
+- Tag 不等于 canonical publication，canonical publication 不等于安装，安装不等于 Champion；Champion pointer 必须由 PromotionDecision 单独更新。
