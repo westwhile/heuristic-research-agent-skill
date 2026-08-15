@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-evidence/v1",
+  "title": "ResearchEvidence v1",
+  "description": "A domain-neutral evidence record binding producer, inputs, content hash, applicability, evidence level, and limitations. Evidence states only which claims it directly supports; file existence or a zero exit code never upgrades its level.",
+  "type": "object",
+  "required": [
+    "schema",
+    "evidence_id",
+    "claim_ids",
+    "producer",
+    "inputs",
+    "generated_at",
+    "content_sha256",
+    "applicability",
+    "evidence_level",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-evidence/v1"
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "claim_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "^\\S+$"
+      },
+      "description": "Claims this evidence directly supports. Cross-record consistency is checked by graph verification, not here."
+    },
+    "producer": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional model identifier when a model produced the artifact."
+        }
+      },
+      "additionalProperties": false
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "kind"],
+        "x-at-least-one-of": ["locator", "sha256"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "code",
+              "config",
+              "data",
+              "case",
+              "environment",
+              "runner",
+              "other"
+            ]
+          },
+          "locator": {
+            "type": "string",
+            "x-safe-relative-path": true,
+            "description": "Optional safe relative path to the input. Absolute paths, UNC, drive letters, and '..' are rejected."
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Inputs the evidence binds: code, config, data, case, environment, or runner identifiers."
+    },
+    "generated_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    },
+    "content_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Hash of the evidence content itself. The hash is authoritative; any locator is secondary."
+    },
+    "content_locator": {
+      "type": "string",
+      "x-safe-relative-path": true,
+      "description": "Optional safe relative path to the content. Absolute paths, UNC, drive letters, and '..' are rejected."
+    },
+    "applicability": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Scope within which this evidence applies."
+    },
+    "evidence_level": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Free-form level label. The core never enumerates or upgrades levels; each domain adapter constrains its own ladder."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of this evidence. Required; may be an explicit empty array."
+    }
+  },
+  "additionalProperties": false
+}

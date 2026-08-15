@@ -1,0 +1,13 @@
+{
+  "schema": "research-claim/v1",
+  "claim_id": "claim-example-901",
+  "claim_type": "research_claim",
+  "statement": "claim_type must be one of the seven governed values.",
+  "scope": "Fixture.",
+  "disposition": "proposed",
+  "evidence_maturity": "draft",
+  "supporting_evidence": [],
+  "limitations": [],
+  "non_entailments": [],
+  "created_at": "2026-08-14T07:10:00Z"
+}

@@ -1,0 +1,42 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-002",
+  "claim_ids": [
+    "claim-example-002"
+  ],
+  "producer": {
+    "tool": "canonical-hash-check",
+    "version": "0.0.0",
+    "model": "none"
+  },
+  "inputs": [
+    {
+      "name": "core source tree",
+      "kind": "code",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    {
+      "name": "test configuration",
+      "kind": "config",
+      "locator": "pyproject.toml"
+    },
+    {
+      "name": "local interpreter",
+      "kind": "environment",
+      "locator": "tests/fixtures/core"
+    },
+    {
+      "name": "unittest runner",
+      "kind": "runner",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "generated_at": "2026-08-14T07:25:00+08:00",
+  "content_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "content_locator": "artifacts/example-run/output.json",
+  "applicability": "Hash determinism checks on the v1 kernel.",
+  "evidence_level": "engineering",
+  "limitations": [
+    "Does not cover cross-language canonicalization."
+  ]
+}

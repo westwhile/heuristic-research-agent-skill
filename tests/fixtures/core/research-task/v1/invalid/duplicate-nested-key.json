@@ -1,0 +1,18 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-905",
+  "title": "Duplicate nested key",
+  "problem_statement": "Duplicate keys inside nested objects are also rejected.",
+  "domain": "engineering",
+  "scope": {
+    "data": "first",
+    "data": "second"
+  },
+  "resources": {},
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14T07:00:00Z"
+}

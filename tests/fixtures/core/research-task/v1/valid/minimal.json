@@ -1,0 +1,23 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-001",
+  "title": "Minimal frozen task",
+  "problem_statement": "Check that the core kernel freezes a minimal task record.",
+  "domain": "engineering",
+  "scope": {
+    "time_range": "2026-08",
+    "data": "synthetic fixtures only"
+  },
+  "resources": {
+    "compute": "local-cpu",
+    "budget_minutes": 30
+  },
+  "completion_criteria": [
+    "The record validates against research-task/v1."
+  ],
+  "permissions": [
+    "read:repo"
+  ],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14T07:00:00Z"
+}

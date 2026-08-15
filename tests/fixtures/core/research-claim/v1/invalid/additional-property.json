@@ -1,0 +1,14 @@
+{
+  "schema": "research-claim/v1",
+  "claim_id": "claim-example-905",
+  "claim_type": "engineering_claim",
+  "statement": "Additional properties are not allowed.",
+  "scope": "Fixture.",
+  "disposition": "proposed",
+  "evidence_maturity": "draft",
+  "supporting_evidence": [],
+  "limitations": [],
+  "non_entailments": [],
+  "confidence": 0.9,
+  "created_at": "2026-08-14T07:10:00Z"
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-915",
+  "claim_ids": [
+    "claim-example-001"
+  ],
+  "producer": {
+    "tool": "fixture",
+    "version": "0"
+  },
+  "inputs": [
+    {
+      "name": "fixture",
+      "kind": "other",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    }
+  ],
+  "generated_at": "2026-08-14T07:20:00Z",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "content_locator": "artifacts/CON/out.txt",
+  "applicability": "Must be rejected: CON is a reserved Windows device name.",
+  "evidence_level": "engineering",
+  "limitations": []
+}

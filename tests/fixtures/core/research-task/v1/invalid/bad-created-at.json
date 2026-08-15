@@ -1,0 +1,15 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-902",
+  "title": "Bad created_at",
+  "problem_statement": "created_at must be an ISO-8601 timestamp with time and offset.",
+  "domain": "engineering",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14"
+}

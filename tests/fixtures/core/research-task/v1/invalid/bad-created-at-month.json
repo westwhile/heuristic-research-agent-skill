@@ -1,0 +1,15 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-910",
+  "title": "Semantically impossible timestamp",
+  "problem_statement": "Month 99 and hour 99 match the syntactic pattern but are not a real RFC 3339 timestamp.",
+  "domain": "engineering",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-99-99T99:99:99+99:99"
+}

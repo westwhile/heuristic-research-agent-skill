@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-task/v1",
+  "title": "ResearchTask v1",
+  "description": "Frozen, domain-neutral research task envelope: problem, scope, resources, permissions, completion criteria, and allowed external effects. Domain-specific detail belongs in domain_context and is interpreted only by the matching domain adapter, never by the core.",
+  "type": "object",
+  "required": [
+    "schema",
+    "task_id",
+    "title",
+    "problem_statement",
+    "domain",
+    "scope",
+    "resources",
+    "completion_criteria",
+    "permissions",
+    "allowed_external_effects",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-task/v1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "problem_statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Domain label only (for example math, quant, ml, dl, engineering). Carries no domain semantics inside the core."
+    },
+    "scope": {
+      "type": "object",
+      "description": "Frozen time/data/object range. Free-form in v1; domain adapters may refine it."
+    },
+    "resources": {
+      "type": "object",
+      "description": "Frozen resource envelope (compute, budget, limits). Free-form in v1."
+    },
+    "completion_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Capabilities granted to the task, for example read:repo. An empty array means no permissions."
+    },
+    "allowed_external_effects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "External side effects the task may cause. An empty array means none."
+    },
+    "domain_context": {
+      "type": "object",
+      "description": "Optional extension point for adapter-owned detail. The core stores and hashes it but never interprets it."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}
