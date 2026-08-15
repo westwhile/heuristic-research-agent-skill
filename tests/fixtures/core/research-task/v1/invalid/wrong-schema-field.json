@@ -1,0 +1,15 @@
+{
+  "schema": "research-claim/v1",
+  "task_id": "task-example-909",
+  "title": "Wrong schema field",
+  "problem_statement": "The schema field dispatches to research-claim/v1, so this record must fail claim validation.",
+  "domain": "engineering",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14T07:00:00Z"
+}

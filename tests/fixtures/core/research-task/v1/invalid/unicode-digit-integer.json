@@ -1,0 +1,17 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-907",
+  "title": "Unicode digit in integer tail",
+  "problem_statement": "RFC 8259 digits are ASCII 0-9 only; an Arabic-Indic digit after ASCII digits must be rejected.",
+  "domain": "engineering",
+  "scope": {},
+  "resources": {
+    "budget_minutes": 1٢
+  },
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14T07:00:00Z"
+}

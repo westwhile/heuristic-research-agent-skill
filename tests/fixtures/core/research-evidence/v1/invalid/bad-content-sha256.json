@@ -1,0 +1,22 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-902",
+  "claim_ids": [
+    "claim-example-001"
+  ],
+  "producer": {
+    "tool": "fixture",
+    "version": "0"
+  },
+  "inputs": [
+    {
+      "name": "fixture",
+      "kind": "other"
+    }
+  ],
+  "generated_at": "2026-08-14T07:20:00Z",
+  "content_sha256": "ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789",
+  "applicability": "Must be rejected: hashes are lowercase hex.",
+  "evidence_level": "engineering",
+  "limitations": []
+}

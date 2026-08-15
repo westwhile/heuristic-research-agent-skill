@@ -1,0 +1,23 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-908",
+  "claim_ids": [
+    "claim-example-001"
+  ],
+  "producer": {
+    "tool": "fixture",
+    "version": "0"
+  },
+  "inputs": [
+    {
+      "name": "fixture",
+      "kind": "other"
+    }
+  ],
+  "generated_at": "2026-08-14T07:20:00Z",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "content_locator": "\\\\server\\share\\export.csv",
+  "applicability": "Must be rejected: UNC path.",
+  "evidence_level": "engineering",
+  "limitations": []
+}

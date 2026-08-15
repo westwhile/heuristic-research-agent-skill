@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-claim/v1",
+  "title": "ResearchClaim v1",
+  "description": "A domain-neutral claim with explicit type, scope, disposition, evidence maturity, supporting evidence references, limitations, and non-entailments. Disposition and evidence maturity are separate axes; any value beyond proposed/draft requires non-empty supporting evidence. A claim never upgrades itself; only referenced evidence and later review can support it.",
+  "type": "object",
+  "required": [
+    "schema",
+    "claim_id",
+    "claim_type",
+    "statement",
+    "scope",
+    "disposition",
+    "evidence_maturity",
+    "supporting_evidence",
+    "limitations",
+    "non_entailments",
+    "created_at"
+  ],
+  "x-conditional-min-items": [
+    {
+      "when_property": "disposition",
+      "when_equals": ["supported", "refuted", "superseded", "withdrawn"],
+      "then_property": "supporting_evidence",
+      "min_items": 1
+    },
+    {
+      "when_property": "evidence_maturity",
+      "when_equals": [
+        "engineering_verified",
+        "data_accepted",
+        "evaluation_eligible",
+        "empirically_supported",
+        "mathematically_verified",
+        "externally_validated",
+        "production_observed"
+      ],
+      "then_property": "supporting_evidence",
+      "min_items": 1
+    }
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-claim/v1"
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "claim_type": {
+      "enum": [
+        "engineering_claim",
+        "data_claim",
+        "mathematical_claim",
+        "empirical_claim",
+        "predictive_claim",
+        "strategy_claim",
+        "production_claim"
+      ]
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable boundary within which the claim is made."
+    },
+    "disposition": {
+      "enum": [
+        "proposed",
+        "supported",
+        "refuted",
+        "inconclusive",
+        "superseded",
+        "withdrawn"
+      ],
+      "description": "Lifecycle disposition of this claim record. inconclusive is a legitimate terminal assessment and must never be forced into supported/refuted."
+    },
+    "evidence_maturity": {
+      "enum": [
+        "draft",
+        "engineering_verified",
+        "data_accepted",
+        "evaluation_eligible",
+        "empirically_supported",
+        "mathematically_verified",
+        "externally_validated",
+        "production_observed"
+      ],
+      "description": "Position on the governance evidence ladder (see docs/governance/RESEARCH_CLAIM_GOVERNANCE.md). Which rungs are reachable for which claim_type is domain-adapter policy, not core policy."
+    },
+    "supporting_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id"],
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Optional content hash pinning the exact evidence record version."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "May be empty only while disposition is proposed/inconclusive and evidence_maturity is draft."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations. Required; write an explicit empty array only after consideration."
+    },
+    "non_entailments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Statements this claim explicitly does not establish. Required for the same reason."
+    },
+    "supersedes": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Optional claim_id of the prior claim this one revises. Append-only; earlier claims are never edited in place."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

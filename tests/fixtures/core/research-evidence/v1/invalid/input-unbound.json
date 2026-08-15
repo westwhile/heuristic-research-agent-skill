@@ -1,0 +1,22 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-914",
+  "claim_ids": [
+    "claim-example-001"
+  ],
+  "producer": {
+    "tool": "fixture",
+    "version": "0"
+  },
+  "inputs": [
+    {
+      "name": "unbound input",
+      "kind": "other"
+    }
+  ],
+  "generated_at": "2026-08-14T07:20:00Z",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "applicability": "Must be rejected: every input needs at least a locator or a sha256.",
+  "evidence_level": "engineering",
+  "limitations": []
+}

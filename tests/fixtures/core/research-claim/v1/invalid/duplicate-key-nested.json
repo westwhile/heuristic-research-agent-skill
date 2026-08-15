@@ -1,0 +1,18 @@
+{
+  "schema": "research-claim/v1",
+  "claim_id": "claim-example-906",
+  "claim_type": "engineering_claim",
+  "statement": "Duplicate keys inside nested arrays of objects are rejected.",
+  "scope": "Fixture.",
+  "disposition": "proposed",
+  "evidence_maturity": "draft",
+  "supporting_evidence": [
+    {
+      "evidence_id": "evidence-example-001",
+      "evidence_id": "evidence-example-002"
+    }
+  ],
+  "limitations": [],
+  "non_entailments": [],
+  "created_at": "2026-08-14T07:10:00Z"
+}

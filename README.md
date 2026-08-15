@@ -40,6 +40,7 @@ Case Package
 
 - [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
 - [总体架构](docs/architecture/ARCHITECTURE.md)
+- [Core Interface（Phase 1A）](docs/architecture/core-interface.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
 - [math-research-solve 1.0.1 基线验收](reports/baseline/math-research-solve-1.0.1.md)

@@ -1,0 +1,30 @@
+{
+  "schema": "research-evidence/v1",
+  "evidence_id": "evidence-example-001",
+  "claim_ids": [
+    "claim-example-001"
+  ],
+  "producer": {
+    "tool": "python -m unittest",
+    "version": "3.14.5"
+  },
+  "inputs": [
+    {
+      "name": "core source tree",
+      "kind": "code",
+      "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    },
+    {
+      "name": "fixture set",
+      "kind": "case",
+      "locator": "tests/fixtures/core"
+    }
+  ],
+  "generated_at": "2026-08-14T07:20:00Z",
+  "content_sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+  "applicability": "Engineering evidence for kernel behavior only.",
+  "evidence_level": "engineering",
+  "limitations": [
+    "Synthetic fixtures; not research or market data."
+  ]
+}

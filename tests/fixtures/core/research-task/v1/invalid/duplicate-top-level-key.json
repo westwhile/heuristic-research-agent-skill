@@ -1,0 +1,16 @@
+{
+  "schema": "research-task/v1",
+  "task_id": "task-example-904",
+  "title": "Duplicate top-level key",
+  "title": "This title appears twice and must be rejected",
+  "problem_statement": "Duplicate keys fail closed, even with different values.",
+  "domain": "engineering",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Must be rejected."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-14T07:00:00Z"
+}
