@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-failure-observation/v1",
+  "title": "ResearchFailureObservation v1",
+  "description": "A domain-neutral record of the facts observable at inspection time about one run. It stores only directly observed facts: any root-cause or hypothesis field is rejected at the schema layer, because no such property exists and additional properties are forbidden. The anchored run reference is hash-pinned.",
+  "type": "object",
+  "required": [
+    "schema",
+    "observation_id",
+    "run",
+    "observer",
+    "facts",
+    "observed_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-failure-observation/v1"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "run": {
+      "type": "object",
+      "required": ["run_id", "sha256"],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact run record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The run this observation describes. One-directional and hash-pinned; see ADR-0003 decision 3."
+    },
+    "observer": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional model identifier when a model captured the observation."
+        }
+      },
+      "additionalProperties": false,
+      "description": "What captured the observation, bound to a version identifier."
+    },
+    "facts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Directly observed facts only. Interpretation belongs to research-failure-analysis/v1, never to this record."
+    },
+    "observed_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

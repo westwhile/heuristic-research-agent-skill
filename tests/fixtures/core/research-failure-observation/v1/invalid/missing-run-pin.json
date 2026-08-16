@@ -1,0 +1,15 @@
+{
+  "schema": "research-failure-observation/v1",
+  "observation_id": "observation-example-001",
+  "run": {
+    "run_id": "run-example-001"
+  },
+  "observer": {
+    "tool": "manual-inspection",
+    "version": "1.0.0"
+  },
+  "facts": [
+    "The run log ends with exit code 1."
+  ],
+  "observed_at": "2026-08-14T08:05:00Z"
+}

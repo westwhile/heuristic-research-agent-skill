@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-failure-analysis/v1",
+  "title": "ResearchFailureAnalysis v1",
+  "description": "A domain-neutral, revisable analysis anchored to exactly one failure observation through a mandatory content-hash pin. It records the current hypotheses about the observed facts. A revision is published as a new record with a new analysis_id pointing at its predecessor through the ID-only supersedes field, forming an append-only lineage chain.",
+  "type": "object",
+  "required": [
+    "schema",
+    "analysis_id",
+    "observation",
+    "hypotheses",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-failure-analysis/v1"
+    },
+    "analysis_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "observation": {
+      "type": "object",
+      "required": ["observation_id", "sha256"],
+      "properties": {
+        "observation_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact observation record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The single observation this analysis interprets. Exactly one anchor; cross-observation synthesis belongs to a higher-level object, not to v1."
+    },
+    "hypotheses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Current revisable hypotheses, stated as hypotheses and never as established facts."
+    },
+    "supersedes": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Optional analysis_id of the prior analysis this one revises. ID-only lineage reference; earlier analyses are never edited in place."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "research-failure-analysis/v1",
+  "analysis_id": "analysis-example-001",
+  "observation": {
+    "observation_id": "observation-example-001",
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "hypotheses": [],
+  "created_at": "2026-08-14T08:10:00Z"
+}

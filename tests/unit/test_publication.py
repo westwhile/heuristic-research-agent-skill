@@ -60,6 +60,62 @@ def _claim(claim_id: str, supersedes: str | None = None) -> dict:
     return payload
 
 
+def _run(run_id: str) -> dict:
+    return {
+        "schema": "research-run/v1",
+        "run_id": run_id,
+        "task": {
+            "task_id": "t-1",
+            "sha256": "0" * 64,
+        },
+        "executor": {"tool": "unit-test", "version": "1.0.0"},
+        "environment": [{"name": "local interpreter", "version": "3.14.5"}],
+        "inputs": [
+            {"name": "fixture set", "kind": "case", "sha256": "1" * 64}
+        ],
+        "randomness": {"mode": "uncontrolled"},
+        "started_at": "2026-08-14T08:00:00Z",
+        "completed_at": "2026-08-14T08:01:00Z",
+    }
+
+
+def _observation(observation_id: str) -> dict:
+    return {
+        "schema": "research-failure-observation/v1",
+        "observation_id": observation_id,
+        "run": {"run_id": "r-1", "sha256": "2" * 64},
+        "observer": {"tool": "unit-test", "version": "1.0.0"},
+        "facts": ["The run log ends with exit code 1."],
+        "observed_at": "2026-08-14T08:05:00Z",
+    }
+
+
+def _analysis(analysis_id: str) -> dict:
+    return {
+        "schema": "research-failure-analysis/v1",
+        "analysis_id": analysis_id,
+        "observation": {"observation_id": "o-1", "sha256": "3" * 64},
+        "hypotheses": ["The input fixture may be missing."],
+        "created_at": "2026-08-14T08:10:00Z",
+    }
+
+
+def _case(case_id: str) -> dict:
+    return {
+        "schema": "research-case-package/v1",
+        "case_id": case_id,
+        "title": "Unit test case package",
+        "task": {"task_id": "t-1", "sha256": "0" * 64},
+        "runs": [{"run_id": "r-1", "sha256": "4" * 64}],
+        "claims": [],
+        "evidence": [],
+        "observations": [],
+        "analyses": [],
+        "privacy_review_status": "pending",
+        "created_at": "2026-08-14T08:20:00Z",
+    }
+
+
 def _tree_snapshot(root: Path) -> dict[str, str]:
     """{relative path: sha256} for every file under root, including .tmp."""
     if not root.exists():
@@ -288,6 +344,23 @@ class PublishTest(unittest.TestCase):
                 schema_root=schema_root,
             )
         self.assertEqual(_tree_snapshot(self.root), {})
+
+    def test_phase_1c_families_are_not_yet_publishable(self) -> None:
+        # C2 lands the four Phase 1C schemas before C3/C4 teach the store
+        # their identity fields; publishing any of them must fail closed
+        # with PublicationError and zero disk writes in the meantime.
+        for payload in (
+            _run("r-1"),
+            _observation("o-1"),
+            _analysis("a-1"),
+            _case("case-1"),
+        ):
+            with self.subTest(schema=payload["schema"]):
+                before = _tree_snapshot(self.root)
+                with self.assertRaises(PublicationError) as caught:
+                    self._publish(payload)
+                self.assertIn("no known identity field", str(caught.exception))
+                self.assertEqual(before, _tree_snapshot(self.root))
 
 
 def _make_junction(link: Path, target: Path) -> None:

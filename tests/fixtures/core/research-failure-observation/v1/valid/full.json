@@ -1,0 +1,19 @@
+{
+  "schema": "research-failure-observation/v1",
+  "observation_id": "observation-example-002",
+  "run": {
+    "run_id": "run-example-002",
+    "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+  },
+  "observer": {
+    "tool": "log-collector",
+    "version": "2.1.0",
+    "model": "none"
+  },
+  "facts": [
+    "The run log ends with exit code 1.",
+    "The final log line reports a missing fixture file.",
+    "No output artifact exists under the run directory."
+  ],
+  "observed_at": "2026-08-14T08:15:00+08:00"
+}
