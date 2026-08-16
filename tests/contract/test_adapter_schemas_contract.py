@@ -1,4 +1,4 @@
-"""Contract tests for the adapter seam schemas (ADR-0005 decision 1).
+"""Contract tests for the adapter seam and domain schemas (ADR-0005).
 
 Mirrors tests/contract/test_core_schemas_contract.py with two deliberate
 differences:
@@ -6,14 +6,15 @@ differences:
 - no domain-neutrality scan — domain vocabulary is ALLOWED under
   schemas/adapters/ (the freeze is the other direction: domain fields must
   never flow back into schemas/core/, and the core contract test pins that);
-- SeamBoundaryTest pins the ADR-0005 decision 1 boundary: seam schema ids
-  are rejected by the core default schema root, so seam payloads can never
-  enter the core record pipeline (never publishable to a core store).
+- SeamBoundaryTest pins the ADR-0005 decision 1 boundary: adapter schema
+  ids are rejected by the core default schema root, so seam and domain
+  payloads can never enter the core record pipeline (never publishable to
+  a core store).
 
-The fixture tree under tests/fixtures/adapters/ and ADAPTER_FIXTURE_MANIFEST
-are compared bidirectionally; every family's minimal fixture and every
-schema file's raw bytes are golden-pinned (ADR-0004 decision 7 applies to
-adapter schemas from birth).
+The fixture tree under tests/fixtures/adapters/ and
+ADAPTER_FIXTURE_MANIFEST are compared bidirectionally; every family's
+minimal fixture and every schema file's raw bytes are golden-pinned
+(ADR-0004 decision 7 applies to adapter schemas from birth).
 """
 
 import hashlib
@@ -92,6 +93,56 @@ ADAPTER_FIXTURE_MANIFEST = {
             ),
         },
     },
+    "math-task/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-sought.json": ("RecordValidationError", "sought"),
+            "empty-completion-criteria.json": (
+                "RecordValidationError",
+                "completion_criteria",
+            ),
+            "missing-created-at.json": ("RecordValidationError", "created_at"),
+            "missing-quantifiers.json": ("RecordValidationError", "quantifiers"),
+            "whitespace-statement.json": ("RecordValidationError", "statement"),
+        },
+    },
+    "math-claim/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-result.json": ("RecordValidationError", "$.result"),
+            "missing-non-entailments.json": (
+                "RecordValidationError",
+                "non_entailments",
+            ),
+            "missing-quantifiers.json": ("RecordValidationError", "quantifiers"),
+            "whitespace-statement.json": ("RecordValidationError", "statement"),
+        },
+    },
+    "math-evidence/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-content-sha256.json": ("RecordValidationError", "content_sha256"),
+            "bad-kind.json": ("RecordValidationError", "$.kind"),
+            "missing-content-sha256.json": (
+                "RecordValidationError",
+                "content_sha256",
+            ),
+            "whitespace-summary.json": ("RecordValidationError", "summary"),
+        },
+    },
+    "math-case/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-sought.json": ("RecordValidationError", "sought"),
+            "missing-case-id.json": ("RecordValidationError", "case_id"),
+            "missing-problem-id.json": ("RecordValidationError", "problem_id"),
+            "whitespace-case-id.json": ("RecordValidationError", "case_id"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -104,6 +155,18 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "evaluation-contract/v1": (
         "8d28c5756a2ec8f90341562bbfbdd605350c3bc52cb3a6b03bfd6eac4b02d1ab"
+    ),
+    "math-case/v1": (
+        "9836f8c7af72b063942e002acf63cf57255886c23e7981fa6495c704ac9ddac0"
+    ),
+    "math-claim/v1": (
+        "a2d27809a0dedf7486f2f9136e433005c8c67e9ce7a290c236c974089166a0ab"
+    ),
+    "math-evidence/v1": (
+        "12d43f360b06ea18ee44407313d89befb72a137d3cb99de13e2a67f8292754f8"
+    ),
+    "math-task/v1": (
+        "ebde1b55848120a664ba912dcf8ac2a34e23759ea9209207a9f30e491be5e464"
     ),
 }
 
@@ -118,6 +181,18 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "evaluation-contract-v1.schema.json": (
         "ab8294815264af74b19d325c7e1bd9e70bf938d4a39192736aee6a5d3e65be27"
+    ),
+    "math-case-v1.schema.json": (
+        "6c17344f768b6294468cd2d869b2820aa2f85ff33ccb8e9ba62e1071f38b4faa"
+    ),
+    "math-claim-v1.schema.json": (
+        "9823d6b3dc2a55683e007fe1b2ca2171f4e9284ae6e4626d990f0b4c7facb448"
+    ),
+    "math-evidence-v1.schema.json": (
+        "ff88b52782b66c5160afe1d9b2cb004ee09692be0d4af1cd5c48701d89cf1179"
+    ),
+    "math-task-v1.schema.json": (
+        "2794bee04967dc9c784e523de36bb926d68e0e2057f15ed82cd969981e74984a"
     ),
 }
 
@@ -205,7 +280,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_three_v1_seam_schemas(self) -> None:
+    def test_registry_loads_exactly_the_seven_v1_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -213,6 +288,10 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "claim-assessment/v1",
                 "domain-task/v1",
                 "evaluation-contract/v1",
+                "math-case/v1",
+                "math-claim/v1",
+                "math-evidence/v1",
+                "math-task/v1",
             ),
         )
 
@@ -226,16 +305,16 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
 
 
 class SeamBoundaryTest(unittest.TestCase):
-    """ADR-0005 decision 1: seam types are not core record families."""
+    """ADR-0005 decision 1: adapter schemas are not core record families."""
 
-    def test_seam_schema_ids_are_unknown_to_the_core_default_root(self) -> None:
+    def test_adapter_schema_ids_are_unknown_to_the_core_default_root(self) -> None:
         for schema_id in ADAPTER_FIXTURE_MANIFEST:
             path = _fixture_dir(schema_id, "valid") / "minimal.json"
             with self.subTest(schema=schema_id):
                 with self.assertRaises(UnknownSchemaError):
                     load_record(path.read_bytes())
 
-    def test_core_registry_does_not_register_seam_schemas(self) -> None:
+    def test_core_registry_does_not_register_adapter_schemas(self) -> None:
         core_registry = SchemaRegistry(CORE_SCHEMA_ROOT)
         for schema_id in ADAPTER_FIXTURE_MANIFEST:
             with self.subTest(schema=schema_id):

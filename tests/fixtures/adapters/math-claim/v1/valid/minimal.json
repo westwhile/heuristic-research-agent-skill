@@ -1,0 +1,12 @@
+{
+  "schema": "math-claim/v1",
+  "claim_id": "mc-0001",
+  "statement": "Every even integer n with 2 < n <= 10000 is the sum of two primes.",
+  "object_domain": "integers",
+  "quantifiers": "forall even n in (2, 10000]",
+  "result": "inconclusive",
+  "limitations": [],
+  "non_entailments": [
+    "No statement about any n > 10000 is established."
+  ]
+}

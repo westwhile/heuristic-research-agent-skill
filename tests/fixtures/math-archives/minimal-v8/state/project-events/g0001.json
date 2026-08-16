@@ -1,0 +1,6 @@
+{
+  "schema": "math-research-project-event/v8",
+  "project_id": "synthetic-project-0001",
+  "control_generation": 1,
+  "event": "RUN_GENESIS"
+}

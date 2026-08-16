@@ -1,0 +1,20 @@
+{
+  "schema": "math-task/v1",
+  "task_id": "math-task-0001",
+  "problem_id": "synthetic-nt-001",
+  "title": "Bounded even-sum check",
+  "statement": "Every even integer n with 2 < n <= 10000 is the sum of two primes.",
+  "object_domain": "integers",
+  "quantifiers": "forall even n in (2, 10000]",
+  "assumptions": [],
+  "dependencies": [],
+  "sought": "maybe_prove",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "c"
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-16T09:00:00Z"
+}

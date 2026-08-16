@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "math-evidence/v1",
+  "title": "MathEvidence input v1",
+  "description": "Domain evidence payload for the Math adapter's validate_claim. The kind enum separates certificate-class evidence (proof_certificate, formal_verification) from computational evidence (numeric_check, symbolic_check, random_sampling): only certificate-class evidence can lift a mathematical_claim to mathematically_verified (ADR-0005 decision 4).",
+  "type": "object",
+  "required": [
+    "schema",
+    "evidence_id",
+    "kind",
+    "content_sha256",
+    "summary",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "math-evidence/v1"
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "kind": {
+      "enum": [
+        "numeric_check",
+        "symbolic_check",
+        "random_sampling",
+        "proof_certificate",
+        "formal_verification",
+        "literature",
+        "other"
+      ],
+      "description": "Evidence channel. Certificate class: proof_certificate, formal_verification. Everything else is non-certificate for maturity-ceiling purposes."
+    },
+    "content_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Hash of the evidence content itself (certificate bytes, computation log, dataset)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of this evidence. Required; explicit empty array only after consideration."
+    }
+  },
+  "additionalProperties": false
+}

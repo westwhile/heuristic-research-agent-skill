@@ -1,0 +1,8 @@
+{
+  "schema": "math-evidence/v1",
+  "evidence_id": "me-0001",
+  "kind": "vibes",
+  "content_sha256": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+  "summary": "s",
+  "limitations": []
+}

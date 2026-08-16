@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "math-task/v1",
+  "title": "MathTask input v1",
+  "description": "Domain input payload for the Math adapter's normalize_task. Carries the M0 freeze (statement, object domain, quantifiers), assumptions/dependencies, the sought outcome class, and the core research-task material. All timestamps are caller-injected; the adapter reads no clock.",
+  "type": "object",
+  "required": [
+    "schema",
+    "task_id",
+    "problem_id",
+    "title",
+    "statement",
+    "object_domain",
+    "quantifiers",
+    "assumptions",
+    "dependencies",
+    "sought",
+    "scope",
+    "resources",
+    "completion_criteria",
+    "permissions",
+    "allowed_external_effects",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "math-task/v1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Caller-allocated id for the mapped core research-task/v1 record."
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Exact mathematical statement under assessment."
+    },
+    "object_domain": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "M0: frozen object domain (for example integers, finite graphs on <= 12 vertices)."
+    },
+    "quantifiers": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "M0: frozen quantifier order and scope (for example: forall even n in (2, 10000])."
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Frozen assumptions. Required; write an explicit empty array when none."
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Frozen external dependencies (lemmas, libraries, prior results). Required; explicit empty array when none."
+    },
+    "sought": {
+      "enum": [
+        "prove",
+        "disprove",
+        "decide",
+        "bounded_verification"
+      ],
+      "description": "Sought outcome class. bounded_verification caps any derived evaluation contract at engineering_verified."
+    },
+    "scope": {
+      "type": "object",
+      "description": "Passed through to the core task draft's scope."
+    },
+    "resources": {
+      "type": "object",
+      "description": "Passed through to the core task draft's resources envelope."
+    },
+    "completion_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "allowed_external_effects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true,
+      "description": "Caller-injected freeze timestamp; the adapter never reads a clock."
+    }
+  },
+  "additionalProperties": false
+}

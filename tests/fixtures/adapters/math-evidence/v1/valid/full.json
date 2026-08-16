@@ -1,0 +1,11 @@
+{
+  "schema": "math-evidence/v1",
+  "evidence_id": "me-0002",
+  "kind": "proof_certificate",
+  "content_sha256": "abababababababababababababababababababababababababababababababab",
+  "summary": "Independently checked witness certificate: adjacency matrix of one triangle-free 5-regular graph on 12 labeled vertices, verified by recompute.",
+  "limitations": [
+    "Certificate covers the single witness only.",
+    "Verifier independence is procedural (separate recompute), not a formal proof assistant."
+  ]
+}

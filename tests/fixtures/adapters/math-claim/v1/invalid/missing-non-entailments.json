@@ -1,0 +1,9 @@
+{
+  "schema": "math-claim/v1",
+  "claim_id": "mc-0001",
+  "statement": "s",
+  "object_domain": "integers",
+  "quantifiers": "forall even n in (2, 10000]",
+  "result": "inconclusive",
+  "limitations": []
+}
