@@ -40,11 +40,12 @@ Case Package
 
 - [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
 - [总体架构](docs/architecture/ARCHITECTURE.md)
-- [Core Interface（Phase 1A）](docs/architecture/core-interface.md)
+- [Core Interface（Phase 1B）](docs/architecture/core-interface.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
 - [math-research-solve 1.0.1 基线验收](reports/baseline/math-research-solve-1.0.1.md)
 - [ADR-0001：采用通用内核和领域 Adapter](docs/decisions/0001-core-and-domain-adapters.md)
+- [ADR-0002：Core 发布/图校验接口与架构三操作的对齐](docs/decisions/0002-core-publication-graph-interface.md)
 
 ## 目录
 

@@ -45,3 +45,29 @@ class RecordValidationError(CoreError):
 
 class UnsafePathError(CoreError):
     """A path value violates the safe-relative-path rules."""
+
+
+class PublicationError(CoreError):
+    """A publish operation violates the append-only publication contract.
+
+    Raised when a logical id is republished with different content (a
+    revision must use a new id plus ``supersedes``) or when the record's
+    schema family has no known identity field. A corrupt or tampered store
+    is *not* a PublicationError — it raises :class:`StoreIntegrityError`.
+    """
+
+
+class StoreIntegrityError(CoreError):
+    """The on-disk record store is corrupt, tampered with, or undeterminable.
+
+    Raised by publish before any write when the pre-publish reconciliation
+    finds anything (corrupt/missing records, malformed or non-deterministic
+    manifest, unregistered or foreign nodes, reparse points on the store
+    surface or on the lexical root path, unreadable or unstat-able nodes),
+    and mid-write when a store directory cannot be created, a staging file
+    cannot be opened or written/fsynced, a record cannot be linked, or the
+    manifest cannot be replaced — the store surface is then unusable or
+    undeterminable, and the failure still fails closed without a partial
+    commit. Verification never raises this; it reports the same conditions
+    as violations instead.
+    """
