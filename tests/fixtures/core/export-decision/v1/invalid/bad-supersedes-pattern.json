@@ -1,0 +1,18 @@
+{
+  "schema": "export-decision/v1",
+  "decision_id": "decision-example-002",
+  "case": {
+    "case_id": "case-example-001",
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "outcome": "deny",
+  "export_mode": "local_full",
+  "decided_by": {
+    "tool": "review-console",
+    "version": "0.2.0"
+  },
+  "rationale": "Full-local export refused until the privacy review completes.",
+  "constraints": [],
+  "decided_at": "2026-08-14T09:10:00Z",
+  "supersedes": "decision example 001"
+}

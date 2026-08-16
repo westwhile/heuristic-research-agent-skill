@@ -1,6 +1,6 @@
 """Contract tests: fixtures, schema integrity, and domain neutrality.
 
-These tests pin the public contract of the core kernel (Phase 1A–1C):
+These tests pin the public contract of the core kernel (Phase 1A–1D):
 
 - the fixture tree on disk and FIXTURE_MANIFEST are compared
   bidirectionally, so an unlisted family/version directory or stray file is a
@@ -8,9 +8,13 @@ These tests pin the public contract of the core kernel (Phase 1A–1C):
 - every ``valid`` fixture loads; every ``invalid`` fixture raises the
   expected error class with the expected reason substring;
 - the canonical hash of every family's minimal fixture is golden-pinned;
+- every schema file's raw on-disk bytes are golden-pinned
+  (SCHEMA_TEXT_SHA256, ADR-0004 decision 7; newline stability carried by
+  .gitattributes);
 - schema files are strict JSON, self-consistent, and free of domain vocabulary.
 """
 
+import hashlib
 import re
 import unittest
 from pathlib import Path
@@ -172,10 +176,41 @@ FIXTURE_MANIFEST = {
             "task-as-array.json": ("RecordValidationError", "task"),
         },
     },
+    "export-decision/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-export-mode.json": ("RecordValidationError", "export_mode"),
+            "bad-outcome.json": ("RecordValidationError", "outcome"),
+            "bad-supersedes-pattern.json": ("RecordValidationError", "supersedes"),
+            "missing-case-pin.json": ("RecordValidationError", "sha256"),
+            "missing-decided-at.json": ("RecordValidationError", "decided_at"),
+            "whitespace-rationale.json": ("RecordValidationError", "rationale"),
+        },
+    },
+    "export-receipt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "artifact-locator-absolute.json": ("RecordValidationError", "drive-letter"),
+            "artifact-missing-sha256.json": ("RecordValidationError", "sha256"),
+            "bad-export-mode.json": ("RecordValidationError", "export_mode"),
+            "bad-exported-at.json": ("RecordValidationError", "exported_at"),
+            "empty-artifacts.json": ("RecordValidationError", "artifacts"),
+            "missing-decision-pin.json": ("RecordValidationError", "sha256"),
+            "whitespace-destination.json": ("RecordValidationError", "destination"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
 MINIMAL_FIXTURE_SHA256 = {
+    "export-decision/v1": (
+        "752c486c686785603c248de08379279ac366ba85b7f7c64fb1f6638da08b877f"
+    ),
+    "export-receipt/v1": (
+        "acbf6c46800da6f12a104d885dbd3bb727e5bbd688a128992239259be1247ebc"
+    ),
     "research-case-package/v1": (
         "d83202cfeafc280b98df1b7d9e0c69be70e1d8681c3c6fbc0e5b252c7a5f2ae5"
     ),
@@ -196,6 +231,40 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "research-task/v1": (
         "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
+    ),
+}
+
+# Golden pins (ADR-0004 decision 7): SHA-256 of each schema file's raw
+# on-disk bytes. Newline stability is carried by .gitattributes
+# (``*.json text eol=lf``); any byte-level edit of a frozen schema — even
+# pure reformatting — fails this pin.
+SCHEMA_TEXT_SHA256 = {
+    "export-decision-v1.schema.json": (
+        "1d4a4209df2d5d230a9713c56e1bfc35b8f727a79b0021abeff4e69cf2162c48"
+    ),
+    "export-receipt-v1.schema.json": (
+        "00bb452c0c417ab17254988d4e5597abebe5cbca1607ac68096a705493dd09e4"
+    ),
+    "research-case-package-v1.schema.json": (
+        "3945496445ea2e4a809bb49a58c4bbbb469de8c18c4dc517ad3f3a63ec894a25"
+    ),
+    "research-claim-v1.schema.json": (
+        "0eac88fff6fb4fa1f2046154051fc252148c79c980dac98c6a52d1212f57ff59"
+    ),
+    "research-evidence-v1.schema.json": (
+        "db0e1abee5f2b14f6c5bbfcf73e5a6eafccf9e9d2ec7a5bbb5aa2c22b8e4891c"
+    ),
+    "research-failure-analysis-v1.schema.json": (
+        "4d33b5f3123736c23bf60b9aa0f6eb02a3a14438bf3a02f2d12a7ae0399e60d9"
+    ),
+    "research-failure-observation-v1.schema.json": (
+        "5e31a795bc92a19051189d2518fd054b75134d5dc4f313ffeaf81b6aa49cf397"
+    ),
+    "research-run-v1.schema.json": (
+        "a6068ea50910147c42e00d685ab675e4852df929860e0540c11803d0615767bc"
+    ),
+    "research-task-v1.schema.json": (
+        "95f5450d50e3ff712ec21b74458be2ff0c727b9f4544d04666f0691c679afc6e"
     ),
 }
 
@@ -282,11 +351,13 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_seven_v1_schemas(self) -> None:
+    def test_registry_loads_exactly_the_nine_v1_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
+                "export-decision/v1",
+                "export-receipt/v1",
                 "research-case-package/v1",
                 "research-claim/v1",
                 "research-evidence/v1",
@@ -296,6 +367,14 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-task/v1",
             ),
         )
+
+    def test_schema_text_bytes_are_golden_pinned(self) -> None:
+        on_disk = {path.name for path in SCHEMA_ROOT.glob("*.schema.json")}
+        self.assertEqual(set(SCHEMA_TEXT_SHA256), on_disk)
+        for name, expected in sorted(SCHEMA_TEXT_SHA256.items()):
+            with self.subTest(schema=name):
+                raw = (SCHEMA_ROOT / name).read_bytes()
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), expected)
 
     def test_schema_files_are_domain_neutral(self) -> None:
         for path in sorted(SCHEMA_ROOT.glob("*.schema.json")):

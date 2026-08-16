@@ -136,6 +136,47 @@ def _case(
     }
 
 
+def _export_decision(
+    decision_id: str,
+    case_id: str = "case-1",
+    case_sha256: str = "5" * 64,
+    outcome: str = "allow",
+    export_mode: str = "metrics_only",
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "export-decision/v1",
+        "decision_id": decision_id,
+        "case": {"case_id": case_id, "sha256": case_sha256},
+        "outcome": outcome,
+        "export_mode": export_mode,
+        "decided_by": {"tool": "unit-test", "version": "1.0.0"},
+        "rationale": "Synthetic unit-test case; nothing real to export.",
+        "constraints": [],
+        "decided_at": "2026-08-14T09:00:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+def _export_receipt(
+    receipt_id: str,
+    decision_id: str = "d-1",
+    decision_sha256: str = "6" * 64,
+    export_mode: str = "metrics_only",
+) -> dict:
+    return {
+        "schema": "export-receipt/v1",
+        "receipt_id": receipt_id,
+        "decision": {"decision_id": decision_id, "sha256": decision_sha256},
+        "export_mode": export_mode,
+        "artifacts": [{"name": "metrics.json", "sha256": "7" * 64}],
+        "destination": "unit test inbox",
+        "exported_at": "2026-08-14T09:05:00Z",
+    }
+
+
 def _tree_snapshot(root: Path) -> dict[str, str]:
     """{relative path: sha256} for every file under root, including .tmp."""
     if not root.exists():
@@ -364,6 +405,19 @@ class PublishTest(unittest.TestCase):
                 schema_root=schema_root,
             )
         self.assertEqual(_tree_snapshot(self.root), {})
+
+    def test_export_families_fail_closed_until_graph_knows_them(self) -> None:
+        # D2 window: the two export schemas validate and load, but the
+        # store registry has no family entries for them yet, so publishing
+        # must fail closed with zero writes. D3 closes this window in the
+        # same layer that registers both families and teaches the graph
+        # their semantics; this test is then replaced by the publication
+        # and graph coverage there.
+        with self.assertRaises(PublicationError):
+            self._publish(_export_decision("d-1"))
+        with self.assertRaises(PublicationError):
+            self._publish(_export_receipt("r-1"))
+        self.assertFalse(self.root.exists())
 
     def test_phase_1c_chain_publishes_and_verifies(self) -> None:
         # C3 unlocks the three hierarchical families; a fully pinned

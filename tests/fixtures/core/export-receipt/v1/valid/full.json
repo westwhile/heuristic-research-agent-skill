@@ -1,0 +1,22 @@
+{
+  "schema": "export-receipt/v1",
+  "receipt_id": "receipt-example-002",
+  "decision": {
+    "decision_id": "decision-example-002",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "export_mode": "local_redacted",
+  "artifacts": [
+    {
+      "name": "case-package",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "locator": "exports/case-002/package.json"
+    },
+    {
+      "name": "metrics-summary",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "destination": "review share folder",
+  "exported_at": "2026-08-14T09:15:30+08:00"
+}
