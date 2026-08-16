@@ -577,5 +577,280 @@ class GraphVerifyTest(unittest.TestCase):
                 self._publish(_task("t-2"))
 
 
+def _run(run_id: str, task_id: str = "t-1", task_sha256: str = "0" * 64) -> dict:
+    return {
+        "schema": "research-run/v1",
+        "run_id": run_id,
+        "task": {"task_id": task_id, "sha256": task_sha256},
+        "executor": {"tool": "unit-test", "version": "1.0"},
+        "environment": [{"name": "interpreter", "version": "3.14.5"}],
+        "inputs": [{"name": "code", "kind": "code", "sha256": "2" * 64}],
+        "randomness": {"mode": "uncontrolled"},
+        "started_at": "2026-08-14T08:00:00Z",
+        "completed_at": "2026-08-14T08:01:00Z",
+    }
+
+
+def _observation(
+    observation_id: str, run_id: str = "r-1", run_sha256: str = "2" * 64
+) -> dict:
+    return {
+        "schema": "research-failure-observation/v1",
+        "observation_id": observation_id,
+        "run": {"run_id": run_id, "sha256": run_sha256},
+        "observer": {"tool": "unit-test", "version": "1.0"},
+        "facts": ["The run log ends with exit code 1."],
+        "observed_at": "2026-08-14T08:05:00Z",
+    }
+
+
+def _analysis(
+    analysis_id: str,
+    observation_id: str = "o-1",
+    observation_sha256: str = "3" * 64,
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "research-failure-analysis/v1",
+        "analysis_id": analysis_id,
+        "observation": {
+            "observation_id": observation_id,
+            "sha256": observation_sha256,
+        },
+        "hypotheses": ["The input fixture may be missing."],
+        "created_at": "2026-08-14T08:10:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+class HierarchicalGraphTest(unittest.TestCase):
+    """Phase 1C graph checks: the pinned one-directional hierarchy
+    (run -> task, observation -> run, analysis -> observation) and the
+    anchored analysis lineage (ADR-0003 decisions 2, 3, 5, and 6)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name) / "store"
+
+    def _publish(self, payload: dict):
+        return publish_record(json.dumps(payload), root=self.root)
+
+    def _kinds(self, report) -> set[str]:
+        return {violation.kind for violation in report.violations}
+
+    def _publish_chain(self) -> tuple[str, str, str]:
+        """Publish task t-1 <- run r-1 <- observation o-1 <- analysis a-1,
+        every hierarchical reference pinned to the stored record's hash."""
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run = _run("r-1", task_sha256=task_sha)
+        self._publish(run)
+        run_sha = load_record(json.dumps(run)).sha256
+        observation = _observation("o-1", run_sha256=run_sha)
+        self._publish(observation)
+        observation_sha = load_record(json.dumps(observation)).sha256
+        self._publish(_analysis("a-1", observation_sha256=observation_sha))
+        return task_sha, run_sha, observation_sha
+
+    def test_full_chain_verifies_ok(self) -> None:
+        # Correctly pinned one-directional references raise nothing — in
+        # particular no one_way_link and no duplicate_id false positives.
+        self._publish_chain()
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 4)
+        self.assertEqual(
+            report.families,
+            {
+                "research-failure-analysis/v1": 1,
+                "research-failure-observation/v1": 1,
+                "research-run/v1": 1,
+                "research-task/v1": 1,
+            },
+        )
+
+    def test_run_with_dangling_task(self) -> None:
+        self._publish(_run("r-1", task_id="t-absent"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("dangling_reference", self._kinds(report))
+
+    def test_run_with_wrong_task_pin(self) -> None:
+        self._publish(_task("t-1"))
+        self._publish(_run("r-1", task_sha256="9" * 64))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("pin_mismatch", self._kinds(report))
+
+    def test_run_task_cross_type(self) -> None:
+        self._publish(_claim("c-1"))
+        self._publish(_run("r-1", task_id="c-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("cross_type_reference", self._kinds(report))
+
+    def test_observation_with_dangling_run(self) -> None:
+        self._publish(_observation("o-1", run_id="r-absent"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("dangling_reference", self._kinds(report))
+
+    def test_observation_with_wrong_run_pin(self) -> None:
+        self._publish_chain_observationless()
+        self._publish(_observation("o-1", run_sha256="9" * 64))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("pin_mismatch", self._kinds(report))
+
+    def _publish_chain_observationless(self) -> tuple[str, str]:
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run = _run("r-1", task_sha256=task_sha)
+        self._publish(run)
+        run_sha = load_record(json.dumps(run)).sha256
+        return task_sha, run_sha
+
+    def test_observation_run_cross_type(self) -> None:
+        self._publish(_task("t-1"))
+        self._publish(_observation("o-1", run_id="t-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("cross_type_reference", self._kinds(report))
+
+    def test_analysis_with_dangling_observation(self) -> None:
+        self._publish(_analysis("a-1", observation_id="o-absent"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("dangling_reference", self._kinds(report))
+
+    def test_analysis_with_wrong_observation_pin(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(
+            _analysis("a-2", observation_sha256="9" * 64)
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("pin_mismatch", self._kinds(report))
+
+    def test_analysis_observation_cross_type(self) -> None:
+        _t, run_sha = self._publish_chain_observationless()
+        self._publish(_analysis("a-1", observation_id="r-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("cross_type_reference", self._kinds(report))
+
+    def test_analysis_supersedes_chain_ok(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(
+            _analysis(
+                "a-2", observation_sha256=observation_sha, supersedes="a-1"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 5)
+
+    def test_analysis_supersedes_self(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(
+            _analysis(
+                "a-2", observation_sha256=observation_sha, supersedes="a-2"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("self_reference", self._kinds(report))
+
+    def test_analysis_supersedes_dangling(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(
+            _analysis(
+                "a-2", observation_sha256=observation_sha, supersedes="a-absent"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("dangling_reference", self._kinds(report))
+
+    def test_analysis_supersedes_cross_type(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(_claim("c-9"))
+        self._publish(
+            _analysis("a-2", observation_sha256=observation_sha, supersedes="c-9")
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("cross_type_reference", self._kinds(report))
+
+    def test_analysis_supersedes_cycle(self) -> None:
+        _t, run_sha = self._publish_chain_observationless()
+        observation = _observation("o-1", run_sha256=run_sha)
+        self._publish(observation)
+        observation_sha = load_record(json.dumps(observation)).sha256
+        # Supersedes is resolved at verify time, so the two records may be
+        # published in either order.
+        self._publish(
+            _analysis("a-1", observation_sha256=observation_sha, supersedes="a-2")
+        )
+        self._publish(
+            _analysis("a-2", observation_sha256=observation_sha, supersedes="a-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("lineage_cycle", self._kinds(report))
+
+    def test_analysis_lineage_scope_mismatch(self) -> None:
+        _t, run_sha, observation_sha = self._publish_chain()
+        second = _observation("o-2", run_sha256=run_sha)
+        self._publish(second)
+        second_sha = load_record(json.dumps(second)).sha256
+        self._publish(
+            _analysis(
+                "a-2",
+                observation_id="o-2",
+                observation_sha256=second_sha,
+                supersedes="a-1",
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("lineage_scope_mismatch", self._kinds(report))
+        violation = next(
+            v for v in report.violations if v.kind == "lineage_scope_mismatch"
+        )
+        self.assertIn("'o-2'", violation.detail)
+        self.assertIn("'o-1'", violation.detail)
+
+    def test_analysis_fork_is_informational(self) -> None:
+        _t, _r, observation_sha = self._publish_chain()
+        self._publish(
+            _analysis("a-2", observation_sha256=observation_sha, supersedes="a-1")
+        )
+        self._publish(
+            _analysis("a-3", observation_sha256=observation_sha, supersedes="a-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertIn(("a-1", ("a-2", "a-3")), report.forks)
+
+    def test_duplicate_id_across_hierarchical_and_claim(self) -> None:
+        self._publish(_task("t-1"))
+        task_sha = load_record(json.dumps(_task("t-1"))).sha256
+        self._publish(_claim("shared-1"))
+        self._publish(_run("shared-1", task_sha256=task_sha))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
+        violation = report.violations[0]
+        self.assertIn("'shared-1'", violation.detail)
+        self.assertIn("research-claim/v1", violation.detail)
+        self.assertIn("research-run/v1", violation.detail)
+
+
 if __name__ == "__main__":
     unittest.main()

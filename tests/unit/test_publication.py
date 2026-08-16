@@ -60,13 +60,13 @@ def _claim(claim_id: str, supersedes: str | None = None) -> dict:
     return payload
 
 
-def _run(run_id: str) -> dict:
+def _run(run_id: str, task_id: str = "t-1", task_sha256: str = "0" * 64) -> dict:
     return {
         "schema": "research-run/v1",
         "run_id": run_id,
         "task": {
-            "task_id": "t-1",
-            "sha256": "0" * 64,
+            "task_id": task_id,
+            "sha256": task_sha256,
         },
         "executor": {"tool": "unit-test", "version": "1.0.0"},
         "environment": [{"name": "local interpreter", "version": "3.14.5"}],
@@ -79,25 +79,38 @@ def _run(run_id: str) -> dict:
     }
 
 
-def _observation(observation_id: str) -> dict:
+def _observation(
+    observation_id: str, run_id: str = "r-1", run_sha256: str = "2" * 64
+) -> dict:
     return {
         "schema": "research-failure-observation/v1",
         "observation_id": observation_id,
-        "run": {"run_id": "r-1", "sha256": "2" * 64},
+        "run": {"run_id": run_id, "sha256": run_sha256},
         "observer": {"tool": "unit-test", "version": "1.0.0"},
         "facts": ["The run log ends with exit code 1."],
         "observed_at": "2026-08-14T08:05:00Z",
     }
 
 
-def _analysis(analysis_id: str) -> dict:
-    return {
+def _analysis(
+    analysis_id: str,
+    observation_id: str = "o-1",
+    observation_sha256: str = "3" * 64,
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
         "schema": "research-failure-analysis/v1",
         "analysis_id": analysis_id,
-        "observation": {"observation_id": "o-1", "sha256": "3" * 64},
+        "observation": {
+            "observation_id": observation_id,
+            "sha256": observation_sha256,
+        },
         "hypotheses": ["The input fixture may be missing."],
         "created_at": "2026-08-14T08:10:00Z",
     }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
 
 
 def _case(case_id: str) -> dict:
@@ -345,22 +358,42 @@ class PublishTest(unittest.TestCase):
             )
         self.assertEqual(_tree_snapshot(self.root), {})
 
-    def test_phase_1c_families_are_not_yet_publishable(self) -> None:
-        # C2 lands the four Phase 1C schemas before C3/C4 teach the store
-        # their identity fields; publishing any of them must fail closed
-        # with PublicationError and zero disk writes in the meantime.
-        for payload in (
-            _run("r-1"),
-            _observation("o-1"),
-            _analysis("a-1"),
-            _case("case-1"),
-        ):
-            with self.subTest(schema=payload["schema"]):
-                before = _tree_snapshot(self.root)
-                with self.assertRaises(PublicationError) as caught:
-                    self._publish(payload)
-                self.assertIn("no known identity field", str(caught.exception))
-                self.assertEqual(before, _tree_snapshot(self.root))
+    def test_phase_1c_chain_publishes_and_verifies(self) -> None:
+        # C3 unlocks the three hierarchical families; a fully pinned
+        # task -> run -> observation -> analysis chain must verify clean.
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run_receipt = self._publish(_run("r-1", task_sha256=task_sha))
+        self.assertEqual(run_receipt.record_id, "r-1")
+        self.assertEqual(run_receipt.schema_id, "research-run/v1")
+        self.assertTrue(
+            run_receipt.path.startswith("records/research-run/v1/")
+        )
+        observation_receipt = self._publish(
+            _observation("o-1", run_sha256=run_receipt.sha256)
+        )
+        analysis_receipt = self._publish(
+            _analysis(
+                "a-1",
+                observation_sha256=observation_receipt.sha256,
+            )
+        )
+        self.assertEqual(analysis_receipt.record_id, "a-1")
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 4)
+        self.assertEqual(report.families["research-run/v1"], 1)
+
+    def test_case_package_is_not_yet_publishable(self) -> None:
+        # C2/C3 land the case schema before C4 teaches the store its
+        # identity field and the graph its closure rules; publishing must
+        # fail closed with PublicationError and zero disk writes meanwhile.
+        before = _tree_snapshot(self.root)
+        with self.assertRaises(PublicationError) as caught:
+            self._publish(_case("case-1"))
+        self.assertIn("no known identity field", str(caught.exception))
+        self.assertEqual(before, _tree_snapshot(self.root))
 
 
 def _make_junction(link: Path, target: Path) -> None:

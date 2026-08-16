@@ -317,9 +317,11 @@ def verify_record_graph(
     files on disk (no missing, extra, duplicate, or non-canonical records;
     no foreign objects, reparse points, or unexpected node types; reserved
     nodes must exist with their expected types). Graph phase: dangling
-    references, cross-type references, self-references, evidence pin
-    mismatches, one-way claim/evidence links, and supersedes lineage cycles
-    are all violations. Forks are reported as information only.
+    references, cross-type references, self-references, pin mismatches
+    (mandatory pins on the hierarchical run/observation/analysis references,
+    optional pins on claim/evidence), one-way claim/evidence links,
+    supersedes lineage cycles, and analysis lineage-scope mismatches are all
+    violations. Forks are reported as information only.
 
     Never raises for corruption; a corrupt store yields ``ok=False`` with
     the findings enumerated in ``violations``. Both *root* and a
