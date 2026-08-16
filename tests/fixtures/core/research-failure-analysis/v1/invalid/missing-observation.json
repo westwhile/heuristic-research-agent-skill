@@ -1,0 +1,8 @@
+{
+  "schema": "research-failure-analysis/v1",
+  "analysis_id": "analysis-example-001",
+  "hypotheses": [
+    "The input fixture may be missing from the store."
+  ],
+  "created_at": "2026-08-14T08:10:00Z"
+}

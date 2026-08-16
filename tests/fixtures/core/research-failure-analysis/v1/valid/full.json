@@ -1,0 +1,14 @@
+{
+  "schema": "research-failure-analysis/v1",
+  "analysis_id": "analysis-example-002",
+  "observation": {
+    "observation_id": "observation-example-002",
+    "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+  },
+  "hypotheses": [
+    "The fixture path recorded in the run inputs may be stale.",
+    "The runner may have skipped the copy step without failing."
+  ],
+  "supersedes": "analysis-example-001",
+  "created_at": "2026-08-14T08:20:00+08:00"
+}

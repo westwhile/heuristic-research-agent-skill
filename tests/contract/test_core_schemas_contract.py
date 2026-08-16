@@ -1,13 +1,13 @@
 """Contract tests: fixtures, schema integrity, and domain neutrality.
 
-These tests pin the public contract of the Phase 1A core kernel:
+These tests pin the public contract of the core kernel (Phase 1A–1C):
 
 - the fixture tree on disk and FIXTURE_MANIFEST are compared
   bidirectionally, so an unlisted family/version directory or stray file is a
   test failure;
 - every ``valid`` fixture loads; every ``invalid`` fixture raises the
   expected error class with the expected reason substring;
-- the canonical hash of the minimal task fixture is golden-pinned;
+- the canonical hash of every family's minimal fixture is golden-pinned;
 - schema files are strict JSON, self-consistent, and free of domain vocabulary.
 """
 
@@ -120,12 +120,84 @@ FIXTURE_MANIFEST = {
             "whitespace-applicability.json": ("RecordValidationError", "applicability"),
         },
     },
+    "research-run/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-randomness-mode.json": ("RecordValidationError", "randomness"),
+            "bad-task-sha256.json": ("RecordValidationError", "sha256"),
+            "empty-environment.json": ("RecordValidationError", "environment"),
+            "input-missing-sha256.json": ("RecordValidationError", "sha256"),
+            "missing-task-pin.json": ("RecordValidationError", "sha256"),
+            "missing-task.json": ("RecordValidationError", "task"),
+        },
+    },
+    "research-failure-observation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "empty-facts.json": ("RecordValidationError", "facts"),
+            "missing-observer-version.json": ("RecordValidationError", "version"),
+            "missing-run-pin.json": ("RecordValidationError", "sha256"),
+            "root-cause-field.json": ("RecordValidationError", "additional property"),
+            "run-ref-not-object.json": ("RecordValidationError", "run"),
+        },
+    },
+    "research-failure-analysis/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-supersedes-pattern.json": ("RecordValidationError", "supersedes"),
+            "empty-hypotheses.json": ("RecordValidationError", "hypotheses"),
+            "missing-observation-pin.json": ("RecordValidationError", "sha256"),
+            "missing-observation.json": ("RecordValidationError", "observation"),
+            "whitespace-hypothesis.json": ("RecordValidationError", "hypotheses"),
+        },
+    },
+    "research-case-package/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "empty-runs.json": ("RecordValidationError", "runs"),
+            "member-bad-pin.json": ("RecordValidationError", "sha256"),
+            "member-missing-pin.json": ("RecordValidationError", "sha256"),
+            "missing-privacy-status.json": (
+                "RecordValidationError",
+                "privacy_review_status",
+            ),
+            "privacy-not-pending.json": (
+                "RecordValidationError",
+                "privacy_review_status",
+            ),
+            "task-as-array.json": ("RecordValidationError", "task"),
+        },
+    },
 }
 
-# Golden pin: canonical SHA-256 of research-task/v1 valid/minimal.json.
-MINIMAL_TASK_SHA256 = (
-    "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
-)
+# Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
+MINIMAL_FIXTURE_SHA256 = {
+    "research-case-package/v1": (
+        "d83202cfeafc280b98df1b7d9e0c69be70e1d8681c3c6fbc0e5b252c7a5f2ae5"
+    ),
+    "research-claim/v1": (
+        "a496686fd72c63ee8cba7c3e59281a7575f8ee499798072457e2bcce6796c769"
+    ),
+    "research-evidence/v1": (
+        "a77ec6c1bb747e00d95d5a0d227f6bc0f6f8e9592bd93ca6911978810f09b3a4"
+    ),
+    "research-failure-analysis/v1": (
+        "97143007a8f05ca7e243228f490f8bee23c06323155b3ad68710ae34b4fddeed"
+    ),
+    "research-failure-observation/v1": (
+        "946bd26918fe3ec254be0fa375c0a2090ddde0dffee5d4fb6de9c3d546300ece"
+    ),
+    "research-run/v1": (
+        "f6a3a6273e87f9ac38efc332b98b14b5c9b95ec3f5652567502d7063df8e4c9e"
+    ),
+    "research-task/v1": (
+        "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
+    ),
+}
 
 # Domain vocabulary that must never leak into the domain-neutral core schemas.
 _BANNED_TERMS = re.compile(
@@ -193,10 +265,12 @@ class FixtureBehaviorTest(unittest.TestCase):
                         f"reason substring missing: {ctx.exception}",
                     )
 
-    def test_minimal_task_hash_is_golden_pinned(self) -> None:
-        path = _fixture_dir("research-task/v1", "valid") / "minimal.json"
-        record = load_record(path.read_bytes())
-        self.assertEqual(record.sha256, MINIMAL_TASK_SHA256)
+    def test_minimal_fixture_hashes_are_golden_pinned(self) -> None:
+        for schema_id, expected in MINIMAL_FIXTURE_SHA256.items():
+            path = _fixture_dir(schema_id, "valid") / "minimal.json"
+            with self.subTest(fixture=f"{schema_id}/valid/minimal.json"):
+                record = load_record(path.read_bytes())
+                self.assertEqual(record.sha256, expected)
 
     def test_reloading_is_deterministic(self) -> None:
         for schema_id, groups in FIXTURE_MANIFEST.items():
@@ -208,11 +282,19 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_three_v1_schemas(self) -> None:
+    def test_registry_loads_exactly_the_seven_v1_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
-            ("research-claim/v1", "research-evidence/v1", "research-task/v1"),
+            (
+                "research-case-package/v1",
+                "research-claim/v1",
+                "research-evidence/v1",
+                "research-failure-analysis/v1",
+                "research-failure-observation/v1",
+                "research-run/v1",
+                "research-task/v1",
+            ),
         )
 
     def test_schema_files_are_domain_neutral(self) -> None:

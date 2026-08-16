@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-case-package/v1",
+  "title": "ResearchCasePackage v1",
+  "description": "A domain-neutral immutable package binding exactly one hash-pinned task, at least one hash-pinned run, and independently nullable member arrays of claims, evidence, observations, and analyses. Every member reference carries a mandatory content-hash pin; membership closure, pin agreement, and duplicate detection are enforced by graph verification, not here. privacy_review_status is fixed to \"pending\" in v1: this phase provides no export channel and the record implies none.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "title",
+    "task",
+    "runs",
+    "claims",
+    "evidence",
+    "observations",
+    "analyses",
+    "privacy_review_status",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-case-package/v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "task": {
+      "type": "object",
+      "required": ["task_id", "sha256"],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact task record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Exactly one task: a single pinned reference object, not an array."
+    },
+    "runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["run_id", "sha256"],
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "At least one run of the packaged task, each hash-pinned."
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "sha256"],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member claims, each hash-pinned. May be an explicit empty array."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "sha256"],
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member evidence records, each hash-pinned. May be an explicit empty array; when non-empty, the claims they support must also be members (closure, checked by graph verification)."
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["observation_id", "sha256"],
+        "properties": {
+          "observation_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member failure observations, each hash-pinned. May be an explicit empty array."
+    },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["analysis_id", "sha256"],
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member failure analyses, each hash-pinned. May be an explicit empty array."
+    },
+    "privacy_review_status": {
+      "enum": [
+        "pending"
+      ],
+      "description": "Single-axis review state. Export permission and export events are orthogonal axes recorded by separate records (ADR-0003, decision 8), never written back into this package."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

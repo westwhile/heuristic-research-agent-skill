@@ -1,0 +1,45 @@
+{
+  "schema": "research-run/v1",
+  "run_id": "run-example-002",
+  "task": {
+    "task_id": "task-example-002",
+    "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+  },
+  "executor": {
+    "tool": "harness-driver",
+    "version": "0.3.1",
+    "model": "none"
+  },
+  "environment": [
+    {
+      "name": "local interpreter",
+      "version": "3.14.5",
+      "details": "debug build"
+    },
+    {
+      "name": "operating system",
+      "version": "windows-11",
+      "details": "x86-64"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "core source tree",
+      "kind": "code",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "locator": "src/research_evolution"
+    },
+    {
+      "name": "fixture set",
+      "kind": "case",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "randomness": {
+    "mode": "fixed_seed",
+    "seed": 42,
+    "details": "Seed recorded for replay."
+  },
+  "started_at": "2026-08-14T08:10:00+08:00",
+  "completed_at": "2026-08-14T08:11:30+08:00"
+}

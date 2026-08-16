@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-run/v1",
+  "title": "ResearchRun v1",
+  "description": "A domain-neutral frozen record of one execution of a research task: the hash-pinned task reference, the executor, the environment components, hash-bound inputs, randomness handling, and timing. The field vocabulary is reserved for future frozen comparisons between execution variants and carries no domain semantics.",
+  "type": "object",
+  "required": [
+    "schema",
+    "run_id",
+    "task",
+    "executor",
+    "environment",
+    "inputs",
+    "randomness",
+    "started_at",
+    "completed_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-run/v1"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "task": {
+      "type": "object",
+      "required": ["task_id", "sha256"],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact task record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The single task this run executes. One-directional and hash-pinned; see ADR-0003 decision 3."
+    },
+    "executor": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional model identifier when a model drove the execution."
+        }
+      },
+      "additionalProperties": false,
+      "description": "What executed the run, bound to a version identifier."
+    },
+    "environment": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "version"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "details": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Frozen environment components (runtime, operating system, hardware label, and similar), each bound to a version identifier."
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "kind", "sha256"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "kind": {
+            "enum": [
+              "code",
+              "config",
+              "data",
+              "case",
+              "environment",
+              "runner",
+              "other"
+            ]
+          },
+          "locator": {
+            "type": "string",
+            "x-safe-relative-path": true,
+            "description": "Optional safe relative path to the input. Secondary to the hash, never a replacement. Absolute paths, UNC, drive letters, and '..' are rejected."
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Mandatory content hash binding the exact input."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Inputs the run freezes; every input is bound to a content hash."
+    },
+    "randomness": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {
+          "enum": [
+            "fixed_seed",
+            "uncontrolled"
+          ],
+          "description": "fixed_seed declares recorded deterministic seeding; uncontrolled declares that no seed governed the run."
+        },
+        "seed": {
+          "type": "integer",
+          "description": "The recorded seed when mode is fixed_seed."
+        },
+        "details": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Randomness handling of the run. The mode declaration is mandatory so the choice is never implicit."
+    },
+    "started_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    },
+    "completed_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

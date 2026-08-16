@@ -60,6 +60,82 @@ def _claim(claim_id: str, supersedes: str | None = None) -> dict:
     return payload
 
 
+def _run(run_id: str, task_id: str = "t-1", task_sha256: str = "0" * 64) -> dict:
+    return {
+        "schema": "research-run/v1",
+        "run_id": run_id,
+        "task": {
+            "task_id": task_id,
+            "sha256": task_sha256,
+        },
+        "executor": {"tool": "unit-test", "version": "1.0.0"},
+        "environment": [{"name": "local interpreter", "version": "3.14.5"}],
+        "inputs": [
+            {"name": "fixture set", "kind": "case", "sha256": "1" * 64}
+        ],
+        "randomness": {"mode": "uncontrolled"},
+        "started_at": "2026-08-14T08:00:00Z",
+        "completed_at": "2026-08-14T08:01:00Z",
+    }
+
+
+def _observation(
+    observation_id: str, run_id: str = "r-1", run_sha256: str = "2" * 64
+) -> dict:
+    return {
+        "schema": "research-failure-observation/v1",
+        "observation_id": observation_id,
+        "run": {"run_id": run_id, "sha256": run_sha256},
+        "observer": {"tool": "unit-test", "version": "1.0.0"},
+        "facts": ["The run log ends with exit code 1."],
+        "observed_at": "2026-08-14T08:05:00Z",
+    }
+
+
+def _analysis(
+    analysis_id: str,
+    observation_id: str = "o-1",
+    observation_sha256: str = "3" * 64,
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "research-failure-analysis/v1",
+        "analysis_id": analysis_id,
+        "observation": {
+            "observation_id": observation_id,
+            "sha256": observation_sha256,
+        },
+        "hypotheses": ["The input fixture may be missing."],
+        "created_at": "2026-08-14T08:10:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+def _case(
+    case_id: str,
+    task_id: str = "t-1",
+    task_sha256: str = "0" * 64,
+    runs: list[dict[str, str]] | None = None,
+) -> dict:
+    return {
+        "schema": "research-case-package/v1",
+        "case_id": case_id,
+        "title": "Unit test case package",
+        "task": {"task_id": task_id, "sha256": task_sha256},
+        "runs": runs
+        if runs is not None
+        else [{"run_id": "r-1", "sha256": "4" * 64}],
+        "claims": [],
+        "evidence": [],
+        "observations": [],
+        "analyses": [],
+        "privacy_review_status": "pending",
+        "created_at": "2026-08-14T08:20:00Z",
+    }
+
+
 def _tree_snapshot(root: Path) -> dict[str, str]:
     """{relative path: sha256} for every file under root, including .tmp."""
     if not root.exists():
@@ -288,6 +364,56 @@ class PublishTest(unittest.TestCase):
                 schema_root=schema_root,
             )
         self.assertEqual(_tree_snapshot(self.root), {})
+
+    def test_phase_1c_chain_publishes_and_verifies(self) -> None:
+        # C3 unlocks the three hierarchical families; a fully pinned
+        # task -> run -> observation -> analysis chain must verify clean.
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run_receipt = self._publish(_run("r-1", task_sha256=task_sha))
+        self.assertEqual(run_receipt.record_id, "r-1")
+        self.assertEqual(run_receipt.schema_id, "research-run/v1")
+        self.assertTrue(
+            run_receipt.path.startswith("records/research-run/v1/")
+        )
+        observation_receipt = self._publish(
+            _observation("o-1", run_sha256=run_receipt.sha256)
+        )
+        analysis_receipt = self._publish(
+            _analysis(
+                "a-1",
+                observation_sha256=observation_receipt.sha256,
+            )
+        )
+        self.assertEqual(analysis_receipt.record_id, "a-1")
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 4)
+        self.assertEqual(report.families["research-run/v1"], 1)
+
+    def test_case_package_publishes_and_verifies(self) -> None:
+        # C4 closes the window: the case package is publishable and the
+        # graph fully understands it (pins, closure, membership).
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run_receipt = self._publish(_run("r-1", task_sha256=task_sha))
+        case_receipt = self._publish(
+            _case(
+                "case-1",
+                task_sha256=task_sha,
+                runs=[{"run_id": "r-1", "sha256": run_receipt.sha256}],
+            )
+        )
+        self.assertEqual(case_receipt.record_id, "case-1")
+        self.assertEqual(case_receipt.schema_id, "research-case-package/v1")
+        self.assertTrue(
+            case_receipt.path.startswith("records/research-case-package/v1/")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 3)
 
 
 def _make_junction(link: Path, target: Path) -> None:
@@ -884,6 +1010,37 @@ class PublishGuardTest(unittest.TestCase):
         self.assertIn("unexpected_node_type", {v.kind for v in report.violations})
         with self.assertRaises(StoreIntegrityError):
             self._publish(_task("t-1"))
+
+
+class PublicInterfaceTest(unittest.TestCase):
+    def test_public_export_set_matches_phase_1b(self) -> None:
+        # Phase 1C adds no public names: the export list stays identical to
+        # the Phase 1B contract, item for item.
+        import research_evolution.core as core
+
+        self.assertEqual(
+            core.__all__,
+            [
+                "CoreError",
+                "GraphVerificationReport",
+                "PublicationError",
+                "PublicationReceipt",
+                "Record",
+                "RecordValidationError",
+                "SchemaDefinitionError",
+                "StoreIntegrityError",
+                "StrictJsonError",
+                "UnknownSchemaError",
+                "UnsafePathError",
+                "canonical_bytes",
+                "canonical_sha256",
+                "load_record",
+                "load_strict_json",
+                "publish_record",
+                "validate_safe_relative_path",
+                "verify_record_graph",
+            ],
+        )
 
 
 if __name__ == "__main__":

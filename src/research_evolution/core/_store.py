@@ -88,6 +88,7 @@ from ._errors import (
     StoreIntegrityError,
     StrictJsonError,
 )
+from ._families import FAMILIES
 from ._paths import validate_safe_relative_path
 from ._strict_json import load_strict_json
 from .records import Record, load_record
@@ -102,13 +103,13 @@ MANIFEST_KIND = "core-manifest/v1"
 # builds; the literal fallback keeps the check total elsewhere.
 _FILE_ATTRIBUTE_REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
 
-# Logical identity field per publishable schema family. Families outside this
-# table are rejected at publish time; the table is kernel-private v1 knowledge,
-# not caller configuration.
+# Logical identity field per publishable schema family, derived from the
+# family contract registry (``_families.py``, ADR-0003 decision 10) — the
+# single metadata source shared with the graph checks. A family outside the
+# registry is rejected at publish time; registry membership is
+# kernel-private v1 knowledge, not caller configuration.
 _ID_FIELDS = {
-    "research-task/v1": "task_id",
-    "research-claim/v1": "claim_id",
-    "research-evidence/v1": "evidence_id",
+    schema_id: contract.identity_field for schema_id, contract in FAMILIES.items()
 }
 
 _ENTRY_KEYS = frozenset({"family", "id", "sha256", "path"})

@@ -1,0 +1,31 @@
+{
+  "schema": "research-run/v1",
+  "run_id": "run-example-001",
+  "task": {
+    "task_id": "task-example-001",
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "executor": {
+    "tool": "python -m unittest",
+    "version": "3.14.5"
+  },
+  "environment": [
+    {
+      "name": "local interpreter",
+      "version": "3.14.5"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "core source tree",
+      "kind": "code",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "randomness": {
+    "mode": "uncontrolled"
+  },
+  "started_at": "2026-08-14T08:00:00Z",
+  "completed_at": "2026-08-14T08:01:00Z",
+  "notes": "undocumented extra field"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "research-case-package/v1",
+  "case_id": "case-example-002",
+  "title": "Full case package with all member kinds",
+  "task": {
+    "task_id": "task-example-002",
+    "sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210"
+  },
+  "runs": [
+    {
+      "run_id": "run-example-001",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "run_id": "run-example-002",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim-example-001",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-example-001",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "observation-example-001",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+    }
+  ],
+  "analyses": [
+    {
+      "analysis_id": "analysis-example-001",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "privacy_review_status": "pending",
+  "created_at": "2026-08-14T08:40:00+08:00"
+}
