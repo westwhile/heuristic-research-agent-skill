@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "export-decision/v1",
+  "title": "ExportDecision v1",
+  "description": "A domain-neutral, revisable permission-axis record: whether one hash-pinned case package may be exported under one export mode. The permission axis is orthogonal to the fact axis (export-receipt/v1) and to the case's single-axis review state; decisions never write back into the case package (ADR-0004, decisions 1-3).",
+  "type": "object",
+  "required": [
+    "schema",
+    "decision_id",
+    "case",
+    "outcome",
+    "export_mode",
+    "decided_by",
+    "rationale",
+    "constraints",
+    "decided_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "export-decision/v1"
+    },
+    "decision_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case": {
+      "type": "object",
+      "required": ["case_id", "sha256"],
+      "properties": {
+        "case_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact case package version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The single case package this decision governs. One-directional and hash-pinned; the lineage anchor for decision supersede chains."
+    },
+    "outcome": {
+      "enum": [
+        "allow",
+        "deny"
+      ],
+      "description": "Binary permission outcome. Conditional permission is expressed as allow plus constraints, never as a third enum value."
+    },
+    "export_mode": {
+      "enum": [
+        "local_full",
+        "local_redacted",
+        "benchmark_candidate",
+        "metrics_only"
+      ],
+      "description": "The export mode under consideration (architecture vocabulary). On a deny decision this is the refused request mode: audit information, not a grant."
+    },
+    "decided_by": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional model identifier when a model drove the decision."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Who made the decision, bound to a version identifier; a human review is labeled through tool."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Why this outcome was decided; never blank."
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Intent-level constraints (for example redaction intent). v1 records intent only: no redaction executor exists in this phase. May be an explicit empty array, but the field itself is mandatory."
+    },
+    "decided_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    },
+    "supersedes": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Optional decision_id of the prior decision this one revises. ID-only lineage reference within the same case anchor; earlier decisions are never edited in place."
+    }
+  },
+  "additionalProperties": false
+}

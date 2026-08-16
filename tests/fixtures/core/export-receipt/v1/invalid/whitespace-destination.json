@@ -1,0 +1,17 @@
+{
+  "schema": "export-receipt/v1",
+  "receipt_id": "receipt-blank-destination",
+  "decision": {
+    "decision_id": "decision-example-001",
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "export_mode": "metrics_only",
+  "artifacts": [
+    {
+      "name": "metrics.json",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ],
+  "destination": "   ",
+  "exported_at": "2026-08-14T09:05:00Z"
+}

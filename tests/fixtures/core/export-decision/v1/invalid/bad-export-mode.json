@@ -1,0 +1,17 @@
+{
+  "schema": "export-decision/v1",
+  "decision_id": "decision-example-001",
+  "case": {
+    "case_id": "case-example-001",
+    "sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "outcome": "allow",
+  "export_mode": "public_full",
+  "decided_by": {
+    "tool": "manual-review",
+    "version": "1"
+  },
+  "rationale": "Case is synthetic and fully desensitized.",
+  "constraints": [],
+  "decided_at": "2026-08-14T09:00:00Z"
+}

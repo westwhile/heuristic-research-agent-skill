@@ -15,9 +15,10 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # Phase 1C complete: all seven schema families are registered and
-        # publishable. A family whose schema lands before its graph
-        # semantics (none today) must stay absent here until then.
+        # Phase 1D D3: all nine schema families are registered and
+        # publishable — the seven research families plus the two export
+        # families (ADR-0004). A family whose schema lands before its
+        # graph semantics (none today) must stay absent here until then.
         self.assertEqual(
             set(FAMILIES),
             {
@@ -28,6 +29,8 @@ class FamilyRegistryTest(unittest.TestCase):
                 "research-failure-observation/v1",
                 "research-failure-analysis/v1",
                 "research-case-package/v1",
+                "export-decision/v1",
+                "export-receipt/v1",
             },
         )
 
@@ -86,6 +89,8 @@ class FamilyRegistryTest(unittest.TestCase):
             ("research-run/v1", "task"),
             ("research-failure-observation/v1", "run"),
             ("research-failure-analysis/v1", "observation"),
+            ("export-decision/v1", "case"),
+            ("export-receipt/v1", "decision"),
         }
         for family, field in pinned:
             ref = next(

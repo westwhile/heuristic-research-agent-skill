@@ -1,0 +1,18 @@
+{
+  "schema": "export-receipt/v1",
+  "receipt_id": "receipt-example-001",
+  "decision": {
+    "decision_id": "decision-example-001",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "export_mode": "metrics_only",
+  "artifacts": [
+    {
+      "name": "metrics-summary",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "locator": "C:/exports/metrics.json"
+    }
+  ],
+  "destination": "central library inbox",
+  "exported_at": "2026-08-14T09:05:00Z"
+}

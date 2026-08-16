@@ -230,7 +230,7 @@ $SKILL_LIBRARY_ROOT/
 5. 实现 create-new/append-only 发布；
 6. 实现 `supersedes` 和 lineage graph 校验；
 7. 实现 manifest 创建与全图验证；
-8. 实现隐私分类、绝对路径检测和 redaction interface；
+8. 实现隐私分类、绝对路径检测和 redaction interface（Phase 1D 了结方式：redaction interface 以 `decision.constraints` 意图记录交付、执行器显式延期——见 ADR-0004 决策 9）；
 9. 建立已知正确/错误 fixtures；
 10. 对 schema 进行 backward/forward compatibility contract tests；
 11. 输出命令行：`validate`、`hash`、`verify-graph`，但不执行外部写入。

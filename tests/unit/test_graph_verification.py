@@ -880,6 +880,47 @@ def _case_package(
     }
 
 
+def _export_decision(
+    decision_id: str,
+    case_id: str = "case-1",
+    case_sha256: str = "5" * 64,
+    outcome: str = "allow",
+    export_mode: str = "metrics_only",
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "export-decision/v1",
+        "decision_id": decision_id,
+        "case": {"case_id": case_id, "sha256": case_sha256},
+        "outcome": outcome,
+        "export_mode": export_mode,
+        "decided_by": {"tool": "unit-test", "version": "1.0.0"},
+        "rationale": "Synthetic graph-test case; nothing real to export.",
+        "constraints": [],
+        "decided_at": "2026-08-14T09:00:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+def _export_receipt(
+    receipt_id: str,
+    decision_id: str = "d-1",
+    decision_sha256: str = "6" * 64,
+    export_mode: str = "metrics_only",
+) -> dict:
+    return {
+        "schema": "export-receipt/v1",
+        "receipt_id": receipt_id,
+        "decision": {"decision_id": decision_id, "sha256": decision_sha256},
+        "export_mode": export_mode,
+        "artifacts": [{"name": "metrics.json", "sha256": "7" * 64}],
+        "destination": "graph test inbox",
+        "exported_at": "2026-08-14T09:05:00Z",
+    }
+
+
 class CaseGraphTest(unittest.TestCase):
     """Phase 1C C4: case membership closure and generic
     ``duplicate_reference`` (ADR-0003 decisions 7 and 11)."""
@@ -1131,6 +1172,222 @@ class CaseGraphTest(unittest.TestCase):
         self.assertFalse(report.ok)
         self.assertIn("duplicate_reference", self._kinds(report))
         self.assertIn("dangling_reference", self._kinds(report))
+
+
+class ExportGraphTest(unittest.TestCase):
+    """Phase 1D D3: export-decision lineage (anchor-scoped to its case) and
+    the ``unauthorized_export`` gate (ADR-0004 decisions 3 and 5)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name) / "store"
+
+    def _publish(self, payload: dict):
+        return publish_record(json.dumps(payload), root=self.root)
+
+    def _kinds(self, report) -> set[str]:
+        return {violation.kind for violation in report.violations}
+
+    def _sha(self, payload: dict) -> str:
+        return load_record(json.dumps(payload)).sha256
+
+    def _publish_case(self, case_id: str = "case-1") -> str:
+        """Publish task t-1 <- run r-1 and a case packaging them; return
+        the case record hash. Re-publishing the same task/run records is
+        harmless (content-addressed), so two cases can share the chain."""
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = self._sha(task)
+        run = _run("r-1", task_sha256=task_sha)
+        self._publish(run)
+        case = _case_package(
+            case_id, ("t-1", task_sha), [("r-1", self._sha(run))]
+        )
+        self._publish(case)
+        return self._sha(case)
+
+    def _publish_decision(self, decision_id: str, case_id: str, **kwargs) -> str:
+        case_sha = self._publish_case(case_id)
+        decision = _export_decision(
+            decision_id, case_id=case_id, case_sha256=case_sha, **kwargs
+        )
+        self._publish(decision)
+        return self._sha(decision)
+
+    # -- decision lineage (anchor-scoped supersedes) ----------------------
+
+    def test_decision_chain_same_case_ok(self) -> None:
+        case_sha = self._publish_case("case-1")
+        self._publish(_export_decision("d-1", case_sha256=case_sha))
+        self._publish(
+            _export_decision("d-2", case_sha256=case_sha, supersedes="d-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+
+    def test_decision_cross_case_supersedes_scope_mismatch(self) -> None:
+        self._publish_decision("d-1", "case-1")
+        self._publish_decision("d-2", "case-2", supersedes="d-1")
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        mismatches = [
+            v for v in report.violations if v.kind == "lineage_scope_mismatch"
+        ]
+        self.assertEqual(len(mismatches), 1)
+        self.assertIn("case", mismatches[0].detail)
+        self.assertIn("case-1", mismatches[0].detail)
+        self.assertIn("case-2", mismatches[0].detail)
+
+    def test_decision_fork_is_informational(self) -> None:
+        case_sha = self._publish_case("case-1")
+        self._publish(_export_decision("d-1", case_sha256=case_sha))
+        self._publish(
+            _export_decision("d-2", case_sha256=case_sha, supersedes="d-1")
+        )
+        self._publish(
+            _export_decision("d-3", case_sha256=case_sha, supersedes="d-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertIn(("d-1", ("d-2", "d-3")), report.forks)
+
+    def test_decision_self_reference(self) -> None:
+        case_sha = self._publish_case("case-1")
+        self._publish(
+            _export_decision("d-1", case_sha256=case_sha, supersedes="d-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"self_reference"})
+
+    def test_decision_lineage_cycle(self) -> None:
+        case_sha = self._publish_case("case-1")
+        self._publish(
+            _export_decision("d-1", case_sha256=case_sha, supersedes="d-2")
+        )
+        self._publish(
+            _export_decision("d-2", case_sha256=case_sha, supersedes="d-1")
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertIn("lineage_cycle", self._kinds(report))
+
+    # -- the unauthorized_export gate --------------------------------------
+
+    def test_allow_matching_receipt_ok(self) -> None:
+        decision_sha = self._publish_decision("d-1", "case-1")
+        self._publish(_export_receipt("x-1", decision_sha256=decision_sha))
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+
+    def test_deny_decision_receipt_unauthorized(self) -> None:
+        decision_sha = self._publish_decision(
+            "d-1", "case-1", outcome="deny", export_mode="local_full"
+        )
+        self._publish(
+            _export_receipt(
+                "x-1", decision_sha256=decision_sha, export_mode="local_full"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"unauthorized_export"})
+        gate = [v for v in report.violations if v.kind == "unauthorized_export"]
+        self.assertEqual(len(gate), 1)
+        self.assertIn("denies", gate[0].detail)
+
+    def test_mode_mismatch_receipt_unauthorized(self) -> None:
+        decision_sha = self._publish_decision(
+            "d-1", "case-1", outcome="allow", export_mode="local_full"
+        )
+        self._publish(
+            _export_receipt(
+                "x-1", decision_sha256=decision_sha, export_mode="metrics_only"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        gate = [v for v in report.violations if v.kind == "unauthorized_export"]
+        self.assertEqual(len(gate), 1)
+        self.assertIn("metrics_only", gate[0].detail)
+        self.assertIn("local_full", gate[0].detail)
+        self.assertNotIn("denies", gate[0].detail)
+
+    def test_deny_and_mode_mismatch_raise_single_violation(self) -> None:
+        # Both conditions trigger, but the contract is exactly one
+        # violation per offending receipt, its detail enumerating both.
+        decision_sha = self._publish_decision(
+            "d-1", "case-1", outcome="deny", export_mode="local_full"
+        )
+        self._publish(
+            _export_receipt(
+                "x-1", decision_sha256=decision_sha, export_mode="metrics_only"
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"unauthorized_export"})
+        gate = [v for v in report.violations if v.kind == "unauthorized_export"]
+        self.assertEqual(len(gate), 1)
+        self.assertIn("denies", gate[0].detail)
+        self.assertIn("metrics_only", gate[0].detail)
+        self.assertIn("local_full", gate[0].detail)
+
+    def test_receipt_on_superseded_decision_is_not_a_violation(self) -> None:
+        # Temporal-ordering boundary (ADR-0004 decision 3): the store
+        # carries no clock, so anchoring a receipt to a decision that was
+        # later superseded is not per se a violation.
+        case_sha = self._publish_case("case-1")
+        d1 = _export_decision("d-1", case_sha256=case_sha)
+        self._publish(d1)
+        self._publish(
+            _export_decision("d-2", case_sha256=case_sha, supersedes="d-1")
+        )
+        self._publish(_export_receipt("x-1", decision_sha256=self._sha(d1)))
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+
+    def test_receipt_with_dangling_decision_skips_gate(self) -> None:
+        # The broken anchor is reported once, as dangling_reference; the
+        # gate stays silent rather than double-counting it.
+        self._publish(_export_receipt("x-1", decision_id="d-absent"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_receipt_with_cross_type_decision_skips_gate(self) -> None:
+        case_sha = self._publish_case("case-1")
+        self._publish(
+            _export_receipt(
+                "x-1", decision_id="case-1", decision_sha256=case_sha
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"cross_type_reference"})
+
+    def test_receipt_with_wrong_decision_pin(self) -> None:
+        self._publish_decision("d-1", "case-1")
+        self._publish(_export_receipt("x-1", decision_sha256="9" * 64))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"pin_mismatch"})
+
+    # -- cross-family identity ---------------------------------------------
+
+    def test_duplicate_id_across_export_families(self) -> None:
+        case_sha = self._publish_case("case-1")
+        d1 = _export_decision("dup-1", case_sha256=case_sha)
+        self._publish(d1)
+        self._publish(
+            _export_receipt(
+                "dup-1", decision_id="dup-1", decision_sha256=self._sha(d1)
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
 
 
 class VerticalSampleTest(unittest.TestCase):

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "export-receipt/v1",
+  "title": "ExportReceipt v1",
+  "description": "A domain-neutral fact-axis record: one export event that actually happened, anchored to exactly one hash-pinned export decision. The fact axis is orthogonal to the permission axis and never writes back into the case package. Receipts carry no supersedes field: facts are not revised; recording errors are handled by governance, not by a core semantic (ADR-0004, decisions 1 and 4).",
+  "type": "object",
+  "required": [
+    "schema",
+    "receipt_id",
+    "decision",
+    "export_mode",
+    "artifacts",
+    "destination",
+    "exported_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "export-receipt/v1"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "decision": {
+      "type": "object",
+      "required": ["decision_id", "sha256"],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact export decision version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The single export decision this export event is anchored to. One-directional and hash-pinned; a receipt never references the case directly, so the permission chain stays traceable."
+    },
+    "export_mode": {
+      "enum": [
+        "local_full",
+        "local_redacted",
+        "benchmark_candidate",
+        "metrics_only"
+      ],
+      "description": "The export mode actually used (architecture vocabulary). Graph verification reports a mismatch against the anchored decision's mode as unauthorized_export."
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Mandatory content hash binding the exact exported bytes."
+          },
+          "locator": {
+            "type": "string",
+            "x-safe-relative-path": true,
+            "description": "Optional safe relative path to the artifact. Secondary to the hash, never a replacement. Absolute paths, UNC, drive letters, and '..' are rejected."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "What bytes left. Every artifact is bound to a content hash so the export event stays auditable; an empty artifact list would be an unauditable claim and is rejected."
+    },
+    "destination": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Audit label for where the export went (free text, not a locator). Cross-project destinations are not repository-relative paths; verifiability is carried by artifact content hashes, not by this label."
+    },
+    "exported_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}
