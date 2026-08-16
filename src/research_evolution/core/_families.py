@@ -14,7 +14,9 @@ table. Registry membership is the publishability boundary: a family whose
 schema exists but which has no entry here fails closed at publish time
 (:func:`._store.identity_of` raises). The case package joined in C4
 together with its closure validator, keeping "publishable exactly when
-the graph fully understands it" atomic.
+the graph fully understands it" atomic. The two export families joined
+in D3 (ADR-0004) the same way: one layer registering both families and
+the graph's ``unauthorized_export`` gate in a single commit.
 """
 
 from __future__ import annotations
@@ -28,6 +30,8 @@ RUN = "research-run/v1"
 OBSERVATION = "research-failure-observation/v1"
 ANALYSIS = "research-failure-analysis/v1"
 CASE = "research-case-package/v1"
+EXPORT_DECISION = "export-decision/v1"
+EXPORT_RECEIPT = "export-receipt/v1"
 
 
 @dataclass(frozen=True)
@@ -62,6 +66,7 @@ class SupersedesContract:
     ``scope="anchor"``: lineage ranges only over records sharing one anchor
     — the target id extracted from the ``anchor_field`` reference — so a
     failure analysis may supersede only within its own observation's chain
+    and an export decision only within its own case's chain
     (``lineage_scope_mismatch`` otherwise).
     """
 
@@ -207,6 +212,36 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="array_of_objects",
                     target_family=ANALYSIS,
                     target_id_field="analysis_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=EXPORT_DECISION,
+            identity_field="decision_id",
+            supersedes=SupersedesContract(
+                scope="anchor", anchor_field="case"
+            ),
+            references=(
+                ReferenceContract(
+                    field="case",
+                    shape="object",
+                    target_family=CASE,
+                    target_id_field="case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=EXPORT_RECEIPT,
+            identity_field="receipt_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="decision",
+                    shape="object",
+                    target_family=EXPORT_DECISION,
+                    target_id_field="decision_id",
                     pin_required=True,
                 ),
             ),

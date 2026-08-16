@@ -406,18 +406,43 @@ class PublishTest(unittest.TestCase):
             )
         self.assertEqual(_tree_snapshot(self.root), {})
 
-    def test_export_families_fail_closed_until_graph_knows_them(self) -> None:
-        # D2 window: the two export schemas validate and load, but the
-        # store registry has no family entries for them yet, so publishing
-        # must fail closed with zero writes. D3 closes this window in the
-        # same layer that registers both families and teaches the graph
-        # their semantics; this test is then replaced by the publication
-        # and graph coverage there.
-        with self.assertRaises(PublicationError):
-            self._publish(_export_decision("d-1"))
-        with self.assertRaises(PublicationError):
-            self._publish(_export_receipt("r-1"))
-        self.assertFalse(self.root.exists())
+    def test_export_chain_publishes_and_verifies(self) -> None:
+        # D3 closes the D2 fail-closed window: both export families are
+        # registered, publishable, and fully understood by the graph —
+        # the same atomic layer. A pinned task -> run -> case -> decision
+        # -> receipt chain must verify clean.
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run_receipt = self._publish(_run("r-1", task_sha256=task_sha))
+        case_receipt = self._publish(
+            _case(
+                "case-1",
+                task_sha256=task_sha,
+                runs=[{"run_id": "r-1", "sha256": run_receipt.sha256}],
+            )
+        )
+        decision_receipt = self._publish(
+            _export_decision("d-1", case_sha256=case_receipt.sha256)
+        )
+        self.assertEqual(decision_receipt.record_id, "d-1")
+        self.assertEqual(decision_receipt.schema_id, "export-decision/v1")
+        self.assertTrue(
+            decision_receipt.path.startswith("records/export-decision/v1/")
+        )
+        export_receipt = self._publish(
+            _export_receipt("x-1", decision_sha256=decision_receipt.sha256)
+        )
+        self.assertEqual(export_receipt.record_id, "x-1")
+        self.assertEqual(export_receipt.schema_id, "export-receipt/v1")
+        self.assertTrue(
+            export_receipt.path.startswith("records/export-receipt/v1/")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 5)
+        self.assertEqual(report.families["export-decision/v1"], 1)
+        self.assertEqual(report.families["export-receipt/v1"], 1)
 
     def test_phase_1c_chain_publishes_and_verifies(self) -> None:
         # C3 unlocks the three hierarchical families; a fully pinned

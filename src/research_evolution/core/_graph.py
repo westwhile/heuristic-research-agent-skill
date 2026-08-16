@@ -21,15 +21,24 @@ module holds no family knowledge of its own. Fail-closed checks:
   record lists a claim) without the reverse link — the only two-way pair;
   hierarchical references are one-directional and never raise it;
 - ``lineage_cycle``: ``supersedes`` edges form a cycle;
-- ``lineage_scope_mismatch``: a failure analysis supersedes an analysis
-  anchored to a different observation;
+- ``lineage_scope_mismatch``: a record with anchor-scoped lineage
+  supersedes a record anchored elsewhere (a failure analysis anchored to
+  a different observation, an export decision anchored to a different
+  case);
 - ``duplicate_reference``: one record's reference array lists the same
   target id more than once (case member arrays, ``supporting_evidence``,
   ``claim_ids``);
 - ``case_incomplete``: a case package's membership is not closed — a
   member analysis's observation/run/task anchor chain, a member claim's
   supporting evidence, or a member evidence record's supported claims
-  reach outside the package.
+  reach outside the package;
+- ``unauthorized_export``: an export receipt's anchored decision denies
+  the export, or the receipt's export mode differs from the decision's —
+  exactly one violation per offending receipt, its detail enumerating
+  every triggered condition (ADR-0004, decision 5). A receipt anchored
+  to a superseded decision is not per se a violation: the store carries
+  no clock, so "the anchor was already superseded at export time" is an
+  unprovable claim (ADR-0004, decision 3).
 
 Forks (two or more records superseding the same prior record) are **not**
 violations; they are reported as information. The core deliberately offers
@@ -45,6 +54,8 @@ from ._families import (
     CASE,
     CLAIM,
     EVIDENCE,
+    EXPORT_DECISION,
+    EXPORT_RECEIPT,
     FAMILIES,
     OBSERVATION,
     RUN,
@@ -255,6 +266,46 @@ def _check_case_closure(
     return violations
 
 
+def _check_export_authorization(
+    records: dict[str, dict[str, Record]],
+) -> list[GraphViolation]:
+    """Export gate (ADR-0004, decision 5): a receipt anchored to a decision
+    that denied the export, or whose export mode differs from the
+    decision's, is an unauthorized export. Exactly one violation per
+    offending receipt, its detail enumerating every triggered condition.
+
+    A receipt whose decision id resolves to no export-decision record is
+    skipped — ``dangling_reference`` (or ``cross_type_reference``) already
+    reports the broken anchor. Pin agreement on the decision reference is
+    covered by the generic reference walk.
+    """
+    violations: list[GraphViolation] = []
+    decisions = records.get(EXPORT_DECISION, {})
+    for rid in sorted(records.get(EXPORT_RECEIPT, {})):
+        data = records[EXPORT_RECEIPT][rid].data
+        did = data["decision"]["decision_id"]
+        decision = decisions.get(did)
+        if decision is None:
+            continue
+        reasons: list[str] = []
+        if decision.data["outcome"] == "deny":
+            reasons.append(f"decision {did!r} denies the export")
+        if data["export_mode"] != decision.data["export_mode"]:
+            reasons.append(
+                f"receipt used export_mode {data['export_mode']!r}, which "
+                f"differs from decision {did!r} mode "
+                f"{decision.data['export_mode']!r}"
+            )
+        if reasons:
+            violations.append(
+                GraphViolation(
+                    "unauthorized_export",
+                    f"export-receipt/v1 {rid!r}: " + "; ".join(reasons),
+                )
+            )
+    return violations
+
+
 def check_record_graph(
     records: dict[str, dict[str, Record]],
 ) -> tuple[list[GraphViolation], list[tuple[str, tuple[str, ...]]]]:
@@ -437,6 +488,11 @@ def check_record_graph(
     # Case membership closure: the composite cross-family check runs after
     # every per-family reference has been classified.
     violations.extend(_check_case_closure(records))
+
+    # Export authorization gate: same discipline — after classification, so
+    # a receipt with a broken decision anchor is skipped here (already
+    # reported) instead of being double-counted.
+    violations.extend(_check_export_authorization(records))
 
     for cycle in _find_lineage_cycles(supersedes_edges):
         violations.append(
