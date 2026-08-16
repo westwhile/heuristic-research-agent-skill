@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "claim-assessment/v1",
+  "title": "ClaimAssessment v1",
+  "description": "Adapter-layer exchange type: a domain assessment SUGGESTION for one claim payload and its evidence payloads — suggested claim_type, suggested disposition, an evidence-maturity CEILING (an upper bound, never a granted value), per-item reasons, and the domain rules that fired. An assessment never signs facts: promotion is decided by core evidence binding and the governance ladder, and adapters never write core records.",
+  "type": "object",
+  "required": [
+    "schema",
+    "suggested_claim_type",
+    "suggested_disposition",
+    "evidence_maturity_ceiling",
+    "reasons",
+    "triggered_rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "claim-assessment/v1"
+    },
+    "suggested_claim_type": {
+      "enum": [
+        "engineering_claim",
+        "data_claim",
+        "mathematical_claim",
+        "empirical_claim",
+        "predictive_claim",
+        "strategy_claim",
+        "production_claim"
+      ],
+      "description": "One of the seven governance claim types (mirrors research-claim/v1 claim_type). A suggestion; the core claim record keeps the final word."
+    },
+    "suggested_disposition": {
+      "enum": [
+        "proposed",
+        "supported",
+        "refuted",
+        "inconclusive",
+        "superseded",
+        "withdrawn"
+      ],
+      "description": "Suggested lifecycle disposition. inconclusive is a legitimate terminal suggestion and must never be forced into supported/refuted."
+    },
+    "evidence_maturity_ceiling": {
+      "enum": [
+        "draft",
+        "engineering_verified",
+        "data_accepted",
+        "evaluation_eligible",
+        "empirically_supported",
+        "mathematically_verified",
+        "externally_validated",
+        "production_observed"
+      ],
+      "description": "Upper bound on the governance evidence ladder (docs/governance/RESEARCH_CLAIM_GOVERNANCE.md), not a granted maturity. Domain caps apply: pure numeric/computational math evidence without a proof certificate caps at engineering_verified; synthetic or sample quant evidence caps at data_accepted; production_observed is never granted by an adapter."
+    },
+    "reasons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Per-item reasons for the suggestion. A suggestion without reasons is not assessable."
+    },
+    "triggered_rules": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Identifiers of the domain rules that fired. Required; write an explicit empty array when no rule fired."
+    }
+  },
+  "additionalProperties": false
+}

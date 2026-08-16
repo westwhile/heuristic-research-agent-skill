@@ -1,0 +1,14 @@
+{
+  "schema": "claim-assessment/v1",
+  "suggested_claim_type": "empirical_claim",
+  "suggested_disposition": "supported",
+  "evidence_maturity_ceiling": "data_accepted",
+  "reasons": [
+    "The synthetic walk-forward replay stayed inside the declared cost envelope.",
+    "All evidence derives from synthetic fixtures, so the ceiling stops at data_accepted."
+  ],
+  "triggered_rules": [
+    "synthetic-data-ceiling",
+    "pit-alignment-check"
+  ]
+}

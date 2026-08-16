@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domain-task/v1",
+  "title": "DomainTask v1",
+  "description": "Adapter-layer exchange type: the normalized result of one domain task — domain label, the adapter schema version the domain payload conforms to, the validated domain payload, and the mapped research-task/v1 draft. Seam exchange types are translation contracts, not store facts: they never enter the core family registry and can never be published to a core store.",
+  "type": "object",
+  "required": [
+    "schema",
+    "domain",
+    "domain_schema_id",
+    "domain_payload",
+    "core_task_draft"
+  ],
+  "properties": {
+    "schema": {
+      "const": "domain-task/v1"
+    },
+    "domain": {
+      "enum": [
+        "math",
+        "quant"
+      ],
+      "description": "Domain label of the producing adapter. Frozen to the two v1 domains; a third domain requires a new adapter schema version (ADR-0005 decision 10)."
+    },
+    "domain_schema_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+/v[1-9][0-9]*$",
+      "description": "Schema id (for example math-task/v1) of the domain input schema the payload conforms to. The owning adapter validates domain_payload against it; the seam layer only pins the versioned reference."
+    },
+    "domain_payload": {
+      "type": "object",
+      "description": "Validated domain input. Deliberately unconstrained here: the domain shape is owned by the referenced domain schema, never by the seam layer."
+    },
+    "core_task_draft": {
+      "type": "object",
+      "required": [
+        "schema"
+      ],
+      "properties": {
+        "schema": {
+          "const": "research-task/v1"
+        }
+      },
+      "description": "Mapped research-task/v1 payload draft. Only the schema tag is pinned here; full validation happens when a caller loads or publishes the draft through the core API."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "domain-task/v1",
+  "domain": "math",
+  "domain_schema_id": "math-task/v1",
+  "domain_payload": {},
+  "core_task_draft": {
+    "schema": "research-task/v1"
+  }
+}
