@@ -1,7 +1,7 @@
-# Core Interface（Phase 1B）
+# Core Interface（Phase 1C）
 
-- 版本：Phase 1B（`feat/core-publication-graph-v1`）
-- 覆盖 schema：`research-task/v1`、`research-claim/v1`、`research-evidence/v1`（schema 文本相对 Phase 1A 零漂移）
+- 版本：Phase 1C（`feat/core-run-failure-case-v1`）
+- 覆盖 schema：`research-task/v1`、`research-claim/v1`、`research-evidence/v1`、`research-run/v1`、`research-failure-observation/v1`、`research-failure-analysis/v1`、`research-case-package/v1`（前三个 schema 文本相对 Phase 1A 零漂移，后四个为 Phase 1C 新增）
 - 代码位置：`src/research_evolution/core/`；schema 文本：`schemas/core/`；fixtures：`tests/fixtures/core/`
 
 ## 1. 范围与非目标
@@ -12,12 +12,14 @@ Phase 1A 交付了通用记录内核的最小可验证子集（严格 JSON、sch
 - 记录图 manifest 的确定性生成与全图验证（`verify_record_graph`）；
 - `supersedes` lineage 校验（悬空/自引用/跨类型引用/cycle）与 Claim/Evidence 双向一致性。
 
-三个 v1 schema 文本、全部 53 个 fixtures 与 golden hash 保持不变。
+Phase 1C 补齐四个层级/打包 envelope 并交付完整图语义：Run（单次执行的冻结记录）、FailureObservation（只存可观察事实）、FailureAnalysis（锚定单 Observation 的可修订假设）、ResearchCasePackage（成员打包与闭包）。图校验重构为由 family contract registry（`_families.py`，单一私有元数据源）驱动：一个 family 可发布当且仅当图校验在同一提交中完整认识它，不存在"已发布但图不认识"的中间态（ADR-0003 决策 10 与拒绝方案 1）。
+
+Phase 1A 的三个 v1 schema 文本、53 个 fixtures 与 golden hash 字节零漂移；Phase 1C 新增四个 schema 与 34 个 fixtures（共 87 个）。
 
 明确不包含（属于后续批次，不在本接口承诺内）：
 
-- `Run`、`FailureObservation`、`FailureAnalysis`、`ResearchCasePackage` 等其余 schema（Phase 1C 交付；schema 命名、单向引用与闭包合同见 ADR-0003）；`ExperiencePacket` 已定性为 Exporter 派生产物，不作为 Core schema（ADR-0003 决策 9）；
-- 隐私分级与 redaction 执行器（本批只能发布到调用方显式传入的本地 repository root，不支持跨项目导出）；Phase 1C 的 Case v1 仅含 `privacy_review_status ∈ {"pending"}` 且一律不可导出，正式隐私/导出合同由 ADR-0004 承接、永不回写 Case（ADR-0003 决策 8）；
+- `EvaluationCase`、`CandidateBundle`、`PromotionDecision` 等其余 schema；`ExperiencePacket` 已定性为 Exporter 派生产物，不作为 Core schema（ADR-0003 决策 9）；
+- 隐私分级与 redaction 执行器（本批只能发布到调用方显式传入的本地 repository root，不支持跨项目导出）；Case v1 仅含 `privacy_review_status ∈ {"pending"}` 且一律不可导出，正式隐私/导出合同由 ADR-0004 承接、永不回写 Case（ADR-0003 决策 8）；
 - CLI、Adapter、数据库、安装与部署；
 - 跨进程并发发布（仅保证进程内按 store root 串行化）；
 - 只有单一实现的 Storage Adapter 端口（理由见 `docs/decisions/0002-core-publication-graph-interface.md`）。
@@ -61,7 +63,7 @@ from research_evolution.core import (
 | `RecordValidationError` | schema 校验失败；`.violations` 给出全部违规路径 |
 | `SchemaDefinitionError` | schema 文件自身非法（关键字值类型/范围/组合约束违规、文件名/$id/const 不一致、重复 id） |
 | `UnsafePathError` | 直接调用路径校验时的违规（schema 校验中则记入 violations） |
-| `PublicationError` | 发布违反 append-only 合同：同一逻辑 id 以不同内容重复发布（修订必须新 id + `supersedes`）、schema family 无已知身份字段 |
+| `PublicationError` | 发布违反 append-only 合同：同一逻辑 id 以不同内容重复发布（修订必须新 id + `supersedes`）、schema family 未注册于 family contract registry（无已知身份字段） |
 | `StoreIntegrityError` | 发布前在 root 锁内对既有 store 做完整对账，任何完整性发现（manifest 不可解析/非 canonical 字节/条目篡改、条目指向的记录缺失/损坏、未登记记录、重复逻辑 id、records/ 树内异物或 reparse point、保留节点类型异常或 stat 不可判定、records/ 存在而 manifest 缺失）都拒绝发布——在写入任何东西之前抛出；唯一例外是待发布记录自身的同内容崩溃孤儿；写入阶段的全部 OS 失败（存储目录创建、暂存文件打开/写入/fsync、记录硬链接、manifest 替换；如 root 祖先为普通文件、磁盘满、只读 manifest）同样抛此错而非裸 OS 异常，且不产生部分提交；验证路径不抛出，而是逐项记入 violations |
 
 ## 3. 记录模型
@@ -86,6 +88,24 @@ from research_evolution.core import (
 - 每个输入必须有 `name` 与 `kind`（code/config/data/case/environment/runner/other），且 `locator` 与 `sha256` **至少存在一个**（`x-at-least-one-of` 强制），不允许完全不可定位、不可验证的输入；
 - `evidence_level` 是有意的自由字符串：证据阶梯是领域语义，由各领域 Adapter 约束；内核永远不自动升级证据等级；
 - `claim_ids` 与 Claim 的 `supporting_evidence` 之间的一致性由 `verify_record_graph` 在图阶段强制（§10）：单向链接、悬空引用与 pin 不符均为 violation。
+
+### 3.4 research-run/v1
+
+一次任务执行的冻结记录：hash 钉住的 task 引用（单向、必 pin，ADR-0003 决策 2/3）、执行者（工具/版本/可选模型）、环境组件清单（每项绑定版本标识）、输入清单、随机性处置与起止时间。字段词汇为未来 Candidate/Champion 冻结比较预留，不含领域语义（决策 4）。每个输入强制绑定内容哈希（`sha256` 必填；`locator` 只是辅助定位、永不替代哈希）；`randomness.mode` 必填二值（`fixed_seed` / `uncontrolled`），使随机性处置永远显式、不得隐式。
+
+已知边界：`fixed_seed` 模式下 `seed` 值可缺席。schema 子集唯一的条件关键字 `x-conditional-min-items` 是"判别器 → 目标数组 minItems"导向，无法表达"枚举值 → 标量字段必填"；为此扩展引擎等于在 Phase 1A 冻结表面上重复 `uniqueItems` 的拒绝理由（ADR-0003 拒绝方案 3 的同一判据），故不做。语义定为：mode 声明即冻结主张，seed 值可选；种子实质上重要时应经 inputs/config 的内容哈希捕获。若未来冻结比较需要强制 seed 值，走新 ADR。
+
+### 3.5 research-failure-observation/v1
+
+只保存检查当时可直接观察的事实：锚定 run（单向、必 pin）、观察者（工具/版本/可选模型）、事实清单（`facts`，非空字符串数组）与观察时间。任何根因或假设字段在 schema 层不可表达——属性集封闭且 `additionalProperties: false`（ADR-0003 决策 5）。解释与假设属于 FailureAnalysis，永不属于本记录；Observation 也不可被 Analysis 覆盖或冒充——两者是不同 family，跨类型引用由图校验拒绝。
+
+### 3.6 research-failure-analysis/v1
+
+锚定恰好一个 Observation（单向、必 pin）的可修订假设记录；`hypotheses` 只陈述假设，不得表述为已成立事实。修订以新 id 发布并经 ID-only `supersedes` 指向前驱，构成 append-only 链；lineage 范围限定在同一锚定 Observation 内（registry 中 `scope="anchor"`），跨锚 supersedes 报 `lineage_scope_mismatch`（§10）。跨 Observation 的综合分析不属于 v1，留待更高层对象（ADR-0003 决策 5 及其后果）。
+
+### 3.7 research-case-package/v1
+
+把一次研究的相关记录打包为不可变成员集合：恰好一个 hash 钉住的 `task`、至少一个 hash 钉住的 `runs`，以及各自独立可空的 `claims`/`evidence`/`observations`/`analyses` 四个成员数组——全部成员引用强制 pin（ADR-0003 决策 7）。成员性不只是列表：图阶段强制执行闭包（§10 `case_incomplete`）——成员 Analysis 的锚链（Observation→Run→Task）必须全部在包内、成员 Claim 的 `supporting_evidence` 必须 ⊆ 包内 evidence、成员 Evidence 的 `claim_ids` 必须 ⊆ 包内 claims；成员 pin 一致性与成员数组内重复 id 由通用引用行走覆盖（`pin_mismatch` / `duplicate_reference`）。空集纪律：Evidence 非空时其关联 Claim 必须被收录；Claim 非空而 Evidence 为空仅受既有 draft/proposed/inconclusive schema 约束；两者都空的 Run/Failure trace 只是工程留档，不得表述为科研证据或支持任何 Claim。`privacy_review_status` 单轴固定为 `pending`：本批无导出通道、Case 一律不可导出；导出许可与导出事实是正交状态轴，由 ADR-0004 的独立记录表达，永不回写 Case（决策 8）。
 
 ## 4. 严格 JSON 规则
 
@@ -143,8 +163,8 @@ Canonical 形式（v1）：
 
 1. 新记录**原子创建**：先在 `<root>/.tmp/` 完整写入临时文件并 fsync，再以同卷硬链接提交到最终路径——已存在字节永不被覆盖，中断不会留下可见的半记录；
 2. 同一逻辑 id、同一 hash 的重试只返回 `already_present=True`，**磁盘零变化**（含 manifest），exact replay 不产生任何写入；
-3. 同一逻辑 id、不同 hash 抛 `PublicationError`；修订只能使用新 id 并在记录内以 `supersedes` 指向前驱（当前仅 `research-claim/v1` 声明该字段）；
-4. schema family 无已知身份字段（`_ID_FIELDS` 之外的 family）抛 `PublicationError`，不得发布；
+3. 同一逻辑 id、不同 hash 抛 `PublicationError`；修订只能使用新 id 并在记录内以 `supersedes` 指向前驱（`research-claim/v1` 与 `research-failure-analysis/v1` 声明该字段）；
+4. schema family 未注册于 family contract registry（`_families.py`；发布时身份字段即由它派生）抛 `PublicationError`，不得发布——registry 成员即发布边界，与图校验的认识范围恒一致（ADR-0003 决策 10）；
 5. 发布前在 root 锁内对既有 store 做**完整对账**（与验证同一套 reconcile）：任何完整性发现——manifest 不可解析/非 canonical 字节/条目篡改、条目指向的记录缺失或字节不符、records/ 存在而 manifest 缺失、未登记的额外记录、重复逻辑 id、records/ 树内异物或 reparse point、保留节点类型异常——均抛 `StoreIntegrityError`，且**尚未写入任何字节**。唯一例外：findings 集合**严格等于**待发布记录自身的 `extra_record` 一条（上次崩溃留下的同内容孤儿）时，按 §9 收养路径自愈、不重写字节；manifest 确定性检查与其他 findings 相互独立，任何篡改都不得借孤儿例外掩盖；
 6. 发布只执行单记录身份不变量，不做图校验——跨记录一致性是 `verify_record_graph` 的职责（允许以任意顺序发布相互引用的记录）。
 
@@ -161,6 +181,10 @@ Canonical 形式（v1）：
         research-task/v1/<sha256>.json
         research-claim/v1/<sha256>.json
         research-evidence/v1/<sha256>.json
+        research-run/v1/<sha256>.json
+        research-failure-observation/v1/<sha256>.json
+        research-failure-analysis/v1/<sha256>.json
+        research-case-package/v1/<sha256>.json
     .tmp/             # 写入暂存区；不属于被验证表面
 ```
 
@@ -194,19 +218,22 @@ Canonical 形式（v1）：
 | `unexpected_node_type` | 保留节点类型异常（如 manifest.json 是目录、records/ 是普通文件） |
 | `store_unreadable` | records 树内目录无法列举、manifest 或记录文件无法读取、节点 stat 因"不存在"以外的原因失败而不可判定（权限或 I/O 错误） |
 
-**图阶段**（仅对干净识别的记录运行）：
+**图阶段**（仅对干净识别的记录运行；全部 per-family 规则由 `_families.py` 的 family contract registry 驱动展开，引用语义与违规 kind 的对应关系见 ADR-0003 决策 6/11）：
 
 | violation kind | 含义 |
 |---|---|
 | `duplicate_id` | 同一逻辑 id 出现在两个及以上 family——逻辑 id 必须全局唯一，碰撞永远不承载合法语义（区别于 fork：fork 是合法分歧，只作信息位）；每个碰撞 id 报一条，detail 按序列出全部涉及 family。同 family 同 id 出现在多个文件属完整性阶段的 `duplicate_record` |
 | `dangling_reference` | 引用指向任何 family 中都不存在的 id |
 | `cross_type_reference` | 引用指向存在但类型错误的 id（如 `supporting_evidence` 指向 task id、`supersedes` 指向 evidence id） |
-| `self_reference` | claim 的 `supersedes` 指向自身 |
-| `pin_mismatch` | claim 钉住的 evidence SHA-256 与存储记录实际 hash 不符 |
-| `one_way_link` | claim 与 evidence 之间只有单向引用 |
-| `lineage_cycle` | claim 的 `supersedes` 边构成环；supersedes 是函数图，环互不相交，逐环各报一条、枚举全部 |
+| `self_reference` | 记录的 `supersedes` 指向自身（claim 或 failure analysis） |
+| `pin_mismatch` | 引用携带的 SHA-256 pin 与存储记录实际 hash 不符。层级/打包引用（`run.task`、`observation.run`、`analysis.observation`、Case 全部六类成员引用）强制 pin；claim↔evidence 的 pin 可选；只要 pin 出现即核对 |
+| `one_way_link` | claim 与 evidence 之间只有单向引用。这是唯一的双向对；层级/打包引用单向、永不触发本 kind |
+| `lineage_cycle` | `supersedes` 边构成环（claim 或 failure analysis）；supersedes 是函数图，环互不相交，逐环各报一条、枚举全部 |
+| `lineage_scope_mismatch` | failure analysis 的 `supersedes` 目标锚定不同的 Observation——analysis lineage 只在同一锚内展开；detail 给出双方锚 id。跨锚边仍保留在 cycle/fork 图中，本 kind 与 `lineage_cycle` 可同时成立、分别报告 |
+| `duplicate_reference` | 同一条记录的引用数组内同一目标 id 重复出现（Case 五类成员数组、`supporting_evidence`、`claim_ids`；单对象引用不适用）；每个重复 id 报一条，detail 含出现次数。相对 1B 语义属有意的合同收紧（1B 下重复的 `supporting_evidence`/`claim_ids` 曾静默；1B store 无生产存量，ADR-0003 决策 11） |
+| `case_incomplete` | Case 成员闭包缺员（ADR-0003 决策 7 规则 ①–③）：① 成员 Analysis 的锚链 Observation→Run→Task 必须在包内，逐链枚举——一条完全未打包的链最多报三条（锚定 Observation 非成员、其 Run 非成员、Run 属于其他 Task）；② 成员 Claim 的 `supporting_evidence` 含包外 evidence；③ 成员 Evidence 的 `claim_ids` 含包外 claim。store 中缺席的记录跳过该链（`dangling_reference` 已先行报告）；规则 ④ 成员 pin 一致性与 ⑤ 成员数组内重复由通用引用行走覆盖（`pin_mismatch` / `duplicate_reference`），不重复实现 |
 
-**fork 不判错**：多条 claim supersedes 同一前驱只记入 `report.forks` 信息位；Core 不提供"自动选择最新版本"的语义。Task 与 Evidence 在 v1 没有 `supersedes` 字段，其"修订"语义是新 id 新记录。
+**fork 不判错**：多条记录 supersedes 同一前驱（claim 或 failure analysis）只记入 `report.forks` 信息位；Core 不提供"自动选择最新版本"的语义。Task、Evidence、Run、Observation 与 Case 在 v1 没有 `supersedes` 字段，其"修订"语义是新 id 新记录。
 
 `report` 另含 `records_total`、`families`（各 family 计数）、`manifest_sha256`（磁盘 manifest 实际字节的哈希；manifest 缺失或不可读时为 `None`），全部可经 `to_dict()` 序列化为严格 JSON。
 
@@ -214,7 +241,7 @@ Canonical 形式（v1）：
 
 以下输入必须失败且不得降级为警告：duplicate key（任意层级）、非有限数、数字任何位置的 Unicode 十进制数字（如 `1٢`、`0.١`、`1e２`；字符串内容除外）、孤立 surrogate、超冻结协议位数整数、十进制规模超限字面量（如 `1e9999`）、进入 canonical 入口的非 JSON 数据模型值（非字符串 object 键、tuple、set、bytes）、路径逃逸与路径别名（盘符/UNC/根/`..`/尾随点/设备名/控制字符/反斜杠）、未知 schema id、缺失必填字段、额外字段、枚举越界、哈希尾随字符（长度合同拒绝）、语义或形状非法时间戳（含纯日期）、纯空白语义字符串（`title`/`statement`/`scope`/`applicability`/`evidence_level` 等）、无绑定的 evidence 输入、`proposed`/`inconclusive` 之外的 disposition（含 `supported`/`refuted`/`superseded`/`withdrawn`）或非 `draft` 成熟度却没有证据引用的 Claim、schema 文件使用未支持关键字或非法关键字值。
 
-发布与图校验路径同样全部 fail-closed：同一逻辑 id 以不同内容重复发布（`PublicationError`）、无身份字段的 family 发布（`PublicationError`）、已损坏或被篡改 store 上的任何发布（`StoreIntegrityError`，未写入字节）、写入路径全部 OS 失败（存储目录创建、暂存文件打开/写入/fsync、记录硬链接、manifest 替换；`StoreIntegrityError`，无部分提交，绝不泄漏裸 OS 异常）、记录被改写/删除/额外插入/重复 id/非 canonical 字节、manifest 缺失/畸形/非确定性/条目篡改、records/ 树内异物或 reparse point、保留节点类型异常、records 树不可读、悬空引用、跨类型引用、跨 family 重复逻辑 id（`duplicate_id`）、自引用、pin 不符、单向链接、lineage cycle（均为验证 violation，`ok=False`）。
+发布与图校验路径同样全部 fail-closed：同一逻辑 id 以不同内容重复发布（`PublicationError`）、未注册 family 发布（`PublicationError`）、已损坏或被篡改 store 上的任何发布（`StoreIntegrityError`，未写入字节）、写入路径全部 OS 失败（存储目录创建、暂存文件打开/写入/fsync、记录硬链接、manifest 替换；`StoreIntegrityError`，无部分提交，绝不泄漏裸 OS 异常）、记录被改写/删除/额外插入/重复 id/非 canonical 字节、manifest 缺失/畸形/非确定性/条目篡改、records/ 树内异物或 reparse point、保留节点类型异常、records 树不可读、悬空引用、跨类型引用、跨 family 重复逻辑 id（`duplicate_id`）、自引用、跨锚 supersedes（`lineage_scope_mismatch`）、引用数组内重复 id（`duplicate_reference`）、Case 闭包缺员（`case_incomplete`）、pin 不符、单向链接、lineage cycle（均为验证 violation，`ok=False`）。
 
 ## 12. 测试与 fixtures
 
@@ -225,13 +252,14 @@ python -B -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 - `tests/unit/`：strict JSON（含精确十进制数值模型与冻结协议上限、数字三位置 Unicode 数字拒绝——整数尾部/小数部分/指数部分 × Arabic-Indic/full-width、字符串内 Unicode 数字合法）、safe path、canonical/hash（含 Decimal 规范化与 float 一致性、迭代式序列化器与公共接口深度边界——498 层合法记录走完整 `load_record` 管线、600 层拒绝、`10**5000` 整数拒绝）、record facade（含迭代深拷贝的深层变异隔离）、schema 定义 mutation（52 个变异全部要求 `SchemaDefinitionError`）、schema 边界关键字数学整数语义（`1.0` 接受且归一化后真实生效、`1.5`/负数/boolean 拒绝，覆盖 `minLength`/`maxLength`/`minItems`/`maxItems`/`min_items`）、JSON 等价语义（const/enum/条件门的 bool-number 分离与精确十进制等价，含 `10**24`/`1e24` 大数回归）、冻结数值协议子进程回归（`FrozenNumericProtocolTest` 以 `PYTHONINTMAXSTRDIGITS=0/640` 启动子进程运行 `tests/unit/_frozen_protocol_probe.py`——该文件是四模式探针脚本、不匹配 `test_*.py` 故不被 discover 收集——验证 cap=0 时 `0.1`/`1e999`/700 位整数仍按冻结常量精确接受，且含大指数小数的记录在默认解释器与 cap=0 子进程中产生相同 SHA-256）、确定性根因回归（`NoGlobalRecursionStateTest` 以 `noglobal` 模式在内核导入前把 `sys.getrecursionlimit`/`sys.setrecursionlimit` 替换为调用即失败探针、真实限制钉在 100——任何对进程级 recursion limit 的读/写都确定性失败；solo 与双线程并发判定全部通过且零调用、零漂移）、并发压力子进程回归（`RecursionLimitStressTest` 以 `stress 300`/`stress 2000` 调用探针：400 层预算内输入在两条公共路径单独与双线程 barrier 夹逼下接受且哈希一致，600 层始终 `StrictJsonError`——barrier 不能确定性强制解析区重叠，此项仅为 stress 证据）、stdlib scanner parity 回归（`StdlibScannerParityTest` 以 `parity` 模式对 valid/invalid 语料在 C scanner 与纯 Python scanner 下做 differential 比对，语料含数字三位置 Unicode 数字拒绝案例：内核解析器不调用 stdlib json，scanner 选择对判定无影响）；
-- `tests/contract/test_core_schemas_contract.py`：fixture 树与清单双向精确相等（目录级发现，清单外新 family/version 或游离文件即失败）、valid/invalid 行为逐项断言预期错误类别与原因、golden hash、schema 完整性与领域中性扫描；
-- `tests/unit/test_publication.py`：发布路径——内容寻址创建、receipt 绑定 manifest hash、exact replay 磁盘零变化（全树快照对比，含 `.tmp`）、同 id 异内容 `PublicationError` 且磁盘不变、新 id + `supersedes` 修订流程、中断发布两个崩溃窗口（记录已链接 manifest 未更新 → `extra_record` 检出并按同内容收养自愈、字节不重写；首次发布即崩溃 → `manifest_missing` + 发布拒绝写入）、`.tmp` 残留对验证不可见、manifest 篡改（重格式化/垃圾字节）拒绝后续发布、`already_present` 先核实磁盘字节再返回、同记录与不同记录的并发发布串行化、无身份字段 family fail-closed、发布守卫（`PublishGuardTest`：四种脏 store 变体——既有记录删除/损坏、manifest 条目篡改、未登记记录——下一条发布均抛 `StoreIntegrityError` 且全树快照零变化、待发布记录自身的同内容崩溃孤儿收养、records 根与 family version 两级 junction 拒绝且 root 外目录零写入（仅 Windows，`mklink /J`）、manifest.json 为目录与 records/ 为普通文件两类保留节点类型异常——verify 报 `unexpected_node_type`、publish 抛 `StoreIntegrityError` 而非裸 OS 异常；孤儿例外不掩盖组合篡改——目标 orphan 与非 canonical manifest 或条目乱序 manifest 同时存在时发布阻断且全树快照零变化；store root 本身为 junction 同样拒绝，且 root 位于 junction 之下的嵌套路径（nested-store 尚不存在/已存在于 junction target 两种形态）也拒绝、junction target 零写入——词法 root 即 containment 边界，其全部现存祖先组件不得含 reparse point；相对 root 在 junction 内的 cwd 下同样拒绝（词法绝对化后逐组件检查）；root 在操作入口钉死为词法绝对路径、preflight/锁键/对账/写盘全程使用钉死值，进程内 cwd 中途变更无法分离检查与写入对象（确定性回归：mock reconcile 调用中 chdir，未钉死变体稳定失败为 `store_root_missing`）；钉死发生在 `load_record` 之前的入口首步（回归：mock load_record 内 chdir，晚钉死变体把 store 写进 dir-b 被杀灭），相对 `schema_root` 同样钉死（回归：mock 逐条 load 内 chdir 到弱 schema 目录，未钉死变体把严格 `record_invalid` 翻转成假 `ok=True` 被杀灭）；root 与 `schema_root` 由**同一次**入口 cwd 快照钉死（确定性回归：mock `os.path.abspath` 仅在转换 schema 参数时 chdir 到弱 schema 目录——修复后实现不调用 `os.path.abspath`，hook 惰性，严格 schema 仍拒绝发布且 dir-a/dir-b 零写入；恢复逐参数 `abspath` 的 mutation 形态下 hook 在第二次转换点火、弱 schema 放行，测试确定性失败，已实测杀灭）；进程内锁键为钉死路径的纯词法 normcase，绝不 resolve、不再读取进程 cwd；写入路径 I/O 失败不泄漏裸 OS 异常（root 祖先为普通文件——真实文件系统、跨平台均 `StoreIntegrityError`；目录创建被拒与暂存 `mkstemp` 被拒——mock 注入，三者均断言零写入/无部分提交；暂存写入/fsync 失败（磁盘满）与记录硬链接失败——mock 注入，包装为 `StoreIntegrityError` 且 `.tmp` 无残留、无 record/manifest；manifest 替换被拒——mock 注入，包装且 manifest 字节不变、已链接记录按崩溃窗口成为 `extra_record` 孤儿；暂存清理为尽力而为——清理 `unlink` 失败（反病毒瞬时锁，mock 注入）既不掩盖已包装的主错误（仍抛写失败的 `StoreIntegrityError`）也不破坏正常提交（残留 `.tmp` 孤儿对验证不可见））；
-- `tests/unit/test_graph_verification.py`：全图验证——空 store/缺失 root、三类合法链接（含 pin 与无 pin）、三类悬空引用、三类跨类型引用、自引用、pin 不符、双向单向链接、2/3 节点 lineage cycle、合法链、fork 仅信息位，以及篡改类：记录改写/损坏/删除/额外插入/非 canonical 字节、manifest 条目删除/hash 篡改/重复条目/删除、异物、误放文件、跨文件重复逻辑 id、manifest 非确定性重写（`manifest_not_deterministic` 且仅此一条）、两个互不相交 lineage cycle 各报一条全枚举、records 树不可读（`store_unreadable`，mock 注入列举失败，发布同被阻断）、manifest 与记录文件不可读（`store_unreadable`，mock 注入读取失败，verify 与 publish 双路径均不泄漏裸 OS 异常）、非 symlink/junction 的其他 reparse tag（白盒：对保留节点注入 `FILE_ATTRIBUTE_REPARSE_POINT`，verify 报 `reparse_point`、publish 阻断）、保留节点与 root 组件 lstat 失败 fail-closed（`store_unreadable`/`StoreIntegrityError`，"不可判定"绝不当"安全"）、store 路径 resolve 失败时 verify 仍返回 violation 而不泄漏异常（preflight 纯词法且先于加锁）；跨 family 重复逻辑 id（两 family 碰撞单条 `duplicate_id` 且为唯一 violation、三 family 全互链形态仍仅一条且 detail 列出全部 family、id 全局唯一时零误报）；manifest 条目字段非字符串（`manifest_malformed`，detail 含 "must be a string"，且阻断下一条发布）；
-- `tests/fixtures/core/<family>/<version>/{valid,invalid}/`：合成、脱敏、明确标记的样例（当前 6 valid + 47 invalid，共 53 个，与 Phase 1A 完全相同）。invalid 文件按失败类别命名，新增或删除文件都会使合同测试失败。
+- `tests/unit/test_families.py`：family contract registry 不变量——七 family 显式成员枚举（新增 family 必须同步更新本测试的可执行摩擦点）、身份字段逐 family 唯一、引用目标 family 均已注册、引用形状与 id 键一致、双向对对称且恰为 claim↔evidence 一对、supersedes scope 合法（anchor scope 的锚字段必须是已声明引用）、层级引用必 pin；
+- `tests/contract/test_core_schemas_contract.py`：fixture 树与清单双向精确相等（目录级发现，清单外新 family/version 或游离文件即失败）、valid/invalid 行为逐项断言预期错误类别与原因、逐 family golden pin（`MINIMAL_FIXTURE_SHA256` dict，task 原值相对 Phase 1A 逐字未动）、已注册 schema 集合恰为七 family（sorted 断言）、schema 完整性与领域中性扫描；
+- `tests/unit/test_publication.py`：发布路径——内容寻址创建、receipt 绑定 manifest hash、exact replay 磁盘零变化（全树快照对比，含 `.tmp`）、同 id 异内容 `PublicationError` 且磁盘不变、新 id + `supersedes` 修订流程、中断发布两个崩溃窗口（记录已链接 manifest 未更新 → `extra_record` 检出并按同内容收养自愈、字节不重写；首次发布即崩溃 → `manifest_missing` + 发布拒绝写入）、`.tmp` 残留对验证不可见、manifest 篡改（重格式化/垃圾字节）拒绝后续发布、`already_present` 先核实磁盘字节再返回、同记录与不同记录的并发发布串行化、无身份字段 family fail-closed、发布守卫（`PublishGuardTest`：四种脏 store 变体——既有记录删除/损坏、manifest 条目篡改、未登记记录——下一条发布均抛 `StoreIntegrityError` 且全树快照零变化、待发布记录自身的同内容崩溃孤儿收养、records 根与 family version 两级 junction 拒绝且 root 外目录零写入（仅 Windows，`mklink /J`）、manifest.json 为目录与 records/ 为普通文件两类保留节点类型异常——verify 报 `unexpected_node_type`、publish 抛 `StoreIntegrityError` 而非裸 OS 异常；孤儿例外不掩盖组合篡改——目标 orphan 与非 canonical manifest 或条目乱序 manifest 同时存在时发布阻断且全树快照零变化；store root 本身为 junction 同样拒绝，且 root 位于 junction 之下的嵌套路径（nested-store 尚不存在/已存在于 junction target 两种形态）也拒绝、junction target 零写入——词法 root 即 containment 边界，其全部现存祖先组件不得含 reparse point；相对 root 在 junction 内的 cwd 下同样拒绝（词法绝对化后逐组件检查）；root 在操作入口钉死为词法绝对路径、preflight/锁键/对账/写盘全程使用钉死值，进程内 cwd 中途变更无法分离检查与写入对象（确定性回归：mock reconcile 调用中 chdir，未钉死变体稳定失败为 `store_root_missing`）；钉死发生在 `load_record` 之前的入口首步（回归：mock load_record 内 chdir，晚钉死变体把 store 写进 dir-b 被杀灭），相对 `schema_root` 同样钉死（回归：mock 逐条 load 内 chdir 到弱 schema 目录，未钉死变体把严格 `record_invalid` 翻转成假 `ok=True` 被杀灭）；root 与 `schema_root` 由**同一次**入口 cwd 快照钉死（确定性回归：mock `os.path.abspath` 仅在转换 schema 参数时 chdir 到弱 schema 目录——修复后实现不调用 `os.path.abspath`，hook 惰性，严格 schema 仍拒绝发布且 dir-a/dir-b 零写入；恢复逐参数 `abspath` 的 mutation 形态下 hook 在第二次转换点火、弱 schema 放行，测试确定性失败，已实测杀灭）；进程内锁键为钉死路径的纯词法 normcase，绝不 resolve、不再读取进程 cwd；写入路径 I/O 失败不泄漏裸 OS 异常（root 祖先为普通文件——真实文件系统、跨平台均 `StoreIntegrityError`；目录创建被拒与暂存 `mkstemp` 被拒——mock 注入，三者均断言零写入/无部分提交；暂存写入/fsync 失败（磁盘满）与记录硬链接失败——mock 注入，包装为 `StoreIntegrityError` 且 `.tmp` 无残留、无 record/manifest；manifest 替换被拒——mock 注入，包装且 manifest 字节不变、已链接记录按崩溃窗口成为 `extra_record` 孤儿；暂存清理为尽力而为——清理 `unlink` 失败（反病毒瞬时锁，mock 注入）既不掩盖已包装的主错误（仍抛写失败的 `StoreIntegrityError`）也不破坏正常提交（残留 `.tmp` 孤儿对验证不可见））；层级 family 发布（run/observation/analysis 身份字段、强制 pin 引用的发布路径，测试 helper 的 pin 已参数化）；Case 随 C4 注册变为可发布，原"无身份字段 family fail-closed"窗口测试转为 `test_case_package_publishes_and_verifies`（发布 + 全图验证 ok）；`PublicInterfaceTest`：公共导出 `__all__` 与 Phase 1B 逐项（含顺序）钉死——"Phase 1C 公共 interface 零变化"从事后检查变为永久合同；
+- `tests/unit/test_graph_verification.py`：全图验证——空 store/缺失 root、三类合法链接（含 pin 与无 pin）、三类悬空引用、三类跨类型引用、自引用、pin 不符、双向单向链接、2/3 节点 lineage cycle、合法链、fork 仅信息位，以及篡改类：记录改写/损坏/删除/额外插入/非 canonical 字节、manifest 条目删除/hash 篡改/重复条目/删除、异物、误放文件、跨文件重复逻辑 id、manifest 非确定性重写（`manifest_not_deterministic` 且仅此一条）、两个互不相交 lineage cycle 各报一条全枚举、records 树不可读（`store_unreadable`，mock 注入列举失败，发布同被阻断）、manifest 与记录文件不可读（`store_unreadable`，mock 注入读取失败，verify 与 publish 双路径均不泄漏裸 OS 异常）、非 symlink/junction 的其他 reparse tag（白盒：对保留节点注入 `FILE_ATTRIBUTE_REPARSE_POINT`，verify 报 `reparse_point`、publish 阻断）、保留节点与 root 组件 lstat 失败 fail-closed（`store_unreadable`/`StoreIntegrityError`，"不可判定"绝不当"安全"）、store 路径 resolve 失败时 verify 仍返回 violation 而不泄漏异常（preflight 纯词法且先于加锁）；跨 family 重复逻辑 id（两 family 碰撞单条 `duplicate_id` 且为唯一 violation、三 family 全互链形态仍仅一条且 detail 列出全部 family、id 全局唯一时零误报）；manifest 条目字段非字符串（`manifest_malformed`，detail 含 "must be a string"，且阻断下一条发布）；`HierarchicalGraphTest`：层级引用（run.task / observation.run / analysis.observation 必 pin、单向引用不触发 `one_way_link`、跨锚 supersedes 报 `lineage_scope_mismatch` 且 detail 含双锚 id、同锚链零误报、analysis fork 仅信息位、错锚边保留在 cycle/fork 图中可与 `lineage_cycle` 双报）；`CaseGraphTest`：Case 闭包 12 项断链变体（锚链逐链枚举——单 analysis 三断链恰报三条、规则 ②③ 集合语义、store 缺席记录跳过该链而不重复报告、`duplicate_reference` 与 `pin_mismatch` 共存形态、dangling 与 `case_incomplete` 正交互存）；`VerticalSampleTest`：两个测试内构造的手工垂直样例 store——脱敏 Math failure（inconclusive/draft 空证据纪律、limitations 与 non_entailments 非空、analysis 锚内 supersedes 链）与合成 Quant leakage（refuted/data_accepted 双向 pin 回链、合成数据来源 limitation 明示），断言 claim 纪律与全图 ok；
+- `tests/fixtures/core/<family>/<version>/{valid,invalid}/`：合成、脱敏、明确标记的样例（Phase 1A 的 6 valid + 47 invalid 共 53 个字节零漂移；Phase 1C 新增 34 个——run 9、failure-observation 8、failure-analysis 8、case-package 9，各含 valid minimal/full 与按失败类别命名的 invalid——共 87 个）。invalid 文件按失败类别命名，新增或删除文件都会使合同测试失败。
 
-当前全量测试数：**220**（PATH Python 3.14.5 与 `.venv` 双运行时均通过），其中 136 个为 Phase 1A 既有测试，零修改、零漂移。violation 合同共 **21 种**（14 完整性 + 7 图），§10 两表逐项对应测试断言。
+当前全量测试数：**264**（PATH Python 3.14.5 与 `.venv` 双运行时均通过）；Phase 1A/1B 既有测试在 C3/C4 中行为零修改（`test_graph_verification.py` 的 1B 段落 275 增 0 删），既有 schema、fixtures 与 golden hash 字节零漂移。violation 合同共 **24 种**（14 完整性 + 10 图，ADR-0003 决策 11 签署定稿），§10 两表逐项对应测试断言（24/24 有断言，脚本化核验）。
 
 ## 13. 证据边界
 
-本阶段的全部测试与 fixtures 只构成 engineering 级证据：它们证明内核按合同拒绝与接受输入、发布路径按 append-only 合同落盘、验证按清单检出篡改与图违规，不证明任何数据、实证、策略或生产结论。三个 schema 不包含任何领域字段；`proof`、`factor`、`model architecture` 等领域词汇由合同测试主动扫描拒绝。发布目标仅限调用方显式传入的本地 repository root；跨项目导出、隐私分级与 redaction 属后续批次。
+本阶段的全部测试与 fixtures 只构成 engineering 级证据：它们证明内核按合同拒绝与接受输入、发布路径按 append-only 合同落盘、验证按清单检出篡改与图违规，不证明任何数据、实证、策略或生产结论。七个 schema 不包含任何领域字段；`proof`、`factor`、`model architecture` 等领域词汇由合同测试主动扫描拒绝。Phase 1C 的两个垂直样例与新增 34 个 fixtures 同样是合成、脱敏、测试内构造的工程证据——它们证明闭包与 lineage 语义按合同工作，不构成真实数学研究或真实市场研究的结论。发布目标仅限调用方显式传入的本地 repository root；跨项目导出、隐私分级与 redaction 属后续批次。
