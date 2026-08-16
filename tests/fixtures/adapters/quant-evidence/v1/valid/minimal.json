@@ -1,0 +1,9 @@
+{
+  "schema": "quant-evidence/v1",
+  "evidence_id": "quant-evidence-0001",
+  "kind": "synthetic_backtest",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "summary": "Synthetic backtest run log for the momentum smoke test.",
+  "limitations": []
+}

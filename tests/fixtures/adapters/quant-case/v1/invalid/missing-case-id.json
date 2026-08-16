@@ -1,0 +1,8 @@
+{
+  "schema": "quant-case/v1",
+  "study_id": "synthetic-factor-study-001",
+  "gates": [
+    "engineering",
+    "data_acceptance"
+  ]
+}

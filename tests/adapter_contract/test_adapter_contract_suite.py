@@ -12,10 +12,11 @@ case, maturity-ceiling probes, and the forbidden channels the domain
 contract must enumerate. The suite never hardcodes domain content.
 
 A2 landed the skeleton with an empty registry. A3 registered the Math
-harness and the window test now pins exactly that; A4 registers the Quant
-harness, and A5 replaces the window test with an exact {math, quant}
-membership assertion. A registry short of both domains proves nothing by
-itself — the window test is what keeps that honest.
+harness and the window test pinned exactly that; A4 registers the Quant
+harness and the window now pins [math, quant]; A5 replaces the window test
+with an exact {math, quant} membership assertion. A registry short of both
+domains proves nothing by itself — the window test is what keeps that
+honest.
 """
 
 import copy
@@ -34,6 +35,7 @@ from research_evolution.adapters import (
     EvaluationContract,
 )
 from research_evolution.adapters.math import MathAdapter
+from research_evolution.adapters.quant import QuantAdapter
 from research_evolution.core import (
     CoreError,
     canonical_bytes,
@@ -66,8 +68,8 @@ class AdapterContractHarness:
     expected_forbidden_channels: frozenset = frozenset()
 
 
-# Registered adapter harnesses. A2: empty. A3: Math registered (window test
-# below pins exactly this). A4: Quant registers.
+# Registered adapter harnesses. A2: empty. A3: Math registered. A4: Quant
+# registered (window test below pins exactly this).
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "adapters"
 
 
@@ -103,15 +105,58 @@ MATH_HARNESS = AdapterContractHarness(
     ),
 )
 
-ADAPTERS: tuple = (MATH_HARNESS,)
+QUANT_HARNESS = AdapterContractHarness(
+    adapter=QuantAdapter(),
+    valid_domain_input=_payload("quant-task", "valid", "full.json"),
+    invalid_domain_input=_payload("quant-task", "invalid", "missing-pit-policy.json"),
+    sample_claim=_payload("quant-claim", "valid", "minimal.json"),
+    sample_evidence=(_payload("quant-evidence", "valid", "minimal.json"),),
+    sample_case=_payload("quant-case", "valid", "minimal.json"),
+    ceiling_probes=(
+        CeilingProbe(
+            label="oos-empirical-with-synthetic-only-caps-at-data-accepted",
+            claim=_payload("quant-claim", "valid", "full.json"),
+            evidence=(_payload("quant-evidence", "valid", "minimal.json"),),
+            expected_ceiling="data_accepted",
+        ),
+        CeilingProbe(
+            label="oos-empirical-with-real-pit-reaches-empirically-supported",
+            claim=_payload("quant-claim", "valid", "full.json"),
+            evidence=(_payload("quant-evidence", "valid", "full.json"),),
+            expected_ceiling="empirically_supported",
+        ),
+        CeilingProbe(
+            label="real-market-with-production-reaches-externally-validated",
+            claim={
+                **_payload("quant-claim", "valid", "full.json"),
+                "claim_class": "real_market",
+            },
+            evidence=(_payload("quant-evidence", "valid", "production-log.json"),),
+            expected_ceiling="externally_validated",
+        ),
+    ),
+    expected_forbidden_channels=frozenset(
+        {
+            "future-function-features",
+            "non-pit-data",
+            "label-without-lead-alignment",
+            "backtest-as-live-returns",
+            "synthetic-as-real-data-evidence",
+        }
+    ),
+)
+
+ADAPTERS: tuple = (MATH_HARNESS, QUANT_HARNESS)
 
 
 class AdapterContractSuite(unittest.TestCase):
-    def test_registry_window_math_only(self) -> None:
-        # Fail-closed window (A3): math registered, quant pending. A4 adds
-        # quant; A5 replaces this with an exact {math, quant} membership
-        # assertion (seam-establishment criterion 1 needs BOTH).
-        self.assertEqual([harness.adapter.domain for harness in ADAPTERS], ["math"])
+    def test_registry_window_math_and_quant(self) -> None:
+        # Fail-closed window (A4): math and quant registered. A5 replaces
+        # this with an exact {math, quant} membership assertion
+        # (seam-establishment criterion 1 needs BOTH).
+        self.assertEqual(
+            [harness.adapter.domain for harness in ADAPTERS], ["math", "quant"]
+        )
 
     def test_harness_adapters_implement_the_abc(self) -> None:
         for harness in ADAPTERS:

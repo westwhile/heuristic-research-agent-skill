@@ -1,0 +1,11 @@
+{
+  "schema": "quant-evidence/v1",
+  "evidence_id": "quant-evidence-0003",
+  "kind": "production_log",
+  "data_provenance": "production",
+  "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "summary": "Production trading log extract covering the live pilot window.",
+  "limitations": [
+    "Short observation window."
+  ]
+}

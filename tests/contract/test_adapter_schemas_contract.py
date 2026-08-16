@@ -143,6 +143,52 @@ ADAPTER_FIXTURE_MANIFEST = {
             "whitespace-case-id.json": ("RecordValidationError", "case_id"),
         },
     },
+    "quant-task/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "empty-completion-criteria.json": (
+                "RecordValidationError",
+                "completion_criteria",
+            ),
+            "missing-created-at.json": ("RecordValidationError", "created_at"),
+            "missing-pit-policy.json": ("RecordValidationError", "pit_policy"),
+            "whitespace-universe.json": ("RecordValidationError", "$.universe"),
+        },
+    },
+    "quant-claim/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-claim-class.json": ("RecordValidationError", "claim_class"),
+            "bad-outcome.json": ("RecordValidationError", "$.outcome"),
+            "missing-non-entailments.json": (
+                "RecordValidationError",
+                "non_entailments",
+            ),
+            "whitespace-statement.json": ("RecordValidationError", "statement"),
+        },
+    },
+    "quant-evidence/v1": {
+        "valid": ["full.json", "minimal.json", "production-log.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-content-sha256.json": ("RecordValidationError", "content_sha256"),
+            "bad-kind.json": ("RecordValidationError", "$.kind"),
+            "bad-provenance.json": ("RecordValidationError", "data_provenance"),
+            "whitespace-summary.json": ("RecordValidationError", "summary"),
+        },
+    },
+    "quant-case/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-gate.json": ("RecordValidationError", "$.gates"),
+            "empty-gates.json": ("RecordValidationError", "$.gates"),
+            "missing-case-id.json": ("RecordValidationError", "case_id"),
+            "missing-study-id.json": ("RecordValidationError", "study_id"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -167,6 +213,18 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "math-task/v1": (
         "ebde1b55848120a664ba912dcf8ac2a34e23759ea9209207a9f30e491be5e464"
+    ),
+    "quant-case/v1": (
+        "7a52cba8b1cd40c84249be15b3c6ad4625d204c2b549333fd7ab32c1c57843d7"
+    ),
+    "quant-claim/v1": (
+        "78ef0f843afa098f2cbd49ffb497f6f6e353d3eb182be442260cb3f8d1f426e4"
+    ),
+    "quant-evidence/v1": (
+        "06a6c54fd30eb83e3b7eea64c3afd92244ceae4447c01f5bac6272d4c2253b46"
+    ),
+    "quant-task/v1": (
+        "26d71ed439531b946676f7e192ccdaaca1fcde003fe5fc381521a1705971e410"
     ),
 }
 
@@ -193,6 +251,18 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "math-task-v1.schema.json": (
         "2794bee04967dc9c784e523de36bb926d68e0e2057f15ed82cd969981e74984a"
+    ),
+    "quant-case-v1.schema.json": (
+        "e7c6e8bb0e0cbb258be65a0bd9629e916dd89f0264312494dc86d827c6aa26ac"
+    ),
+    "quant-claim-v1.schema.json": (
+        "a154a8b805ca2f6716927826acd0db4a44c2a8c69a098176f0ea1c902f86e940"
+    ),
+    "quant-evidence-v1.schema.json": (
+        "c6de86dc72403c1de8d50ab493d092ece7d82222582d14b0f80bd53a0dec31ef"
+    ),
+    "quant-task-v1.schema.json": (
+        "80a0c41c517a28f91154b3400ebc58566eecf8ce892fe958f1647de217793f33"
     ),
 }
 
@@ -280,7 +350,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_seven_v1_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_eleven_v1_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -292,6 +362,10 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "math-claim/v1",
                 "math-evidence/v1",
                 "math-task/v1",
+                "quant-case/v1",
+                "quant-claim/v1",
+                "quant-evidence/v1",
+                "quant-task/v1",
             ),
         )
 

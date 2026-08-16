@@ -1,0 +1,13 @@
+{
+  "schema": "quant-claim/v1",
+  "claim_id": "quant-claim-0001",
+  "study_id": "synthetic-factor-study-001",
+  "statement": "The synthetic rank-IC pipeline runs end to end without error.",
+  "claim_class": "engineering",
+  "outcome": "pass",
+  "limitations": [],
+  "non_entailments": [
+    "This claim says nothing about empirical factor performance."
+  ],
+  "reviewer": "unexpected-field"
+}

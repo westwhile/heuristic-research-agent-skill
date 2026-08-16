@@ -1,0 +1,11 @@
+{
+  "schema": "quant-case/v1",
+  "case_id": "quant-case-0002",
+  "study_id": "synthetic-factor-study-002",
+  "gates": [
+    "engineering",
+    "data_acceptance",
+    "oos_empirical",
+    "real_market"
+  ]
+}

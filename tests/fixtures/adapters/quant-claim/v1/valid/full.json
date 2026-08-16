@@ -1,0 +1,15 @@
+{
+  "schema": "quant-claim/v1",
+  "claim_id": "quant-claim-0002",
+  "study_id": "synthetic-factor-study-002",
+  "statement": "On synthetic point-in-time data, the book-to-price factor shows positive out-of-sample rank IC after costs.",
+  "claim_class": "oos_empirical",
+  "outcome": "pass",
+  "limitations": [
+    "Synthetic data only; regime coverage is engineered, not observed."
+  ],
+  "non_entailments": [
+    "Does not entail performance on real market data.",
+    "Does not entail live-trading returns."
+  ]
+}

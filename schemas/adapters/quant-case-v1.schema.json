@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant-case/v1",
+  "title": "QuantCase input v1",
+  "description": "Domain case payload from which the Quant adapter derives an EvaluationContract. gates declares the promotion gates a study must clear; each gate is one evidentiary tier from the quant gate family. The forbidden channels and Q-checkpoints on the derived contract are fixed by ADR-0005 decision 5, not by the case author.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "study_id",
+    "gates"
+  ],
+  "properties": {
+    "schema": {
+      "const": "quant-case/v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study this case belongs to."
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "engineering",
+          "data_acceptance",
+          "oos_empirical",
+          "real_market"
+        ]
+      },
+      "description": "Promotion gates of the case, at least one. Each gate becomes one contract entry; the adapter deduplicates repeated gates when deriving the contract."
+    }
+  },
+  "additionalProperties": false
+}
