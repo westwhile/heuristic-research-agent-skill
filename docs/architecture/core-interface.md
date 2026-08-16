@@ -16,8 +16,8 @@ Phase 1A 交付了通用记录内核的最小可验证子集（严格 JSON、sch
 
 明确不包含（属于后续批次，不在本接口承诺内）：
 
-- `Run`、`FailureObservation`、`FailureAnalysis`、`ExperiencePacket`、`ResearchCasePackage` 等其余 schema（ExperiencePacket 待 ADR 定性后方可定义）；
-- 隐私分级与 redaction 执行器（本批只能发布到调用方显式传入的本地 repository root，不支持跨项目导出）；
+- `Run`、`FailureObservation`、`FailureAnalysis`、`ResearchCasePackage` 等其余 schema（Phase 1C 交付；schema 命名、单向引用与闭包合同见 ADR-0003）；`ExperiencePacket` 已定性为 Exporter 派生产物，不作为 Core schema（ADR-0003 决策 9）；
+- 隐私分级与 redaction 执行器（本批只能发布到调用方显式传入的本地 repository root，不支持跨项目导出）；Phase 1C 的 Case v1 仅含 `privacy_review_status ∈ {"pending"}` 且一律不可导出，正式隐私/导出合同由 ADR-0004 承接、永不回写 Case（ADR-0003 决策 8）；
 - CLI、Adapter、数据库、安装与部署；
 - 跨进程并发发布（仅保证进程内按 store root 串行化）；
 - 只有单一实现的 Storage Adapter 端口（理由见 `docs/decisions/0002-core-publication-graph-interface.md`）。

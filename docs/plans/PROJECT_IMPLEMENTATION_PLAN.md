@@ -219,10 +219,11 @@ $SKILL_LIBRARY_ROOT/
    - `research-claim/v1`；
    - `research-evidence/v1`；
    - `research-run/v1`；
-   - `failure-observation/v1`；
-   - `failure-analysis/v1`；
-   - `experience-packet/v1`；
+   - `research-failure-observation/v1`；
+   - `research-failure-analysis/v1`；
    - `research-case-package/v1`（只定义通用 envelope；领域语义由 Adapter 提供）；
+
+   ExperiencePacket 不作为 Core schema——定性为 Experience Exporter 的派生产物（ADR-0003）；
 2. 实现 UTF-8 严格 JSON 读取与 duplicate-key 拒绝；
 3. 实现 canonical serialization 和 SHA-256 pointer；
 4. 实现 safe relative path，拒绝盘符、UNC、`..` 和逃逸；
@@ -241,7 +242,9 @@ $SKILL_LIBRARY_ROOT/
 - unit/contract tests；
 - `core-interface.md`；
 - migration/compatibility policy；
-- machine-readable validation report。
+- machine-readable validation report；
+- ADR-0003：Phase 1C Run/Failure/Case envelope（引用、闭包与隐私边界）；
+- ADR-0004：Phase 1D Privacy/Export/Compatibility。
 
 ### 验收 Gate
 
@@ -301,7 +304,7 @@ $SKILL_LIBRARY_ROOT/
 - 两条垂直切片报告；
 - 共 6—10 个公开/合成 cases；
 - importer 的零写入证据；
-- ADR-0002：Adapter interface v1。
+- ADR-0005：Adapter interface v1（编号分配见 Phase 1 交付物：ADR-0003 = Phase 1C、ADR-0004 = Phase 1D）。
 
 ### 验收 Gate
 
