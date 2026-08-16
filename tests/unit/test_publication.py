@@ -113,13 +113,20 @@ def _analysis(
     return payload
 
 
-def _case(case_id: str) -> dict:
+def _case(
+    case_id: str,
+    task_id: str = "t-1",
+    task_sha256: str = "0" * 64,
+    runs: list[dict[str, str]] | None = None,
+) -> dict:
     return {
         "schema": "research-case-package/v1",
         "case_id": case_id,
         "title": "Unit test case package",
-        "task": {"task_id": "t-1", "sha256": "0" * 64},
-        "runs": [{"run_id": "r-1", "sha256": "4" * 64}],
+        "task": {"task_id": task_id, "sha256": task_sha256},
+        "runs": runs
+        if runs is not None
+        else [{"run_id": "r-1", "sha256": "4" * 64}],
         "claims": [],
         "evidence": [],
         "observations": [],
@@ -385,15 +392,28 @@ class PublishTest(unittest.TestCase):
         self.assertEqual(report.records_total, 4)
         self.assertEqual(report.families["research-run/v1"], 1)
 
-    def test_case_package_is_not_yet_publishable(self) -> None:
-        # C2/C3 land the case schema before C4 teaches the store its
-        # identity field and the graph its closure rules; publishing must
-        # fail closed with PublicationError and zero disk writes meanwhile.
-        before = _tree_snapshot(self.root)
-        with self.assertRaises(PublicationError) as caught:
-            self._publish(_case("case-1"))
-        self.assertIn("no known identity field", str(caught.exception))
-        self.assertEqual(before, _tree_snapshot(self.root))
+    def test_case_package_publishes_and_verifies(self) -> None:
+        # C4 closes the window: the case package is publishable and the
+        # graph fully understands it (pins, closure, membership).
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = load_record(json.dumps(task)).sha256
+        run_receipt = self._publish(_run("r-1", task_sha256=task_sha))
+        case_receipt = self._publish(
+            _case(
+                "case-1",
+                task_sha256=task_sha,
+                runs=[{"run_id": "r-1", "sha256": run_receipt.sha256}],
+            )
+        )
+        self.assertEqual(case_receipt.record_id, "case-1")
+        self.assertEqual(case_receipt.schema_id, "research-case-package/v1")
+        self.assertTrue(
+            case_receipt.path.startswith("records/research-case-package/v1/")
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 3)
 
 
 def _make_junction(link: Path, target: Path) -> None:
@@ -990,6 +1010,37 @@ class PublishGuardTest(unittest.TestCase):
         self.assertIn("unexpected_node_type", {v.kind for v in report.violations})
         with self.assertRaises(StoreIntegrityError):
             self._publish(_task("t-1"))
+
+
+class PublicInterfaceTest(unittest.TestCase):
+    def test_public_export_set_matches_phase_1b(self) -> None:
+        # Phase 1C adds no public names: the export list stays identical to
+        # the Phase 1B contract, item for item.
+        import research_evolution.core as core
+
+        self.assertEqual(
+            core.__all__,
+            [
+                "CoreError",
+                "GraphVerificationReport",
+                "PublicationError",
+                "PublicationReceipt",
+                "Record",
+                "RecordValidationError",
+                "SchemaDefinitionError",
+                "StoreIntegrityError",
+                "StrictJsonError",
+                "UnknownSchemaError",
+                "UnsafePathError",
+                "canonical_bytes",
+                "canonical_sha256",
+                "load_record",
+                "load_strict_json",
+                "publish_record",
+                "validate_safe_relative_path",
+                "verify_record_graph",
+            ],
+        )
 
 
 if __name__ == "__main__":

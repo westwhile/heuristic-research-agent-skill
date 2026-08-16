@@ -105,10 +105,9 @@ _FILE_ATTRIBUTE_REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x
 
 # Logical identity field per publishable schema family, derived from the
 # family contract registry (``_families.py``, ADR-0003 decision 10) — the
-# single metadata source shared with the graph checks. Families outside the
-# registry (for example the case package until C4) are rejected at publish
-# time; registry membership is kernel-private v1 knowledge, not caller
-# configuration.
+# single metadata source shared with the graph checks. A family outside the
+# registry is rejected at publish time; registry membership is
+# kernel-private v1 knowledge, not caller configuration.
 _ID_FIELDS = {
     schema_id: contract.identity_field for schema_id, contract in FAMILIES.items()
 }

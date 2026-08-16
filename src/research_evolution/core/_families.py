@@ -10,9 +10,11 @@ there is no second table to drift out of sync.
 
 This registry is data, not a rules language: composite semantics (case
 closure, lineage scopes) live in the private validators that read the
-table. A family whose schema exists but which is not yet publishable (the
-case package until C4 lands its closure checks) has no entry here, and
-:func:`._store.identity_of` fails closed on it.
+table. Registry membership is the publishability boundary: a family whose
+schema exists but which has no entry here fails closed at publish time
+(:func:`._store.identity_of` raises). The case package joined in C4
+together with its closure validator, keeping "publishable exactly when
+the graph fully understands it" atomic.
 """
 
 from __future__ import annotations
@@ -25,6 +27,7 @@ EVIDENCE = "research-evidence/v1"
 RUN = "research-run/v1"
 OBSERVATION = "research-failure-observation/v1"
 ANALYSIS = "research-failure-analysis/v1"
+CASE = "research-case-package/v1"
 
 
 @dataclass(frozen=True)
@@ -155,6 +158,55 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=OBSERVATION,
                     target_id_field="observation_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=CASE,
+            identity_field="case_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="task",
+                    shape="object",
+                    target_family=TASK,
+                    target_id_field="task_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="runs",
+                    shape="array_of_objects",
+                    target_family=RUN,
+                    target_id_field="run_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="claims",
+                    shape="array_of_objects",
+                    target_family=CLAIM,
+                    target_id_field="claim_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="evidence",
+                    shape="array_of_objects",
+                    target_family=EVIDENCE,
+                    target_id_field="evidence_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="observations",
+                    shape="array_of_objects",
+                    target_family=OBSERVATION,
+                    target_id_field="observation_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="analyses",
+                    shape="array_of_objects",
+                    target_family=ANALYSIS,
+                    target_id_field="analysis_id",
                     pin_required=True,
                 ),
             ),

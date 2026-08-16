@@ -22,7 +22,14 @@ module holds no family knowledge of its own. Fail-closed checks:
   hierarchical references are one-directional and never raise it;
 - ``lineage_cycle``: ``supersedes`` edges form a cycle;
 - ``lineage_scope_mismatch``: a failure analysis supersedes an analysis
-  anchored to a different observation.
+  anchored to a different observation;
+- ``duplicate_reference``: one record's reference array lists the same
+  target id more than once (case member arrays, ``supporting_evidence``,
+  ``claim_ids``);
+- ``case_incomplete``: a case package's membership is not closed — a
+  member analysis's observation/run/task anchor chain, a member claim's
+  supporting evidence, or a member evidence record's supported claims
+  reach outside the package.
 
 Forks (two or more records superseding the same prior record) are **not**
 violations; they are reported as information. The core deliberately offers
@@ -33,7 +40,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from ._families import FAMILIES, ReferenceContract
+from ._families import (
+    ANALYSIS,
+    CASE,
+    CLAIM,
+    EVIDENCE,
+    FAMILIES,
+    OBSERVATION,
+    RUN,
+    ReferenceContract,
+)
 from .records import Record
 
 
@@ -140,6 +156,105 @@ def _anchor_id(
     return _extract_references(records[family][rid].data, contract)[0][0]
 
 
+def _check_case_closure(
+    records: dict[str, dict[str, Record]],
+) -> list[GraphViolation]:
+    """Case membership closure (ADR-0003, decision 7, rules 1-3).
+
+    Pin agreement (rule 4) and duplicate member ids (rule 5) are covered by
+    the generic reference walk; this validator checks the three set
+    relations, enumerating every broken link. A link whose store record is
+    absent is skipped — ``dangling_reference`` already reports it.
+    """
+    violations: list[GraphViolation] = []
+    for cid in sorted(records.get(CASE, {})):
+        data = records[CASE][cid].data
+        member_task = data["task"]["task_id"]
+        member_runs = {ref["run_id"] for ref in data["runs"]}
+        member_claims = {ref["claim_id"] for ref in data["claims"]}
+        member_evidence = {ref["evidence_id"] for ref in data["evidence"]}
+        member_observations = {
+            ref["observation_id"] for ref in data["observations"]
+        }
+        member_analyses = {ref["analysis_id"] for ref in data["analyses"]}
+
+        # Rule 1: a member analysis's anchor chain (observation -> run ->
+        # task) must stay inside the package.
+        for aid in sorted(member_analyses):
+            analysis = records.get(ANALYSIS, {}).get(aid)
+            if analysis is None:
+                continue
+            oid = analysis.data["observation"]["observation_id"]
+            if oid not in member_observations:
+                violations.append(
+                    GraphViolation(
+                        "case_incomplete",
+                        f"case {cid!r} member analysis {aid!r} anchors "
+                        f"observation {oid!r}, which is not a case member",
+                    )
+                )
+            observation = records.get(OBSERVATION, {}).get(oid)
+            if observation is None:
+                continue
+            rid = observation.data["run"]["run_id"]
+            if rid not in member_runs:
+                violations.append(
+                    GraphViolation(
+                        "case_incomplete",
+                        f"case {cid!r} member analysis {aid!r} anchors a "
+                        f"chain through observation {oid!r} whose run "
+                        f"{rid!r} is not a case member",
+                    )
+                )
+            run = records.get(RUN, {}).get(rid)
+            if run is None:
+                continue
+            tid = run.data["task"]["task_id"]
+            if tid != member_task:
+                violations.append(
+                    GraphViolation(
+                        "case_incomplete",
+                        f"case {cid!r} member analysis {aid!r} reaches run "
+                        f"{rid!r}, which belongs to task {tid!r}, not to "
+                        f"the packaged task {member_task!r}",
+                    )
+                )
+
+        # Rule 2: a member claim's supporting evidence must be packaged.
+        for clid in sorted(member_claims):
+            claim = records.get(CLAIM, {}).get(clid)
+            if claim is None:
+                continue
+            for ref in claim.data["supporting_evidence"]:
+                eid = ref["evidence_id"]
+                if eid not in member_evidence:
+                    violations.append(
+                        GraphViolation(
+                            "case_incomplete",
+                            f"case {cid!r} member claim {clid!r} is "
+                            f"supported by evidence {eid!r}, which is not "
+                            "a case member",
+                        )
+                    )
+
+        # Rule 3: the claims a member evidence record supports must be
+        # packaged.
+        for eid in sorted(member_evidence):
+            evidence = records.get(EVIDENCE, {}).get(eid)
+            if evidence is None:
+                continue
+            for clid in evidence.data["claim_ids"]:
+                if clid not in member_claims:
+                    violations.append(
+                        GraphViolation(
+                            "case_incomplete",
+                            f"case {cid!r} member evidence {eid!r} supports "
+                            f"claim {clid!r}, which is not a case member",
+                        )
+                    )
+    return violations
+
+
 def check_record_graph(
     records: dict[str, dict[str, Record]],
 ) -> tuple[list[GraphViolation], list[tuple[str, tuple[str, ...]]]]:
@@ -223,7 +338,23 @@ def check_record_graph(
                                         )
                                     )
             for ref_contract in contract.references:
-                for tid, pin in _extract_references(data, ref_contract):
+                references = _extract_references(data, ref_contract)
+                if ref_contract.shape != "object":
+                    occurrences: dict[str, int] = {}
+                    for tid, _pin in references:
+                        occurrences[tid] = occurrences.get(tid, 0) + 1
+                    for tid in sorted(occurrences):
+                        count = occurrences[tid]
+                        if count > 1:
+                            violations.append(
+                                GraphViolation(
+                                    "duplicate_reference",
+                                    f"{family} {rid!r} {ref_contract.field} "
+                                    f"lists {tid!r} {count} times; each "
+                                    "reference array entry must be unique",
+                                )
+                            )
+                for tid, pin in references:
                     problem = _classify_reference(
                         records,
                         id_owners,
@@ -302,6 +433,10 @@ def check_record_graph(
                                 f"back via {ref_contract.field}",
                             )
                         )
+
+    # Case membership closure: the composite cross-family check runs after
+    # every per-family reference has been classified.
+    violations.extend(_check_case_closure(records))
 
     for cycle in _find_lineage_cycles(supersedes_edges):
         violations.append(

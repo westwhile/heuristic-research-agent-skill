@@ -15,8 +15,9 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # C3 registers exactly the six publishable families; the case
-        # package joins in C4 together with its closure checks.
+        # Phase 1C complete: all seven schema families are registered and
+        # publishable. A family whose schema lands before its graph
+        # semantics (none today) must stay absent here until then.
         self.assertEqual(
             set(FAMILIES),
             {
@@ -26,6 +27,7 @@ class FamilyRegistryTest(unittest.TestCase):
                 "research-run/v1",
                 "research-failure-observation/v1",
                 "research-failure-analysis/v1",
+                "research-case-package/v1",
             },
         )
 
