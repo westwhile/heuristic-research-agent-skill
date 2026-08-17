@@ -53,6 +53,7 @@ Case Package
 - [ADR-0004：三轴隐私模型、export 记录、schema 兼容政策与只读 CLI](docs/decisions/0004-privacy-export-compatibility.md)
 - [ADR-0005：Adapter interface v1——seam 三类型、contract suite 与成立判据](docs/decisions/0005-adapter-interface-v1.md)
 - [ADR-0006：Public Evaluator MVP——L0/L1 评测记录、runner/scorer/统计纪律与 meta-test 义务](docs/decisions/0006-public-evaluator-mvp.md)
+- [ADR-0007：Research Memory 与 Pattern/Heuristic Registry——case-package/v2、生命周期纪律、检索 MVP 与 shadow 边界](docs/decisions/0007-research-memory-pattern-registry.md)
 
 ## 目录
 
