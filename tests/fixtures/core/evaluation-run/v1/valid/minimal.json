@@ -1,0 +1,50 @@
+{
+  "schema": "evaluation-run/v1",
+  "evaluation_run_id": "eval-run-0001",
+  "case": {
+    "evaluation_case_id": "eval-case-0001",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "suite": {
+    "suite_id": "suite-0001",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "candidate": {
+    "candidate_id": "cand-0001",
+    "sha256": "5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "envelope": {
+    "envelope_sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "runner": {
+    "tool": "replay-runner",
+    "version": "0.1.0"
+  },
+  "environment": {},
+  "output": {
+    "output_sha256": "7777777777777777777777777777777777777777777777777777777777777777"
+  },
+  "scorer": {
+    "level": "oracle",
+    "tool": "oracle-scorer",
+    "version": "0.1.0"
+  },
+  "score_vector": [
+    {
+      "dimension": "exact_match",
+      "value": 1.0
+    }
+  ],
+  "gate_results": [
+    {
+      "gate": "integrity",
+      "result": "pass"
+    }
+  ],
+  "verdict": "pass",
+  "levels_covered": [
+    "L0",
+    "L1"
+  ],
+  "generated_at": "2026-08-16T09:00:00Z"
+}

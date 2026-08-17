@@ -1,0 +1,40 @@
+{
+  "schema": "comparison-report/v1",
+  "report_id": "report-0001",
+  "title": "Champion vs challenger smoke comparison",
+  "champion": {
+    "evaluation_run_id": "eval-run-0001",
+    "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "challenger": {
+    "evaluation_run_id": "eval-run-0002",
+    "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "methods": {
+    "statistics": [
+      "paired_exact_mcnemar"
+    ]
+  },
+  "score_deltas": [
+    {
+      "dimension": "exact_match",
+      "champion_value": 1.0,
+      "challenger_value": 1.0
+    }
+  ],
+  "gate_summary": [
+    {
+      "gate": "integrity",
+      "result": "pass"
+    }
+  ],
+  "levels_covered": [
+    "L0",
+    "L1"
+  ],
+  "conclusion": "No difference observed on one smoke case; no significance is claimed at this sample size.",
+  "limitations": [
+    "Single synthetic case; descriptive comparison only."
+  ],
+  "generated_at": "2026-08-16T09:00:00Z"
+}

@@ -1,6 +1,7 @@
 """Contract tests: fixtures, schema integrity, and domain neutrality.
 
-These tests pin the public contract of the core kernel (Phase 1A–1D):
+These tests pin the public contract of the core kernel (Phase 1A–1D and the
+Phase 3 E2 evaluation record families):
 
 - the fixture tree on disk and FIXTURE_MANIFEST are compared
   bidirectionally, so an unlisted family/version directory or stray file is a
@@ -201,10 +202,65 @@ FIXTURE_MANIFEST = {
             "whitespace-destination.json": ("RecordValidationError", "destination"),
         },
     },
+    "evaluation-case/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-input-sha256.json": ("RecordValidationError", "content_sha256"),
+            "bad-scorer-level.json": ("RecordValidationError", "scorer_level"),
+            "bad-split.json": ("RecordValidationError", "$.split"),
+            "missing-contamination-status.json": (
+                "RecordValidationError",
+                "contamination_status",
+            ),
+        },
+    },
+    "suite/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-case-sha256.json": ("RecordValidationError", "sha256"),
+            "case-ref-missing-sha256.json": (
+                "RecordValidationError",
+                "missing required property 'sha256'",
+            ),
+            "empty-cases.json": ("RecordValidationError", "$.cases"),
+            "missing-frozen-at.json": ("RecordValidationError", "frozen_at"),
+        },
+    },
+    "evaluation-run/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-gate.json": ("RecordValidationError", "gate"),
+            "bad-levels-covered.json": ("RecordValidationError", "levels_covered"),
+            "bad-scorer-level.json": ("RecordValidationError", "scorer"),
+            "empty-score-vector.json": ("RecordValidationError", "score_vector"),
+        },
+    },
+    "comparison-report/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-statistics-method.json": ("RecordValidationError", "statistics"),
+            "challenger-missing-sha256.json": ("RecordValidationError", "$.challenger"),
+            "empty-score-deltas.json": ("RecordValidationError", "score_deltas"),
+            "whitespace-conclusion.json": ("RecordValidationError", "conclusion"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
 MINIMAL_FIXTURE_SHA256 = {
+    "comparison-report/v1": (
+        "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
+    ),
+    "evaluation-case/v1": (
+        "95e8a4bf98b88f746c0b9d653c7067bee5845e624681fe2a8da35be7b61b30f7"
+    ),
+    "evaluation-run/v1": (
+        "c73ef291b765868e9cb556cc5d63f3d3bb17a77f5de07aee270096954d24db7e"
+    ),
     "export-decision/v1": (
         "752c486c686785603c248de08379279ac366ba85b7f7c64fb1f6638da08b877f"
     ),
@@ -232,6 +288,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "research-task/v1": (
         "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
     ),
+    "suite/v1": (
+        "72e17ae19ab298e6c04f6886b8dcf2c1c6ea48306d4d35672c6fc853c7fe301b"
+    ),
 }
 
 # Golden pins (ADR-0004 decision 7): SHA-256 of each schema file's raw
@@ -239,6 +298,15 @@ MINIMAL_FIXTURE_SHA256 = {
 # (``*.json text eol=lf``); any byte-level edit of a frozen schema — even
 # pure reformatting — fails this pin.
 SCHEMA_TEXT_SHA256 = {
+    "comparison-report-v1.schema.json": (
+        "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
+    ),
+    "evaluation-case-v1.schema.json": (
+        "1d79cfb8c6efb087e730fa1cb59dd322333911c8768357cb7f2bf81f6ead932a"
+    ),
+    "evaluation-run-v1.schema.json": (
+        "f0ae7997dcbeb1a53e654fbd74b3aa2a9171221d7cca6832c7294564f7901b36"
+    ),
     "export-decision-v1.schema.json": (
         "1d4a4209df2d5d230a9713c56e1bfc35b8f727a79b0021abeff4e69cf2162c48"
     ),
@@ -265,6 +333,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "research-task-v1.schema.json": (
         "95f5450d50e3ff712ec21b74458be2ff0c727b9f4544d04666f0691c679afc6e"
+    ),
+    "suite-v1.schema.json": (
+        "217368272ab7c555b4961d1681eb1047ff5ca070248f3559499c2b4ccacf938a"
     ),
 }
 
@@ -351,11 +422,14 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_nine_v1_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirteen_v1_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
+                "comparison-report/v1",
+                "evaluation-case/v1",
+                "evaluation-run/v1",
                 "export-decision/v1",
                 "export-receipt/v1",
                 "research-case-package/v1",
@@ -365,6 +439,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-failure-observation/v1",
                 "research-run/v1",
                 "research-task/v1",
+                "suite/v1",
             ),
         )
 

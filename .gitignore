@@ -55,3 +55,6 @@ Desktop.ini
 *.bak
 *.log
 ~$*
+
+# Public benchmark frozen outputs are pinned data, not runtime artifacts.
+!benchmarks/public/*/artifacts/

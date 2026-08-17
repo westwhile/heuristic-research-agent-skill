@@ -1,0 +1,71 @@
+{
+  "schema": "evaluation-run/v1",
+  "evaluation_run_id": "eval-run-0002",
+  "case": {
+    "evaluation_case_id": "eval-case-0002",
+    "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "suite": {
+    "suite_id": "suite-0002",
+    "sha256": "8888888888888888888888888888888888888888888888888888888888888888"
+  },
+  "candidate": {
+    "candidate_id": "cand-0002",
+    "sha256": "9999999999999999999999999999999999999999999999999999999999999999"
+  },
+  "envelope": {
+    "envelope_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "timeout_ms": 30000,
+    "max_output_bytes": 65536,
+    "retry_attempts": 1,
+    "seed": 20260816,
+    "notes": "Frozen envelope for the synthetic replay track."
+  },
+  "runner": {
+    "tool": "replay-runner",
+    "version": "0.1.0",
+    "model": "synthetic-candidate-model"
+  },
+  "environment": {
+    "os": "windows",
+    "interpreter": "cpython-3.14"
+  },
+  "output": {
+    "output_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "locator": "benchmarks/public/runs/eval-run-0002/output.json"
+  },
+  "scorer": {
+    "level": "structured_rubric",
+    "tool": "rubric-scorer",
+    "version": "0.1.0",
+    "calibration_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "score_vector": [
+    {
+      "dimension": "completeness",
+      "value": 0.8,
+      "unit": "fraction"
+    },
+    {
+      "dimension": "correctness",
+      "value": 0.75,
+      "unit": "fraction"
+    }
+  ],
+  "gate_results": [
+    {
+      "gate": "integrity",
+      "result": "pass"
+    },
+    {
+      "gate": "resource",
+      "result": "pass"
+    }
+  ],
+  "verdict": "pass",
+  "levels_covered": [
+    "L0",
+    "L1"
+  ],
+  "generated_at": "2026-08-16T10:30:00Z"
+}

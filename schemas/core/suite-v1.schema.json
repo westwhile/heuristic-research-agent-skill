@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "suite/v1",
+  "title": "Evaluation Suite v1",
+  "description": "A frozen suite snapshot (ADR-0006 decision 1): an ordered, hash-pinned member list of evaluation cases. A suite is immutable once published; a revised membership is a new suite record. Suites carry no domain semantics.",
+  "type": "object",
+  "required": [
+    "schema",
+    "suite_id",
+    "title",
+    "cases",
+    "frozen_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "suite/v1"
+    },
+    "suite_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional free-text description of the suite's purpose."
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["evaluation_case_id", "sha256"],
+        "properties": {
+          "evaluation_case_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Mandatory content hash pinning the exact case record version."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Pinned member list of evaluation cases. At least one; membership is exact because every member is hash-pinned."
+    },
+    "frozen_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true,
+      "description": "Timestamp at which this suite snapshot was frozen."
+    }
+  },
+  "additionalProperties": false
+}
