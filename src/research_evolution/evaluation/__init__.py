@@ -4,10 +4,11 @@ Phase 3 surface, built layer by layer (ADR-0006 decision 12): E3 added
 the replay envelope and the deterministic offline replay runner; E4 adds
 the four-level scorer discipline and score-vector construction; E5 adds
 the three traced comparison statistics; E6 adds the six hard gates,
-verdict assembly, and the evaluator meta-tests. The three report forms
-(E7) extend this package additively; the surface freezes at the Phase 3
-integration PR. This package is a public face PARALLEL to
-``research_evolution.core`` — it never extends the core export surface.
+verdict assembly, and the evaluator meta-tests; E7 adds the record
+assembly (`evaluate_case`/`compare`) and the three report forms. The
+surface freezes at the Phase 3 integration PR. This package is a public
+face PARALLEL to ``research_evolution.core`` — it never extends the core
+export surface.
 """
 
 from .envelope import ERROR_CLASSES, Envelope
@@ -30,6 +31,15 @@ from .metatests import (
     mutate_relax_resource_limit,
     mutation_check,
 )
+from .pipeline import (
+    LEVELS,
+    ComparePolicy,
+    PipelineOutcome,
+    compare,
+    evaluate_case,
+    interpreter_environment,
+)
+from .reports import render_html, render_json, render_markdown
 from .runner import ReplayResult, run_replay, runner_identity
 from .scorers import (
     SCORER_LEVELS,
@@ -55,20 +65,26 @@ __all__ = [
     "ERROR_CLASSES",
     "GATE_RESULTS",
     "GATES",
+    "LEVELS",
     "MUTATION_CLASSES",
     "SCORER_LEVELS",
     "STATISTICAL_METHODS",
     "VERDICTS",
+    "ComparePolicy",
     "Envelope",
     "GateConfig",
     "GateResult",
     "MetaTestReport",
+    "PipelineOutcome",
     "ReplayResult",
     "ScoreEntry",
     "StatisticResult",
     "assemble_verdict",
+    "compare",
+    "evaluate_case",
     "evaluate_gates",
     "gate_results_payload",
+    "interpreter_environment",
     "known_pair_check",
     "mcnemar_exact",
     "mutate_drop_condition",
@@ -79,6 +95,9 @@ __all__ = [
     "package_rubric_scores",
     "paired_bootstrap",
     "rare_event_upper_bound",
+    "render_html",
+    "render_json",
+    "render_markdown",
     "run_replay",
     "runner_identity",
     "score_vector_payload",
