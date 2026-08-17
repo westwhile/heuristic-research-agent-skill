@@ -1,0 +1,7 @@
+{
+  "schema": "suite/v1",
+  "suite_id": "suite-0001",
+  "title": "Smoke replay suite",
+  "cases": [],
+  "frozen_at": "2026-08-16T09:00:00Z"
+}

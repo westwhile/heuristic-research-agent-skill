@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation-run/v1",
+  "title": "EvaluationRun v1",
+  "description": "One evaluation run (ARCHITECTURE 3.8; ADR-0006 decisions 1-8): the hash-pinned case and suite, the candidate artifact binding, the frozen run envelope, runner and environment, the frozen output artifact, the scorer with its level, the multi-dimensional score vector (never a single cross-domain total), the six hard-gate outcomes, the verdict, and the L0/L1 coverage declaration.",
+  "type": "object",
+  "required": [
+    "schema",
+    "evaluation_run_id",
+    "case",
+    "suite",
+    "candidate",
+    "envelope",
+    "runner",
+    "environment",
+    "output",
+    "scorer",
+    "score_vector",
+    "gate_results",
+    "verdict",
+    "levels_covered",
+    "generated_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "evaluation-run/v1"
+    },
+    "evaluation_run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case": {
+      "type": "object",
+      "required": ["evaluation_case_id", "sha256"],
+      "properties": {
+        "evaluation_case_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact case record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The evaluation case this run executes. One-directional and hash-pinned."
+    },
+    "suite": {
+      "type": "object",
+      "required": ["suite_id", "sha256"],
+      "properties": {
+        "suite_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact suite snapshot."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The suite snapshot this run belongs to. One-directional and hash-pinned."
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the immutable candidate artifact (ADR-0006 decision 3: candidates are hash-bound artifact descriptors, not core records, in this phase)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The candidate artifact under evaluation, bound by content hash."
+    },
+    "envelope": {
+      "type": "object",
+      "required": ["envelope_sha256"],
+      "properties": {
+        "envelope_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the full frozen envelope artifact (timeout, output cap, retry policy, seed, config). The hash is authoritative; the echoed fields below are informational."
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "description": "Optional echo of the frozen timeout."
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "description": "Optional echo of the frozen output size cap."
+        },
+        "retry_attempts": {
+          "type": "integer",
+          "description": "Optional echo of the frozen retry budget."
+        },
+        "seed": {
+          "type": "integer",
+          "description": "Optional echo of the injected seed."
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "The frozen run envelope (ADR-0006 decisions 3-4), bound by content hash."
+    },
+    "runner": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional model identifier when a model drove the candidate."
+        }
+      },
+      "additionalProperties": false
+    },
+    "environment": {
+      "type": "object",
+      "description": "Runtime environment notes (OS, interpreter, hardware class). Free-form in v1."
+    },
+    "output": {
+      "type": "object",
+      "required": ["output_sha256"],
+      "properties": {
+        "output_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the frozen output artifact that was replayed and scored."
+        },
+        "locator": {
+          "type": "string",
+          "x-safe-relative-path": true,
+          "description": "Optional safe relative path to the frozen output artifact."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The frozen output artifact under replay scoring (L1), bound by content hash."
+    },
+    "scorer": {
+      "type": "object",
+      "required": ["level", "tool", "version"],
+      "properties": {
+        "level": {
+          "enum": [
+            "oracle",
+            "deterministic_checker",
+            "structured_rubric",
+            "calibrated_judge"
+          ],
+          "description": "Scorer level actually used (ADR-0006 decision 5)."
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "calibration_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional hash of the calibration evidence artifact; meaningful only for calibrated_judge."
+        }
+      },
+      "additionalProperties": false
+    },
+    "score_vector": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "value"],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-dimension scores (ADR-0006 decision 6). There is deliberately no aggregate or total field: no cross-domain single score exists."
+    },
+    "gate_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "result"],
+        "properties": {
+          "gate": {
+            "enum": [
+              "integrity",
+              "critical_safety",
+              "regression",
+              "resource",
+              "privacy",
+              "evaluator_integrity"
+            ],
+            "description": "One of the six hard gates (ADR-0006 decision 8)."
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "fail",
+              "not_applicable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Structured reason, required by discipline whenever result is fail."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-gate outcomes. Any fail fails the run as a whole."
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "error",
+        "inconclusive"
+      ],
+      "description": "Run verdict. error means the runner/scorer pipeline itself failed; inconclusive is a legitimate terminal and is never forced into pass/fail."
+    },
+    "error_class": {
+      "enum": [
+        "timeout",
+        "output_limit",
+        "parse_error",
+        "runner_error"
+      ],
+      "description": "Structured error classification (ADR-0006 decision 4). Meaningful only when verdict is error."
+    },
+    "levels_covered": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "L0",
+          "L1"
+        ]
+      },
+      "description": "Evaluation levels this run actually covers (ARCHITECTURE 6; ADR-0006 decision 2). L0/L1 results must never be phrased as L2/L3/L4 coverage."
+    },
+    "generated_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

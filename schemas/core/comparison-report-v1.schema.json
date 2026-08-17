@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comparison-report/v1",
+  "title": "ComparisonReport v1",
+  "description": "A Champion/Challenger comparison report (ADR-0006 decisions 1, 6-10): the two hash-pinned evaluation runs under comparison, the statistical methods with full provenance, per-dimension score deltas (never a single total), the hard-gate summary, the L0/L1 coverage declaration, and an honest conclusion with limitations. Small samples never support significance claims.",
+  "type": "object",
+  "required": [
+    "schema",
+    "report_id",
+    "title",
+    "champion",
+    "challenger",
+    "methods",
+    "score_deltas",
+    "gate_summary",
+    "levels_covered",
+    "conclusion",
+    "limitations",
+    "generated_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "comparison-report/v1"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "champion": {
+      "type": "object",
+      "required": ["evaluation_run_id", "sha256"],
+      "properties": {
+        "evaluation_run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact champion run record."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The champion run. One-directional and hash-pinned."
+    },
+    "challenger": {
+      "type": "object",
+      "required": ["evaluation_run_id", "sha256"],
+      "properties": {
+        "evaluation_run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact challenger run record."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The challenger run. One-directional and hash-pinned."
+    },
+    "methods": {
+      "type": "object",
+      "required": ["statistics"],
+      "properties": {
+        "statistics": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": [
+              "paired_exact_mcnemar",
+              "paired_bootstrap",
+              "rare_event_upper_bound"
+            ]
+          },
+          "description": "Statistical methods applied (ADR-0006 decision 7). Method names, parameters, and seed must allow exact reproduction."
+        },
+        "parameters_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the full statistical parameter set artifact."
+        },
+        "seed": {
+          "type": "integer",
+          "description": "Seed used for resampling methods."
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "score_deltas": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "champion_value", "challenger_value"],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "champion_value": {
+            "type": "number"
+          },
+          "challenger_value": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-dimension comparison (ADR-0006 decision 6). There is deliberately no aggregate or total field."
+    },
+    "gate_summary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "result"],
+        "properties": {
+          "gate": {
+            "enum": [
+              "integrity",
+              "critical_safety",
+              "regression",
+              "resource",
+              "privacy",
+              "evaluator_integrity"
+            ]
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Structured reason, required by discipline whenever result is fail."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Report-level hard-gate summary (ADR-0006 decision 8). Any fail fails the comparison as a whole."
+    },
+    "levels_covered": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "L0",
+          "L1"
+        ]
+      },
+      "description": "Evaluation levels this report covers (ADR-0006 decision 2). L0/L1 results must never be phrased as L2/L3/L4 coverage."
+    },
+    "conclusion": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Honest conclusion text. Small-sample total accuracy never supports statistical significance claims (ADR-0006 decision 7)."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of this comparison. Required; explicit empty array only after consideration."
+    },
+    "generated_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

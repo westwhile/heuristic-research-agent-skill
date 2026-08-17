@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation-case/v1",
+  "title": "EvaluationCase v1",
+  "description": "A frozen evaluation case (ARCHITECTURE 3.8; ADR-0006 decision 1): frozen input hash, claim type, domain label, split, resource budget, the scoring contract binding, and contamination status. The case is the immutable question; what a candidate answered and how it scored live in evaluation-run/v1.",
+  "type": "object",
+  "required": [
+    "schema",
+    "evaluation_case_id",
+    "title",
+    "domain",
+    "claim_type",
+    "split",
+    "input",
+    "evaluation_contract",
+    "resources",
+    "contamination_status",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "evaluation-case/v1"
+    },
+    "evaluation_case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "domain": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Domain label only (for example math, quant, ml, dl). Carries no domain semantics inside the core."
+    },
+    "claim_type": {
+      "enum": [
+        "engineering_claim",
+        "data_claim",
+        "mathematical_claim",
+        "empirical_claim",
+        "predictive_claim",
+        "strategy_claim",
+        "production_claim"
+      ],
+      "description": "Governance claim type a successful answer on this case would support (mirrors research-claim/v1 claim_type)."
+    },
+    "split": {
+      "enum": [
+        "smoke",
+        "development",
+        "regression",
+        "metamorphic-public",
+        "adversarial-public"
+      ],
+      "description": "Evaluation split (ADR-0006 decision 11). Contaminated cases must not feed conclusion text outside development."
+    },
+    "input": {
+      "type": "object",
+      "required": ["content_sha256"],
+      "properties": {
+        "content_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the frozen case input artifact. The hash is authoritative."
+        },
+        "locator": {
+          "type": "string",
+          "x-safe-relative-path": true,
+          "description": "Optional safe relative path to the frozen input artifact."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-text note about the frozen input."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The frozen case input, bound by content hash."
+    },
+    "evaluation_contract": {
+      "type": "object",
+      "required": ["scorer_level", "contract_sha256"],
+      "properties": {
+        "scorer_level": {
+          "enum": [
+            "oracle",
+            "deterministic_checker",
+            "structured_rubric",
+            "calibrated_judge"
+          ],
+          "description": "Scorer level (ADR-0006 decision 5). calibrated_judge without calibration evidence is a label only and never outranks a structured rubric."
+        },
+        "contract_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Hash of the full scoring-contract artifact (rubric text, checker config, oracle definition)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional free-text note about the scoring contract."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The scoring contract this case is judged under, bound by content hash."
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource budget the case demands (time, memory, output size). Free-form in v1; the binding enforcement lives in the run envelope."
+    },
+    "contamination_status": {
+      "enum": [
+        "clean",
+        "suspected",
+        "known_contaminated"
+      ],
+      "description": "Contamination state of this case (ADR-0006 decision 11). The ledger records detail; the case carries the state."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

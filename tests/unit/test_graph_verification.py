@@ -1676,5 +1676,245 @@ class VerticalSampleTest(unittest.TestCase):
         self.assertTrue(claim["non_entailments"])
 
 
+def _evaluation_case(case_id: str) -> dict:
+    return {
+        "schema": "evaluation-case/v1",
+        "evaluation_case_id": case_id,
+        "title": "Graph test evaluation case",
+        "domain": "engineering",
+        "claim_type": "engineering_claim",
+        "split": "smoke",
+        "input": {"content_sha256": "0" * 64},
+        "evaluation_contract": {
+            "scorer_level": "oracle",
+            "contract_sha256": "1" * 64,
+        },
+        "resources": {},
+        "contamination_status": "clean",
+        "created_at": "2026-08-14T10:00:00Z",
+    }
+
+
+def _suite(suite_id: str, case_refs: list[tuple[str, str]]) -> dict:
+    return {
+        "schema": "suite/v1",
+        "suite_id": suite_id,
+        "title": "Graph test suite",
+        "cases": [
+            {"evaluation_case_id": cid, "sha256": sha} for cid, sha in case_refs
+        ],
+        "frozen_at": "2026-08-14T10:05:00Z",
+    }
+
+
+def _evaluation_run(
+    run_id: str,
+    case_id: str = "ec-1",
+    case_sha256: str = "2" * 64,
+    suite_id: str = "s-1",
+    suite_sha256: str = "3" * 64,
+) -> dict:
+    return {
+        "schema": "evaluation-run/v1",
+        "evaluation_run_id": run_id,
+        "case": {"evaluation_case_id": case_id, "sha256": case_sha256},
+        "suite": {"suite_id": suite_id, "sha256": suite_sha256},
+        "candidate": {"candidate_id": "cand-1", "sha256": "4" * 64},
+        "envelope": {"envelope_sha256": "5" * 64},
+        "runner": {"tool": "unit-test", "version": "1.0"},
+        "environment": {},
+        "output": {"output_sha256": "6" * 64},
+        "scorer": {"level": "oracle", "tool": "unit-test", "version": "1.0"},
+        "score_vector": [{"dimension": "exact_match", "value": 1.0}],
+        "gate_results": [{"gate": "integrity", "result": "pass"}],
+        "verdict": "pass",
+        "levels_covered": ["L0", "L1"],
+        "generated_at": "2026-08-14T10:10:00Z",
+    }
+
+
+def _comparison_report(
+    report_id: str,
+    champion: tuple[str, str] = ("er-1", "7" * 64),
+    challenger: tuple[str, str] = ("er-2", "8" * 64),
+) -> dict:
+    return {
+        "schema": "comparison-report/v1",
+        "report_id": report_id,
+        "title": "Graph test comparison report",
+        "champion": {"evaluation_run_id": champion[0], "sha256": champion[1]},
+        "challenger": {"evaluation_run_id": challenger[0], "sha256": challenger[1]},
+        "methods": {"statistics": ["paired_exact_mcnemar"]},
+        "score_deltas": [
+            {
+                "dimension": "exact_match",
+                "champion_value": 1.0,
+                "challenger_value": 1.0,
+            }
+        ],
+        "gate_summary": [{"gate": "integrity", "result": "pass"}],
+        "levels_covered": ["L0", "L1"],
+        "conclusion": "Graph test comparison; no significance claimed.",
+        "limitations": ["Synthetic graph-test comparison."],
+        "generated_at": "2026-08-14T10:15:00Z",
+    }
+
+
+class EvaluationGraphTest(unittest.TestCase):
+    """Phase 3 E2: the evaluation record chain (suite -> cases, run -> case
+    and suite, report -> two runs) is served entirely by the generic graph
+    machinery — dangling/pin/duplicate/cross-type checks — with no new
+    composite validator (ADR-0006 decision 1)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name) / "store"
+
+    def _publish(self, payload: dict):
+        return publish_record(json.dumps(payload), root=self.root)
+
+    def _kinds(self, report) -> set[str]:
+        return {violation.kind for violation in report.violations}
+
+    def _sha(self, payload: dict) -> str:
+        return load_record(json.dumps(payload)).sha256
+
+    def _publish_evaluation_case(self, case_id: str = "ec-1") -> str:
+        case = _evaluation_case(case_id)
+        self._publish(case)
+        return self._sha(case)
+
+    def _publish_suite(
+        self, suite_id: str = "s-1", case_id: str = "ec-1"
+    ) -> tuple[str, str]:
+        """Publish the case and a suite containing it; return both hashes."""
+        case_sha = self._publish_evaluation_case(case_id)
+        suite = _suite(suite_id, [(case_id, case_sha)])
+        self._publish(suite)
+        return case_sha, self._sha(suite)
+
+    def _publish_run(
+        self, run_id: str, case_sha: str, suite_sha: str
+    ) -> str:
+        run = _evaluation_run(
+            run_id, case_sha256=case_sha, suite_sha256=suite_sha
+        )
+        self._publish(run)
+        return self._sha(run)
+
+    def _publish_chain(self) -> tuple[str, str, str, str]:
+        """Publish ec-1 <- s-1 <- er-1/er-2 and report rep-1 comparing the
+        two runs; return (case_sha, suite_sha, er-1 sha, er-2 sha)."""
+        case_sha, suite_sha = self._publish_suite()
+        champion_sha = self._publish_run("er-1", case_sha, suite_sha)
+        challenger_sha = self._publish_run("er-2", case_sha, suite_sha)
+        report = _comparison_report(
+            "rep-1",
+            champion=("er-1", champion_sha),
+            challenger=("er-2", challenger_sha),
+        )
+        self._publish(report)
+        return case_sha, suite_sha, champion_sha, challenger_sha
+
+    # -- full chain ---------------------------------------------------------
+
+    def test_full_evaluation_chain_verifies_ok(self) -> None:
+        self._publish_chain()
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 5)
+        self.assertEqual(
+            report.families,
+            {
+                "evaluation-case/v1": 1,
+                "suite/v1": 1,
+                "evaluation-run/v1": 2,
+                "comparison-report/v1": 1,
+            },
+        )
+
+    # -- reference checks ---------------------------------------------------
+
+    def test_run_with_dangling_case(self) -> None:
+        case_sha, suite_sha = self._publish_suite()
+        self._publish(
+            _evaluation_run(
+                "er-1",
+                case_id="ec-absent",
+                case_sha256=case_sha,
+                suite_sha256=suite_sha,
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_suite_with_dangling_case(self) -> None:
+        self._publish(_suite("s-1", [("ec-absent", "9" * 64)]))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_report_with_wrong_challenger_pin(self) -> None:
+        case_sha, suite_sha = self._publish_suite()
+        champion_sha = self._publish_run("er-1", case_sha, suite_sha)
+        self._publish_run("er-2", case_sha, suite_sha)
+        self._publish(
+            _comparison_report(
+                "rep-1",
+                champion=("er-1", champion_sha),
+                challenger=("er-2", "9" * 64),
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"pin_mismatch"})
+
+    def test_run_case_cross_type_reference(self) -> None:
+        case_sha, suite_sha = self._publish_suite()
+        self._publish(
+            _evaluation_run(
+                "er-1", case_id="s-1", case_sha256=suite_sha,
+                suite_sha256=suite_sha,
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"cross_type_reference"})
+
+    def test_run_with_dangling_suite(self) -> None:
+        case_sha = self._publish_evaluation_case()
+        self._publish(
+            _evaluation_run("er-1", case_sha256=case_sha, suite_id="s-absent")
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    # -- cross-family identity -----------------------------------------------
+
+    def test_duplicate_id_across_evaluation_families(self) -> None:
+        self._publish(_evaluation_case("dup-1"))
+        self._publish(_task("dup-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
+
+    def test_duplicate_id_between_run_and_report(self) -> None:
+        case_sha, suite_sha = self._publish_suite()
+        run_sha = self._publish_run("dup-2", case_sha, suite_sha)
+        self._publish(
+            _comparison_report(
+                "dup-2",
+                champion=("dup-2", run_sha),
+                challenger=("dup-2", run_sha),
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,55 @@
+{
+  "schema": "comparison-report/v1",
+  "report_id": "report-0002",
+  "title": "Champion vs challenger development comparison",
+  "champion": {
+    "evaluation_run_id": "eval-run-0001",
+    "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "challenger": {
+    "evaluation_run_id": "eval-run-0003",
+    "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+  },
+  "methods": {
+    "statistics": [
+      "paired_exact_mcnemar",
+      "paired_bootstrap",
+      "rare_event_upper_bound"
+    ],
+    "parameters_sha256": "1212121212121212121212121212121212121212121212121212121212121212",
+    "seed": 20260816,
+    "notes": "Bootstrap with 2000 resamples, paired by case."
+  },
+  "score_deltas": [
+    {
+      "dimension": "completeness",
+      "champion_value": 0.8,
+      "challenger_value": 0.7
+    },
+    {
+      "dimension": "correctness",
+      "champion_value": 0.75,
+      "challenger_value": 0.75
+    }
+  ],
+  "gate_summary": [
+    {
+      "gate": "integrity",
+      "result": "pass"
+    },
+    {
+      "gate": "resource",
+      "result": "pass"
+    }
+  ],
+  "levels_covered": [
+    "L0",
+    "L1"
+  ],
+  "conclusion": "Challenger is descriptively lower on completeness; the sample is far too small for any significance statement.",
+  "limitations": [
+    "Two synthetic cases; descriptive only.",
+    "Rubric scoring carries rater subjectivity."
+  ],
+  "generated_at": "2026-08-16T10:30:00Z"
+}

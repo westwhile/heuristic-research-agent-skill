@@ -1,0 +1,18 @@
+{
+  "schema": "evaluation-case/v1",
+  "evaluation_case_id": "eval-case-0001",
+  "title": "Frozen arithmetic replay case",
+  "domain": "engineering",
+  "claim_type": "engineering_claim",
+  "split": "smoke",
+  "input": {
+    "content_sha256": "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+  },
+  "evaluation_contract": {
+    "scorer_level": "oracle",
+    "contract_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "resources": {},
+  "contamination_status": "clean",
+  "created_at": "2026-08-16T09:00:00Z"
+}

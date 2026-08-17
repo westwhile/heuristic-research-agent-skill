@@ -16,7 +16,10 @@ schema exists but which has no entry here fails closed at publish time
 together with its closure validator, keeping "publishable exactly when
 the graph fully understands it" atomic. The two export families joined
 in D3 (ADR-0004) the same way: one layer registering both families and
-the graph's ``unauthorized_export`` gate in a single commit.
+the graph's ``unauthorized_export`` gate in a single commit. The four
+evaluation families joined in E2 (ADR-0006 decision 1) additively — the
+generic graph machinery serves every reference they declare, so no new
+composite validator was introduced with them.
 """
 
 from __future__ import annotations
@@ -32,6 +35,10 @@ ANALYSIS = "research-failure-analysis/v1"
 CASE = "research-case-package/v1"
 EXPORT_DECISION = "export-decision/v1"
 EXPORT_RECEIPT = "export-receipt/v1"
+EVALUATION_CASE = "evaluation-case/v1"
+SUITE = "suite/v1"
+EVALUATION_RUN = "evaluation-run/v1"
+COMPARISON_REPORT = "comparison-report/v1"
 
 
 @dataclass(frozen=True)
@@ -242,6 +249,72 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=EXPORT_DECISION,
                     target_id_field="decision_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Phase 3 evaluation families (ADR-0006 decision 1): additive
+        # registration. Every reference below is served by the generic
+        # graph machinery (dangling/pin/duplicate/self/cycle); no new
+        # composite validator is introduced for them.
+        FamilyContract(
+            schema_id=EVALUATION_CASE,
+            identity_field="evaluation_case_id",
+            supersedes=None,
+            references=(),
+        ),
+        FamilyContract(
+            schema_id=SUITE,
+            identity_field="suite_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="cases",
+                    shape="array_of_objects",
+                    target_family=EVALUATION_CASE,
+                    target_id_field="evaluation_case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=EVALUATION_RUN,
+            identity_field="evaluation_run_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="case",
+                    shape="object",
+                    target_family=EVALUATION_CASE,
+                    target_id_field="evaluation_case_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="suite",
+                    shape="object",
+                    target_family=SUITE,
+                    target_id_field="suite_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=COMPARISON_REPORT,
+            identity_field="report_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="champion",
+                    shape="object",
+                    target_family=EVALUATION_RUN,
+                    target_id_field="evaluation_run_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="challenger",
+                    shape="object",
+                    target_family=EVALUATION_RUN,
+                    target_id_field="evaluation_run_id",
                     pin_required=True,
                 ),
             ),
