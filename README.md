@@ -42,6 +42,7 @@ Case Package
 - [总体架构](docs/architecture/ARCHITECTURE.md)
 - [Core Interface（Phase 1D）](docs/architecture/core-interface.md)
 - [Phase 2 验收报告：Math/Quant 双 Adapter 垂直切片](reports/phase2-acceptance-20260816.md)
+- [Phase 3 验收报告：Public Evaluator MVP](reports/phase3-acceptance-20260817.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Schema 兼容政策](docs/governance/SCHEMA_COMPATIBILITY.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)

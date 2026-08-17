@@ -400,7 +400,8 @@ $SKILL_LIBRARY_ROOT/
 17. 只允许确定性全局不变量成为 global hard gate；
 18. 运行 3—8 条 shadow Heuristic，不接入生产；
 19. 建立中央库的 sibling layout：正式 `skills/`、`research-patterns/`、`skill-incubator/` 和 `catalogs/` 分离；Phase 4 只写隔离暂存区，不安装 Skill；
-20. 为 Math、Quant 各建立至少 3 个合格 Case Package、2 个候选 Pattern，并记录至少 1 个“未找到适用模式”的正确 abstain 案例。
+20. 为 Math、Quant 各建立至少 3 个合格 Case Package、2 个候选 Pattern，并记录至少 1 个“未找到适用模式”的正确 abstain 案例；
+21. （E8/R33 审核登记的 backlog 候选）评估 `evaluation-run/v2` successor：v1 的 required 含 `output` 与 `score_vector`，致 `error`/`inconclusive` verdict 结构性不可装配（Phase 3 以 fail-closed 处理并留 `unpublishable_reason`）；v2 须按 verdict 条件化 required（或调整枚举/required 组合），由真实发布需求驱动，按 ADR-0004 兼容政策走 successor 义务。
 
 ### 交付物
 

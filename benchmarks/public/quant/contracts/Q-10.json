@@ -1,0 +1,1 @@
+{"scorer_level":"deterministic_checker","spec":{"checker":"numeric_tolerance","params":{"expected":0.08,"field":"value","tolerance":0.001}}}
