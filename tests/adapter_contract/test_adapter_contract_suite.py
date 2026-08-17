@@ -11,16 +11,19 @@ needs — valid/invalid domain input, a sample claim with evidence, a sample
 case, maturity-ceiling probes, and the forbidden channels the domain
 contract must enumerate. The suite never hardcodes domain content.
 
-A2 landed the skeleton with an empty registry. A3 registered the Math
-harness and the window test pinned exactly that; A4 registers the Quant
-harness and the window now pins [math, quant]; A5 replaces the window test
-with an exact {math, quant} membership assertion. A registry short of both
-domains proves nothing by itself — the window test is what keeps that
-honest.
+A2 landed the skeleton with an empty registry; A3/A4 registered the Math
+and Quant harnesses behind a fail-closed window test. A5 (this state)
+replaces the window with the permanent exact-membership assertion and adds
+the two remaining seam-establishment probes: the core static purity scan
+(criterion 2, decision 8a) and the core deletion subprocess test
+(criterion 3, decision 8b).
 """
 
 import copy
 import os
+import re
+import subprocess
+import sys
 import tempfile
 import unittest
 from dataclasses import dataclass
@@ -36,6 +39,7 @@ from research_evolution.adapters import (
 )
 from research_evolution.adapters.math import MathAdapter
 from research_evolution.adapters.quant import QuantAdapter
+from tests.contract.test_core_schemas_contract import _BANNED_TERMS
 from research_evolution.core import (
     CoreError,
     canonical_bytes,
@@ -68,8 +72,8 @@ class AdapterContractHarness:
     expected_forbidden_channels: frozenset = frozenset()
 
 
-# Registered adapter harnesses. A2: empty. A3: Math registered. A4: Quant
-# registered (window test below pins exactly this).
+# Registered adapter harnesses. A2: empty. A3: Math. A4: Quant. A5: the
+# membership assertion below pins this exact set permanently.
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "adapters"
 
 
@@ -150,12 +154,13 @@ ADAPTERS: tuple = (MATH_HARNESS, QUANT_HARNESS)
 
 
 class AdapterContractSuite(unittest.TestCase):
-    def test_registry_window_math_and_quant(self) -> None:
-        # Fail-closed window (A4): math and quant registered. A5 replaces
-        # this with an exact {math, quant} membership assertion
-        # (seam-establishment criterion 1 needs BOTH).
+    def test_registry_membership_is_exactly_math_and_quant(self) -> None:
+        # Seam-establishment criterion 1 (permanent pin): exactly the Math
+        # and Quant harnesses are registered, and both pass this one suite.
+        self.assertEqual(len(ADAPTERS), 2)
         self.assertEqual(
-            [harness.adapter.domain for harness in ADAPTERS], ["math", "quant"]
+            sorted(harness.adapter.domain for harness in ADAPTERS),
+            ["math", "quant"],
         )
 
     def test_harness_adapters_implement_the_abc(self) -> None:
@@ -266,6 +271,115 @@ class AdapterContractSuite(unittest.TestCase):
                     finally:
                         os.chdir(previous_cwd)
                     self.assertEqual(leftovers, [], "adapter wrote into cwd")
+
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_CORE_SRC = _REPO_ROOT / "src" / "research_evolution" / "core"
+_DELETION_RUNNER = Path(__file__).resolve().parent / "_core_deletion_runner.py"
+
+# Test files that legitimately couple to research_evolution.adapters. Any
+# OTHER test file under tests/unit or tests/contract importing the adapters
+# package is domain complexity leaking back toward the core and fails here.
+# (The adapter schema contract test imports only the core engine — it tests
+# schemas, not adapter code — so it belongs to the core partition and keeps
+# passing with the adapters package deleted.)
+_ADAPTER_COUPLED_TESTS = frozenset(
+    {
+        "tests/unit/test_adapters_types.py",
+        "tests/unit/test_math_adapter.py",
+        "tests/unit/test_math_importer.py",
+        "tests/unit/test_quant_adapter.py",
+    }
+)
+
+
+class CoreStaticPurityTest(unittest.TestCase):
+    """Seam-establishment criterion 2 (ADR-0005 decision 8a): the core
+    source tree carries no adapter coupling and no domain vocabulary."""
+
+    def test_core_source_never_mentions_adapters(self) -> None:
+        for path in sorted(_CORE_SRC.rglob("*.py")):
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(file=path.name):
+                match = re.search(r"\badapters\b", text)
+                self.assertIsNone(
+                    match,
+                    f"adapter coupling in core source {path.name}"
+                    if match
+                    else "",
+                )
+
+    def test_core_source_is_domain_neutral(self) -> None:
+        # Same banned-vocabulary discipline as the core schema scan
+        # (tests/contract/test_core_schemas_contract.py:_BANNED_TERMS),
+        # extended to core source per ADR-0005 decision 8a.
+        for path in sorted(_CORE_SRC.rglob("*.py")):
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(file=path.name):
+                match = _BANNED_TERMS.search(text)
+                self.assertIsNone(
+                    match,
+                    f"domain term {match.group(0)!r} in core source {path.name}"
+                    if match
+                    else "",
+                )
+
+
+class CoreDeletionTest(unittest.TestCase):
+    """Seam-establishment criterion 3 (ADR-0005 decision 8b): with the
+    adapters package made unimportable, the core test suite passes
+    byte-identical and unmodified."""
+
+    @staticmethod
+    def _partition() -> tuple[list[str], set[str]]:
+        coupled: set[str] = set()
+        core_modules: list[str] = []
+        for tree in ("tests/unit", "tests/contract"):
+            for path in sorted((_REPO_ROOT / tree).glob("test_*.py")):
+                relative = path.relative_to(_REPO_ROOT).as_posix()
+                imports_adapters = any(
+                    "adapters" in line
+                    for line in path.read_text(encoding="utf-8").splitlines()
+                    if line.startswith(("import ", "from "))
+                )
+                if imports_adapters:
+                    coupled.add(relative)
+                else:
+                    core_modules.append(relative[:-3].replace("/", "."))
+        return core_modules, coupled
+
+    def test_adapter_coupling_is_exactly_the_known_set(self) -> None:
+        _, coupled = self._partition()
+        self.assertEqual(coupled, _ADAPTER_COUPLED_TESTS)
+
+    def test_core_suite_passes_with_adapters_deleted(self) -> None:
+        core_modules, coupled = self._partition()
+        self.assertEqual(coupled, _ADAPTER_COUPLED_TESTS)
+        env = dict(os.environ)
+        env["PYTHONPATH"] = (
+            str(_REPO_ROOT) + os.pathsep + str(_REPO_ROOT / "src")
+        )
+        env["PYTHONDONTWRITEBYTECODE"] = "1"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-B",
+                str(_DELETION_RUNNER),
+                *core_modules,
+            ],
+            cwd=_REPO_ROOT,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        self.assertIn("BLOCKER-ACTIVE", completed.stdout)
+        self.assertEqual(
+            completed.returncode,
+            0,
+            f"core suite failed with adapters deleted:\n{completed.stdout}\n"
+            f"{completed.stderr}",
+        )
 
 
 if __name__ == "__main__":
