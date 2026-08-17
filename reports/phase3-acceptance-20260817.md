@@ -3,7 +3,7 @@
 - 日期：2026-08-17
 - 分支：`feat/public-evaluator-mvp`（基 `main` = `3bf5d17`，v0.3.0）
 - 范围：ADR-0006 的落地——L0/L1 评测记录四 family、replay envelope 与确定性离线 runner、scorer 四级与 score vector、统计三类、hard gates 六门与 evaluator meta-tests、装配/比较/三形态报告、首批公开 benchmark suites
-- 状态：**E1–E7 已逐层提交，R27–R33b 七轮审核全部 PASS；E8（本报告与首批公开 suites）经 R34 修订，待 R34b 终审**（R34b 后由收尾 commit 回填状态行与 commit 哈希，1C/1D/2 先例）
+- 状态：**E1–E8 已逐层提交，R27–R34b 九轮审核全部 PASS，账本清零**（R34b 终审后由本收尾 commit 回填状态行与 E8 哈希，1C/1D/2 先例）
 
 ## 层/commit 映射
 
@@ -16,7 +16,7 @@
 | E5 | 统计三类（paired exact/McNemar、paired bootstrap、rare-event 上界） | `93d2100` | R31 PASS |
 | E6 | hard gates 六门 + verdict 装配 + meta-tests | `e73791d` | R32b PASS（R32-P3 NaN floor fail-open 已修复回归） |
 | E7 | `evaluate_case`/`compare` 装配 + 三形态报告 | `ab3838e` | R33b PASS（R33 头条：E2 schema 缺口裁决 fail-closed；R33-P3 装配产物自验已修复回归） |
-| E8 | 首批公开 suites（math/quant 各 12 cases）+ 集成测试 + Decimal seam 闭合 + 本报告 | 本 commit | 待 R34b（R34 两项修订已并入） |
+| E8 | 首批公开 suites（math/quant 各 12 cases）+ 集成测试 + Decimal seam 闭合 + 本报告 | `4df1ad5`（fix）+ `d315abb` | R34b PASS（R34 两项修订并入：Decimal seam 五处闭合、canonical 措辞修正） |
 
 ## 首批规模核对（计划 Phase 3「首批规模」原文逐条）
 
@@ -80,5 +80,7 @@ split 分布（每领域）：smoke 1、development 2、regression 3、metamorph
 
 ## R34 收尾记录
 
-- R34 终审：REVISION_REQUIRED——Decimal seam 第四/五处（store 载回 run 再 compare 的设计工作流断裂）与 canonical 措辞失实两处；修复已并入本层（Decimal seam 五处闭合 + publish→load→compare 端到端往返回归 + 报告/README 措辞修正）；
-- 状态行与 commit 哈希待 R34b PASS 后由收尾 commit 回填（1C/1D/2 先例）。
+- R34 终审：REVISION_REQUIRED——Decimal seam 第四/五处（store 载回 run 再 compare 的设计工作流断裂）与 canonical 措辞失实两处；
+- R34b 增量复核：PASS——修复全部落地并经审核方独立复现（含超出回归覆盖的额外探针：全方法组合 policy、store 载回 case/suite + Decimal rubric 端到端装配）；
+- commit 拆分按批准方案执行：Decimal seam 修复 `4df1ad5`、E8 `d315abb`；本收尾 commit 仅动本报告状态行、映射表与本段（无法含自身未来哈希，与 1C/1D/2 同一形态）；
+- 连带捕获（E8 提交时点）：`.gitignore` 的裸 `artifacts/` 规则曾静默吞掉 48 个 pin 工件——已加 scoped 反规则 `!benchmarks/public/*/artifacts/` 并随 E8 commit 入树（若漏网：克隆后集成测试全红、candidate manifest pin 指向不存在的字节）。
