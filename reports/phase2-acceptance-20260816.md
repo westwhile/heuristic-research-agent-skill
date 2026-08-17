@@ -3,7 +3,7 @@
 - 日期：2026-08-16
 - 分支：`feat/math-quant-vertical-slices`（基 `main` = `4e6d79d`，v0.2.0）
 - 范围：ADR-0005 的落地——seam 三类型、双领域 Adapter、contract suite 三项成立判据、垂直切片证据、Adapter interface v1 冻结说明
-- 状态：**A1–A5 已逐层提交并经 R22–R25 逐层审核通过；本报告待 R26 全包终审**（终审通过后按 1C/1D 先例以收尾 commit 回填状态行与本 commit 哈希）
+- 状态：**A1–A5 已逐层提交，R22–R26 五轮审核全部 PASS，账本清零**（R26 终审后由本收尾 commit 回填状态行与 A5 哈希，1C/1D 先例）
 
 ## 层/commit 映射
 
@@ -13,7 +13,7 @@
 | A2 | seam 三类型 + 3 adapter schema + 27 fixtures + 套件骨架（空注册窗口） | `6a05167` | R23 PASS |
 | A3 | Math adapter + 4 math schema + 29 fixtures + 只读 archive importer | `22efdb9` | R24 PASS（R24-P2 非数学梯级 bar 误报已修复并回归钉死） |
 | A4 | Quant adapter + 4 quant schema + 29 fixtures + 套件双注册 | `5c1a5d1` | R25 PASS |
-| A5 | 判据②③探针 + 成员断言收口 + 垂直切片 + 本报告 + README 同步 | 本 commit | 待 R26 |
+| A5 | 判据②③探针 + 成员断言收口 + 垂直切片 + 本报告 + README 同步 | `2974310` | R26 PASS |
 
 ## seam 成立三判据（ADR-0005 决策 6/8）
 
@@ -71,7 +71,12 @@
 - 双运行时（PATH 3.14.5 与 `.venv`）全量 **391/391 OK**（A4 态 381 + 判据②③探针 4 + 切片 6）；
 - 零漂移：Core schema 9 个、Core fixtures 106 个、Core 合同测试、Math adapter/importer/types/base 相对各自冻结点 0 行（精确 pathspec 复验）；
 - 卫生：`git diff --check` clean、pycache 0、新 JSON 全部 LF；
-- R22–R25 四轮审核发现全部闭合（R22 签名认领、R23 六设计点、R24-P2 bar 误报、R25 零发现）；本层待 R26。
+- R22–R26 五轮审核发现全部闭合（R22 签名认领、R23 六设计点、R24-P2 bar 误报、R25 零发现、R26 零发现——三判据经审核方独立复算为绿：成员断言、静态扫描 would-catch/零命中双向、删除子进程 306 项复现）；账本清零。
+
+## R26 收尾记录
+
+- R26 全包终审：PASS，零发现；seam 成立三判据经独立复算确认；
+- A5 commit 哈希回填为 `2974310`；本收尾 commit 仅动本报告状态行与映射表（无法含自身未来哈希，与 1C/1D 收尾同一形态）。
 
 ## Git/Release Gate 备注（供合并时点使用）
 
