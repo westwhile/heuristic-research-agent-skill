@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库当前处于 **repository bootstrap** 阶段。现阶段只冻结项目计划、模块职责、治理规则与目录 seam；尚未宣称任何研究执行器、Evaluator、Heuristic Learning 闭环或生产发布能力已经实现。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）并处于 **Phase 2 领域 Adapter 垂直切片** 阶段。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与双领域切片证据；尚未宣称任何研究执行器、完整 Evaluator、Heuristic Learning 闭环或生产发布能力已经实现。
 
 ## 项目目标
 
@@ -41,6 +41,7 @@ Case Package
 - [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
 - [总体架构](docs/architecture/ARCHITECTURE.md)
 - [Core Interface（Phase 1D）](docs/architecture/core-interface.md)
+- [Phase 2 验收报告：Math/Quant 双 Adapter 垂直切片](reports/phase2-acceptance-20260816.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Schema 兼容政策](docs/governance/SCHEMA_COMPATIBILITY.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
@@ -49,6 +50,7 @@ Case Package
 - [ADR-0002：Core 发布/图校验接口与架构三操作的对齐](docs/decisions/0002-core-publication-graph-interface.md)
 - [ADR-0003：Run/Failure/Case envelope 的 schema、引用与隐私边界](docs/decisions/0003-core-run-failure-case-envelope.md)
 - [ADR-0004：三轴隐私模型、export 记录、schema 兼容政策与只读 CLI](docs/decisions/0004-privacy-export-compatibility.md)
+- [ADR-0005：Adapter interface v1——seam 三类型、contract suite 与成立判据](docs/decisions/0005-adapter-interface-v1.md)
 
 ## 目录
 
@@ -71,8 +73,9 @@ heuristic-research-agent-skill/
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前仓库 Tag：`v0.1.0`（repository/governance baseline，不代表功能平台已经发布）
+- 当前仓库 Tag：`v0.2.0`（Phase 1 通用内核验收发布，不代表功能平台已经发布）
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
-- 首个功能目标：Phase 1 通用记录、Schema 与证据内核，然后进入 Math/Quant 双领域垂直切片
+- Phase 1 已完成：九个 v1 Core schema、25 种 violation 合同、append-only 发布与全图验证、只读 CLI（详见 v0.2.0 tag 与 Phase 1C/1D 验收报告）
+- Phase 2 进行中：Math/Quant 双 Adapter 垂直切片（`feat/math-quant-vertical-slices` 分支，待终审合并）；ML/DL Adapter 与完整 Evaluator 尚未实现
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

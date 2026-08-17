@@ -1,0 +1,30 @@
+{
+  "schema": "evaluation-contract/v1",
+  "case_sha256": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+  "required_evidence": [
+    {
+      "claim_type": "engineering_claim",
+      "min_maturity": "engineering_verified"
+    },
+    {
+      "claim_type": "data_claim",
+      "min_maturity": "data_accepted"
+    },
+    {
+      "claim_type": "empirical_claim",
+      "min_maturity": "empirically_supported"
+    }
+  ],
+  "forbidden_channels": [
+    "future-function-features",
+    "non-pit-fundamentals",
+    "label-without-lead-alignment",
+    "synthetic-results-as-real-market-evidence"
+  ],
+  "checkpoints": [
+    "Q0: schema, primary key, trading calendar, and units pass",
+    "Q1: PIT availability and revision discipline pass",
+    "Q2: signal, execution, and label alignment are leak-free",
+    "Q4: time-ordered out-of-sample run with a frozen holdout"
+  ]
+}

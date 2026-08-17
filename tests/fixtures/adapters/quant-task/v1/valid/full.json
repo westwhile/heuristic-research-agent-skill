@@ -1,0 +1,47 @@
+{
+  "schema": "quant-task/v1",
+  "task_id": "quant-task-0002",
+  "study_id": "synthetic-factor-study-002",
+  "title": "Value factor out-of-sample study",
+  "statement": "Does a book-to-price value factor keep positive out-of-sample rank IC under realistic costs?",
+  "universe": "synthetic CSI-300-like membership with monthly reconstitution and 180-day listing-age filter",
+  "calendar": "SSE trading calendar, Asia/Shanghai, close-aligned",
+  "frequency": "daily rebalance monthly",
+  "pit_policy": "Fundamentals use quarterly snapshots delayed 45 days; prices use adjusted close available at T close; no revised data enters the panel.",
+  "cost_model": {
+    "commission_bps": 2.5,
+    "slippage_bps": 10,
+    "stamp_tax_bps": 5,
+    "fill_assumption": "close auction, full fill"
+  },
+  "data_spec": {
+    "sources": [
+      "synthetic vendor feed v3"
+    ],
+    "fields": [
+      "adj_close",
+      "book_to_price",
+      "tradable_flag"
+    ],
+    "history_years": 10
+  },
+  "scope": {
+    "horizon_months": 120,
+    "signals": [
+      "book_to_price"
+    ]
+  },
+  "resources": {
+    "compute": "local-workstation",
+    "budget_hours": 8
+  },
+  "completion_criteria": [
+    "Point-in-time panel rebuild passes the data acceptance audit.",
+    "Out-of-sample rank IC table with cost-adjusted returns is produced."
+  ],
+  "permissions": [
+    "read:repo"
+  ],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-16T10:30:00Z"
+}

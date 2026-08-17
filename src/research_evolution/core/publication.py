@@ -33,7 +33,7 @@ from .records import load_record
 
 
 class PublicationReceipt:
-    """Proof of one :func:`publish_record` call.
+    """Attestation of one :func:`publish_record` call.
 
     Binds the record identity, its content hash, its store-relative path,
     whether the call created bytes (``already_present=False``) or was an

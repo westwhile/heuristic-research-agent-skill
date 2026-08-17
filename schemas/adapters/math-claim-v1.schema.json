@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "math-claim/v1",
+  "title": "MathClaim input v1",
+  "description": "Domain claim payload assessed by the Math adapter's validate_claim. result uses the frozen Math outcome vocabulary (ADR-0005 decision 7): proof, disproof, partial, inconclusive — partial and inconclusive are legitimate terminals and are never forced into supported/refuted.",
+  "type": "object",
+  "required": [
+    "schema",
+    "claim_id",
+    "statement",
+    "object_domain",
+    "quantifiers",
+    "result",
+    "limitations",
+    "non_entailments"
+  ],
+  "properties": {
+    "schema": {
+      "const": "math-claim/v1"
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "object_domain": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "quantifiers": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "result": {
+      "enum": [
+        "proof",
+        "disproof",
+        "partial",
+        "inconclusive"
+      ],
+      "description": "Claimed outcome of the research episode. proof/disproof require certificate-class evidence to suggest supported/refuted; numeric evidence alone can never discharge them."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations. Required; explicit empty array only after consideration."
+    },
+    "non_entailments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Statements this claim explicitly does not establish (for example: no statement outside the bounded range)."
+    }
+  },
+  "additionalProperties": false
+}

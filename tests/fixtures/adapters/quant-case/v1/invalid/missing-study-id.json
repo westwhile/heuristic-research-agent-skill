@@ -1,0 +1,8 @@
+{
+  "schema": "quant-case/v1",
+  "case_id": "quant-case-0001",
+  "gates": [
+    "engineering",
+    "data_acceptance"
+  ]
+}

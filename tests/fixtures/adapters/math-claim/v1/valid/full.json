@@ -1,0 +1,15 @@
+{
+  "schema": "math-claim/v1",
+  "claim_id": "mc-0002",
+  "statement": "There exists a triangle-free 5-regular simple graph on 12 vertices.",
+  "object_domain": "simple graphs on exactly 12 labeled vertices",
+  "quantifiers": "exists G in the frozen finite class",
+  "result": "proof",
+  "limitations": [
+    "Existence is shown by one explicit witness; no classification is claimed."
+  ],
+  "non_entailments": [
+    "No statement about other vertex counts or regularities is established.",
+    "The witness does not bound the total number of such graphs."
+  ]
+}

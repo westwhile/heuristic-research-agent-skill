@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant-claim/v1",
+  "title": "QuantClaim input v1",
+  "description": "Domain claim payload assessed by the Quant adapter's validate_claim. claim_class is the gate declaration: the evidentiary tier the claim asserts (engineering correctness, data acceptance, out-of-sample empirical support, or real-market observation). The adapter maps claim_class plus evidence data_provenance to a maturity ceiling and never grants production_observed (ADR-0005 decisions 4/7).",
+  "type": "object",
+  "required": [
+    "schema",
+    "claim_id",
+    "study_id",
+    "statement",
+    "claim_class",
+    "outcome",
+    "limitations",
+    "non_entailments"
+  ],
+  "properties": {
+    "schema": {
+      "const": "quant-claim/v1"
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study this claim belongs to; binds the claim to the task/case scope of one study."
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable claim statement."
+    },
+    "claim_class": {
+      "enum": [
+        "engineering",
+        "data_acceptance",
+        "oos_empirical",
+        "real_market"
+      ],
+      "description": "Evidentiary tier asserted: engineering (code/run correctness), data_acceptance (dataset audit passed), oos_empirical (out-of-sample empirical result), real_market (paper-trading or production observation)."
+    },
+    "outcome": {
+      "enum": [
+        "pass",
+        "fail",
+        "inconclusive"
+      ],
+      "description": "Outcome asserted by the source system. An asserted pass on oos_empirical or real_market does not by itself raise the evidence ceiling; provenance does."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of the claim (survivorship, regime coverage, capacity). Required; explicit empty array only after consideration."
+    },
+    "non_entailments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Statements this claim explicitly does not establish. Quantitative governance requires these (for example: a backtest result does not entail live-trading returns; a synthetic-data result does not entail real-data validity)."
+    }
+  },
+  "additionalProperties": false
+}

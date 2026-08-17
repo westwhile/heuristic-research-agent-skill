@@ -1,0 +1,40 @@
+{
+  "schema": "domain-task/v1",
+  "domain": "math",
+  "domain_schema_id": "math-task/v1",
+  "domain_payload": {
+    "problem_id": "synthetic-nt-001",
+    "statement": "Every even integer n with 2 < n <= 10000 is the sum of two primes.",
+    "object_domain": "integers",
+    "quantifiers": "forall even n in (2, 10000]",
+    "assumptions": [
+      "standard arithmetic"
+    ],
+    "sought": "bounded-verification-or-counterexample"
+  },
+  "core_task_draft": {
+    "schema": "research-task/v1",
+    "task_id": "math-task-example-001",
+    "title": "Bounded synthetic number-theory check",
+    "problem_statement": "Verify the conjecture for even n up to 10000 with explicit prime witnesses, or produce a counterexample.",
+    "domain": "math",
+    "scope": {
+      "object_range": "even integers 2 < n <= 10000",
+      "data": "synthetic deterministic enumeration"
+    },
+    "resources": {
+      "compute": "local-cpu",
+      "budget_minutes": 10
+    },
+    "completion_criteria": [
+      "Every even n in range has two prime witnesses recorded, or one counterexample is produced."
+    ],
+    "permissions": [],
+    "allowed_external_effects": [],
+    "created_at": "2026-08-16T09:00:00Z",
+    "domain_context": {
+      "quantifiers": "forall even n in (2, 10000]",
+      "sought": "bounded verification"
+    }
+  }
+}

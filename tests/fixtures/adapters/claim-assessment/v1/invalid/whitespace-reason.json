@@ -1,0 +1,10 @@
+{
+  "schema": "claim-assessment/v1",
+  "suggested_claim_type": "mathematical_claim",
+  "suggested_disposition": "inconclusive",
+  "evidence_maturity_ceiling": "engineering_verified",
+  "reasons": [
+    "   "
+  ],
+  "triggered_rules": []
+}

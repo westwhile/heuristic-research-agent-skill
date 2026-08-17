@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "math-case/v1",
+  "title": "MathCase input v1",
+  "description": "Domain case payload from which the Math adapter derives an EvaluationContract. sought drives the maturity requirement: bounded_verification cases cap at engineering_verified; prove/disprove/decide cases require mathematically_verified for mathematical_claim promotion.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "problem_id",
+    "sought"
+  ],
+  "properties": {
+    "schema": {
+      "const": "math-case/v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "sought": {
+      "enum": [
+        "prove",
+        "disprove",
+        "decide",
+        "bounded_verification"
+      ],
+      "description": "Sought outcome class of this case (same vocabulary as math-task/v1)."
+    }
+  },
+  "additionalProperties": false
+}

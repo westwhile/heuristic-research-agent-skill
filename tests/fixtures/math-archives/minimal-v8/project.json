@@ -1,0 +1,38 @@
+{
+  "schema": "math-research-project/v8",
+  "project_id": "synthetic-project-0001",
+  "project_identity_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "problem_statement_sha256": "153c9343b40bf1257f88a8effddee4e4e2537937890ba2bb1d1be366980cffc3",
+  "control_generation": 1,
+  "active_checkpoint": {
+    "path": "state/generations/g0001/checkpoint.json",
+    "sha256": "22ec209dcee5d62ab53a8ab246b7c8690b3b349781766e0c6159fa26aefa805b",
+    "control_generation": 1
+  },
+  "goal_host_state": {
+    "path": "state/generations/g0001/goal-host-v8.json",
+    "sha256": "9e1e825d41f8b4c9a0fdb26010ac2bd36f93182ae23279957940869aeaa84c7e",
+    "control_generation": 1
+  },
+  "project_event_head": {
+    "path": "state/project-events/g0001.json",
+    "sha256": "39b0d5d8479cb7898992b8bf58256e081cbcf5151691ba8ced55b0b564b2b624",
+    "control_generation": 1
+  },
+  "host_binding_head": {
+    "path": "runs/run-0001/host-bindings/host-bind-g0001.json",
+    "sha256": "e0e2574978dcc3567a8f34d4079abdc4c48e3a57f75eaf99b66fdb53ea74d42e",
+    "control_generation": 1
+  },
+  "active_contract": {
+    "path": "contracts/contract-v8.md",
+    "version": "v8",
+    "binding_sha256": "5a41e96abfa2576c81ea60a14425455b4d629a7dfdad915185a290cafdfb27e3"
+  },
+  "active_run": {
+    "id": "run-0001",
+    "path": "runs/run-0001",
+    "status": "closed"
+  },
+  "legacy_successor": null
+}

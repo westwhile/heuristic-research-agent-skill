@@ -1,0 +1,7 @@
+{
+  "schema": "math-evidence/v1",
+  "evidence_id": "me-0001",
+  "kind": "numeric_check",
+  "summary": "s",
+  "limitations": []
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "math-task/v1",
+  "task_id": "math-task-0001",
+  "problem_id": "synthetic-nt-001",
+  "title": "Bounded even-sum check",
+  "statement": "   ",
+  "object_domain": "integers",
+  "quantifiers": "forall even n in (2, 10000]",
+  "assumptions": [],
+  "dependencies": [],
+  "sought": "bounded_verification",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "c"
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-16T09:00:00Z"
+}

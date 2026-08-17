@@ -1,0 +1,5 @@
+{
+  "schema": "math-case/v1",
+  "case_id": "mcase-0001",
+  "sought": "bounded_verification"
+}

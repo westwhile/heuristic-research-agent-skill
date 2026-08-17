@@ -1,0 +1,10 @@
+{
+  "schema": "math-evidence/v1",
+  "evidence_id": "me-0001",
+  "kind": "numeric_check",
+  "content_sha256": "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+  "summary": "Deterministic enumeration produced two prime witnesses for every even n in (2, 10000].",
+  "limitations": [
+    "Covers only the bounded range; no global statement is supported."
+  ]
+}

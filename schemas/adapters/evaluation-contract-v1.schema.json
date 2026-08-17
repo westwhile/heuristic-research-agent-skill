@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation-contract/v1",
+  "title": "EvaluationContract v1",
+  "description": "Adapter-layer exchange type: the evaluation contract derived from one case payload — the evidence category and maturity rung each claim type needs for promotion, the forbidden evidence channels, and case-specific checkpoints. case_sha256 binds the exact case payload the contract was derived from. The contract's own canonical hash can be pinned into core evidence inputs (kind=\"config\", sha256 required) so 'which contract judged this' stays auditable; the contract itself is an exchange type and never enters the store.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_sha256",
+    "required_evidence",
+    "forbidden_channels",
+    "checkpoints"
+  ],
+  "properties": {
+    "schema": {
+      "const": "evaluation-contract/v1"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical SHA-256 of the case payload this contract was derived from. Hash binding, not a locator."
+    },
+    "required_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_type",
+          "min_maturity"
+        ],
+        "properties": {
+          "claim_type": {
+            "enum": [
+              "engineering_claim",
+              "data_claim",
+              "mathematical_claim",
+              "empirical_claim",
+              "predictive_claim",
+              "strategy_claim",
+              "production_claim"
+            ]
+          },
+          "min_maturity": {
+            "enum": [
+              "draft",
+              "engineering_verified",
+              "data_accepted",
+              "evaluation_eligible",
+              "empirically_supported",
+              "mathematically_verified",
+              "externally_validated",
+              "production_observed"
+            ],
+            "description": "Minimum governance ladder rung the evidence supporting this claim type must reach inside this case."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-claim-type promotion requirements for this case. A contract with no requirements evaluates nothing."
+    },
+    "forbidden_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Evidence channels that must never support promotion in this case (for example numeric-extrapolation-as-proof, future-function features, non-PIT data, misaligned labels). Required; write an explicit empty array only after consideration."
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Case-specific checkpoint list (for example gate identifiers with their freeze assertions). Required; may be an explicit empty array."
+    }
+  },
+  "additionalProperties": false
+}

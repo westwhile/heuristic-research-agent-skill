@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "quant-evidence/v1",
+  "title": "QuantEvidence input v1",
+  "description": "Domain evidence payload for the Quant adapter's validate_claim. kind classifies what produced the evidence; data_provenance classifies the data it rests on (synthetic, sample, real point-in-time, production). The adapter constrains kind/provenance consistency (a synthetic_backtest cannot carry real_pit provenance); the schema itself only fixes the two vocabularies (ADR-0005 decision 1).",
+  "type": "object",
+  "required": [
+    "schema",
+    "evidence_id",
+    "kind",
+    "data_provenance",
+    "content_sha256",
+    "summary",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "quant-evidence/v1"
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "kind": {
+      "enum": [
+        "unit_test_run",
+        "data_audit_report",
+        "synthetic_backtest",
+        "sample_backtest",
+        "real_data_backtest",
+        "paper_trading_log",
+        "production_log",
+        "cost_model_check",
+        "leakage_scan",
+        "other"
+      ],
+      "description": "What produced this evidence item. Backtest kinds are split by data class so the ceiling rule can distinguish synthetic, sample, and real point-in-time runs."
+    },
+    "data_provenance": {
+      "enum": [
+        "synthetic",
+        "sample",
+        "real_pit",
+        "production"
+      ],
+      "description": "Data the evidence rests on: synthetic (engineered data proving pipeline behavior only), sample (real but partial or non-representative extracts), real_pit (point-in-time correct historical data), production (live-trading records)."
+    },
+    "content_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the underlying artifact (report file, run log, audit export). Binds the evidence payload to a concrete artifact."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable summary of the evidence."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of this evidence. Required; explicit empty array only after consideration."
+    }
+  },
+  "additionalProperties": false
+}

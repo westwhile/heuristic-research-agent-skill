@@ -1,0 +1,9 @@
+{
+  "schema": "quant-case/v1",
+  "case_id": "quant-case-0001",
+  "study_id": "synthetic-factor-study-001",
+  "gates": [
+    "engineering",
+    "guaranteed_alpha"
+  ]
+}

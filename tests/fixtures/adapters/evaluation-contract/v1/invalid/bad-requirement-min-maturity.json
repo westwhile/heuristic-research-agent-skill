@@ -1,0 +1,16 @@
+{
+  "schema": "evaluation-contract/v1",
+  "case_sha256": "abababababababababababababababababababababababababababababababab",
+  "required_evidence": [
+    {
+      "claim_type": "mathematical_claim",
+      "min_maturity": "peer_reviewed"
+    }
+  ],
+  "forbidden_channels": [
+    "numeric-extrapolation-as-proof"
+  ],
+  "checkpoints": [
+    "M0: quantifiers and object domain frozen"
+  ]
+}

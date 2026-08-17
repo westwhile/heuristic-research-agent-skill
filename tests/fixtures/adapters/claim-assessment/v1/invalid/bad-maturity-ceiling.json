@@ -1,0 +1,10 @@
+{
+  "schema": "claim-assessment/v1",
+  "suggested_claim_type": "mathematical_claim",
+  "suggested_disposition": "inconclusive",
+  "evidence_maturity_ceiling": "production_ready",
+  "reasons": [
+    "Numeric witnesses cover the bounded range; no proof certificate is present."
+  ],
+  "triggered_rules": []
+}

@@ -1,0 +1,11 @@
+{
+  "schema": "quant-evidence/v1",
+  "evidence_id": "quant-evidence-0002",
+  "kind": "real_data_backtest",
+  "data_provenance": "real_pit",
+  "content_sha256": "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210",
+  "summary": "Point-in-time correct historical backtest over the study window with cost model applied.",
+  "limitations": [
+    "Single market; no capacity analysis."
+  ]
+}

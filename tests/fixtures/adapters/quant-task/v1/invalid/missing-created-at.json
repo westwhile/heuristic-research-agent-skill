@@ -1,0 +1,20 @@
+{
+  "schema": "quant-task/v1",
+  "task_id": "quant-task-0001",
+  "study_id": "synthetic-factor-study-001",
+  "title": "Momentum factor smoke test",
+  "statement": "Does a 20-day momentum factor rank stocks monotonically in the synthetic universe?",
+  "universe": "synthetic A-share-like universe, 300 names, no survivorship bias by construction",
+  "calendar": "SSE trading calendar, Asia/Shanghai, close-aligned",
+  "frequency": "daily",
+  "pit_policy": "All inputs are synthetic; availability lags are simulated at T+1 close.",
+  "cost_model": {},
+  "data_spec": {},
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Synthetic pipeline produces a monotone rank-IC table without error."
+  ],
+  "permissions": [],
+  "allowed_external_effects": []
+}
