@@ -75,9 +75,10 @@ heuristic-research-agent-skill/
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前仓库 Tag：`v0.2.0`（Phase 1 通用内核验收发布，不代表功能平台已经发布）
+- 当前仓库 Tag：`v0.3.0`（Phase 2 双 Adapter 垂直切片验收发布，不代表功能平台已经发布）
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
 - Phase 1 已完成：九个 v1 Core schema、25 种 violation 合同、append-only 发布与全图验证、只读 CLI（详见 v0.2.0 tag 与 Phase 1C/1D 验收报告）
-- Phase 2 进行中：Math/Quant 双 Adapter 垂直切片（`feat/math-quant-vertical-slices` 分支，待终审合并）；ML/DL Adapter 与完整 Evaluator 尚未实现
+- Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
+- Phase 3 进行中：Public Evaluator MVP——L0/L1 评测记录、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests 与首批公开 benchmark suites（`feat/public-evaluator-mvp` 分支，待 PR 合并）；ML/DL Adapter 与完整 Evaluator 尚未实现
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。
