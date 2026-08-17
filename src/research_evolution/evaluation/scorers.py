@@ -25,6 +25,7 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any, Mapping
 
 # Scorer levels: exactly the ``scorer.level`` enum of
@@ -48,7 +49,10 @@ _SHA256_HEX = frozenset("0123456789abcdef")
 
 
 def _require_finite_number(name: str, value: Any) -> float:
-    if isinstance(value, bool) or not isinstance(value, (int, float)):
+    # Decimal is a number: the core strict JSON parser yields Decimal for
+    # every fraction literal (Phase 1 frozen numeric model), so any
+    # JSON-loaded contract parameter or packaged score arrives as Decimal.
+    if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
         raise ValueError(f"{name} must be a number, got {value!r}")
     result = float(value)
     if not math.isfinite(result):
@@ -108,12 +112,16 @@ def _json_equal(left: Any, right: Any) -> bool:
     produced by ``dict.get`` for absent keys, and container equality
     inherits both confusions. Here a bool never equals a non-bool (checked
     before the numeric branch, because ``bool`` subclasses ``int``);
-    numbers still compare across int/float (JSON has one number type);
-    dicts and lists recurse; anything else must share its exact type.
+    numbers still compare across int/float/Decimal — JSON has one number
+    type, and the strict parser yields Decimal for fractions, so an oracle
+    ``2.0`` must equal an output ``2``; dicts and lists recurse; anything
+    else must share its exact type.
     """
     if isinstance(left, bool) or isinstance(right, bool):
         return isinstance(left, bool) and isinstance(right, bool) and left == right
-    if isinstance(left, (int, float)) and isinstance(right, (int, float)):
+    if isinstance(left, (int, float, Decimal)) and isinstance(
+        right, (int, float, Decimal)
+    ):
         return left == right
     if isinstance(left, dict) and isinstance(right, dict):
         return left.keys() == right.keys() and all(
@@ -183,7 +191,11 @@ def _numeric_tolerance(
         raise ValueError("params.tolerance must be non-negative")
     actual_raw = output.get(field)
     entries = []
-    if isinstance(actual_raw, bool) or not isinstance(actual_raw, (int, float)):
+    # Decimal is numeric: replayed outputs arrive from the strict JSON
+    # parser, which yields Decimal for fraction literals.
+    if isinstance(actual_raw, bool) or not isinstance(
+        actual_raw, (int, float, Decimal)
+    ):
         entries.append(ScoreEntry(dimension=f"within_tolerance:{field}", value=0.0))
     else:
         error = abs(float(actual_raw) - expected)

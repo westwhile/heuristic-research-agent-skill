@@ -3,8 +3,10 @@
 
 import json
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
+from research_evolution.core import load_strict_json
 from research_evolution.evaluation import (
     SCORER_LEVELS,
     ScoreEntry,
@@ -255,6 +257,58 @@ class ScorerIdentityTest(unittest.TestCase):
         # believe it was traced when it was not.
         with self.assertRaises(ValueError):
             scorer_identity("oracle", calibration_sha256=CALIBRATION_SHA)
+
+
+class StrictJsonDecimalTest(unittest.TestCase):
+    """E8 regression: the core strict JSON parser yields Decimal for every
+    fraction literal (Phase 1 frozen numeric model); scorers must accept
+    JSON-loaded numbers, never crash on them."""
+
+    def test_checker_accepts_json_loaded_fractional_params(self) -> None:
+        spec = load_strict_json(
+            b'{"checker": "numeric_tolerance", "params": '
+            b'{"field": "value", "expected": -0.02, "tolerance": 0.001}}'
+        )
+        self.assertIsInstance(spec["params"]["expected"], Decimal)
+        hit = score_with_checker(load_strict_json(b'{"value": -0.02}'), spec)
+        self.assertEqual(
+            {entry.dimension: entry.value for entry in hit}["within_tolerance:value"],
+            1.0,
+        )
+        miss = score_with_checker(load_strict_json(b'{"value": -0.017}'), spec)
+        self.assertEqual(
+            {entry.dimension: entry.value for entry in miss}["within_tolerance:value"],
+            0.0,
+        )
+
+    def test_rubric_packaging_accepts_json_loaded_scores(self) -> None:
+        entries = package_rubric_scores(load_strict_json(b'{"clarity": 0.5}'))
+        self.assertEqual(entries, (ScoreEntry("clarity", 0.5),))
+
+    def test_oracle_json_number_cross_type_equality(self) -> None:
+        # An oracle 2.0 (Decimal) must equal an output 2 (int): JSON has
+        # one number type regardless of the literal's form.
+        oracle = load_strict_json(b'{"answer": 2.0}')
+        self.assertEqual(score_with_oracle({"answer": 2}, oracle)[0].value, 1.0)
+        both_decimal = load_strict_json(b'{"answer": 0.5}')
+        self.assertEqual(
+            score_with_oracle(load_strict_json(b'{"answer": 0.5}'), both_decimal)[
+                0
+            ].value,
+            1.0,
+        )
+        self.assertEqual(
+            score_with_oracle(load_strict_json(b'{"answer": 0.6}'), both_decimal)[
+                0
+            ].value,
+            0.0,
+        )
+
+    def test_decimal_nan_and_infinity_still_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            ScoreEntry("d", Decimal("NaN"))
+        with self.assertRaises(ValueError):
+            ScoreEntry("d", Decimal("Infinity"))
 
 
 if __name__ == "__main__":

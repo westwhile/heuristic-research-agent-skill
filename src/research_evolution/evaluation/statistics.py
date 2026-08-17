@@ -32,6 +32,7 @@ from __future__ import annotations
 import math
 import random
 from dataclasses import dataclass
+from decimal import Decimal
 from math import comb
 from typing import Any, Sequence
 
@@ -145,7 +146,10 @@ def paired_bootstrap(
     differences = []
     for index, (champ, chall) in enumerate(zip(champion, challenger)):
         for name, value in ((f"champion[{index}]", champ), (f"challenger[{index}]", chall)):
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
+            # Decimal is a number: a run record reloaded from a store
+            # carries Decimal score values (the strict parser's frozen
+            # numeric model); convert to float once, up front (R34).
+            if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
                 raise ValueError(f"{name} must be a number, got {value!r}")
             if not math.isfinite(float(value)):
                 raise ValueError(f"{name} must be finite, got {value!r}")

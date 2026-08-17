@@ -4,6 +4,7 @@ discipline that makes every result reproducible from its parameters."""
 
 import json
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
 from research_evolution.evaluation.statistics import (
@@ -168,6 +169,29 @@ class SmallSampleDisciplineTest(unittest.TestCase):
     def test_no_limitation_at_threshold(self) -> None:
         self.assertIsNone(small_sample_limitation(SMALL_SAMPLE_THRESHOLD))
         self.assertEqual(SMALL_SAMPLE_THRESHOLD, 30)
+
+
+class DecimalInputTest(unittest.TestCase):
+    """R34 regression: a run reloaded from a store carries Decimal score
+    values (the strict parser's frozen numeric model) — the statistics
+    layer must accept them."""
+
+    def test_paired_bootstrap_accepts_decimal(self) -> None:
+        decimal_result = paired_bootstrap(
+            [Decimal("1"), Decimal("0"), Decimal("0.5")],
+            [Decimal("0.25"), Decimal("0"), Decimal("1")],
+            seed=99,
+            resamples=200,
+        )
+        float_result = paired_bootstrap(
+            [1, 0, 0.5], [0.25, 0, 1], seed=99, resamples=200
+        )
+        self.assertEqual(decimal_result.estimates, float_result.estimates)
+        self.assertEqual(decimal_result.parameters, float_result.parameters)
+
+    def test_paired_bootstrap_rejects_decimal_nan(self) -> None:
+        with self.assertRaises(ValueError):
+            paired_bootstrap([Decimal("NaN")], [0], seed=99, resamples=10)
 
 
 if __name__ == "__main__":

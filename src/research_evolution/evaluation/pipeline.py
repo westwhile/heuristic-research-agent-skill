@@ -35,12 +35,16 @@ never disagree about which calibration artifact backs them.
 
 from __future__ import annotations
 
-import json
 import platform
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from research_evolution.core import canonical_sha256, load_record, load_strict_json
+from research_evolution.core import (
+    canonical_bytes,
+    canonical_sha256,
+    load_record,
+    load_strict_json,
+)
 
 from .envelope import Envelope
 from .gates import (
@@ -92,9 +96,16 @@ def interpreter_environment() -> dict[str, str]:
 
 def _record_sha256(payload: Mapping[str, Any], what: str) -> str:
     """Validate *payload* against its core schema and return the store
-    hash — fail fast on a malformed case/suite/run document."""
+    hash — fail fast on a malformed case/suite/run document.
+
+    Serialization goes through the core canonical machine, not bare
+    ``json.dumps``: a record reloaded from a store carries ``Decimal``
+    values (the strict parser's frozen numeric model), and the canonical
+    serializer is the one component that writes them faithfully — the
+    store's own round-trip depends on it (R34).
+    """
     try:
-        return load_record(json.dumps(payload)).sha256
+        return load_record(canonical_bytes(payload)).sha256
     except Exception as exc:
         raise ValueError(f"{what} payload is not a valid core record: {exc}")
 

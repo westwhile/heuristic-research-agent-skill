@@ -4,10 +4,17 @@ the three report forms (ADR-0006 decisions 3 and 10)."""
 import hashlib
 import json
 import platform
+import tempfile
 import unittest
+from decimal import Decimal
 from pathlib import Path
 
-from research_evolution.core import canonical_bytes, canonical_sha256, load_record
+from research_evolution.core import (
+    canonical_bytes,
+    canonical_sha256,
+    load_record,
+    publish_record,
+)
 from research_evolution.evaluation import (
     ComparePolicy,
     Envelope,
@@ -324,6 +331,59 @@ class ReportFormsTest(unittest.TestCase):
     def test_interpreter_environment_shape(self) -> None:
         env = interpreter_environment()
         self.assertEqual(set(env), {"interpreter", "interpreter_version"})
+
+
+class StoreRoundTripTest(unittest.TestCase):
+    """R34 regression: a run reloaded from a store carries Decimal score
+    values (the strict parser's frozen numeric model). The publish ->
+    load -> compare design workflow must work end to end."""
+
+    def test_publish_load_compare_round_trip(self) -> None:
+        case = _case(scorer_level="structured_rubric")
+        suite = _suite("s-rt", case)
+
+        def run(run_id: str, clarity: float) -> dict:
+            return evaluate_case(
+                **_run_kwargs(
+                    run_id=run_id,
+                    case=case,
+                    suite=suite,
+                    scoring={
+                        "level": "structured_rubric",
+                        "scores": {"clarity": clarity, "soundness": 1.0},
+                    },
+                    gate_config=GateConfig(),
+                )
+            ).run_payload
+
+        champion = run("er-rt-champion", 0.5)
+        challenger = run("er-rt-challenger", 0.25)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "store"
+            reloaded = {}
+            for name, payload in (("champion", champion), ("challenger", challenger)):
+                receipt = publish_record(canonical_bytes(payload), root=root)
+                self.assertFalse(receipt.already_present)
+                reloaded[name] = load_record((root / receipt.path).read_bytes()).data
+        # The seam this guards: fractional scores reload as Decimal.
+        self.assertTrue(
+            any(
+                isinstance(entry["value"], Decimal)
+                for entry in reloaded["champion"]["score_vector"]
+            )
+        )
+        report = compare(
+            champion=reloaded["champion"],
+            challenger=reloaded["challenger"],
+            policy=ComparePolicy(seed=11, methods=("paired_bootstrap",), resamples=200),
+            report_id="rt-1",
+            title="store round-trip regression",
+            conclusion="store-reloaded runs compare cleanly",
+            generated_at=GENERATED_AT,
+        )
+        record = load_record(render_json(report))
+        self.assertEqual(record.schema_id, "comparison-report/v1")
+        self.assertEqual(report["methods"]["statistics"], ["paired_bootstrap"])
 
 
 if __name__ == "__main__":
