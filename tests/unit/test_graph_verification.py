@@ -1916,5 +1916,397 @@ class EvaluationGraphTest(unittest.TestCase):
         self.assertEqual(self._kinds(report), {"duplicate_id"})
 
 
+def _case_v2(
+    case_id: str,
+    task: tuple[str, str] = ("t-1", "0" * 64),
+    run_refs: list[tuple[str, str]] | None = None,
+    derived_from: list[tuple[str, str]] | None = None,
+) -> dict:
+    return {
+        "schema": "research-case-package/v2",
+        "case_id": case_id,
+        "title": "Graph test v2 case package",
+        "task": {"task_id": task[0], "sha256": task[1]},
+        "runs": _case_ref(run_refs if run_refs is not None else [("r-1", "2" * 64)], "run_id"),
+        "claims": [],
+        "evidence": [],
+        "observations": [],
+        "analyses": [],
+        "problem_signature": {
+            "summary": "Graph test signature.",
+            "signature_sha256": "3" * 64,
+        },
+        "io_manifest": {
+            "inputs": [{"name": "input.bin", "sha256": "4" * 64}],
+            "outputs": [{"name": "output.bin", "sha256": "5" * 64}],
+        },
+        "intermediate_manifest": [],
+        "decision_timeline": [
+            {"at": "2026-08-17T09:00:00Z", "entry": "Case captured."}
+        ],
+        "open_questions": [],
+        "environment": {"tool": "unit-test", "version": "1.0"},
+        "privacy_review_status": "pending",
+        "export_mode": "local_full",
+        "eligibility": {"status": "eligible", "reasons": []},
+        "source": {"project": "unit-tests"},
+        "derived_from": _case_ref(derived_from or [], "case_id"),
+        "created_at": "2026-08-17T09:05:00Z",
+    }
+
+
+def _pattern(
+    pattern_id: str,
+    case_refs: list[tuple[str, str]] | None = None,
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "research-pattern/v1",
+        "pattern_id": pattern_id,
+        "problem_signature": {
+            "summary": "Graph test signature.",
+            "signature_sha256": "3" * 64,
+        },
+        "scope": "unit tests",
+        "preconditions": [],
+        "contraindications": [],
+        "successful_tactics": ["Freeze the signature before retrieval."],
+        "failed_tactics": [],
+        "evidence": {
+            "grade": "engineering",
+            "rationale": "Synthetic graph-test pattern.",
+        },
+        "confidence": "medium",
+        "source_cases": _case_ref(
+            case_refs if case_refs is not None else [("cv-1", "6" * 64)],
+            "case_id",
+        ),
+        "last_validated": "2026-08-17T09:10:00Z",
+        "status": "candidate_pattern",
+        "transition_rationale": "Initial capture for graph tests.",
+        "created_at": "2026-08-17T09:10:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+def _heuristic(
+    heuristic_id: str,
+    case_refs: list[tuple[str, str]] | None = None,
+    supersedes: str | None = None,
+) -> dict:
+    payload = {
+        "schema": "heuristic/v1",
+        "heuristic_id": heuristic_id,
+        "statement": "Record the envelope with every replay.",
+        "scope": "unit tests",
+        "mode": "advisory",
+        "evidence": ["Synthetic graph-test evidence summary."],
+        "exception": [],
+        "risk": "The rule may not generalize beyond tests.",
+        "rollback": "Remove the annotation from the run notes.",
+        "status": "candidate",
+        "transition_rationale": "Initial capture for graph tests.",
+        "regression_cases": _case_ref(
+            case_refs if case_refs is not None else [("cv-1", "6" * 64)],
+            "case_id",
+        ),
+        "created_at": "2026-08-17T09:15:00Z",
+    }
+    if supersedes is not None:
+        payload["supersedes"] = supersedes
+    return payload
+
+
+def _reuse_event(
+    reuse_event_id: str,
+    run: tuple[str, str] = ("r-1", "2" * 64),
+    pattern: tuple[str, str] = ("p-1", "6" * 64),
+) -> dict:
+    return {
+        "schema": "reuse-event/v1",
+        "reuse_event_id": reuse_event_id,
+        "run": {"run_id": run[0], "sha256": run[1]},
+        "pattern": {"pattern_id": pattern[0], "sha256": pattern[1]},
+        "outcome": "helped",
+        "recorded_at": "2026-08-17T09:20:00Z",
+    }
+
+
+class ResearchMemoryGraphTest(unittest.TestCase):
+    """Phase 4 M2: the research memory record chain — case-package v2 with
+    backward ``derived_from`` lineage, pattern -> source cases, heuristic ->
+    regression cases, reuse event -> run and pinned pattern snapshot — is
+    served entirely by the generic graph machinery
+    (dangling/pin/duplicate/self/cycle) with no new composite validator and
+    no new violation kind (ADR-0007 decisions 2, 3, 6, 7)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.root = Path(self._tmp.name) / "store"
+
+    def _publish(self, payload: dict):
+        return publish_record(json.dumps(payload), root=self.root)
+
+    def _kinds(self, report) -> set[str]:
+        return {violation.kind for violation in report.violations}
+
+    def _sha(self, payload: dict) -> str:
+        return load_record(json.dumps(payload)).sha256
+
+    def _publish_base(self) -> tuple[str, str]:
+        """Publish task t-1 and run r-1 pinned to it; return both hashes."""
+        task = _task("t-1")
+        self._publish(task)
+        task_sha = self._sha(task)
+        run = _run("r-1", task_sha256=task_sha)
+        self._publish(run)
+        return task_sha, self._sha(run)
+
+    def _publish_case_v2(
+        self,
+        case_id: str,
+        task_sha: str,
+        run_sha: str,
+        derived_from: list[tuple[str, str]] | None = None,
+    ) -> str:
+        case = _case_v2(
+            case_id,
+            task=("t-1", task_sha),
+            run_refs=[("r-1", run_sha)],
+            derived_from=derived_from,
+        )
+        self._publish(case)
+        return self._sha(case)
+
+    # -- full chain ---------------------------------------------------------
+
+    def test_full_memory_chain_verifies_ok(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        pattern = _pattern("p-1", case_refs=[("cv-1", case_sha)])
+        self._publish(pattern)
+        pattern_sha = self._sha(pattern)
+        self._publish(_heuristic("h-1", case_refs=[("cv-1", case_sha)]))
+        self._publish(
+            _reuse_event("rev-1", run=("r-1", run_sha), pattern=("p-1", pattern_sha))
+        )
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 6)
+        self.assertEqual(
+            report.families,
+            {
+                "research-task/v1": 1,
+                "research-run/v1": 1,
+                "research-case-package/v2": 1,
+                "research-pattern/v1": 1,
+                "heuristic/v1": 1,
+                "reuse-event/v1": 1,
+            },
+        )
+
+    # -- case v2 derived_from lineage ----------------------------------------
+
+    def test_case_v2_derived_from_chain_ok(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        first_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish_case_v2("cv-2", task_sha, run_sha, derived_from=[("cv-1", first_sha)])
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 4)
+
+    def test_case_v2_derived_from_dangling(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        self._publish_case_v2("cv-2", task_sha, run_sha, derived_from=[("cv-absent", "9" * 64)])
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_case_v2_derived_from_wrong_pin(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish_case_v2("cv-2", task_sha, run_sha, derived_from=[("cv-1", "9" * 64)])
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"pin_mismatch"})
+
+    def test_case_v2_derived_from_v1_is_cross_type(self) -> None:
+        # R35 ledger item 3: derived_from targets v2 only; a reference that
+        # resolves to a v1 record is rejected by the generic cross-type check.
+        task_sha, run_sha = self._publish_base()
+        v1_case = _case_package("cv-old", ("t-1", task_sha), [("r-1", run_sha)])
+        self._publish(v1_case)
+        self._publish_case_v2(
+            "cv-2", task_sha, run_sha, derived_from=[("cv-old", self._sha(v1_case))]
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"cross_type_reference"})
+
+    def test_case_v1_v2_same_id_is_duplicate(self) -> None:
+        # R35 ledger item 2: the global duplicate_id check bites across the
+        # v1/v2 successor boundary, so v2 cases must start fresh id chains.
+        task_sha, run_sha = self._publish_base()
+        self._publish(_case_package("dup-c", ("t-1", task_sha), [("r-1", run_sha)]))
+        self._publish_case_v2("dup-c", task_sha, run_sha)
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
+
+    def test_case_v2_dangling_run_member(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case = _case_v2(
+            "cv-1",
+            task=("t-1", task_sha),
+            run_refs=[("r-absent", "9" * 64)],
+        )
+        self._publish(case)
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    # -- pattern references and lifecycle lineage -----------------------------
+
+    def test_pattern_source_case_dangling(self) -> None:
+        self._publish(_pattern("p-1", case_refs=[("cv-absent", "9" * 64)]))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_pattern_source_case_wrong_pin(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-1", case_refs=[("cv-1", "9" * 64)]))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"pin_mismatch"})
+
+    def test_pattern_supersedes_chain_ok(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-1", case_refs=[("cv-1", case_sha)]))
+        self._publish(_pattern("p-2", case_refs=[("cv-1", case_sha)], supersedes="p-1"))
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 5)
+
+    def test_pattern_supersedes_self(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-1", case_refs=[("cv-1", case_sha)], supersedes="p-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"self_reference"})
+
+    def test_pattern_supersedes_dangling(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-2", case_refs=[("cv-1", case_sha)], supersedes="p-absent"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_pattern_supersedes_cross_type(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-2", case_refs=[("cv-1", case_sha)], supersedes="cv-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"cross_type_reference"})
+
+    def test_pattern_supersedes_cycle(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-1", case_refs=[("cv-1", case_sha)], supersedes="p-2"))
+        self._publish(_pattern("p-2", case_refs=[("cv-1", case_sha)], supersedes="p-1"))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"lineage_cycle"})
+
+    def test_pattern_fork_is_informational(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("p-1", case_refs=[("cv-1", case_sha)]))
+        self._publish(_pattern("p-2", case_refs=[("cv-1", case_sha)], supersedes="p-1"))
+        self._publish(_pattern("p-3", case_refs=[("cv-1", case_sha)], supersedes="p-1"))
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+
+    # -- heuristic ------------------------------------------------------------
+
+    def test_heuristic_regression_case_dangling(self) -> None:
+        self._publish(_heuristic("h-1", case_refs=[("cv-absent", "9" * 64)]))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_heuristic_supersedes_chain_ok(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_heuristic("h-1", case_refs=[("cv-1", case_sha)]))
+        self._publish(_heuristic("h-2", case_refs=[("cv-1", case_sha)], supersedes="h-1"))
+        report = verify_record_graph(self.root)
+        self.assertTrue(report.ok, report.to_dict())
+
+    # -- reuse event ------------------------------------------------------------
+
+    def test_reuse_event_dangling_run(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        pattern = _pattern("p-1", case_refs=[("cv-1", case_sha)])
+        self._publish(pattern)
+        self._publish(
+            _reuse_event(
+                "rev-1",
+                run=("r-absent", "9" * 64),
+                pattern=("p-1", self._sha(pattern)),
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_reuse_event_dangling_pattern(self) -> None:
+        _, run_sha = self._publish_base()
+        self._publish(
+            _reuse_event(
+                "rev-1",
+                run=("r-1", run_sha),
+                pattern=("p-absent", "9" * 64),
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"dangling_reference"})
+
+    def test_reuse_event_pattern_cross_type(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(
+            _reuse_event(
+                "rev-1",
+                run=("r-1", run_sha),
+                pattern=("cv-1", case_sha),
+            )
+        )
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"cross_type_reference"})
+
+    # -- cross-family identity --------------------------------------------------
+
+    def test_duplicate_id_between_pattern_and_heuristic(self) -> None:
+        task_sha, run_sha = self._publish_base()
+        case_sha = self._publish_case_v2("cv-1", task_sha, run_sha)
+        self._publish(_pattern("dup-1", case_refs=[("cv-1", case_sha)]))
+        self._publish(_heuristic("dup-1", case_refs=[("cv-1", case_sha)]))
+        report = verify_record_graph(self.root)
+        self.assertFalse(report.ok)
+        self.assertEqual(self._kinds(report), {"duplicate_id"})
+
+
 if __name__ == "__main__":
     unittest.main()

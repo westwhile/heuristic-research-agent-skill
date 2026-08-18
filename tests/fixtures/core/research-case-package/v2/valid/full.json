@@ -1,0 +1,110 @@
+{
+ "schema": "research-case-package/v2",
+ "case_id": "case-v2-full",
+ "title": "Full v2 case package",
+ "task": {
+  "task_id": "task-1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+ },
+ "runs": [
+  {
+   "run_id": "run-1",
+   "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  }
+ ],
+ "claims": [
+  {
+   "claim_id": "claim-1",
+   "sha256": "5555555555555555555555555555555555555555555555555555555555555555"
+  }
+ ],
+ "evidence": [
+  {
+   "evidence_id": "ev-1",
+   "sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+  }
+ ],
+ "observations": [
+  {
+   "observation_id": "obs-1",
+   "sha256": "7777777777777777777777777777777777777777777777777777777777777777"
+  }
+ ],
+ "analyses": [
+  {
+   "analysis_id": "ana-1",
+   "sha256": "8888888888888888888888888888888888888888888888888888888888888888"
+  }
+ ],
+ "problem_signature": {
+  "summary": "Synthetic fixture signature.",
+  "signature_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "facets": {
+   "arity": 1,
+   "area": "general"
+  }
+ },
+ "io_manifest": {
+  "inputs": [
+   {
+    "name": "input.bin",
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "locator": "artifacts/input.bin"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "output.bin",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+   },
+   {
+    "name": "summary.txt",
+    "sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+    "locator": "artifacts/summary.txt"
+   }
+  ]
+ },
+ "intermediate_manifest": [
+  {
+   "name": "checkpoint.bin",
+   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+   "locator": "artifacts/checkpoint.bin"
+  }
+ ],
+ "decision_timeline": [
+  {
+   "at": "2026-08-17T09:00:00Z",
+   "entry": "Case captured."
+  },
+  {
+   "at": "2026-08-17T09:02:00Z",
+   "entry": "Rejected shortcut approach."
+  }
+ ],
+ "open_questions": [
+  "Does the approach scale to larger inputs?"
+ ],
+ "environment": {
+  "tool": "unit-test",
+  "version": "1.0",
+  "details": "Interpreter 3.14.5, single machine."
+ },
+ "privacy_review_status": "passed",
+ "export_mode": "local_redacted",
+ "eligibility": {
+  "status": "eligible",
+  "reasons": []
+ },
+ "source": {
+  "project": "synthetic-fixtures",
+  "external_manifest_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+ },
+ "derived_from": [
+  {
+   "case_id": "case-v2-minimal",
+   "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  }
+ ],
+ "created_at": "2026-08-17T09:05:00Z",
+ "rights": "Synthetic content; no external rights held."
+}

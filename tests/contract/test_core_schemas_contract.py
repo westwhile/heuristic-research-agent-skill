@@ -1,7 +1,8 @@
 """Contract tests: fixtures, schema integrity, and domain neutrality.
 
-These tests pin the public contract of the core kernel (Phase 1A–1D and the
-Phase 3 E2 evaluation record families):
+These tests pin the public contract of the core kernel (Phase 1A–1D, the
+Phase 3 E2 evaluation record families, and the Phase 4 M2 research memory
+families):
 
 - the fixture tree on disk and FIXTURE_MANIFEST are compared
   bidirectionally, so an unlisted family/version directory or stray file is a
@@ -248,6 +249,106 @@ FIXTURE_MANIFEST = {
             "whitespace-conclusion.json": ("RecordValidationError", "conclusion"),
         },
     },
+    "research-case-package/v2": {
+        "valid": [
+            "full.json",
+            "minimal.json",
+            "eligibility-ineligible.json",
+            "export-mode-benchmark-candidate.json",
+            "export-mode-metrics-only.json",
+            "privacy-rejected.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-eligibility-status.json": ("RecordValidationError", "eligibility"),
+            "bad-export-mode.json": ("RecordValidationError", "export_mode"),
+            "bad-privacy-status.json": (
+                "RecordValidationError",
+                "privacy_review_status",
+            ),
+            "bad-signature-sha256.json": ("RecordValidationError", "signature_sha256"),
+            "bad-timeline-at.json": ("RecordValidationError", "decision_timeline"),
+            "derived-from-missing-pin.json": ("RecordValidationError", "sha256"),
+            "empty-decision-timeline.json": (
+                "RecordValidationError",
+                "decision_timeline",
+            ),
+            "empty-io-inputs.json": ("RecordValidationError", "inputs"),
+        },
+    },
+    "research-pattern/v1": {
+        "valid": [
+            "full.json",
+            "minimal.json",
+            "confidence-low.json",
+            "status-candidate-pattern.json",
+            "status-deprecated.json",
+            "status-distilled.json",
+            "status-rejected.json",
+            "status-retired.json",
+            "status-validated-pattern.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-confidence.json": ("RecordValidationError", "confidence"),
+            "bad-last-validated.json": ("RecordValidationError", "last_validated"),
+            "bad-status.json": ("RecordValidationError", "status"),
+            "empty-source-cases.json": ("RecordValidationError", "source_cases"),
+            "empty-successful-tactics.json": (
+                "RecordValidationError",
+                "successful_tactics",
+            ),
+            "missing-transition-rationale.json": (
+                "RecordValidationError",
+                "transition_rationale",
+            ),
+            "source-case-missing-pin.json": ("RecordValidationError", "sha256"),
+            "whitespace-supersedes.json": ("RecordValidationError", "supersedes"),
+        },
+    },
+    "heuristic/v1": {
+        "valid": [
+            "full.json",
+            "minimal.json",
+            "status-candidate.json",
+            "status-deprecated.json",
+            "status-promoted.json",
+            "status-rejected.json",
+            "status-retired.json",
+            "status-validated.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-mode.json": ("RecordValidationError", "mode"),
+            "bad-status.json": ("RecordValidationError", "status"),
+            "empty-evidence.json": ("RecordValidationError", "evidence"),
+            "empty-regression-cases.json": (
+                "RecordValidationError",
+                "regression_cases",
+            ),
+            "missing-rollback.json": ("RecordValidationError", "rollback"),
+            "regression-case-missing-pin.json": ("RecordValidationError", "sha256"),
+            "whitespace-supersedes.json": ("RecordValidationError", "supersedes"),
+        },
+    },
+    "reuse-event/v1": {
+        "valid": [
+            "full.json",
+            "minimal.json",
+            "outcome-harmed.json",
+            "outcome-neutral.json",
+            "outcome-not-applicable.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-outcome.json": ("RecordValidationError", "outcome"),
+            "bad-recorded-at.json": ("RecordValidationError", "recorded_at"),
+            "missing-pattern-pin.json": ("RecordValidationError", "sha256"),
+            "missing-run-pin.json": ("RecordValidationError", "sha256"),
+            "run-ref-not-object.json": ("RecordValidationError", "run"),
+            "whitespace-note.json": ("RecordValidationError", "note"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -267,8 +368,14 @@ MINIMAL_FIXTURE_SHA256 = {
     "export-receipt/v1": (
         "acbf6c46800da6f12a104d885dbd3bb727e5bbd688a128992239259be1247ebc"
     ),
+    "heuristic/v1": (
+        "8533c35152d56a11f47900b06958a065988f7087f5a316e110dd3ec31b83fbed"
+    ),
     "research-case-package/v1": (
         "d83202cfeafc280b98df1b7d9e0c69be70e1d8681c3c6fbc0e5b252c7a5f2ae5"
+    ),
+    "research-case-package/v2": (
+        "042eca632dfeab36b6d02e3279cf56b2eb650072e84b6223a6ed2572444c1fff"
     ),
     "research-claim/v1": (
         "a496686fd72c63ee8cba7c3e59281a7575f8ee499798072457e2bcce6796c769"
@@ -282,11 +389,17 @@ MINIMAL_FIXTURE_SHA256 = {
     "research-failure-observation/v1": (
         "946bd26918fe3ec254be0fa375c0a2090ddde0dffee5d4fb6de9c3d546300ece"
     ),
+    "research-pattern/v1": (
+        "cce2f8f67b911b85005a08c48490be3d000f1a099883216818a0c5785299945c"
+    ),
     "research-run/v1": (
         "f6a3a6273e87f9ac38efc332b98b14b5c9b95ec3f5652567502d7063df8e4c9e"
     ),
     "research-task/v1": (
         "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
+    ),
+    "reuse-event/v1": (
+        "21054deab507d4a8ce66ca818aa38d8a674cf2b7b0484d82de0585fe9cda9669"
     ),
     "suite/v1": (
         "72e17ae19ab298e6c04f6886b8dcf2c1c6ea48306d4d35672c6fc853c7fe301b"
@@ -313,8 +426,14 @@ SCHEMA_TEXT_SHA256 = {
     "export-receipt-v1.schema.json": (
         "00bb452c0c417ab17254988d4e5597abebe5cbca1607ac68096a705493dd09e4"
     ),
+    "heuristic-v1.schema.json": (
+        "a79d7f724c2e22a346de941fae5393192b424d67645a4158fe0dea17a1101dab"
+    ),
     "research-case-package-v1.schema.json": (
         "3945496445ea2e4a809bb49a58c4bbbb469de8c18c4dc517ad3f3a63ec894a25"
+    ),
+    "research-case-package-v2.schema.json": (
+        "92e66e0a28fd65ca81fe21e93297ca13c4d06a0f327b78c8850787de8436d27d"
     ),
     "research-claim-v1.schema.json": (
         "0eac88fff6fb4fa1f2046154051fc252148c79c980dac98c6a52d1212f57ff59"
@@ -328,11 +447,17 @@ SCHEMA_TEXT_SHA256 = {
     "research-failure-observation-v1.schema.json": (
         "5e31a795bc92a19051189d2518fd054b75134d5dc4f313ffeaf81b6aa49cf397"
     ),
+    "research-pattern-v1.schema.json": (
+        "45fe40e87866cb1ceb40d5399572524de72fdcf85de91231002fafdd2f597113"
+    ),
     "research-run-v1.schema.json": (
         "a6068ea50910147c42e00d685ab675e4852df929860e0540c11803d0615767bc"
     ),
     "research-task-v1.schema.json": (
         "95f5450d50e3ff712ec21b74458be2ff0c727b9f4544d04666f0691c679afc6e"
+    ),
+    "reuse-event-v1.schema.json": (
+        "52b82c7badd9a8cddf07955f778c5262d53f030e7b3749762302330e55297fb5"
     ),
     "suite-v1.schema.json": (
         "217368272ab7c555b4961d1681eb1047ff5ca070248f3559499c2b4ccacf938a"
@@ -422,7 +547,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_thirteen_v1_schemas(self) -> None:
+    def test_registry_loads_exactly_the_seventeen_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -432,13 +557,17 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "evaluation-run/v1",
                 "export-decision/v1",
                 "export-receipt/v1",
+                "heuristic/v1",
                 "research-case-package/v1",
+                "research-case-package/v2",
                 "research-claim/v1",
                 "research-evidence/v1",
                 "research-failure-analysis/v1",
                 "research-failure-observation/v1",
+                "research-pattern/v1",
                 "research-run/v1",
                 "research-task/v1",
+                "reuse-event/v1",
                 "suite/v1",
             ),
         )

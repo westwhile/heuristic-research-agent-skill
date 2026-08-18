@@ -19,7 +19,15 @@ in D3 (ADR-0004) the same way: one layer registering both families and
 the graph's ``unauthorized_export`` gate in a single commit. The four
 evaluation families joined in E2 (ADR-0006 decision 1) additively — the
 generic graph machinery serves every reference they declare, so no new
-composite validator was introduced with them.
+composite validator was introduced with them. The four research-memory
+families joined in M2 (ADR-0007 decisions 2, 3, 6, 7): the case package
+successor v2 registers alongside the frozen v1 with the same member
+references plus backward-only derived_from lineage; research-pattern/v1
+and heuristic/v1 carry family-scoped supersedes lineage (the claim
+precedent); reuse-event/v1 is a fact-axis record with two pinned
+references. Every reference they declare is served by the generic graph
+machinery; no new composite validator and no new violation kind was
+introduced with them.
 """
 
 from __future__ import annotations
@@ -39,6 +47,10 @@ EVALUATION_CASE = "evaluation-case/v1"
 SUITE = "suite/v1"
 EVALUATION_RUN = "evaluation-run/v1"
 COMPARISON_REPORT = "comparison-report/v1"
+CASE_V2 = "research-case-package/v2"
+PATTERN = "research-pattern/v1"
+HEURISTIC = "heuristic/v1"
+REUSE_EVENT = "reuse-event/v1"
 
 
 @dataclass(frozen=True)
@@ -315,6 +327,120 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=EVALUATION_RUN,
                     target_id_field="evaluation_run_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Phase 4 M2 research memory families (ADR-0007 decisions 2, 3, 6,
+        # 7): additive registration. The case package successor v2 keeps the
+        # six v1 member references and adds backward-only derived_from
+        # lineage targeting v2 itself; pattern and heuristic carry
+        # family-scoped supersedes lineage (the claim precedent);
+        # reuse-event/v1 is a fact-axis record with two pinned references.
+        # Every reference below is served by the generic graph machinery
+        # (dangling/pin/duplicate/self/cycle); no new composite validator
+        # and no new violation kind is introduced.
+        FamilyContract(
+            schema_id=CASE_V2,
+            identity_field="case_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="task",
+                    shape="object",
+                    target_family=TASK,
+                    target_id_field="task_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="runs",
+                    shape="array_of_objects",
+                    target_family=RUN,
+                    target_id_field="run_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="claims",
+                    shape="array_of_objects",
+                    target_family=CLAIM,
+                    target_id_field="claim_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="evidence",
+                    shape="array_of_objects",
+                    target_family=EVIDENCE,
+                    target_id_field="evidence_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="observations",
+                    shape="array_of_objects",
+                    target_family=OBSERVATION,
+                    target_id_field="observation_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="analyses",
+                    shape="array_of_objects",
+                    target_family=ANALYSIS,
+                    target_id_field="analysis_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="derived_from",
+                    shape="array_of_objects",
+                    target_family=CASE_V2,
+                    target_id_field="case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=PATTERN,
+            identity_field="pattern_id",
+            supersedes=SupersedesContract(scope="family"),
+            references=(
+                ReferenceContract(
+                    field="source_cases",
+                    shape="array_of_objects",
+                    target_family=CASE_V2,
+                    target_id_field="case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=HEURISTIC,
+            identity_field="heuristic_id",
+            supersedes=SupersedesContract(scope="family"),
+            references=(
+                ReferenceContract(
+                    field="regression_cases",
+                    shape="array_of_objects",
+                    target_family=CASE_V2,
+                    target_id_field="case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=REUSE_EVENT,
+            identity_field="reuse_event_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="run",
+                    shape="object",
+                    target_family=RUN,
+                    target_id_field="run_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="pattern",
+                    shape="object",
+                    target_family=PATTERN,
+                    target_id_field="pattern_id",
                     pin_required=True,
                 ),
             ),

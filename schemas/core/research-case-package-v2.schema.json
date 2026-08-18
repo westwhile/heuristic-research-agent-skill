@@ -1,0 +1,445 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-case-package/v2",
+  "title": "ResearchCasePackage v2",
+  "description": "A domain-neutral immutable package for one hard research or major project problem, binding exactly one hash-pinned task, at least one hash-pinned run, independently nullable member arrays of claims, evidence, observations, and analyses, plus the Phase 4 audit fields: problem signature, input/output and intermediate artifact manifests, decision timeline, open questions, environment, privacy review, export mode, eligibility, source, and backward lineage (ADR-0007 decision 2). Membership closure, pin agreement, and duplicate detection are enforced by graph verification, not here. Successor of research-case-package/v1 under the ADR-0004 compatibility policy: v1 remains frozen and valid forever; v2 records are new records with fresh case_id values, never in-place edits of v1 records.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "title",
+    "task",
+    "runs",
+    "claims",
+    "evidence",
+    "observations",
+    "analyses",
+    "problem_signature",
+    "io_manifest",
+    "intermediate_manifest",
+    "decision_timeline",
+    "open_questions",
+    "environment",
+    "privacy_review_status",
+    "export_mode",
+    "eligibility",
+    "source",
+    "derived_from",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-case-package/v2"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "task": {
+      "type": "object",
+      "required": ["task_id", "sha256"],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact task record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Exactly one task: a single pinned reference object, not an array."
+    },
+    "runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["run_id", "sha256"],
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "At least one run of the packaged task, each hash-pinned."
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_id", "sha256"],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member claims, each hash-pinned. May be an explicit empty array."
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "sha256"],
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member evidence records, each hash-pinned. May be an explicit empty array; when non-empty, the claims they support must also be members (closure, checked by graph verification)."
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["observation_id", "sha256"],
+        "properties": {
+          "observation_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member failure observations, each hash-pinned. May be an explicit empty array."
+    },
+    "analyses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["analysis_id", "sha256"],
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Member failure analyses, each hash-pinned. May be an explicit empty array."
+    },
+    "problem_signature": {
+      "type": "object",
+      "required": ["summary", "signature_sha256"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Short normalized statement of the problem shape, frozen before any retrieval or clustering use."
+        },
+        "signature_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Exact fingerprint of the normalized signature; the first tier of layered clustering (ADR-0007 decision 4)."
+        },
+        "facets": {
+          "type": "object",
+          "description": "Optional structured facets of the signature. Content is data: the kernel stores and hashes it but never interprets it."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The frozen problem signature this case answers."
+    },
+    "io_manifest": {
+      "type": "object",
+      "required": ["inputs", "outputs"],
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "sha256"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 64,
+                "maxLength": 64,
+                "pattern": "^[0-9a-f]{64}$",
+                "description": "Mandatory content hash binding the exact bytes."
+              },
+              "locator": {
+                "type": "string",
+                "x-safe-relative-path": true,
+                "description": "Optional safe relative path to the artifact. Secondary to the hash, never a replacement. Absolute paths, UNC, drive letters, and '..' are rejected."
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Content hashes of the case inputs; at least one, so the case stays reproducible in principle."
+        },
+        "outputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "sha256"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "sha256": {
+                "type": "string",
+                "minLength": 64,
+                "maxLength": 64,
+                "pattern": "^[0-9a-f]{64}$",
+                "description": "Mandatory content hash binding the exact bytes."
+              },
+              "locator": {
+                "type": "string",
+                "x-safe-relative-path": true,
+                "description": "Optional safe relative path to the artifact. Secondary to the hash, never a replacement. Absolute paths, UNC, drive letters, and '..' are rejected."
+              }
+            },
+            "additionalProperties": false
+          },
+          "description": "Content hashes of the case outputs; at least one."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Input and output content-hash manifest. Bytes themselves stay in the source project domain; only names, hashes, and optional safe relative locators are recorded."
+    },
+    "intermediate_manifest": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Mandatory content hash binding the exact bytes."
+          },
+          "locator": {
+            "type": "string",
+            "x-safe-relative-path": true,
+            "description": "Optional safe relative path to the artifact. Secondary to the hash, never a replacement. Absolute paths, UNC, drive letters, and '..' are rejected."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Intermediate artifact manifest, same item shape as io_manifest entries. May be an explicit empty array."
+    },
+    "decision_timeline": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["at", "entry"],
+        "properties": {
+          "at": {
+            "type": "string",
+            "x-rfc3339-datetime": true
+          },
+          "entry": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "What was decided or done at this point, including rejected paths where relevant."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Chronological decision log of the case; at least one entry."
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Questions left unresolved by this case. May be an explicit empty array."
+    },
+    "environment": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "details": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Optional free-text environment detail (for example interpreter or dependency notes)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The environment the packaged runs were produced in, bound to a version identifier."
+    },
+    "privacy_review_status": {
+      "enum": [
+        "pending",
+        "passed",
+        "rejected"
+      ],
+      "description": "Single-axis review state, widened from v1's fixed \"pending\" under the ADR-0004 decision 1 expansion path (a new schema version may extend the vocabulary). Export permission and export events remain orthogonal axes recorded by export records, never written back here."
+    },
+    "export_mode": {
+      "enum": [
+        "local_full",
+        "local_redacted",
+        "benchmark_candidate",
+        "metrics_only"
+      ],
+      "description": "The export mode this package was prepared under (architecture vocabulary). A ceiling declaration, not a permission grant."
+    },
+    "rights": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Optional copyright or license note for case content originating outside this repository."
+    },
+    "eligibility": {
+      "type": "object",
+      "required": ["status", "reasons"],
+      "properties": {
+        "status": {
+          "enum": [
+            "eligible",
+            "ineligible"
+          ],
+          "description": "Outcome of the case eligibility gate (plan Phase 4 task 3)."
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "description": "Gate rationale. May be an explicit empty array when eligible; when ineligible the builder records each failed criterion here (builder-level discipline, M3)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Eligibility gate record. Cases that are not reproducible, of unknown source, carrying unauthorized sensitive content, or reduced to a bare conclusion must be marked ineligible and must not enter shareable patterns."
+    },
+    "source": {
+      "type": "object",
+      "required": ["project"],
+      "properties": {
+        "project": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Label of the source project or effort this case was captured from."
+        },
+        "external_manifest_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Optional content hash of an external manifest kept outside this repository; bytes are never copied (ADR-0005 decision 9 precedent)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Source lineage of the case: labels and content hashes only."
+    },
+    "derived_from": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256"],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Backward lineage to predecessor case packages, each hash-pinned. Targets research-case-package/v2 records only: graph verification reports a reference resolving to any other family (including v1) as cross_type_reference. May be an explicit empty array."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

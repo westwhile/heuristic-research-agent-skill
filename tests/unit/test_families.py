@@ -15,11 +15,14 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # Phase 1D D3 + Phase 3 E2: all thirteen schema families are
-        # registered and publishable — the seven research families, the two
-        # export families (ADR-0004), and the four evaluation record
-        # families (ADR-0006). A family whose schema lands before its
-        # graph semantics (none today) must stay absent here until then.
+        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2: all seventeen schema
+        # families are registered and publishable — the seven research
+        # families, the two export families (ADR-0004), the four evaluation
+        # record families (ADR-0006), and the four research memory families
+        # (ADR-0007: the case package successor v2 alongside the frozen v1,
+        # research-pattern/v1, heuristic/v1, reuse-event/v1). A family whose
+        # schema lands before its graph semantics (none today) must stay
+        # absent here until then.
         self.assertEqual(
             set(FAMILIES),
             {
@@ -36,12 +39,22 @@ class FamilyRegistryTest(unittest.TestCase):
                 "suite/v1",
                 "evaluation-run/v1",
                 "comparison-report/v1",
+                "research-case-package/v2",
+                "research-pattern/v1",
+                "heuristic/v1",
+                "reuse-event/v1",
             },
         )
 
     def test_identity_fields_are_unique_per_family(self) -> None:
         fields = [contract.identity_field for contract in FAMILIES.values()]
-        self.assertEqual(len(fields), len(set(fields)))
+        duplicates = {field for field in fields if fields.count(field) > 1}
+        # The one sanctioned exception: research-case-package/v2 is the v1
+        # successor (ADR-0007 decision 2) and intentionally shares the same
+        # logical identity field name; both versions are never valid targets
+        # of the same reference (derived_from targets v2 only).
+        self.assertEqual(duplicates, {"case_id"})
+        self.assertEqual(len(set(fields)), len(fields) - 1)
 
     def test_reference_targets_are_registered(self) -> None:
         for contract in FAMILIES.values():
@@ -101,6 +114,17 @@ class FamilyRegistryTest(unittest.TestCase):
             ("evaluation-run/v1", "suite"),
             ("comparison-report/v1", "champion"),
             ("comparison-report/v1", "challenger"),
+            ("research-case-package/v2", "task"),
+            ("research-case-package/v2", "runs"),
+            ("research-case-package/v2", "claims"),
+            ("research-case-package/v2", "evidence"),
+            ("research-case-package/v2", "observations"),
+            ("research-case-package/v2", "analyses"),
+            ("research-case-package/v2", "derived_from"),
+            ("research-pattern/v1", "source_cases"),
+            ("heuristic/v1", "regression_cases"),
+            ("reuse-event/v1", "run"),
+            ("reuse-event/v1", "pattern"),
         }
         for family, field in pinned:
             ref = next(

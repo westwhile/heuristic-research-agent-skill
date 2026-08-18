@@ -1,0 +1,17 @@
+{
+ "schema": "heuristic/v1",
+ "heuristic_id": "heur-minimal",
+ "statement": "Record the envelope with every replay.",
+ "scope": "synthetic fixtures",
+ "mode": "advisory",
+ "evidence": [
+  "Synthetic fixture evidence summary."
+ ],
+ "exception": [],
+ "risk": "The rule may not generalize beyond fixtures.",
+ "rollback": "Remove the annotation from the run notes.",
+ "status": "lesson_hypothesis",
+ "transition_rationale": "Initial capture of the lesson.",
+ "regression_cases": [],
+ "created_at": "2026-08-17T09:15:00Z"
+}

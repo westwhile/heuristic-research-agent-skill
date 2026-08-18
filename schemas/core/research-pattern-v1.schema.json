@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "research-pattern/v1",
+  "title": "ResearchPattern v1",
+  "description": "A domain-neutral, reviewable heuristic distilled from one or more case packages (ADR-0007 decisions 2 and 3). A pattern only helps propose hypotheses, check for omissions, and select tools: it never establishes any conclusion for the current run, which must re-verify and record the actual outcome as a reuse-event/v1 record. Lifecycle transitions are append-only: each transition is a new record version with a new pattern_id, an ID-only supersedes pointer to its predecessor, a status snapshot, and a mandatory transition rationale. Earlier versions are never edited in place.",
+  "type": "object",
+  "required": [
+    "schema",
+    "pattern_id",
+    "problem_signature",
+    "scope",
+    "preconditions",
+    "contraindications",
+    "successful_tactics",
+    "failed_tactics",
+    "evidence",
+    "confidence",
+    "source_cases",
+    "last_validated",
+    "status",
+    "transition_rationale",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "research-pattern/v1"
+    },
+    "pattern_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "problem_signature": {
+      "type": "object",
+      "required": ["summary", "signature_sha256"],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Short normalized statement of the problem shape this pattern addresses."
+        },
+        "signature_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Exact fingerprint of the normalized signature; the first tier of layered clustering (ADR-0007 decision 4)."
+        },
+        "facets": {
+          "type": "object",
+          "description": "Optional structured facets of the signature. Content is data: the kernel stores and hashes it but never interprets it."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The problem signature this pattern answers, in the same shape as research-case-package/v2."
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Where this pattern applies."
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Conditions that must hold before applying the pattern. May be an explicit empty array."
+    },
+    "contraindications": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "When not to use this pattern. May be an explicit empty array; an empty array asserts none are known, it does not assert none exist."
+    },
+    "successful_tactics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Tactics the source cases show working; at least one, because a pattern without any positive tactic carries no reusable content."
+    },
+    "failed_tactics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Tactics the source cases show failing. May be an explicit empty array."
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["grade", "rationale"],
+      "properties": {
+        "grade": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Evidence grade label. The grade vocabulary is taxonomy data, not a schema enum (ADR-0007 decision 4); all Phase 4 evidence is synthetic or de-identified level and must be labeled as such."
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Why this grade is claimed."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Distilled evidence judgment. The underlying evidence records stay reachable through source_cases and their case packages; they are not re-referenced here."
+    },
+    "confidence": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "Calibrated confidence label for this version of the pattern."
+    },
+    "source_cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256"],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "The case packages this pattern is distilled from, each hash-pinned to research-case-package/v2 records; at least one. Promotion discipline (multiple independent cases by default; single-case exception only into candidate_pattern with reproduction, counterfactual fix, and independent review) is registry policy, not schema shape."
+    },
+    "last_validated": {
+      "type": "string",
+      "x-rfc3339-datetime": true,
+      "description": "When this version was last re-validated; surfaced by retrieval so staleness is visible at use time."
+    },
+    "status": {
+      "enum": [
+        "captured",
+        "distilled",
+        "candidate_pattern",
+        "validated_pattern",
+        "active_pattern",
+        "deprecated",
+        "retired",
+        "rejected"
+      ],
+      "description": "Snapshot of this version's lifecycle state (plan Phase 4 task 8, underscore style). The Phase 4 ceiling is active_pattern. A transition never edits a record: it publishes a successor version."
+    },
+    "transition_rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Why this version exists. Mandatory for every version, including the initial one, so the lifecycle chain is self-explanatory."
+    },
+    "supersedes": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Optional pattern_id of the prior version this one supersedes. ID-only lineage reference within the pattern family; earlier versions are never edited in place."
+    },
+    "promoted_skill": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Reserved pointer to a promoted canonical skill. Phase 4 has no promotion path: registry policy rejects any populated value in this phase. The field exists now so a later promotion phase needs no schema change (plan Phase 4 task 7)."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

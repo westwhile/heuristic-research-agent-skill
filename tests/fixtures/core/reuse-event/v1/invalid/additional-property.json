@@ -1,0 +1,15 @@
+{
+ "schema": "reuse-event/v1",
+ "reuse_event_id": "rev-minimal",
+ "run": {
+  "run_id": "run-1",
+  "sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+ },
+ "pattern": {
+  "pattern_id": "pat-minimal",
+  "sha256": "7777777777777777777777777777777777777777777777777777777777777777"
+ },
+ "outcome": "helped",
+ "recorded_at": "2026-08-17T09:20:00Z",
+ "unexpected": true
+}
