@@ -1,0 +1,13 @@
+{
+  "version": "math-overlay-v1",
+  "parent_sha256": "b156f17ebecc25cdf5b38c6bd5aa2a25409791ab55fee6ea88ff028054acdadb",
+  "nodes": {
+    "algorithm-design": {
+      "lemma-decomposition": {},
+      "invariant-guided-search": {}
+    },
+    "evaluation-methodology": {
+      "counterexample-driven-testing": {}
+    }
+  }
+}

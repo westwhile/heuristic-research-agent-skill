@@ -1,0 +1,11 @@
+{
+  "version": "general-v1",
+  "nodes": {
+    "requirements-analysis": {},
+    "algorithm-design": {},
+    "data-integrity": {},
+    "evaluation-methodology": {},
+    "reproducibility": {},
+    "tooling-automation": {}
+  }
+}

@@ -469,12 +469,28 @@ class ExperienceStaticDisciplineTest(unittest.TestCase):
             sorted(
                 [
                     "ArtifactInput",
+                    "Cluster",
                     "EligibilityInput",
+                    "PatternIndex",
+                    "SingletonAttestation",
+                    "TIERS",
+                    "Taxonomy",
+                    "append_cluster_event",
                     "assert_case_eligible",
+                    "build_pattern_index",
                     "capture_case",
+                    "cluster_cases",
+                    "compose_taxonomy",
+                    "distill_patterns",
                     "evaluate_eligibility",
+                    "load_taxonomy",
+                    "pattern_chain",
+                    "record_reuse_outcome",
+                    "reuse_summary",
                     "scan_for_restricted",
+                    "transition_pattern",
                     "validate_case_payload",
+                    "verify_cluster_log",
                 ]
             ),
         )
