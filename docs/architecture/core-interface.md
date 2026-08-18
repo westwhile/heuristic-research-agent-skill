@@ -1,5 +1,7 @@
 # Core Interface（Phase 1D）
 
+> 2026-08-18 注记：本文档为 Phase 1D 冻结记录，正文保持原样；后续 family 扩展（评测四 family、research memory 四 family）见 ADR-0006/0007 与 `schemas/core/README.md`。
+
 - 版本：Phase 1D（`feat/core-privacy-cli-v1`）
 - 覆盖 schema：`research-task/v1`、`research-claim/v1`、`research-evidence/v1`、`research-run/v1`、`research-failure-observation/v1`、`research-failure-analysis/v1`、`research-case-package/v1`、`export-decision/v1`、`export-receipt/v1`（前三个 schema 文本相对 Phase 1A 零漂移，中间四个为 Phase 1C 新增，末两个为 Phase 1D 新增）
 - 代码位置：`src/research_evolution/core/`（内核）与 `src/research_evolution/cli.py`（只读命令行外壳）；schema 文本：`schemas/core/`；fixtures：`tests/fixtures/core/`
