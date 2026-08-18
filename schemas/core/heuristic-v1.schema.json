@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "heuristic/v1",
+  "title": "Heuristic v1",
+  "description": "A domain-neutral behavioral rule with evidence support, scope, and a rollback path (ADR-0007 decision 7). Lifecycle transitions are append-only: each transition is a new record version with a new heuristic_id, an ID-only supersedes pointer, a status snapshot, and a mandatory transition rationale. The Phase 4 ceiling is shadow: validated, promoted, deprecated, and retired exist in the vocabulary so later phases need no schema change, but are unreachable in this phase; shadow heuristics only record hypothetical decisions and never change production behavior.",
+  "type": "object",
+  "required": [
+    "schema",
+    "heuristic_id",
+    "statement",
+    "scope",
+    "mode",
+    "evidence",
+    "exception",
+    "risk",
+    "rollback",
+    "status",
+    "transition_rationale",
+    "regression_cases",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "heuristic/v1"
+    },
+    "heuristic_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "The rule itself, stated as a falsifiable behavioral statement."
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Where this heuristic applies."
+    },
+    "mode": {
+      "enum": [
+        "advisory",
+        "blocking"
+      ],
+      "description": "advisory rules only annotate; blocking rules halt the guarded action. A blocking rule whose rollback is vacuous is rejected by the registry linter (acceptance gate 8); rollback is nevertheless a required field for every mode so the rejection surface stays explicit."
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Evidence summaries supporting this heuristic; at least one. The underlying evidence records stay reachable through regression_cases and their case packages."
+    },
+    "exception": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known exceptions where the rule does not apply. May be an explicit empty array."
+    },
+    "risk": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "What goes wrong if this rule misfires."
+    },
+    "rollback": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "How to undo the effect of applying this rule. Mandatory for every mode (plan Phase 4 task 12)."
+    },
+    "status": {
+      "enum": [
+        "lesson_hypothesis",
+        "candidate",
+        "shadow",
+        "validated",
+        "promoted",
+        "deprecated",
+        "retired",
+        "rejected"
+      ],
+      "description": "Snapshot of this version's lifecycle state (plan Phase 4 task 13, underscore style). The Phase 4 ceiling is shadow (plan section 3.2); later states are vocabulary only in this phase."
+    },
+    "transition_rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Why this version exists. Mandatory for every version, including the initial one."
+    },
+    "regression_cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256"],
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Regression cases demonstrating the lesson, each hash-pinned to research-case-package/v2 records; at least one (plan Phase 4 task 15). The mandatory association fails closed at the schema layer."
+    },
+    "supersedes": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Optional heuristic_id of the prior version this one supersedes. ID-only lineage reference within the heuristic family; earlier versions are never edited in place."
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

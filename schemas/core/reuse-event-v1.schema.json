@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "reuse-event/v1",
+  "title": "ReuseEvent v1",
+  "description": "A domain-neutral fact-axis record: one actual reuse of a pinned pattern version by one pinned run, with the outcome that run observed (ADR-0007 decision 6). Reuse events never write back into the pattern record and never overwrite it; helped/neutral/harmed aggregates are rebuildable registry-layer derivations, not pattern fields. Reuse events carry no supersedes field: facts are not revised; recording errors are handled by governance, not by a core semantic (export-receipt precedent, ADR-0004 decisions 1 and 4).",
+  "type": "object",
+  "required": [
+    "schema",
+    "reuse_event_id",
+    "run",
+    "pattern",
+    "outcome",
+    "recorded_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "reuse-event/v1"
+    },
+    "reuse_event_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "run": {
+      "type": "object",
+      "required": ["run_id", "sha256"],
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact run record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The run that used the pattern. One-directional and hash-pinned."
+    },
+    "pattern": {
+      "type": "object",
+      "required": ["pattern_id", "sha256"],
+      "properties": {
+        "pattern_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Mandatory content hash pinning the exact pattern record version."
+        }
+      },
+      "additionalProperties": false,
+      "description": "The exact pattern version snapshot that was used (plan Phase 4 task 11). One-directional and hash-pinned to a research-pattern/v1 record."
+    },
+    "outcome": {
+      "enum": [
+        "helped",
+        "neutral",
+        "harmed",
+        "not_applicable"
+      ],
+      "description": "The outcome the run actually observed (architecture section 3.7 vocabulary, underscore style)."
+    },
+    "note": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Optional free-text detail about how the pattern was selected, adapted, or rejected."
+    },
+    "recorded_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    }
+  },
+  "additionalProperties": false
+}

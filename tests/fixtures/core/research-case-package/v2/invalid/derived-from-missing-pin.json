@@ -1,0 +1,64 @@
+{
+ "schema": "research-case-package/v2",
+ "case_id": "case-v2-minimal",
+ "title": "Minimal v2 case package",
+ "task": {
+  "task_id": "task-1",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+ },
+ "runs": [
+  {
+   "run_id": "run-1",
+   "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+  }
+ ],
+ "claims": [],
+ "evidence": [],
+ "observations": [],
+ "analyses": [],
+ "problem_signature": {
+  "summary": "Synthetic fixture signature.",
+  "signature_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+ },
+ "io_manifest": {
+  "inputs": [
+   {
+    "name": "input.bin",
+    "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+   }
+  ],
+  "outputs": [
+   {
+    "name": "output.bin",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+   }
+  ]
+ },
+ "intermediate_manifest": [],
+ "decision_timeline": [
+  {
+   "at": "2026-08-17T09:00:00Z",
+   "entry": "Case captured."
+  }
+ ],
+ "open_questions": [],
+ "environment": {
+  "tool": "unit-test",
+  "version": "1.0"
+ },
+ "privacy_review_status": "pending",
+ "export_mode": "local_full",
+ "eligibility": {
+  "status": "eligible",
+  "reasons": []
+ },
+ "source": {
+  "project": "synthetic-fixtures"
+ },
+ "derived_from": [
+  {
+   "case_id": "case-v2-other"
+  }
+ ],
+ "created_at": "2026-08-17T09:05:00Z"
+}

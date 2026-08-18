@@ -1,0 +1,30 @@
+{
+ "schema": "research-pattern/v1",
+ "pattern_id": "pat-distilled",
+ "problem_signature": {
+  "summary": "Synthetic fixture signature.",
+  "signature_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+ },
+ "scope": "synthetic fixtures",
+ "preconditions": [],
+ "contraindications": [],
+ "successful_tactics": [
+  "Freeze the signature before retrieval."
+ ],
+ "failed_tactics": [],
+ "evidence": {
+  "grade": "engineering",
+  "rationale": "Synthetic fixture, no empirical content."
+ },
+ "confidence": "medium",
+ "source_cases": [
+  {
+   "case_id": "case-v2-minimal",
+   "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+  }
+ ],
+ "last_validated": "2026-08-17T09:10:00Z",
+ "status": "distilled",
+ "transition_rationale": "Initial capture of the pattern.",
+ "created_at": "2026-08-17T09:10:00Z"
+}
