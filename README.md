@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）与 Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1），并处于 **Phase 4 研究记忆与 Pattern Registry** 阶段。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何研究执行器、Heuristic Learning 闭环（Phase 4 上限为 active Pattern + shadow Heuristic）或生产发布能力已经实现。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix），并处于 **Phase 5 Machine Learning Adapter** 阶段。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何真实研究执行器、Heuristic Learning 闭环、真实 ML 训练/执行能力或生产发布能力已经实现。
 
 ## 项目目标
 
@@ -54,6 +54,7 @@ Case Package
 - [ADR-0005：Adapter interface v1——seam 三类型、contract suite 与成立判据](docs/decisions/0005-adapter-interface-v1.md)
 - [ADR-0006：Public Evaluator MVP——L0/L1 评测记录、runner/scorer/统计纪律与 meta-test 义务](docs/decisions/0006-public-evaluator-mvp.md)
 - [ADR-0007：Research Memory 与 Pattern/Heuristic Registry——case-package/v2、生命周期纪律、检索 MVP 与 shadow 边界](docs/decisions/0007-research-memory-pattern-registry.md)
+- [ADR-0008：ML Adapter——数据合同、声明式泄漏检查与确定性实验 runner](docs/decisions/0008-ml-adapter.md)
 
 ## 目录
 
@@ -76,11 +77,12 @@ heuristic-research-agent-skill/
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前仓库 Tag：`v0.4.0`（Phase 3 Public Evaluator MVP 验收发布，仅覆盖 L0/L1，不代表功能平台已经发布）
+- 当前仓库 Tag：`v0.5.1`（Phase 4 验收发布为 `v0.5.0`，`v0.5.1` 为其归档缺件 hotfix——源码归档缺两 fixture，已修复并新增 archive 发布 Gate；不代表功能平台已经发布）
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
 - Phase 1 已完成：九个 v1 Core schema、25 种 violation 合同、append-only 发布与全图验证、只读 CLI（详见 v0.2.0 tag 与 Phase 1C/1D 验收报告）
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
-- Phase 4 进行中：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区（`feat/research-memory-pattern-registry` 分支，M1–M5 已审，M6 收官审核中）；ML/DL Adapter 尚未实现
+- Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
+- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008：数据合同、声明式泄漏检查与确定性实验 runner）已接受，L2–L6 未实施（`feat/ml-adapter` 分支）；DL Adapter（Phase 6）未启动；不宣称任何真实 ML 训练/执行能力
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。
