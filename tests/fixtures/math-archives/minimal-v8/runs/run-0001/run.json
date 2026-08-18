@@ -1,0 +1,7 @@
+{
+  "schema": "math-research-run/v8",
+  "project_id": "synthetic-project-0001",
+  "run_id": "run-0001",
+  "event": "RUN_GENESIS",
+  "status": "closed"
+}
