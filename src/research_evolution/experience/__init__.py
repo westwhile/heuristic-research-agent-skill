@@ -9,10 +9,11 @@ layered clustering with its append-only cluster event log, the versioned
 taxonomy data machine, the deterministic retrieval MVP with explicit
 abstain, and reuse outcome records with rebuildable aggregates. M5
 adds the heuristic registry (proposal and lifecycle versioning with
-the Phase 4 ``shadow`` ceiling) and the deterministic linter whose
-reject-severity findings gate the registry. This package is a public
-face PARALLEL to ``research_evolution.core`` — it never extends the
-core export surface.
+the Phase 4 ``shadow`` ceiling), the deterministic linter whose
+reject-severity findings gate the registry, and the hypothetical-only
+shadow runner. This package is a public face PARALLEL to
+``research_evolution.core`` — it never extends the core export
+surface.
 """
 
 from .cases import (
@@ -55,6 +56,7 @@ from .linter import (
 from .redaction import scan_for_restricted
 from .retrieval import PatternCandidate, RetrievalResult, retrieve_patterns
 from .reuse import record_reuse_outcome, reuse_summary
+from .shadow import ShadowReport, record_shadow_report
 from .taxonomy import Taxonomy, compose_taxonomy, load_taxonomy
 
 __all__ = [
@@ -67,6 +69,7 @@ __all__ = [
     "PatternCandidate",
     "PatternIndex",
     "RetrievalResult",
+    "ShadowReport",
     "SingletonAttestation",
     "TIERS",
     "Taxonomy",
@@ -87,6 +90,7 @@ __all__ = [
     "pattern_chain",
     "propose_heuristic",
     "record_reuse_outcome",
+    "record_shadow_report",
     "retrieve_patterns",
     "reuse_summary",
     "scan_for_restricted",
