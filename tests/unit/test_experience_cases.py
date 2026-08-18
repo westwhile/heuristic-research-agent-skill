@@ -18,6 +18,7 @@ from research_evolution.experience import (
     scan_for_restricted,
     validate_case_payload,
 )
+from research_evolution.experience import heuristics as heuristics_module
 from tests.contract.test_core_schemas_contract import _BANNED_TERMS
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -434,6 +435,7 @@ class FamilyConstantsTest(unittest.TestCase):
             ("research-failure-observation-v1.schema.json", cases._OBSERVATION_FAMILY),
             ("research-failure-analysis-v1.schema.json", cases._ANALYSIS_FAMILY),
             ("research-case-package-v2.schema.json", cases._CASE_FAMILY),
+            ("heuristic-v1.schema.json", heuristics_module._HEURISTIC_FAMILY),
         )
         for filename, constant in expected:
             with self.subTest(schema=filename):
@@ -471,6 +473,9 @@ class ExperienceStaticDisciplineTest(unittest.TestCase):
                     "ArtifactInput",
                     "Cluster",
                     "EligibilityInput",
+                    "HeuristicIndex",
+                    "LintFinding",
+                    "LintReport",
                     "PatternCandidate",
                     "PatternIndex",
                     "RetrievalResult",
@@ -479,18 +484,25 @@ class ExperienceStaticDisciplineTest(unittest.TestCase):
                     "Taxonomy",
                     "append_cluster_event",
                     "assert_case_eligible",
+                    "assert_no_promoted_skill",
+                    "assert_registry_clean",
+                    "build_heuristic_index",
                     "build_pattern_index",
                     "capture_case",
                     "cluster_cases",
                     "compose_taxonomy",
                     "distill_patterns",
                     "evaluate_eligibility",
+                    "heuristic_chain",
+                    "lint_heuristics",
                     "load_taxonomy",
                     "pattern_chain",
+                    "propose_heuristic",
                     "record_reuse_outcome",
                     "retrieve_patterns",
                     "reuse_summary",
                     "scan_for_restricted",
+                    "transition_heuristic",
                     "transition_pattern",
                     "validate_case_payload",
                     "verify_cluster_log",
