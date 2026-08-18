@@ -161,7 +161,13 @@ git log -1 --format=fuller
 git tag --list "vX.Y.Z"
 ```
 
-重新从 clean checkout/worktree 运行 release tests，再生成：
+重新从 **`git archive HEAD` 导出树**（或全新 clone）运行 release tests——工作树内测试不构成发布证据：未跟踪/被忽略的文件在工作树中存在、在导出树中缺席，只有导出树运行能杀死这类缺件（v0.5.0 教训）。使用：
+
+```powershell
+python scripts/verify_archive_suite.py <第二 Python 解释器路径>
+```
+
+再生成：
 
 - source tree manifest；
 - SHA-256 checksums；
@@ -169,10 +175,21 @@ git tag --list "vX.Y.Z"
 - dependency/environment manifest；
 - changelog 与 known limitations。
 
-用户批准后创建 annotated tag：
+用户批准后创建 annotated tag。**tag 目标必须等于 archive Gate 输出的被测提交**——把 `ARCHIVE_COMMIT` 作为显式 target，而非给执行时的当前 HEAD 打 tag：
 
 ```powershell
-git tag -a vX.Y.Z -m "Release vX.Y.Z: <verified capability>"
+$testedCommit = "<ARCHIVE_COMMIT 输出的完整 SHA>"
+
+if ((git rev-parse HEAD).Trim() -ne $testedCommit) {
+    throw "HEAD 已偏离 archive Gate 验证提交"
+}
+
+git tag -a vX.Y.Z $testedCommit -m "Release vX.Y.Z: <verified capability>"
+
+if ((git rev-list -n 1 vX.Y.Z).Trim() -ne $testedCommit) {
+    throw "Tag 目标与 archive Gate 提交不一致"
+}
+
 git show --stat --decorate vX.Y.Z
 ```
 
@@ -247,7 +264,8 @@ Git Tag 或 Skill 安装均不能自动修改 Champion pointer。
 
 - [ ] Phase 验收项全部有证据
 - [ ] `main` clean，HEAD 与远端一致
-- [ ] 测试从 clean checkout 运行
+- [ ] 测试从 `git archive HEAD` 导出树（或全新 clone）运行，双解释器通过——工作树内运行不算数
+- [ ] annotated tag target == `ARCHIVE_COMMIT`（创建后以 `git rev-list` 核对相等）
 - [ ] 没有 private/hidden/secret/path 泄漏
 - [ ] Manifest 与 checksums 生成并验证
 - [ ] Changelog/known limitations 完成
