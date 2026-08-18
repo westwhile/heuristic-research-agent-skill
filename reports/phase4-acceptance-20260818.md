@@ -1,9 +1,9 @@
-# Phase 4 验收报告：研究记忆与 Pattern Registry（待 R40 终审）
+# Phase 4 验收报告：研究记忆与 Pattern Registry（R40 终审 PASS）
 
 - 日期：2026-08-18
 - 分支：`feat/research-memory-pattern-registry`（基 `main` = `b459854`，v0.4.0）
 - 范围：ADR-0007 的落地——research memory 四 family（case-package/v2、pattern/v1、heuristic/v1、reuse-event/v1）、case builder/redactor/eligibility、Pattern Registry + 分层聚类 + 检索 MVP + reuse 记录、Heuristic Registry + linter + shadow runner、中央库 layout 合同 + 隔离暂存区 + 合格证据包
-- 状态：**M1–M5 已逐层提交并经 R35–R39 审核全部 PASS；M6 随本报告交付，待 R40 终审**（R40 后由收尾 commit 回填状态行与 M6 哈希，1C/1D/2/E8 先例）
+- 状态：**M1–M6 已逐层提交，R35–R40 六轮审核全部 PASS，账本清零**（R40 终审后由本收尾 commit 回填状态行与 M6 哈希，1C/1D/2/E8 先例）
 
 ## 层/commit 映射
 
@@ -16,7 +16,7 @@
 | M4 | 检索 MVP（显式 abstain） | `bb6342e` | R38 PASS |
 | M5 | heuristic registry + 确定性 linter | `7f15632` | R39 PASS（裁拆双 commit） |
 | M5 | shadow runner（3–8 条、假设性决策） | `9d01d6c` | R39 PASS |
-| M6 | layout 合同 + 隔离暂存区 + 合格证据包 + 本报告 + 文档批 | 待回填 | 待 R40 |
+| M6 | layout 合同 + 隔离暂存区 + 合格证据包 + 本报告 + 文档批 | `53c9508` | R40 PASS |
 
 ## 任务 20 证据规模核对（ADR-0007 决策 12）
 
@@ -30,7 +30,7 @@
 | 全部合成/脱敏并如实标注 | manifest `synthetic: true`；案例标题与证据等级均标 synthetic；零真实项目内容（redaction 扫描在 builder 内强制） |
 | Phase 3 公开 suite 保持全绿 | 全量 **700/700 OK × 双环境**（含 E8 benchmark 集成 14 项原样在套） |
 
-树完整性：`tests/integration/test_experience_evidence_pack.py` 经公共 experience 面**逐字节重建**全部 16 份 artifact 并复核 manifest 哈希——任何漂移即失败。
+树完整性：`tests/integration/test_experience_evidence_pack.py` 经公共 experience 面**逐字节重建**全部 16 份 artifact 并复核 manifest 哈希——任何漂移即失败。案例的 task/run 成员复用仓内 minimal fixtures（合成、在仓、已知合法；R40 P4 披露要求落入本句）。
 
 ## 验收 Gate 逐条证据（计划 Phase 4「验收 Gate」原文 11 条）
 
