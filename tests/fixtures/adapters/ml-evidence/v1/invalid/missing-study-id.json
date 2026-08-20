@@ -1,0 +1,11 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0001",
+  "kind": "unit_test_run",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [],
+  "frozen_holdout": false,
+  "summary": "Unit test run log for the synthetic training pipeline.",
+  "limitations": []
+}

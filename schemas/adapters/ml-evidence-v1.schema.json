@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ml-evidence/v1",
+  "title": "MLEvidence input v1",
+  "description": "Domain evidence payload for the ML adapter's validate_claim. kind classifies what produced the evidence; experiment_run (one possibly repeated-seed experiment study) alone drives the maturity ceiling together with data_provenance, the recorded UNIQUE seed set, and the frozen-holdout flag, while the four assessment kinds of task 7 — calibration, subgroup, OOD, drift — each recorded as its own evidence item, feed the gap-naming rules and never lift the ceiling by themselves (ADR-0008 decisions 4/6 and addendum A2). study_id binds the item to one study; the adapter fails closed on a claim/evidence study mismatch. The schema fixes only the vocabularies; it never grants maturity.",
+  "type": "object",
+  "required": [
+    "schema",
+    "evidence_id",
+    "study_id",
+    "kind",
+    "data_provenance",
+    "content_sha256",
+    "seeds",
+    "frozen_holdout",
+    "summary",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ml-evidence/v1"
+    },
+    "evidence_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study this evidence belongs to; validate_claim fails closed when it differs from the claim's study_id (claim and evidence must be bound to one study — ADR-0008 addendum A2)."
+    },
+    "kind": {
+      "enum": [
+        "unit_test_run",
+        "data_audit_report",
+        "experiment_run",
+        "calibration_assessment",
+        "subgroup_assessment",
+        "ood_assessment",
+        "drift_assessment",
+        "other"
+      ],
+      "description": "What produced this evidence item. experiment_run is one (possibly repeated-seed) experiment study; the four assessment kinds carry the calibration, subgroup, out-of-distribution, and drift evaluations of task 7, one item each."
+    },
+    "data_provenance": {
+      "enum": [
+        "synthetic",
+        "public",
+        "real"
+      ],
+      "description": "Data the evidence rests on: synthetic (engineered data proving pipeline behavior only), public (public datasets), real (real, de-identified data). empirically_supported requires public or real evidence; all-synthetic evidence caps at data_accepted."
+    },
+    "content_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of the underlying artifact (run log, report file, audit export). Binds the evidence payload to a concrete artifact."
+    },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "description": "Random seeds the evidence was produced under (task 6). An explicit empty array declares a non-random artifact. Single-seed experiment evidence caps a generalization claim at engineering_verified (a single-seed best value cannot support a stable claim)."
+    },
+    "frozen_holdout": {
+      "type": "boolean",
+      "description": "True only if the evidence was produced on a frozen, untouched holdout partition. empirically_supported requires it; absence caps generalization claims below the tier without fabricating conclusions."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable summary of the evidence."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of this evidence. Required; explicit empty array only after consideration."
+    }
+  },
+  "additionalProperties": false
+}

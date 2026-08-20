@@ -1,0 +1,15 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0012",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "public",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [
+    7,
+    7
+  ],
+  "frozen_holdout": true,
+  "summary": "Run record listing the same seed twice; schema-legal but semantically not a repeated-seed study.",
+  "limitations": []
+}

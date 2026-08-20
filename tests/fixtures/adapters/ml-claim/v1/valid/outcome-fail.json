@@ -1,0 +1,25 @@
+{
+  "schema": "ml-claim/v1",
+  "claim_id": "ml-claim-0004",
+  "study_id": "synthetic-ml-study-001",
+  "case_sha256": "05bc08db4c1d7e4235fa9f78d9ab12d0fd37eef32865905051c8b489124a3fca",
+  "statement": "The candidate model beats the baseline on the frozen holdout across the repeated seed set.",
+  "claim_class": "generalization",
+  "outcome": "fail",
+  "limitations": [
+    "OOD evaluation was not performed; generalization beyond the synthetic generator's distribution is unknown.",
+    "Subgroup evaluation was not performed; per-segment behavior is unknown.",
+    "Calibration was not assessed; predicted-confidence reliability is unknown.",
+    "Drift was not assessed; stability under distribution shift over time is unknown."
+  ],
+  "declared_assessment_gaps": [
+    "calibration",
+    "drift",
+    "ood",
+    "subgroup"
+  ],
+  "non_entailments": [
+    "A synthetic-data result does not entail real-data validity.",
+    "A repeated-seed mean does not entail stability under distribution shift."
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "assessment_declaration": [
+    {
+      "detail": "platt-scaling on an in-fold calibration split",
+      "dimension": "calibration",
+      "status": "declared"
+    },
+    {
+      "detail": "season",
+      "dimension": "subgroup",
+      "status": "declared"
+    },
+    {
+      "detail": "shifted-seasonality synthetic holdout",
+      "dimension": "ood",
+      "status": "declared"
+    },
+    {
+      "detail": "population-stability index per feature between train and holdout",
+      "dimension": "drift",
+      "status": "declared"
+    }
+  ],
+  "case_sha256": "05bc08db4c1d7e4235fa9f78d9ab12d0fd37eef32865905051c8b489124a3fca",
+  "checkpoints": [
+    "M0: dataset identity, content hash, and split lineage pins declared; kind-appropriate split parameters present",
+    "M1: preprocessing and sampling fit scopes declared per step; nothing fit before the split",
+    "M2: feature selection and target encoding declared in-fold or explicitly none",
+    "M3: tuning never uses test or future holdout; selection never uses test metrics",
+    "M4: seeds recorded and repetition aggregated as mean/variance, never best-only",
+    "M5: OOD, subgroup, calibration, and drift gaps reported as limitations, never fabricated",
+    "M6: model/resource changes and heuristic changes are layered, never mixed in one comparison"
+  ],
+  "forbidden_channels": [
+    "synthetic-as-real-data-evidence",
+    "pre-split-data-preparation",
+    "test-set-for-model-selection",
+    "holdout-for-tuning",
+    "single-seed-best-as-stable-claim"
+  ],
+  "required_evidence": [
+    {
+      "claim_type": "engineering_claim",
+      "min_maturity": "engineering_verified"
+    },
+    {
+      "claim_type": "data_claim",
+      "min_maturity": "data_accepted"
+    },
+    {
+      "claim_type": "empirical_claim",
+      "min_maturity": "empirically_supported"
+    }
+  ],
+  "schema": "evaluation-contract/v2",
+  "study_id": "synthetic-ml-study-001"
+}

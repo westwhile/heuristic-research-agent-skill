@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ml-case/v1",
+  "title": "MLCase input v1",
+  "description": "Domain case payload from which the ML adapter derives an EvaluationContract, and the declared experiment topology the leakage rules judge (ADR-0008 decision 3). gates declares the promotion gates a study must clear. The topology is a DAG of declaration sections: each of dataset/split/preprocessing/sampling/selection pins its own version as {identity, sha256}, and split/preprocessing/sampling/selection carry an upstream pin (input_sha256) — split points at the dataset, preprocessing and sampling point at the dataset or the split output, selection points at its upstream stage output; a reference cycle is illegal topology. The schema deliberately admits UNSAFE scope values (full_data, pre_split, test, future_holdout): the semantic leakage rules reject them, and a schema whitelisting only safe values would kill those positives at the structural layer and make the semantic rules unfalsifiable. Missing declarations fail closed (declared-is-the-floor): every section is required, with explicit empty arrays/objects as the considered 'none' declaration. assessment declares the calibration/subgroup/OOD/drift evaluation design in advance (ADR-0008 decision 4); it is a declaration section, not a DAG node. The declaration-vs-result comparison landed in L2 and is adapter-enforced on the evaluation-contract/v2 surface (ADR-0008 addenda A3/A4): each dimension must appear exactly once, a not_performed dimension contradicted by supplied evidence fails closed, and unfulfilled declarations are named as gaps. The L3 semantic layer judges the declared topology's leakage rules.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "study_id",
+    "gates",
+    "dataset",
+    "split",
+    "preprocessing",
+    "sampling",
+    "feature",
+    "model",
+    "metrics",
+    "tuning",
+    "selection",
+    "assessment"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ml-case/v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study this case belongs to."
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "enum": [
+          "engineering",
+          "data_acceptance",
+          "generalization"
+        ]
+      },
+      "description": "Promotion gates of the case, at least one. Each gate becomes one contract entry; the adapter deduplicates repeated gates when deriving the contract. generalization is the out-of-sample tier (the empirical_claim path; this adapter never produces predictive_claim — ADR-0008 addendum A2)."
+    },
+    "dataset": {
+      "type": "object",
+      "required": [
+        "identity",
+        "sha256",
+        "description"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$",
+          "description": "Stable identity of the declared dataset version; one identity always implies one hash, revisions are new declarations."
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Content hash pinning this dataset declaration version; the DAG root every split references."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "What the dataset is (source, scale, label space); free-text audit detail, never interpreted."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Dataset declaration: the DAG root. Self-pinned by {identity, sha256}; carries no upstream pin."
+    },
+    "split": {
+      "type": "object",
+      "required": [
+        "identity",
+        "sha256",
+        "input_sha256",
+        "kind",
+        "parameters"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Content hash pinning this split declaration version; downstream nodes reference it as their input pin."
+        },
+        "input_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Upstream pin: must reference the dataset declaration's sha256."
+        },
+        "kind": {
+          "enum": [
+            "iid",
+            "group",
+            "time_series",
+            "nested"
+          ],
+          "description": "Validation contract family (task 2): iid, group (group key in parameters), time_series (gap/embargo in parameters), or nested (inner/outer configuration in parameters)."
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Kind-specific split parameters (group key, temporal gap/embargo, nested inner/outer folds). Free-form in v1; kind-appropriate keys are a semantic-layer obligation (declared-is-the-floor), the audit obligation lives in the M0 checkpoint."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Split strategy declaration; reproducible lineage requires the upstream pin to the dataset."
+    },
+    "preprocessing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "identity",
+          "sha256",
+          "input_sha256",
+          "operation",
+          "fit_scope"
+        ],
+        "properties": {
+          "identity": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "input_sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Upstream pin: the dataset or the split output. A train_only/per_fold step pinned at the dataset (pre-split) is the scope/upstream mismatch the semantic rules reject."
+          },
+          "operation": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "What the step does (for example standard-scaler, median-imputation)."
+          },
+          "fit_scope": {
+            "enum": [
+              "train_only",
+              "full_data",
+              "per_fold"
+            ],
+            "description": "Where the step is fit. full_data before the split is leakage; the unsafe value stays schema-legal so the semantic rule remains falsifiable."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Preprocessing steps in declaration order. An explicit empty array declares that no preprocessing is applied."
+    },
+    "sampling": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "identity",
+          "sha256",
+          "input_sha256",
+          "method",
+          "scope"
+        ],
+        "properties": {
+          "identity": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$"
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "input_sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "Upstream pin: the dataset or the split output (same consistency rule as preprocessing)."
+          },
+          "method": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Resampling method (for example random-oversampling, undersampling, synthetic-minority)."
+          },
+          "scope": {
+            "enum": [
+              "train_only",
+              "per_fold",
+              "full_data",
+              "pre_split"
+            ],
+            "description": "Where resampling applies. full_data and pre_split are leakage (task 3 sampling clause) and stay schema-legal so the semantic rule remains falsifiable. Required per declaration: a missing scope fails closed at the schema layer."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Sampling/resampling declarations. An explicit empty array declares that no resampling is applied."
+    },
+    "feature": {
+      "type": "object",
+      "required": [
+        "selection_scope",
+        "target_encoding_scope"
+      ],
+      "properties": {
+        "selection_scope": {
+          "enum": [
+            "per_fold",
+            "full_data",
+            "none"
+          ],
+          "description": "Where feature selection is fit: per_fold (inside each training fold), full_data (leakage; schema-legal so the rule stays falsifiable), or none (explicitly not applied)."
+        },
+        "target_encoding_scope": {
+          "enum": [
+            "per_fold",
+            "full_data",
+            "none"
+          ],
+          "description": "Where target encoding is fit. Anything other than per_fold when applied is leakage (target encoding not declared per-fold is rejected); none declares it is not applied."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Feature-selection and target-encoding declarations (task 3); both scopes are mandatory so silence is impossible."
+    },
+    "model": {
+      "type": "object",
+      "required": [
+        "family",
+        "hyperparameters"
+      ],
+      "properties": {
+        "family": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Model family under study (for example logistic-regression, gradient-boosted-trees)."
+        },
+        "hyperparameters": {
+          "type": "object",
+          "description": "Fixed hyperparameter values for the candidate model. Free-form in v1; an explicit empty object declares none fixed."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Model declaration (task 1 model record)."
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Evaluation metrics declared for the case (task 1 metric record). The selection metric is declared separately in the selection section."
+    },
+    "tuning": {
+      "type": "object",
+      "required": [
+        "search_space",
+        "split_used",
+        "seed_count"
+      ],
+      "properties": {
+        "search_space": {
+          "type": "object",
+          "description": "Hyperparameter search space. An explicit empty object declares that no search is performed."
+        },
+        "split_used": {
+          "enum": [
+            "train",
+            "validation",
+            "test",
+            "future_holdout"
+          ],
+          "description": "Partition the tuning loop draws its comparisons from. test and future_holdout are violations (gate: test/holdout never participate in tuning) and stay schema-legal so the semantic rule remains falsifiable."
+        },
+        "seed_count": {
+          "type": "integer",
+          "description": "Number of repeated seeds used inside the tuning loop. The schema engine has no numeric-floor keyword; the >=1 floor is a semantic-layer obligation (declared-is-the-floor)."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Tuning declaration (task 3/6): search space, the split it uses, and its repetition count."
+    },
+    "selection": {
+      "type": "object",
+      "required": [
+        "identity",
+        "sha256",
+        "input_sha256",
+        "split_used",
+        "metric",
+        "search_budget",
+        "seed_set"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "input_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Upstream pin: the stage output the selection drew its candidates from (for example the split output or a preprocessing step output)."
+        },
+        "split_used": {
+          "enum": [
+            "train",
+            "validation",
+            "test"
+          ],
+          "description": "Partition whose metric drove final-model selection. test is a violation (gate: the test set never selects the final model) and stays schema-legal so the semantic rule remains falsifiable; future_holdout is not enumerable here at all."
+        },
+        "metric": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "The metric the selection maximized/minimized (for example validation f1)."
+        },
+        "search_budget": {
+          "type": "object",
+          "description": "Declared search budget for the selection (trials, step caps). Free-form in v1; an explicit empty object declares no budget beyond the single candidate."
+        },
+        "seed_set": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer"
+          },
+          "description": "Explicit seed set the selection ran over (task 6); at least one."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Selection record (task 8): an independent declaration section, field-separated from the final-report evidence so test/holdout metrics never mix into model selection."
+    },
+    "assessment": {
+      "type": "object",
+      "required": [
+        "calibration",
+        "subgroup",
+        "ood",
+        "drift"
+      ],
+      "properties": {
+        "calibration": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "not_performed"
+              ],
+              "description": "Whether a calibration evaluation is declared for the study."
+            },
+            "method": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "The declared calibration method (for example platt-scaling on an in-fold calibration split). Optional at the schema layer: 'declared implies detail present' is a semantic-layer obligation (L3)."
+            }
+          },
+          "additionalProperties": false
+        },
+        "subgroup": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "not_performed"
+              ],
+              "description": "Whether a subgroup evaluation is declared for the study."
+            },
+            "group_key": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "The declared subgroup grouping key (for example season or site). Optional at the schema layer (same L3 obligation as calibration.method)."
+            }
+          },
+          "additionalProperties": false
+        },
+        "ood": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "not_performed"
+              ],
+              "description": "Whether an out-of-distribution probe is declared for the study."
+            },
+            "probe": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "The declared OOD probe (for example a shifted-distribution synthetic holdout). Optional at the schema layer (same L3 obligation as calibration.method)."
+            }
+          },
+          "additionalProperties": false
+        },
+        "drift": {
+          "type": "object",
+          "required": [
+            "status"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "declared",
+                "not_performed"
+              ],
+              "description": "Whether drift detection is declared for the study."
+            },
+            "method": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S",
+              "description": "The declared drift detection method (for example a population-stability index per feature between train and holdout). Optional at the schema layer (same L3 obligation as calibration.method)."
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Assessment declarations (ADR-0008 decision 4): the study's advance declaration of calibration method, subgroup grouping key, OOD probe, and drift detection. Declared-is-the-floor: all four keys are required so silence is impossible, each with status 'declared' or 'not_performed'. The declaration is the evidence floor; the comparison against the assessment evidence actually supplied landed in L2, adapter-enforced on the evaluation-contract/v2 surface (ADR-0008 addenda A3/A4)."
+    }
+  },
+  "additionalProperties": false
+}

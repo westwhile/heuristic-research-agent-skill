@@ -1,0 +1,16 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0005",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "subgroup_assessment",
+  "data_provenance": "public",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "frozen_holdout": true,
+  "summary": "Per-segment evaluation across the declared subgroup key.",
+  "limitations": []
+}

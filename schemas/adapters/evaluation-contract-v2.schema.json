@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation-contract/v2",
+  "title": "EvaluationContract v2",
+  "description": "Adapter-layer exchange type: the evaluation contract derived from one case payload — the evidence category and maturity rung each claim type needs for promotion, the forbidden evidence channels, and case-specific checkpoints. v2 adds two binding surfaces (ADR-0008 addendum A3): study_id lets the consuming adapter fail closed when a claim or evidence item names a different study, and assessment_declaration carries the case's advance-declared evaluation dimensions so the adapter can compare declaration against the assessment evidence actually supplied. v1 stays frozen for the math/quant producers; a producer needing the binding surface emits v2. case_sha256 binds the exact case payload the contract was derived from. The contract's own canonical hash can be pinned into core evidence inputs (kind=\"config\", sha256 required) so 'which contract judged this' stays auditable; the contract itself is an exchange type and never enters the store.",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_sha256",
+    "study_id",
+    "required_evidence",
+    "forbidden_channels",
+    "checkpoints",
+    "assessment_declaration"
+  ],
+  "properties": {
+    "schema": {
+      "const": "evaluation-contract/v2"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical SHA-256 of the case payload this contract was derived from. Hash binding, not a locator."
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study the case (and therefore this contract) belongs to; consumers fail closed when a claim or an evidence item names a different study."
+    },
+    "required_evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_type",
+          "min_maturity"
+        ],
+        "properties": {
+          "claim_type": {
+            "enum": [
+              "engineering_claim",
+              "data_claim",
+              "mathematical_claim",
+              "empirical_claim",
+              "predictive_claim",
+              "strategy_claim",
+              "production_claim"
+            ]
+          },
+          "min_maturity": {
+            "enum": [
+              "draft",
+              "engineering_verified",
+              "data_accepted",
+              "evaluation_eligible",
+              "empirically_supported",
+              "mathematically_verified",
+              "externally_validated",
+              "production_observed"
+            ],
+            "description": "Minimum governance ladder rung the evidence supporting this claim type must reach inside this case."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Per-claim-type promotion requirements for this case. A contract with no requirements evaluates nothing."
+    },
+    "forbidden_channels": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Evidence channels that must never support promotion in this case (for example numeric-extrapolation-as-proof, future-function features, non-PIT data, misaligned labels). Required; write an explicit empty array only after consideration."
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Case-specific checkpoint list (for example gate identifiers with their freeze assertions). Required; may be an explicit empty array."
+    },
+    "assessment_declaration": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "dimension",
+          "status"
+        ],
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$",
+            "description": "Evaluation dimension the case declared in advance (for example a calibration, subgroup, robustness, or audit dimension). Free-form: the seam schema fixes no domain vocabulary."
+          },
+          "status": {
+            "enum": [
+              "declared",
+              "not_performed"
+            ],
+            "description": "Whether the dimension's evaluation is declared as planned or explicitly not performed."
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S",
+            "description": "Method/key detail of the declaration (for example the declared probe or grouping key). Optional at the schema layer; 'declared implies detail present' is a consumer-side semantic obligation."
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "Evaluation dimensions the case declared in advance. Required; an explicit empty array declares no assessment dimensions. Declared-is-the-floor: consumers compare this declaration against the evidence actually supplied and fail closed on contradiction (evidence present for a dimension declared not_performed)."
+    }
+  },
+  "additionalProperties": false
+}

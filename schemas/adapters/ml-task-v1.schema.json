@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ml-task/v1",
+  "title": "MLTask input v1",
+  "description": "Domain input payload for the ML adapter's normalize_task. Carries the task identity plus the machine-learning spine: the task type, the data specification, and the mandatory holdout policy. A task without an explicit holdout policy is inadmissible at the seam, because without it the permitted use of test and future-holdout partitions cannot be ruled out (declared-is-the-floor discipline, ADR-0008 decision 3). All timestamps are caller-injected; the adapter reads no clock.",
+  "type": "object",
+  "required": [
+    "schema",
+    "task_id",
+    "study_id",
+    "title",
+    "statement",
+    "task_type",
+    "data_spec",
+    "holdout_policy",
+    "scope",
+    "resources",
+    "completion_criteria",
+    "permissions",
+    "allowed_external_effects",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ml-task/v1"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Caller-allocated id for the mapped core research-task/v1 record."
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Identifier of the study this task belongs to; tasks, claims, evidence, and cases of one study share it."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S"
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable task statement, e.g. the learning problem or generalization question under study."
+    },
+    "task_type": {
+      "enum": [
+        "classification",
+        "regression",
+        "forecasting",
+        "clustering"
+      ],
+      "description": "Learning-task family of the study: supervised classification or regression, time-series forecasting, or unsupervised clustering (the Phase 5 goal spans supervised, unsupervised, and time-series work)."
+    },
+    "data_spec": {
+      "type": "object",
+      "description": "Data requirements of the study (sources, schema, scale, label space, drift expectations). Free-form in v1; the audit obligation lives in the M0 checkpoint."
+    },
+    "holdout_policy": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Mandatory holdout discipline statement: which validation/test/future-holdout partitions exist and what each may be used for. Required and non-blank; an absent holdout policy means test/holdout misuse cannot be ruled out at the seam."
+    },
+    "scope": {
+      "type": "object",
+      "description": "Passed through to the core task draft's scope."
+    },
+    "resources": {
+      "type": "object",
+      "description": "Passed through to the core task draft's resources envelope."
+    },
+    "completion_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "allowed_external_effects": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true,
+      "description": "Caller-injected freeze timestamp; the adapter never reads a clock."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,8 +1,14 @@
 """Frozen seam exchange types (ADR-0005 decisions 1-5).
 
 ``DomainTask``, ``ClaimAssessment``, and ``EvaluationContract`` are
-adapter-layer v1 exchange types — translation contracts between domain
-semantics and the core kernel. They are NOT core record families: they
+adapter-layer exchange types — translation contracts between domain
+semantics and the core kernel. ``DomainTask`` has two live pinned versions
+(v1, frozen for the math/quant producers, and v2, which adds the ``ml``
+domain label — ADR-0008 addendum A1); ``EvaluationContract`` likewise has
+two live pinned versions (v1, frozen for the math/quant producers, and v2,
+which adds the ``study_id``/``assessment_declaration`` binding surface the
+ML adapter requires — ADR-0008 addendum A3); ``ClaimAssessment`` remains at
+v1. They are NOT core record families: they
 are absent from the core family registry, cannot be published to a core
 store, and do not extend ``research_evolution.core.__all__``.
 
@@ -65,34 +71,70 @@ def _load_seam_record(expected_schema_id: str, source: Any) -> Record:
     return record
 
 
+def _load_seam_record_one_of(expected_schema_ids: tuple[str, ...], source: Any) -> Record:
+    """Multi-version variant of :func:`_load_seam_record` (ADR-0008 L2 addendum).
+
+    Used for the two seam types with two live versions: ``DomainTask``
+    (the ML adapter emits ``domain-task/v2`` while the math/quant
+    producers keep emitting the frozen v1 shape — addendum A1) and
+    ``EvaluationContract`` (the ML adapter requires the v2 binding
+    surface; v1 stays frozen for the math/quant producers — addendum A3).
+    Each exchange type accepts exactly the listed live versions — never
+    more.
+    """
+    try:
+        if isinstance(source, dict):
+            source = canonical_bytes(source)
+        record = load_record(source, schema_root=_ADAPTER_SCHEMA_ROOT)
+    except CoreError as exc:
+        details = tuple(getattr(exc, "violations", ()))
+        raise AdapterError(
+            f"invalid {', '.join(expected_schema_ids)} payload: {exc}",
+            details=details,
+        ) from exc
+    if record.schema_id not in expected_schema_ids:
+        raise AdapterError(
+            f"expected one of {expected_schema_ids}, got {record.schema_id!r}"
+        )
+    return record
+
+
+# Live domain-task versions the DomainTask exchange type accepts (ADR-0008
+# L2 addendum): v1 stays frozen for the math/quant producers; v2 adds the
+# ml domain label. A further domain requires the next schema version.
+_DOMAIN_TASK_SCHEMA_IDS = ("domain-task/v1", "domain-task/v2")
+
+
 @dataclass(frozen=True)
 class DomainTask:
     """Normalized result of one domain task (ADR-0005 decision 3).
 
     Construction is via :meth:`from_payload` / :meth:`from_json`, which
-    validate against ``domain-task/v1``. ``to_core_task_payload`` is the
-    single Adapter -> Core direction: domain detail travels only inside the
-    core task's ``domain`` label and ``domain_context``.
+    validate against the live ``domain-task`` versions (v1 and, since the
+    ADR-0008 L2 addendum, v2 — the version carrying the three-domain
+    vocabulary). ``to_core_task_payload`` is the single Adapter -> Core
+    direction: domain detail travels only inside the core task's ``domain``
+    label and ``domain_context``.
     """
 
     _record: Record
 
     def __post_init__(self) -> None:
-        if self._record.schema_id != "domain-task/v1":
+        if self._record.schema_id not in _DOMAIN_TASK_SCHEMA_IDS:
             raise AdapterError(
-                f"DomainTask wraps domain-task/v1 payloads, "
+                f"DomainTask wraps {_DOMAIN_TASK_SCHEMA_IDS} payloads, "
                 f"got {self._record.schema_id!r}"
             )
 
     @classmethod
     def from_payload(cls, payload: dict[str, Any]) -> "DomainTask":
         """Build from a programmatic JSON tree (validated, hash-bound)."""
-        return cls(_load_seam_record("domain-task/v1", payload))
+        return cls(_load_seam_record_one_of(_DOMAIN_TASK_SCHEMA_IDS, payload))
 
     @classmethod
     def from_json(cls, source: "str | bytes | bytearray") -> "DomainTask":
         """Build from strict JSON text/bytes (validated, hash-bound)."""
-        return cls(_load_seam_record("domain-task/v1", source))
+        return cls(_load_seam_record_one_of(_DOMAIN_TASK_SCHEMA_IDS, source))
 
     @property
     def sha256(self) -> str:
@@ -181,11 +223,24 @@ class ClaimAssessment:
         return self._record.data["triggered_rules"]
 
 
+# Live evaluation-contract versions the exchange type accepts: v1 stays
+# frozen for the math/quant producers; v2 (ADR-0008 addendum A3) adds the
+# study/assessment-declaration binding surface the ML adapter requires.
+_EVALUATION_CONTRACT_SCHEMA_IDS = (
+    "evaluation-contract/v1",
+    "evaluation-contract/v2",
+)
+
+
 @dataclass(frozen=True)
 class EvaluationContract:
     """Evaluation contract derived from one case payload (ADR-0005 decision 5).
 
-    ``case_sha256`` binds the exact case payload. The contract's own
+    ``case_sha256`` binds the exact case payload. Two live pinned versions:
+    v1 (frozen, math/quant producers) and v2 (ADR-0008 addendum A3: adds
+    ``study_id`` and ``assessment_declaration`` so a consuming adapter can
+    bind claim/evidence to the contract's study and compare declared
+    evaluation dimensions against supplied evidence). The contract's own
     canonical hash can be pinned into core evidence inputs
     (``kind="config"``) so the judging contract stays auditable; the
     contract itself never enters the store.
@@ -194,19 +249,20 @@ class EvaluationContract:
     _record: Record
 
     def __post_init__(self) -> None:
-        if self._record.schema_id != "evaluation-contract/v1":
+        if self._record.schema_id not in _EVALUATION_CONTRACT_SCHEMA_IDS:
             raise AdapterError(
-                f"EvaluationContract wraps evaluation-contract/v1 payloads, "
+                f"EvaluationContract wraps "
+                f"{_EVALUATION_CONTRACT_SCHEMA_IDS} payloads, "
                 f"got {self._record.schema_id!r}"
             )
 
     @classmethod
     def from_payload(cls, payload: dict[str, Any]) -> "EvaluationContract":
-        return cls(_load_seam_record("evaluation-contract/v1", payload))
+        return cls(_load_seam_record_one_of(_EVALUATION_CONTRACT_SCHEMA_IDS, payload))
 
     @classmethod
     def from_json(cls, source: "str | bytes | bytearray") -> "EvaluationContract":
-        return cls(_load_seam_record("evaluation-contract/v1", source))
+        return cls(_load_seam_record_one_of(_EVALUATION_CONTRACT_SCHEMA_IDS, source))
 
     @property
     def sha256(self) -> str:
