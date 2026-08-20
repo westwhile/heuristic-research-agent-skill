@@ -83,6 +83,6 @@ heuristic-research-agent-skill/
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
 - Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
-- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008：数据合同、声明式泄漏检查与确定性实验 runner）已接受，L2–L6 未实施（`feat/ml-adapter` 分支）；DL Adapter（Phase 6）未启动；不宣称任何真实 ML 训练/执行能力
+- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008：数据合同、声明式泄漏检查与确定性实验 runner）已接受；L2（数据合同：四 ml-* schema + 三操作实现 + contract suite 注册）已交付；L3（声明式泄漏检查：DAG 拓扑合同前置 + 六规则族七谓词 + 三语义下限，ADR-0008 增补 A5）已交付——决策 9 的跨记录 split 对比半侧未闭合（ml-evidence successor 或 L4 runner 合同补齐），L4–L6 未实施（`feat/ml-adapter` 分支）；DL Adapter（Phase 6）未启动；不宣称任何真实 ML 训练/执行能力
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

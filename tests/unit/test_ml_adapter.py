@@ -991,8 +991,9 @@ class MLR42dRegressionTest(unittest.TestCase):
 
 class MLCaseTopologyFixtureTest(unittest.TestCase):
     """The unsafe topology fixtures are schema-legal by design (ADR-0008
-    decision 3): they become semantic-rejection positives when the L3
-    leakage rules land. This test pins only their structural validity."""
+    decision 3): they are the semantic-rejection positives the L3 leakage
+    rules reject (tests/unit/test_ml_topology.py). This test pins only
+    their structural validity."""
 
     def test_unsafe_fixtures_load_as_valid_ml_case_payloads(self) -> None:
         names = [

@@ -1,0 +1,65 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0001",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering",
+    "data_acceptance"
+  ],
+  "dataset": {
+    "identity": "ml-case-0001-dataset",
+    "sha256": "b2fe372c8c6be995e0f5c9904f935dbf56d42ed0da894280be1b1fe4533b334d",
+    "description": "Synthetic tabular dataset, 2000 rows, 12 numeric features, binary label."
+  },
+  "split": {
+    "identity": "ml-case-0001-split",
+    "sha256": "b903dd690536e72b25d898f7fc7e3dcc1d955e2d11a600bf895ad6e487730228",
+    "input_sha256": "b2fe372c8c6be995e0f5c9904f935dbf56d42ed0da894280be1b1fe4533b334d",
+    "kind": "iid",
+    "parameters": {}
+  },
+  "preprocessing": [],
+  "sampling": [],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "accuracy"
+  ],
+  "tuning": {
+    "search_space": {},
+    "split_used": "validation",
+    "seed_count": 1
+  },
+  "selection": {
+    "identity": "ml-case-0001-selection",
+    "sha256": "5241955fc9ab05bf99181c36bf1e8213ca368684fbce7f4f29ff1f5397083404",
+    "input_sha256": "b903dd690536e72b25d898f7fc7e3dcc1d955e2d11a600bf895ad6e487730228",
+    "split_used": "validation",
+    "metric": "accuracy",
+    "search_budget": {},
+    "seed_set": [
+      7
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed",
+      "method": "platt-scaling on an in-fold calibration split"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

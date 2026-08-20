@@ -1,0 +1,72 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0003",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering",
+    "generalization"
+  ],
+  "dataset": {
+    "identity": "ml-case-0003-dataset",
+    "sha256": "c254d7623287b40e2a7e441dde03af7d4616a83a882b25b01242421853a1e543",
+    "description": "Synthetic patient-level panel, 800 patients, 5 visits each."
+  },
+  "split": {
+    "identity": "ml-case-0003-split",
+    "sha256": "f1b7f9ab997a7731491bb225c05fb875bcd7f3dcc8fc4a2850d83d0a48bcebaa",
+    "input_sha256": "c254d7623287b40e2a7e441dde03af7d4616a83a882b25b01242421853a1e543",
+    "kind": "group",
+    "parameters": {
+      "group_key": "   "
+    }
+  },
+  "preprocessing": [],
+  "sampling": [],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "f1"
+  ],
+  "tuning": {
+    "search_space": {
+      "C": [
+        0.1,
+        1.0
+      ]
+    },
+    "split_used": "train",
+    "seed_count": 2
+  },
+  "selection": {
+    "identity": "ml-case-0003-selection",
+    "sha256": "785294cc0d5ca424e7ce9db8234481acab6f3b0990a1907c247808631ffbd979",
+    "input_sha256": "f1b7f9ab997a7731491bb225c05fb875bcd7f3dcc8fc4a2850d83d0a48bcebaa",
+    "split_used": "validation",
+    "metric": "f1",
+    "search_budget": {},
+    "seed_set": [
+      3,
+      4
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

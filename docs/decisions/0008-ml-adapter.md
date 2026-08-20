@@ -39,7 +39,7 @@ Phase 2 冻结了 Adapter interface v1：三 seam 操作（`normalize_task`/`val
 
 9. **模型选择与最终报告分离**（任务 8）：selection record 是 ml-case 内的独立声明段（`selection`：所用 split、指标、搜索预算、seed 集），与最终报告证据（test/holdout 指标）分字段承载；合同检查禁止二者引用同一 split（决策 3 的规则面）。报告文案纪律复用 evaluation 包的 limitations 半自动机制（ADR-0006 决策 7 先例）：小样本/单 seed/缺 OOD 的限制句由机器半自动生成，结论由人给。
 
-10. **切片与 Git Gate 映射**：L1 = 本 ADR（+根 README 索引行）；L2 = 数据合同（四 ml-* schema + fixtures + Adapter 三操作实现 + contract suite 注册 ML harness）；L3 = 泄漏检查（决策 3/4 的规则面与封顶，含 leakage fixture 正负例）；L4 = runner（决策 5 + parity/seed 研究）；L5 = cases + 双垂直切片 + leakage fixture 报告 + 重复实验报告；L6 = ML shadow cases + case packages + ML/Quant 重合分析（决策 7）+ 验收报告 → v0.6.0。每层验收含全量套件双环境绿——**原有 Math/Quant 测试零 critical regression** 是 L2–L6 的逐层验收账本项（gate 原文），非仅终验义务。分支 `feat/ml-adapter`；数据合同、泄漏检查、runner、cases 分提交（Git Gate 原文）；PR 附重复实验与 leakage fixture 报告；annotated tag `v0.6.0`。
+10. **切片与 Git Gate 映射**：L1 = 本 ADR（+根 README 索引行）；L2 = 数据合同（四 ml-* schema + fixtures + Adapter 三操作实现 + contract suite 注册 ML harness）；L3 = 泄漏检查（决策 3 的规则面，含 leakage fixture 正负例；决策 4 的封顶已在 L2 落地——A5 修订）；L4 = runner（决策 5 + parity/seed 研究）；L5 = cases + 双垂直切片 + leakage fixture 报告 + 重复实验报告；L6 = ML shadow cases + case packages + ML/Quant 重合分析（决策 7）+ 验收报告 → v0.6.0。每层验收含全量套件双环境绿——**原有 Math/Quant 测试零 critical regression** 是 L2–L6 的逐层验收账本项（gate 原文），非仅终验义务。分支 `feat/ml-adapter`；数据合同、泄漏检查、runner、cases 分提交（Git Gate 原文）；PR 附重复实验与 leakage fixture 报告；annotated tag `v0.6.0`。
 
 11. **非目标（本 Phase 不交付）**：DL 扩展（Phase 6：checkpoint/硬件/算力治理）；真实数据集接入与真实训练执行；超参优化执行器（平台检查纪律，不执行真实训练）；embedding/向量检索；任何真实私有数据入仓；新 Core family；Adapter interface v2（除非决策 2 的增补路径被触发）；`evaluation-run/v2`（backlog 任务 21，独立评估）。
 
@@ -107,3 +107,58 @@ R42c 审核裁定 2 项 P1，本增补记录处置，全部经 R42d 回归测试
 
 1. **声明完备性由 adapter 强制**：v2 schema 保持领域中立（`dimension` 自由串、无 minItems），因此 "calibration/subgroup/ood/drift 四维恰好各出现一次" 的下限在 `MLAdapter` 私有实现强制——`_require_complete_assessment_declaration` 同时钉在两个入口：`build_evaluation_contract`（防 ml-case schema 未来漂移的绊线；当前 schema 已要求恰四键且 additionalProperties=false）与 `validate_claim`（手写 contract 的空/子集/重复/未知 dimension 声明一律 AdapterError，先于一切 claim 绑定检查）。R42c 探针（空声明仍 supported、只声明 calibration 使其余三个 gap 从账本消失）由此关闭；A3 第 3 条循环内的未知 dimension 拒止被本闸覆盖（消息并入完备性错误）。诊断纪律（R42d/R42e 复审）：单遍实现、计数快速拒绝先行，重复/未知维度只报数量与截断预览（`_preview`），调用方自由字符串永不完整回显进错误文本。
 2. **封顶三约束去嵌套、真空记录**：provenance（synthetic-evidence-cap）、唯一 seed 数（single-seed-cap）、frozen holdout（frozen-holdout-missing）是对 public/real 实验记录的三个独立谓词，不再嵌于 provenance 的 else 分支——无 eligible 实验时 seed/holdout 约束真空成立并照常登记，最严者（engineering_verified）胜出。行为变化（全部向更严方向，经 R42c 裁定认可）：synthetic-only、纯支撑 kind、纯 assessment、零证据四类 generalization 场景的 ceiling 由 data_accepted 降为 engineering_verified（合同 suite probe 与三处既有测试期望同步翻转并在提交包列名）。R42c 探针（synthetic + 单 seed + unfrozen 只登记 synthetic-evidence-cap、假高 ceiling data_accepted）由此关闭；恢复 else 嵌套会被 R42d 组合回归检测到。
+
+## 增补 A5（2026-08-20，L3 前置冻结）：泄漏谓词分解、DAG 合同、语义下限与不可表达边界
+
+L3 编码前冻结语义合同，防"测试全绿但少实现分支"的假闭合。本增补是 L3 的验收合同：实现与 mutation 测试按谓词逐条对账，决策 3 的"六类泄漏"表述精确化为**六规则族 × 七独立谓词**（mutation 杀灭单元是谓词；集合成员谓词的枚举分支逐一杀灭）。
+
+1. **六规则族 × 七谓词**（fixture 现状已逐件实测）：
+
+   | # | 规则族 | 谓词（rule_id） | 判定（对 schema 合法载荷） | 正例 fixture |
+   |---|---|---|---|---|
+   | P1 | learned fit 越界 | `preprocessing-fit-full-data` | `preprocessing[*].fit_scope == full_data` | `unsafe-fit-scope-full-data.json`（在仓） |
+   | P2 | learned fit 越界 | `feature-selection-fit-full-data` | `feature.selection_scope == full_data` | `unsafe-feature-selection.json`（在仓，实测 selection_scope=full_data / target_encoding=none） |
+   | P3 | sampling 越界 | `sampling-scope-unsafe` | `sampling[*].scope ∈ {full_data, pre_split}`——两枚举分支各自 mutation | 派生两枚单违规（第 5 条）；原件含双违规 |
+   | P4 | scope/upstream 不一致 | `scope-upstream-mismatch` | 节点声明安全标签 `train_only`/`per_fold` 而 `input_sha256` 解析为 dataset 段（现行 DAG 中唯一的 split 前节点）——覆盖 preprocessing/sampling × train_only/per_fold 四组合 | 现 1 件（preprocessing+train_only）+ 派生 3 件 |
+   | P5 | target encoding 越界 | `target-encoding-not-per-fold` | `feature.target_encoding_scope ∉ {per_fold, none}` | `unsafe-target-encoding.json`（在仓） |
+   | P6 | tuning 使用保护分区 | `tuning-uses-protected-split` | `tuning.split_used ∈ {test, future_holdout}`——两枚举分支各自有正例 | `unsafe-tuning-split-test.json` + `unsafe-tuning-split-future-holdout.json`（均在仓） |
+   | P7 | selection 使用测试集 | `selection-uses-test` | `selection.split_used == test` | `unsafe-selection-split-test.json`（在仓） |
+
+   与决策 3 的 scope 分流裁决一致：声明值本身不安全（`full_data`/`pre_split`）由 P1–P3/P5 直接拒绝；安全标签 + 错误上游 pin 才由 P4 判拓扑不一致——每条正例只被一条谓词拒绝，职责不重叠。
+
+2. **DAG 合同**（结构错误优先于泄漏推导，全部 fail-closed）：
+   - **节点集恰为 schema 中有真实 pin 的段**：dataset（根，无 `input_sha256`）、split、`preprocessing[*]`、`sampling[*]`、selection。feature/tuning/assessment 不是 DAG 节点，不补造。
+   - **边方向**：split→dataset；`preprocessing[*]`/`sampling[*]`→dataset 或 split；selection→split 或某一 preprocessing/sampling 步。步间互指（pre→pre、sampling→sampling、pre↔sampling）不被现行合同承认——现有合法 fixture（minimal/full/group-split/nested-split 已逐件实测）全部直接指向 split，无链式 pin。
+   - **结构违规**：dangling pin（`input_sha256` 不匹配任何段 `sha256`）、自引用、非法方向、歧义寻址（多段同 `sha256`）、identity 冲突（同 identity 不同 `sha256`，或同 `sha256` 不同 identity）、引用成环——均为 AdapterError。
+   - **非义务**：并行 preprocessing/sampling 不必都通向 selection（连通性不是合同）；跨 case 的"同 identity 必同 hash"超出无状态入口能力，本轮不验证，只保证单 case 内一致。
+   - **实现形态**：迭代三色标记/Kahn，确定性 O(V+E)，无递归、无祖先反复扫描。
+
+3. **三项非泄漏语义下限**（schema 描述已明文下放到语义层，fail-closed）：
+   - **split kind → parameters 合同**（按在仓 fixture 形态冻结；schema 层要求 `parameters` 本身是 object，但**对象内各自由键的值**不受类型约束——`false`/`[]`/`null`/浮点等 JSON 值出现在键值位置均 schema 合法，故"键缺失或空白值即拒"不足——类型判定先行）：
+     - `iid`：无必填键；额外参数允许但本层不解释；
+     - `group.group_key`：必填，且为含非空白字符的 string；
+     - `time_series.gap` / `time_series.embargo`：必填，各为含非空白字符的 string（保持 `"5 sessions"` / `"20 sessions"` 形态，不解析为数值）；
+     - `nested.outer_folds` / `nested.inner_folds`：必填，各为非 bool 的 JSON integer 且分别 `>= 2`；
+     - 键缺失、类型不符（bool/数组/null/浮点等规定类型外形态）、空白 string、越界整数一律 AdapterError。
+   - **`tuning.seed_count >= 1`**（schema 层已限定 `integer` 类型；schema 描述原文："The schema engine has no numeric-floor keyword; the >=1 floor is a semantic-layer obligation"——下限由语义层 fail-closed 执行）。
+   - **assessment 双向 detail 纪律**：四维中任一 `status == declared`，对应 detail 字段（calibration.method / subgroup.group_key / ood.probe / drift.method）必须存在且为非空白 string；`status == not_performed` 时**禁止携带对应 detail**——"未执行但声明方法"的双义载荷 fail-closed（schema 层 detail 可选且各段 additionalProperties=false，detail 键集封闭，双向判定均可执行）。
+
+4. **不可表达边界（决策 9 降级声明）**：决策 9"selection 与最终报告不得引用同一 split"的**记录内半侧**由 P7/P6 执行；**跨记录半侧**（最终报告证据引用哪个 split）当前不可表达——`ml-evidence/v1` 无 final-report 的 split/partition pin。L3 不用 `frozen_holdout` 猜测、不声称该 gate 已验证；补齐路径为 `ml-evidence` successor 版本或 L4 runner 合同，届时回决策 9 增补闭环。L3 验收证据与 README 状态行必须如实标注此边界。
+
+5. **fixture 派生与 mutation 义务**：
+   - 现 `unsafe-sampling-scope.json` 实测含 `full_data`+`pre_split` 双违规（两步 input 均指向 split，纯 P3）：派生两枚单违规 probe（`unsafe-sampling-scope-full-data.json`、`unsafe-sampling-scope-pre-split.json`）；原件保留，钉选"两条违规都上账"。
+   - P4 现仅覆盖 preprocessing+train_only：补齐 preprocessing+per_fold、sampling+train_only、sampling+per_fold 三枚派生（四组合闭合）。
+   - 全部泄漏正例 schema 合法、仅被对应谓词拒绝；负例集（minimal/full/group-split/nested-split 及安全变体）全通过。
+   - **第 3 条语义下限的正反例义务**：四种 split kind 的安全正例由在仓 minimal（iid）/group-split（group，`group_key="patient_id"`）/full（time_series，`"5 sessions"`/`"20 sessions"`）/nested-split（nested，5/3）承担；**group/time_series/nested 各自适用**的参数负例（缺键、错误类型、空白 string、bool 或越界整数；iid 无必填键，只承担安全正例与"额外参数在场但本层不解释"的正例）、`seed_count=0`、四类 assessment 的 declared-缺-detail 与 not_performed-带-detail，各派生独立语义负例——全部 schema 合法、经公共入口仅被对应下限拒绝；这些下限判定同样在 mutation 面内，弱化/删除对应判定须使负例假 PASS。
+   - **真实 mutation，整谓词与分支两级**：①drop-rule——运行时从私有 registry 删除一个谓词，经公共 `build_evaluation_contract` 调用，对应正例假 PASS 即杀灭成功，七谓词逐一执行；②分支 mutation——P3（`full_data`/`pre_split`）、P6（`test`/`future_holdout`）的枚举分支与 P4 的四组合仅 drop-rule 不足证伪（删除整谓词不能证明分支各自承重），须以**弱化后的真实 predicate**（如 P3 弱化至只匹配 `full_data`、P4 弱化至只覆盖 preprocessing+train_only）替换并经公共入口验证对应单分支正例假 PASS。
+   - 新增 fixture 只更新 `ADAPTER_FIXTURE_MANIFEST`（双向钉选）；`MINIMAL_FIXTURE_SHA256` 与四份 schema 的 byte pins **保持原值**——minimal 与 schema 字节未改，重算即漂移。枚举矩阵复跑。
+
+6. **实现纪律**（复审批准结构，冻结）：
+   - 新增私有模块 `src/research_evolution/adapters/ml/_topology.py` 与 `tests/unit/test_ml_topology.py`；`MLAdapter.build_evaluation_contract` 在 schema load 后、构造 contract 前**单一接入**。
+   - 零新公共操作、零公开 validator、零新 Core 类型、无 `LeakageReport`；`ml.__all__` 仍只暴露 `MLAdapter`。
+   - 规则存于**两个**运行时读取的模块级私有 registry：`_LEAKAGE_PREDICATES`（§1 的七条泄漏谓词）与 `_SEMANTIC_FLOORS`（§3 的三项下限——split parameters 合同、`seed_count` 下限、assessment 双向 detail）；两者由同一私有 validator 在 build 遍历时读取，**均不得以默认参数捕获**（否则 patch 不生效）；DAG 结构检查保持为独立前置阶段，不入 registry。mutation 测试删除/弱化真实 registry 条目后仍经公共 `build_evaluation_contract` 调用；禁止只测私有 helper。
+   - 诊断复用 AdapterError：固定 rule ID + 可信 JSON 路径（如 `preprocessing[0].fit_scope`，路径片段由 schema 结构生成）；DAG/结构错误优先于泄漏推导；多违规按 registry 序稳定聚合一次抛出。**诊断条数有界**：preprocessing/sampling 数组无 `maxItems`，违规集合本身可无界——最多保留前 64 条稳定诊断，继续线性扫描统计违规总数，末尾追加固定格式 `N additional violations omitted`；省略信息不含任何调用方字符串。**`_preview` 不进拓扑模块**：`_preview` 位于 `adapter.py`，`_topology.py` 反向导入会产生循环依赖——拓扑诊断只输出固定 rule ID、路径与数量，不预览调用方值，`_topology.py` 不导入 `_preview`（R42g 截断纪律在本层无适用对象）。
+
+7. **L2/L3 职责分界确认**（本条取代决策 10 关于 L3 范围的原括注"决策 3/4 的规则面与封顶"；决策 10 正文已同步修订并留下"A5 修订"标记）：L2（已交付并 push 至 `a28cbba`）= seam 数据合同、声明↔结果比对、成熟度封顶（决策 4）、三方绑定；L3 = 本条 1–3，**不重做决策 4 的封顶**。L3 落地 commit 的状态同步面（**不触碰四份 ml-* schema**——其 description 已兼容 L3 落地，无须修改，byte pins 保持原值）：`adapter.py` docstring 的 "those semantic checks land in L3" 前向注记、`schemas/adapters/README.md` 的对应行、**根 README 的 L 层状态行（:86）与 `docs/plans/PROJECT_IMPLEMENTATION_PLAN.md` 状态行（:7）**——后两处现仍写"L2–L6 未实施"，列入 L3 commit 同步范围（或经独立 docs commit 先行，由 L3 审核包二选一报备）。
+
+**L3 实施清单（随本增补复核）**：新增 `_topology.py`、`test_ml_topology.py`、5 枚泄漏派生 fixture + 第 3 条语义下限负例集（group/time_series/nested 参数负例——iid 无参数负例、`seed_count=0`、assessment 双向 detail 负例，逐条独立）；修改 `adapter.py`（单接入点 + docstring 注记）、`ADAPTER_FIXTURE_MANIFEST`（仅此一处——`MINIMAL_FIXTURE_SHA256` 与 schema byte pins 不动）、`schemas/adapters/README.md`（L3 状态）、根 README 与 `docs/plans/PROJECT_IMPLEMENTATION_PLAN.md` 状态行、本 ADR；电池 = 双环境全套件 + 参数化 suite + matrix 复跑 + 规范删除探针 + 冻结面/禁依赖/缓存检查；单层 commit `feat(adapters): add deterministic ML leakage checks (L3)`。后续协调项：`docs/phase5-planning@5cfab81` 含旧"L2 未实施"状态，L3 收口后 rebase/协调，不直接合并。

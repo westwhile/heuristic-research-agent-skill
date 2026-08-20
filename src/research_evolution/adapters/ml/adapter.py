@@ -55,8 +55,12 @@ Frozen mapping table:
 
 The declared experiment topology carried by ml-case/v1 (DAG of
 {identity, sha256} declaration sections with upstream input pins) is the
-surface the deterministic leakage rules judge; those semantic checks land
-in L3 and are not part of these three seam operations.
+surface the deterministic leakage rules judge. Those semantic checks are
+enforced by build_evaluation_contract itself (ADR-0008 addendum A5): right
+after the ml-case schema load and before any contract construction, the
+private _topology module runs its DAG structural pre-phase, then the
+seven leakage predicates and three semantic floors from its two runtime
+registries. The other two seam operations never consume case topology.
 """
 
 from __future__ import annotations
@@ -65,6 +69,7 @@ from typing import Any, Sequence
 
 from research_evolution.core import canonical_sha256
 
+from . import _topology
 from ..base import DomainAdapter
 from ..types import (
     AdapterError,
@@ -665,6 +670,11 @@ class MLAdapter(DomainAdapter):
 
     def build_evaluation_contract(self, case: dict[str, Any]) -> EvaluationContract:
         case_data = _load_seam_record("ml-case/v1", case).data
+        # ADR-0008 addendum A5: judge the declared experiment topology
+        # before any contract is constructed — DAG structural pre-phase
+        # first, then the leakage predicates and semantic floors. Single
+        # integration point; _topology is private to this package.
+        _topology.validate_declared_topology(case_data)
         required_evidence: list[dict[str, str]] = []
         seen_claim_types: set[str] = set()
         for gate in case_data["gates"]:
