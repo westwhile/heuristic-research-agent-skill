@@ -194,7 +194,7 @@ L4.1 对 group/time-series/nested 明确 fail-closed 后，L5 只扩张 runner-l
 1. **Runner-local split context**：基础 numeric dataset payload 仍含 `task_type/features/targets/partitions`；非 IID 额外携带 `split_context`，其 canonical SHA-256 必须等于 `case.split.parameters.context_sha256`。`assignment_sha256` 继续只绑定 `{partitions}`，声明 pin、assignment pin、context pin 三者职责分离。IID 禁止 context 且 parameters 恰含 assignment pin；group parameters 恰含 group key 与两类 pin；time-series 恰含 gap/embargo 与两类 pin；nested 恰含 outer/inner fold 数与两类 pin。自由额外键 fail-closed。
 2. **四族可执行判据**：IID 的 partitions 恰覆盖全部行；group 的每行 label 非空、同一 label 只能属于一个 partition；time-series 使用连续递增的整数 session ordinal，assigned 与 excluded 合计恰覆盖全部行，excluded 恰为 train→validation gap 与 validation→test embargo 区间，实测隔离不得小于声明值；nested 的顶层 train+validation 构成 development 集，outer train/validation 每折恰划分该集合且 outer validation 各覆盖一次，inner train/validation 每折恰划分当前 outer-train 且 inner validation 各覆盖一次，test 永不进入 fold。
 3. **Nested 的诚实能力边界**：runner 对 nested 执行的是 fold assignment 隔离验证；候选与 baseline 仍只在顶层 train 上拟合一次。未实现 outer/inner 逐折训练、调参选择或重训循环，报告与 README 不得把它写成完整 nested-CV executor。
-4. **Catalog 不是 evaluator suite**：`benchmarks/public/ml-adapter/catalog.json` 是独立的 `ml-adapter-case-catalog/v1` 测试目录，不注册为 Core schema，也不冒充 Phase 3 `suite/v1`。目录固定 20 个 synthetic、raw-SHA-pinned locators：4 个四 split 正例、12 个六规则族泄漏负例、4 个 split/seed 语义负例。locator 只能落在已治理的 `tests/fixtures/adapters/ml-case/v1/valid/`；负例本身 schema 合法并经公共 `build_evaluation_contract` 触发预期 rule ID。
+4. **Catalog 不是 evaluator suite**：`benchmarks/public/ml-adapter/catalog.json` 是独立的 `ml-adapter-case-catalog/v1` 测试目录，不注册为 Core schema，也不冒充 Phase 3 `suite/v1`。目录固定 20 个 synthetic、repository-normalized raw-SHA-pinned locators：文本按 `.gitattributes` 的 `eol=lf` 规范 CRLF 后计算字节 hash，除换行外的格式仍受 pin 约束；4 个四 split 正例、12 个六规则族泄漏负例、4 个 split/seed 语义负例。locator 只能落在已治理的 `tests/fixtures/adapters/ml-case/v1/valid/`；负例本身 schema 合法并经公共 `build_evaluation_contract` 触发预期 rule ID。
 5. **两条公共链切片**：非时间切片执行 group isolation；时间切片执行连续 session + gap/embargo。二者均走 `ml-task/v1 → normalize_task → research-task/v1 → evaluation-contract/v3 → runner → ml-evidence/v2 → validate_claim`，并以三次独立调用的 artifact byte hash 一致性验证确定性。每次 runner 内部执行三 seed，候选/基线资源相等、只改变 model 轴；最终 claim 必须触发 `synthetic-evidence-cap`，并如实点名 OOD/subgroup/calibration/drift 缺口，不能因测试全绿越级。
 6. **L5 报告与剩余边界**：leakage fixture 与重复实验报告落在 `reports/phase5-l5-*.md`。L5 仍不执行 preprocessing、sampling、feature selection、target encoding、hyperparameter search 或第三方/真实 ML 框架；L6 的 shadow cases、Case Package、ML/Quant 重合分析与 Phase 5 总验收尚未开始。
 
@@ -206,3 +206,11 @@ L5 独立审核构造出 `future_holdout` 时间早于 train、但 runner 仍产
 2. **split Gate 承重回归**：补充 IID 漏行、nested outer-validation 重复与 nested inner-validation 重复三个公共 runner seam 负例，分别承重完整 assignment、outer 轮转和 inner 轮转分支；不通过私有 helper 直接断言实现细节。
 3. **纯度依赖闭包**：静态零 I/O/时钟/第三方依赖 Gate 不再只扫描 facade `runner.py`；以 AST absolute-import allowlist 同时扫描 `runner.py`、`_split_execution.py`、`_evidence.py`，并把允许的相对 implementation 依赖钉死，新增未扫描私有模块即失败。
 4. **复验**：定向 runner/split/E2E 电池 46/46；工作树双 Python 环境 851/851；775-file clean snapshot 双环境 851/851，各有 1 个预期 Git tracking skip；PowerShell 治理 33 assertions / 6 cases。该证据仍仅为 synthetic engineering evidence。
+
+## 增补 A10（2026-08-21，L5.2 archive Gate 闭合）：repository-normalized catalog pins
+
+首个 L5 commit `39d5a88` 的工作树与手工 775-file clean snapshot 均通过 851 项，但真实 `git archive` 双解释器 Gate 在 9 个 catalog case 上失败：这些既有 JSON fixture 在 Windows 工作树中含 CRLF，而 Git blob 依据 `.gitattributes` 存储 LF；提交前 catalog 错把工作树 raw bytes 当成仓库权威字节。该失败证明“复制工作树非忽略文件”的 snapshot 不能替代从 commit 导出的 release Gate。
+
+1. **Pin 语义**：catalog 的 `sha256` 改为 repository-normalized raw SHA-256。测试读取 fixture bytes 后只执行 CRLF→LF，并拒绝残留 lone CR；随后计算 SHA-256。它不 canonicalize JSON，因此除平台换行外的格式、空白、键顺序仍会触发 pin 漂移。
+2. **红绿证据**：先切换测试算法，9 个旧 pin 在工作树稳定失败；再把对应 pin 更新为 Git blob/LF 字节 hash，20-case catalog 重新全绿。旧 fixture 文件与其 Git blob 均未改动。
+3. **发布纪律**：保留失败的 L5 commit 与独立 archive-fix commit，禁止在修复提交的真实 `git archive` 双解释器 Gate 通过前 push。最终 archive verdict 与远端同步状态在操作回执中记录，不以手工 snapshot 代替。

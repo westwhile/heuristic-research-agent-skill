@@ -4,7 +4,7 @@
 
 ## Case 集合
 
-`benchmarks/public/ml-adapter/catalog.json` 固定 20 个 `ml-case/v1`：4 个合同正例、12 个泄漏负例、4 个语义下限负例。全部 locator 指向仓库内 synthetic fixture，并以原始文件 SHA-256 绑定。目录与 Phase 3 evaluator `suite/v1` 分离，不修改 Core family、public benchmark registry 或 contamination ledger。
+`benchmarks/public/ml-adapter/catalog.json` 固定 20 个 `ml-case/v1`：4 个合同正例、12 个泄漏负例、4 个语义下限负例。全部 locator 指向仓库内 synthetic fixture，并以 repository-normalized raw SHA-256 绑定（CRLF→LF 后计算，其他格式字节不归一）。目录与 Phase 3 evaluator `suite/v1` 分离，不修改 Core family、public benchmark registry 或 contamination ledger。
 
 | 规则面 | 安全对照 | 必须拒绝的目录 case | 公共入口结果 |
 |---|---|---|---|
@@ -32,6 +32,8 @@
 独立审核后的 L5.1 又补充 early-future 拒止与 after-test future 正例、IID 漏行、nested outer/inner validation 轮转回归，并把静态纯度扫描扩展到 runner 私有 implementation 闭包。
 
 本轮定向电池为 split 17 项 + catalog/E2E 4 项，共 21/21 通过；runner/split/E2E 合并电池 46/46。工作树双环境全量 **851/851 ×2**；无 `.git`、无 `.venv`、只含 Git 跟踪/非忽略文件的 775-file clean snapshot 双环境同为 **851/851 ×2**，各有 1 个预期 skip（归档中无法执行 Git tracking 检查）；PowerShell 治理 **33 assertions / 6 cases** 通过。
+
+发布 Gate 补充：首个 L5 commit `39d5a88` 的真实 `git archive` 暴露 9 个 CRLF/LF raw pin 漂移，说明上述手工 clean snapshot 不是 release 证据。L5.2 将 pin 改为 repository-normalized raw SHA-256，保留格式敏感性并使工作树、Git blob 与 archive 语义一致；最终 push 仍以修复提交的真实 archive verdict 为准。
 
 ## 未覆盖边界
 

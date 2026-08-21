@@ -56,7 +56,7 @@
       "case_id": "MLC-007-sampling-full-data",
       "category": "leakage-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-sampling-scope-full-data.json",
-      "sha256": "c7685e36f76e1081b0a093dedb4d0a11de5fdde62b8ab9f0638acda5e26b56ad",
+      "sha256": "e2c37d126a61dc4769ae2732d5fea1151a97d9336db7dde5ae94a9f639ad30cc",
       "expected": "rejected",
       "rule_id": "sampling-scope-unsafe"
     },
@@ -64,7 +64,7 @@
       "case_id": "MLC-008-sampling-pre-split",
       "category": "leakage-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-sampling-scope-pre-split.json",
-      "sha256": "8b76d9b6c6d294f015506ff6c026ee5f804ef7f1ef2af7c2b37240588e62253e",
+      "sha256": "a6203ba2ed7713aeeb527be2e99349038a991ed06652f50c0ab4375a4d2898bd",
       "expected": "rejected",
       "rule_id": "sampling-scope-unsafe"
     },
@@ -80,7 +80,7 @@
       "case_id": "MLC-010-preprocessing-fold-upstream",
       "category": "leakage-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-preprocessing-per-fold.json",
-      "sha256": "ffa8b31f85e70cc185cbc9078b802e751a5bf428db15974a8d0201f592fcb582",
+      "sha256": "28da7590b124b50fce67ca7418618afb151d945f8c5cacf0d5e293878d6808d4",
       "expected": "rejected",
       "rule_id": "scope-upstream-mismatch"
     },
@@ -88,7 +88,7 @@
       "case_id": "MLC-011-sampling-train-upstream",
       "category": "leakage-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-sampling-train-only.json",
-      "sha256": "2b6590cfbc9b7c2ea75a3c10c9b7dbda18ab31854d76368cd1f000da9ab58a4c",
+      "sha256": "968003813a282e85973578e3939e27b06fccf246ebee53a23759908b93204ff4",
       "expected": "rejected",
       "rule_id": "scope-upstream-mismatch"
     },
@@ -96,7 +96,7 @@
       "case_id": "MLC-012-sampling-fold-upstream",
       "category": "leakage-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-sampling-per-fold.json",
-      "sha256": "6d755309787710fc9223758558d94b28caceb851444eabb8e6f505471d98407e",
+      "sha256": "0c2d5cca8d85594a2d0473b2165325140812fb11be30de679b4d4648993afed3",
       "expected": "rejected",
       "rule_id": "scope-upstream-mismatch"
     },
@@ -136,7 +136,7 @@
       "case_id": "MLC-017-group-key-blank",
       "category": "semantic-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-group-key-blank.json",
-      "sha256": "7ce4f29ef50d355c55b0c60fa104f45930822adbad6cf4f4c0b05b022c54166f",
+      "sha256": "0797f7be7b96e9dce4d77b09e5ee1b9a0edd393e6b540c5ce70c0be5d67482f1",
       "expected": "rejected",
       "rule_id": "split-parameters-kind-contract"
     },
@@ -144,7 +144,7 @@
       "case_id": "MLC-018-time-gap-missing",
       "category": "semantic-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-time-series-gap-missing.json",
-      "sha256": "0a252334486a198f6f6e2c33efafea5c82f55486acced3508d3710810e08f224",
+      "sha256": "c0d7188804e729e22f75409a1f788284434563036d858c63a20d427a58d8049b",
       "expected": "rejected",
       "rule_id": "split-parameters-kind-contract"
     },
@@ -152,7 +152,7 @@
       "case_id": "MLC-019-nested-outer-bool",
       "category": "semantic-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-nested-outer-folds-bool.json",
-      "sha256": "547aa56cfef9fad74b671b52a0ea67288c725ed8fa8c28678845e0e524637c55",
+      "sha256": "ce8933309b69327ce329ede7cf8d1a8b5dd7af21d00f00c5cd3e6419870390b9",
       "expected": "rejected",
       "rule_id": "split-parameters-kind-contract"
     },
@@ -160,7 +160,7 @@
       "case_id": "MLC-020-seed-count-zero",
       "category": "semantic-negative",
       "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-tuning-seed-count-zero.json",
-      "sha256": "f16692ea0ffed0a10c9c990ce776d6344e91533cd010cb2f8f9500a8e4cdbb19",
+      "sha256": "b1b23c2a9a5786c95f476cf72057380ea773a8afd36b77eed02f205d4583e0e2",
       "expected": "rejected",
       "rule_id": "tuning-seed-count-floor"
     }

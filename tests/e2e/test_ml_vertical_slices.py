@@ -45,6 +45,15 @@ _TASK = (
 )
 
 
+def _repository_normalized_sha256(raw: bytes) -> str:
+    """Hash text as stored by Git under the repository LF attributes."""
+
+    normalized = raw.replace(b"\r\n", b"\n")
+    if b"\r" in normalized:
+        raise AssertionError("catalog fixture contains an unsupported lone CR")
+    return hashlib.sha256(normalized).hexdigest()
+
+
 class MLAdapterPublicCatalogTest(unittest.TestCase):
     def test_catalog_is_hash_pinned_synthetic_and_executable(self) -> None:
         catalog = load_strict_json(_CATALOG.read_bytes())
@@ -97,7 +106,9 @@ class MLAdapterPublicCatalogTest(unittest.TestCase):
                 ).resolve()
                 path.relative_to(fixture_root)
                 raw = path.read_bytes()
-                self.assertEqual(hashlib.sha256(raw).hexdigest(), entry["sha256"])
+                self.assertEqual(
+                    _repository_normalized_sha256(raw), entry["sha256"]
+                )
                 payload = load_strict_json(raw)
                 if entry["expected"] == "accepted":
                     self.assertIsNone(entry["rule_id"])
