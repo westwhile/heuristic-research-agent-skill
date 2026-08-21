@@ -4,7 +4,7 @@
 - 日期：2026-08-18
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 工作树实现与双环境验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付；commit-bound archive、PR/merge 与 `v0.6.0` 发布尚未执行。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
+- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 实现、独立审核与 commit-bound archive 验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付；push、PR/merge 与 `v0.6.0` 发布尚未执行。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
 
 ## 1. 最终目标与非目标
 
@@ -482,8 +482,9 @@ experience interface 生成 4 个 ML Case Package、1 条两版本 candidate Pat
 32-record 临时 store 图闭包通过，双 Python 环境全量均为 864/864，PowerShell
 治理 33 assertions / 6 cases。ML/Quant 重合分析未发现同时满足三项下沉判据
 且具有足够 module depth 的新逻辑，因此零 Core/schema/interface 改动。最高
-证据等级仍为 engineering-only；真实 `git archive` 需在 commit 后执行并绑定
-该 commit SHA。
+证据等级仍为 engineering-only；真实 `git archive` 已绑定 implementation
+commit `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 双解释器通过 864/864
+（各 1 个预期 Git tracking skip）。
 
 ### 验收 Gate
 

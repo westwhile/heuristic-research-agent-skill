@@ -247,7 +247,9 @@ L6 按决策 6/7/10 复用 Phase 4 experience 机器并完成 Phase 5 收口；�
    L6 **不下沉 Core**；既有 canonical/schema/exchange 机器已共享，无新增 seam。
 6. **验收边界**：L6 新增 13 个集成测试（含独立审核发现的 claim-class/
    statement 对齐回归）；工作树双 Python 环境全量均为 864/864，PowerShell
-   治理为 33 assertions / 6 cases。卫生、真实
-   `git archive` 和独立审核以 Phase 5 验收报告及操作回执为准。即使全部
-   通过，仍不宣称真实 ML 执行器、真实数据验收、完整
+   治理为 33 assertions / 6 cases。独立审核修复 claim-class/statement
+   对齐后，implementation commit
+   `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 的真实 `git archive` 双解释器
+   同为 864/864（各 1 个预期 Git tracking skip）。即使全部通过，仍不宣称
+   真实 ML 执行器、真实数据验收、完整
    nested-CV 训练、自动进化闭环或生产科研 Agent。

@@ -65,6 +65,8 @@ evidence grade=`synthetic engineering evidence`。不存在 active Pattern、
 - 32-record 临时 store `verify_record_graph`：0 violations；
 - manifest 与整个 ML 子树逐字节重建一致。
 
-双环境全量、PowerShell 治理、真实 `git archive` 与 Phase 5 最终验收结果另见
-`phase5-acceptance-20260821.md`；任何全绿结果最多提升工程证据，不改变上述
-科研边界。
+双环境全量、PowerShell 治理与 Phase 5 最终验收结果另见
+`phase5-acceptance-20260821.md`。implementation commit
+`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 的真实 `git archive` 双解释器
+同为 864/864（各 1 个预期 Git tracking skip）；该全绿结果最多支持工程
+证据，不改变上述科研边界。

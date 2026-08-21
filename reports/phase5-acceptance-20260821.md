@@ -1,12 +1,12 @@
 # Phase 5 验收报告：Machine Learning Adapter（2026-08-21）
 
-状态：**L1–L6 工作树验收 PASS；commit-bound `git archive` Release Gate 待 Git
-收尾授权。** 当前结论支持 Phase 5 的合成工程实现完成，不支持真实数据、
+状态：**L1–L6 验收 PASS；commit-bound `git archive` Release Gate PASS。**
+当前结论支持 Phase 5 的合成工程实现完成，不支持真实数据、
 预测、市场、生产或 Skill 能力声明。
 
 - 分支：`feat/ml-adapter`
 - 验收基线：`812029fee0759bd11c2d8bc0eaeb3cc5ac1b2e54`
-- 当前工作树：L6 未提交实现（完成独立复核后再 commit）
+- L6 implementation commit：`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57`
 - Python：PATH 与 `.venv` 两个不同解释器入口，均为 Python 3.14.5
 - L6 manifest SHA-256：
   `37c6645c2b777396ba0ab10e37037751405098e424abc703cdb791e2510ec98d`
@@ -20,7 +20,7 @@
 | L3 | DAG topology、七 leakage predicates、三 semantic floors | PASS |
 | L4/L4.1 | evaluation-contract/v3、ml-evidence/v2、final-evaluation Gate、runner 加固 | PASS |
 | L5 | 20-case catalog、四 split assignment Gate、非时间/时间双切片、两份报告 | PASS |
-| L6 | 4 Case Packages、candidate Pattern、3 shadow Heuristics、重合分析、验收报告 | PASS（工作树） |
+| L6 | 4 Case Packages、candidate Pattern、3 shadow Heuristics、重合分析、验收报告 | PASS |
 
 ## Phase 5 验收 Gate
 
@@ -60,7 +60,8 @@ interface。既有 canonical/schema/exchange 共享面保持不变。
 | PATH Python 全量 unittest | 864/864 PASS |
 | PowerShell GitHub auth-context governance | 33 assertions / 6 cases PASS |
 | tracking Gate | 38 个 ML 内容文件已进入 index；`captures/` 不受 ignore 规则影响 |
-| `git diff --check` / 链接 / 凭据 / archive | 见最终独立审核与 Git 收尾回执 |
+| `git diff --check` / Markdown 链接 / 凭据扫描 | PASS |
+| `git archive` 双解释器 | 864/864 ×2 PASS，各 1 个预期 Git tracking skip；绑定 `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` |
 
 ## 未完成与证据上限
 
@@ -78,13 +79,12 @@ Release、Skill 安装与任何 Champion promotion 都是独立动作，仍需�
 
 ## Release Gate 与回滚
 
-真实 `git archive` 必须绑定一个 commit，不能在未提交工作树上伪造。本报告
-先记录工作树验收；独立审核通过且获得 Git 收尾授权后：
-
-1. 精确提交 L6 diff；
-2. 对该 commit 运行 `scripts/verify_archive_suite.py` 双解释器 Gate；
-3. 只有 archive 通过才允许 push，并在操作回执记录 commit/remote SHA；
-4. PR、merge、annotated tag 与 Release 均不由 push 隐含。
+真实 `git archive` 必须绑定 commit，不能由手工工作树 snapshot 替代。本轮已
+完成独立审核、三层 L6 commit，并对 implementation commit
+`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 执行双解释器 archive Gate：
+两边均为 864/864 PASS，各 1 个预期 skip（归档无 `.git`，无法执行 tracking
+检查）。push 后仍须核对 local/remote SHA；PR、merge、annotated tag 与
+Release 均不由 push 隐含。
 
 L6 只新增测试、报告和 staging evidence，并修改状态文档；无 schema/store
 迁移、外部写入或安装动作。若需回滚，revert L6 commit 即恢复 L5 状态，
