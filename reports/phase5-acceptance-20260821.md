@@ -6,10 +6,10 @@
 
 - 分支：`feat/ml-adapter`
 - 验收基线：`812029fee0759bd11c2d8bc0eaeb3cc5ac1b2e54`
-- L6 implementation commit：`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57`
+- L6 independent-review fix commit：`a0dfc7d389adc46070ba6ec35a1daaeeff098310`
 - Python：PATH 与 `.venv` 两个不同解释器入口，均为 Python 3.14.5
 - L6 manifest SHA-256：
-  `37c6645c2b777396ba0ab10e37037751405098e424abc703cdb791e2510ec98d`
+  `b694edad9ad493940638d1ec6ffb4b6c4cb450b50dbd8e1f6bdacbd3d48f54e7`
 
 ## L 层交付映射
 
@@ -31,16 +31,18 @@
 | 单 seed 最佳值不支撑稳定 Claim | unique-seed floor、repeated-seed artifact、best-only 不进入 L6 evidence | PASS |
 | 模型/资源/seed/Heuristic 变更分层 | runner parity changed_axes；L6 reproduction Case 把 seed-policy 漂移显式作为不同 protocol | PASS |
 | OOD/subgroup/calibration/drift 缺失写限制 | ML claim assessment 与 L5 E2E 逐项钉选，L6 bundle 保留 limitations | PASS |
-| Math/Quant 零 critical regression | 双环境全量 864/864；Core family 仍 17 | PASS |
+| Math/Quant 零 critical regression | 双环境全量 865/865；Core family 仍 17 | PASS |
 
 ## L6 Research Memory 证据
 
 - 新增 38 个 ML 文件；staging 全树 54 个 JSON，逐字节可重建；
 - 32 个 Core records 发布到临时 store 后 graph verification 0 violations；
 - 4 个 eligible Case 覆盖完整协议、负结果、泄漏修复、复现差异；
+- reproduction Case 以 A1/A2/B 三条 Run 分别绑定执行与 master-seed policy；
 - 唯一 Pattern 由两个独立 Case 蒸馏，只到 `candidate_pattern`；
+- Pattern 使用显式跨案例 facet，不继承任一来源 Case 的 category；
 - 3 条 Heuristic 各有 regression Case，最终只到 `shadow`；
-- linter 0 reject，shadow report 恰好 3 条且不含 Core schema；
+- linter 0 reject，shadow report 恰好 3 条独立决策且不含 Core schema；
 - 无 `SKILL.md`、Skill candidate、installation、activation 或 Champion 变更。
 
 ## ML/Quant 重合分析
@@ -55,13 +57,13 @@ interface。既有 canonical/schema/exchange 共享面保持不变。
 
 | 检查 | 结果 |
 |---|---|
-| L6 + Phase 4 evidence-pack 定向电池 | 19/19 PASS |
-| `.venv` 全量 unittest | 864/864 PASS |
-| PATH Python 全量 unittest | 864/864 PASS |
+| L6 + Phase 4 evidence-pack 定向电池 | 20/20 PASS |
+| `.venv` 全量 unittest | 865/865 PASS |
+| PATH Python 全量 unittest | 865/865 PASS |
 | PowerShell GitHub auth-context governance | 33 assertions / 6 cases PASS |
 | tracking Gate | 38 个 ML 内容文件已进入 index；`captures/` 不受 ignore 规则影响 |
 | `git diff --check` / Markdown 链接 / 凭据扫描 | PASS |
-| `git archive` 双解释器 | 864/864 ×2 PASS，各 1 个预期 Git tracking skip；绑定 `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` |
+| `git archive` 双解释器 | 865/865 ×2 PASS，各 1 个预期 Git tracking skip；绑定 `a0dfc7d389adc46070ba6ec35a1daaeeff098310` |
 
 ## 未完成与证据上限
 
@@ -80,9 +82,9 @@ Release、Skill 安装与任何 Champion promotion 都是独立动作，仍需�
 ## Release Gate 与回滚
 
 真实 `git archive` 必须绑定 commit，不能由手工工作树 snapshot 替代。本轮已
-完成独立审核、三层 L6 commit，并对 implementation commit
-`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 执行双解释器 archive Gate：
-两边均为 864/864 PASS，各 1 个预期 skip（归档无 `.git`，无法执行 tracking
+完成独立审核修复，并对 fix commit
+`a0dfc7d389adc46070ba6ec35a1daaeeff098310` 执行双解释器 archive Gate：
+两边均为 865/865 PASS，各 1 个预期 skip（归档无 `.git`，无法执行 tracking
 检查）。push 后仍须核对 local/remote SHA；PR、merge、annotated tag 与
 Release 均不由 push 隐含。
 

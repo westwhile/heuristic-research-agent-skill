@@ -224,8 +224,10 @@ L6 按决策 6/7/10 复用 Phase 4 experience 机器并完成 Phase 5 收口；�
    `research-case-package/v2`，分别捕获完整合成协议、非获胜负结果、
    selection-on-test 泄漏修复、以及由 seed-policy 漂移解释的复现差异。每个
    Case 都绑定 task/run/engineering claim/evidence 与 canonical capture bytes；
-   泄漏修复和复现差异另以 Observation/Analysis 分离事实与 hypothesis。全部
-   evidence level=`engineering-only`，不承载真实数据、预测、市场或生产结论。
+   泄漏修复以 Observation/Analysis 分离事实与 hypothesis；复现差异则以 A1、
+   A2、B 三条 Run 分别记录执行和 master-seed 派生，并由 comparative Evidence
+   承载跨 Run 结论。全部 evidence level=`engineering-only`，不承载真实数据、
+   预测、市场或生产结论。
 2. **跨案例 Pattern 纪律**：唯一 `pattern-ml-pinned-comparison` 链由泄漏修复
    与复现差异两个独立 eligible Case 蒸馏，只到 `candidate_pattern`，
    confidence=low、evidence grade=`synthetic engineering evidence`；无 active
@@ -237,7 +239,7 @@ L6 按决策 6/7/10 复用 Phase 4 experience 机器并完成 Phase 5 收口；�
 4. **确定性 evidence pack**：ML 子树 38 文件，其中 32 个 Core record 在临时
    store 通过完整 graph closure；与 Phase 4 原有文件合并后
    `staging/research-memory/` 共 54 个 JSON，根 manifest SHA-256 为
-   `37c6645c2b777396ba0ab10e37037751405098e424abc703cdb791e2510ec98d`。
+   `b694edad9ad493940638d1ec6ffb4b6c4cb450b50dbd8e1f6bdacbd3d48f54e7`。
    构建器只返回 canonical bytes，集成测试逐字节重建磁盘树；capture 目录使用
    `captures/`，刻意避开仓库非锚定 `artifacts/` ignore 规则，防止 archive
    缺件重演。
@@ -245,11 +247,11 @@ L6 按决策 6/7/10 复用 Phase 4 experience 机器并完成 Phase 5 收口；�
    loading 的领域语义不同；唯一近似相同的 gate→required-evidence 有序去重
    尚无双域行为合同，而且抽取后属于浅层转发。决策 7 三条件未同时满足，故
    L6 **不下沉 Core**；既有 canonical/schema/exchange 机器已共享，无新增 seam。
-6. **验收边界**：L6 新增 13 个集成测试（含独立审核发现的 claim-class/
-   statement 对齐回归）；工作树双 Python 环境全量均为 864/864，PowerShell
-   治理为 33 assertions / 6 cases。独立审核修复 claim-class/statement
-   对齐后，implementation commit
-   `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 的真实 `git archive` 双解释器
-   同为 864/864（各 1 个预期 Git tracking skip）。即使全部通过，仍不宣称
+6. **验收边界**：L6 新增 14 个集成测试（含 claim-class/statement 与
+   reproduction Run/seed 对账回归，并在既有测试补齐 merged facets 与 shadow
+   判别断言）；工作树双 Python 环境全量均为 865/865，PowerShell 治理为
+   33 assertions / 6 cases。独立审核修复 commit
+   `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 的真实 `git archive` 双解释器
+   同为 865/865（各 1 个预期 Git tracking skip）。即使全部通过，仍不宣称
    真实 ML 执行器、真实数据验收、完整
    nested-CV 训练、自动进化闭环或生产科研 Agent。

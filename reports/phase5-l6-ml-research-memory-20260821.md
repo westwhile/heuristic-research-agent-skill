@@ -21,7 +21,7 @@
 
 新增 ML 文件共 **38**；与原 Phase 4 的 15 个证据文件及根 manifest 合并后，
 `staging/research-memory/` 共 **54 个 JSON 文件**。根 manifest SHA-256：
-`37c6645c2b777396ba0ab10e37037751405098e424abc703cdb791e2510ec98d`。
+`b694edad9ad493940638d1ec6ffb4b6c4cb450b50dbd8e1f6bdacbd3d48f54e7`。
 
 ## 四类 Case Package
 
@@ -35,13 +35,16 @@
 每个 Case 同时包含一个 Core `engineering_claim` 与
 `research-evidence/v1(evidence_level=engineering-only)`，并明确列出：不支持
 real-data、predictive/market、production 或 Skill publication/installation
-结论。泄漏修复与复现差异另有 Observation/Analysis 分离记录；Analysis 保持
-hypothesis 表述。
+结论。泄漏修复另有 Observation/Analysis 分离记录；Analysis 保持 hypothesis
+表述。复现差异由 A1/A2/B 三条 Core Run 分别记录，其中 A1/A2 的 master
+seed=3、派生 `[3,5,7]`，B 的 master seed=11、派生 `[11,13,15]`；跨 Run
+比较只落 hash-bound comparative Evidence。
 
 ## Pattern 与 Heuristic 边界
 
 唯一 ML Pattern `pattern-ml-pinned-comparison` 只从两个独立 eligible Case
-（泄漏修复、复现差异）蒸馏，最高状态为 `candidate_pattern`，confidence=low，
+（泄漏修复、复现差异）蒸馏，使用显式跨案例 facet
+`category=protocol-evidence-comparison`，最高状态为 `candidate_pattern`，confidence=low，
 evidence grade=`synthetic engineering evidence`。不存在 active Pattern、
 `promoted_skill`、Skill candidate 或安装动作。
 
@@ -53,20 +56,21 @@ evidence grade=`synthetic engineering evidence`。不存在 active Pattern、
 
 每条均绑定 regression Case 并走完整三版本链，最终只到 `shadow`。linter 对
 三个 chain tip 无 reject；shadow report 恰好引用 3 条 shadow Heuristic，
-只写 `would ...` 假设性决策，不含 Core `schema`，不改变任何运行行为。
+分别记录负结果保留、protected-selection 阻断和 replay-pin 阻断的独立
+`would ...` 假设性决策及预期差异，不含 Core `schema`，不改变任何运行行为。
 
 ## 定向验证
 
 首轮定向电池：
 
-- `tests.integration.test_ml_research_memory_pack`：13/13；
+- `tests.integration.test_ml_research_memory_pack`：14/14；
 - `tests.integration.test_experience_evidence_pack`：6/6；
-- 合计 **19/19**；
+- 合计 **20/20**；
 - 32-record 临时 store `verify_record_graph`：0 violations；
 - manifest 与整个 ML 子树逐字节重建一致。
 
 双环境全量、PowerShell 治理与 Phase 5 最终验收结果另见
 `phase5-acceptance-20260821.md`。implementation commit
-`82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 的真实 `git archive` 双解释器
-同为 864/864（各 1 个预期 Git tracking skip）；该全绿结果最多支持工程
+`a0dfc7d389adc46070ba6ec35a1daaeeff098310` 的真实 `git archive` 双解释器
+同为 865/865（各 1 个预期 Git tracking skip）；该全绿结果最多支持工程
 证据，不改变上述科研边界。

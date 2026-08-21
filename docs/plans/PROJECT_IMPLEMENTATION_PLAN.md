@@ -479,11 +479,14 @@ $SKILL_LIBRARY_ROOT/
 实施状态（2026-08-21）：L1–L6 工作树验收 PASS。L6 复用 Phase 4
 experience interface 生成 4 个 ML Case Package、1 条两版本 candidate Pattern
 链、3 条三版本 shadow Heuristic 链与 1 份 hypothetical-only shadow report；
-32-record 临时 store 图闭包通过，双 Python 环境全量均为 864/864，PowerShell
-治理 33 assertions / 6 cases。ML/Quant 重合分析未发现同时满足三项下沉判据
+32-record 临时 store 图闭包通过，双 Python 环境全量均为 865/865，PowerShell
+治理 33 assertions / 6 cases。独立审核将 reproduction comparison 拆为 A1/A2/B
+三条 hash-bound Run，显式记录 master-seed 派生；将 Pattern facet 改为跨案例
+`protocol-evidence-comparison`；并使三条 shadow observation 具有独立决策与预期
+差异。ML/Quant 重合分析未发现同时满足三项下沉判据
 且具有足够 module depth 的新逻辑，因此零 Core/schema/interface 改动。最高
-证据等级仍为 engineering-only；真实 `git archive` 已绑定 implementation
-commit `82d62e9bdbed9c4d05c7c986f6a6a4c46a71dd57` 双解释器通过 864/864
+证据等级仍为 engineering-only；真实 `git archive` 已绑定独立审核修复
+commit `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 双解释器通过 865/865
 （各 1 个预期 Git tracking skip）。
 
 ### 验收 Gate

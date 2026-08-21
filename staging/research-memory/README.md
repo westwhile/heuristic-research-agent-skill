@@ -27,7 +27,8 @@ family，也不改变 Phase 4 的发布、安装与激活边界。
   `lesson_hypothesis → candidate → shadow` Heuristic 链、1 份 linter
   artifact 与 1 份 shadow report。全部 Case/Pattern/Heuristic 通过 Phase 4
   公共 experience interface 重建；Pattern 只由两个独立 eligible Case
-  蒸馏，Heuristic 最高态为 shadow。
+  蒸馏并使用显式跨案例 facet；复现差异由 A1/A2/B 三条 Run 分别绑定；
+  Heuristic 最高态为 shadow。
 - `manifest.json`：逐文件 SHA-256 与生成参数的哈希绑定清单。
 
 ## 重建与验证
