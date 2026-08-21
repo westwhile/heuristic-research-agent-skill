@@ -1,0 +1,168 @@
+{
+  "schema": "ml-adapter-case-catalog/v1",
+  "catalog_id": "ml-adapter-public-synthetic-v1",
+  "provenance": "synthetic",
+  "description": "[SYNTHETIC] Hash-pinned ML Adapter contract and leakage cases; not a real-data benchmark or model-quality claim.",
+  "cases": [
+    {
+      "case_id": "MLC-001-iid-accepted",
+      "category": "contract-positive",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/minimal.json",
+      "sha256": "3ed9510cd53b6c9565f4e52e754c8ee848b91eae3517e00371f2e4af6857dec4",
+      "expected": "accepted",
+      "rule_id": null
+    },
+    {
+      "case_id": "MLC-002-group-accepted",
+      "category": "contract-positive",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/group-split.json",
+      "sha256": "bb9a08d7a1a73bd2f76e2794bf32df5c01a206620d3eef69d379ba25a2d18776",
+      "expected": "accepted",
+      "rule_id": null
+    },
+    {
+      "case_id": "MLC-003-time-series-accepted",
+      "category": "contract-positive",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/full.json",
+      "sha256": "0796be4832cecfd80c712996c265a52c156586b495023eed905d5fd6dfd19f9f",
+      "expected": "accepted",
+      "rule_id": null
+    },
+    {
+      "case_id": "MLC-004-nested-accepted",
+      "category": "contract-positive",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/nested-split.json",
+      "sha256": "1f347860f7aaa53ef56d3723df95aab507ba5e91e2e62a27e5096151de7b9cbf",
+      "expected": "accepted",
+      "rule_id": null
+    },
+    {
+      "case_id": "MLC-005-preprocessing-full-data",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-fit-scope-full-data.json",
+      "sha256": "e1c211f7788f6324ff96de202788c80e8914acd7e8f6af63c2059d16bf9aa49d",
+      "expected": "rejected",
+      "rule_id": "preprocessing-fit-full-data"
+    },
+    {
+      "case_id": "MLC-006-feature-selection-full-data",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-feature-selection.json",
+      "sha256": "38df2b90d2d2eb2eec361f879104df6881ae28be3586087c63078b4dfdfe2372",
+      "expected": "rejected",
+      "rule_id": "feature-selection-fit-full-data"
+    },
+    {
+      "case_id": "MLC-007-sampling-full-data",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-sampling-scope-full-data.json",
+      "sha256": "c7685e36f76e1081b0a093dedb4d0a11de5fdde62b8ab9f0638acda5e26b56ad",
+      "expected": "rejected",
+      "rule_id": "sampling-scope-unsafe"
+    },
+    {
+      "case_id": "MLC-008-sampling-pre-split",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-sampling-scope-pre-split.json",
+      "sha256": "8b76d9b6c6d294f015506ff6c026ee5f804ef7f1ef2af7c2b37240588e62253e",
+      "expected": "rejected",
+      "rule_id": "sampling-scope-unsafe"
+    },
+    {
+      "case_id": "MLC-009-preprocessing-train-upstream",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch.json",
+      "sha256": "bd54aab3068370d6b221a71495bde0bf30b29bac99b5252ecf3042d49dec6468",
+      "expected": "rejected",
+      "rule_id": "scope-upstream-mismatch"
+    },
+    {
+      "case_id": "MLC-010-preprocessing-fold-upstream",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-preprocessing-per-fold.json",
+      "sha256": "ffa8b31f85e70cc185cbc9078b802e751a5bf428db15974a8d0201f592fcb582",
+      "expected": "rejected",
+      "rule_id": "scope-upstream-mismatch"
+    },
+    {
+      "case_id": "MLC-011-sampling-train-upstream",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-sampling-train-only.json",
+      "sha256": "2b6590cfbc9b7c2ea75a3c10c9b7dbda18ab31854d76368cd1f000da9ab58a4c",
+      "expected": "rejected",
+      "rule_id": "scope-upstream-mismatch"
+    },
+    {
+      "case_id": "MLC-012-sampling-fold-upstream",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-scope-upstream-mismatch-sampling-per-fold.json",
+      "sha256": "6d755309787710fc9223758558d94b28caceb851444eabb8e6f505471d98407e",
+      "expected": "rejected",
+      "rule_id": "scope-upstream-mismatch"
+    },
+    {
+      "case_id": "MLC-013-target-encoding-full-data",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-target-encoding.json",
+      "sha256": "2d6cf4783e071c0c70a8e8979cdf29c141855f41887fed1786f9adadf5972185",
+      "expected": "rejected",
+      "rule_id": "target-encoding-not-per-fold"
+    },
+    {
+      "case_id": "MLC-014-tuning-test",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-tuning-split-test.json",
+      "sha256": "acc3c690a90abaaabe91a749b2c0d76c5b665bf0c2de8eb61f9db2fc7559bd11",
+      "expected": "rejected",
+      "rule_id": "tuning-uses-protected-split"
+    },
+    {
+      "case_id": "MLC-015-tuning-future-holdout",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-tuning-split-future-holdout.json",
+      "sha256": "f08ff155b99bc2367a68aecbec28004c9456e93e2088b673aabb21c9694f8158",
+      "expected": "rejected",
+      "rule_id": "tuning-uses-protected-split"
+    },
+    {
+      "case_id": "MLC-016-selection-test",
+      "category": "leakage-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-selection-split-test.json",
+      "sha256": "95b9d814f2fecc37a5eded5c67023c13644dda021cace69896af8e93f43e35ea",
+      "expected": "rejected",
+      "rule_id": "selection-uses-test"
+    },
+    {
+      "case_id": "MLC-017-group-key-blank",
+      "category": "semantic-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-group-key-blank.json",
+      "sha256": "7ce4f29ef50d355c55b0c60fa104f45930822adbad6cf4f4c0b05b022c54166f",
+      "expected": "rejected",
+      "rule_id": "split-parameters-kind-contract"
+    },
+    {
+      "case_id": "MLC-018-time-gap-missing",
+      "category": "semantic-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-time-series-gap-missing.json",
+      "sha256": "0a252334486a198f6f6e2c33efafea5c82f55486acced3508d3710810e08f224",
+      "expected": "rejected",
+      "rule_id": "split-parameters-kind-contract"
+    },
+    {
+      "case_id": "MLC-019-nested-outer-bool",
+      "category": "semantic-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-split-nested-outer-folds-bool.json",
+      "sha256": "547aa56cfef9fad74b671b52a0ea67288c725ed8fa8c28678845e0e524637c55",
+      "expected": "rejected",
+      "rule_id": "split-parameters-kind-contract"
+    },
+    {
+      "case_id": "MLC-020-seed-count-zero",
+      "category": "semantic-negative",
+      "locator": "tests/fixtures/adapters/ml-case/v1/valid/unsafe-tuning-seed-count-zero.json",
+      "sha256": "f16692ea0ffed0a10c9c990ce776d6344e91533cd010cb2f8f9500a8e4cdbb19",
+      "expected": "rejected",
+      "rule_id": "tuning-seed-count-floor"
+    }
+  ]
+}

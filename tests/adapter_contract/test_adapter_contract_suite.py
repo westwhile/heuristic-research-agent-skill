@@ -364,6 +364,7 @@ _ADAPTER_COUPLED_TESTS = frozenset(
         "tests/unit/test_ml_adapter.py",
         "tests/unit/test_ml_final_evaluation.py",
         "tests/unit/test_ml_runner.py",
+        "tests/unit/test_ml_split_execution.py",
         "tests/unit/test_ml_topology.py",
         "tests/unit/test_quant_adapter.py",
     }

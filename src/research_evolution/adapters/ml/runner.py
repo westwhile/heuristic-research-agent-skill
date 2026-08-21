@@ -25,11 +25,11 @@ from research_evolution.core import (
     load_strict_json,
 )
 
-from . import _evidence
+from . import _evidence, _split_execution
 from ..types import AdapterError, EvaluationContract
 
 RUNNER_TOOL = "synthetic-ml-runner"
-RUNNER_VERSION = "0.2.0"
+RUNNER_VERSION = "0.3.0"
 
 _MAX_ROWS = 10_000
 _MAX_FEATURES = 64
@@ -84,17 +84,21 @@ def run_synthetic_experiment(
 ) -> SyntheticExperimentResult:
     """Run one deterministic baseline/candidate comparison in memory.
 
-    ``dataset_payload`` has exactly four keys: ``task_type``, ``features``,
-    ``targets``, and ``partitions``.  The canonical hash of the first three
-    keys must equal ``case.dataset.sha256``; the canonical hash of
+    ``dataset_payload`` has four required keys: ``task_type``, ``features``,
+    ``targets``, and ``partitions``; non-IID splits additionally carry
+    ``split_context``.  The canonical hash of the first three keys must equal
+    ``case.dataset.sha256``; the canonical hash of
     ``{"partitions": partitions}`` must equal the runner-specific
     ``case.split.parameters.assignment_sha256``.  ``case.split.sha256``
     separately pins the split declaration (identity/input/kind/parameters).
 
-    ``contract`` must be the matching case-derived v3 contract.  L4.1 executes
-    only IID cases with empty preprocessing/sampling/search declarations and
-    no feature selection or target encoding.  Other validation families and
-    transformation execution remain explicit L5 work and fail closed here.
+    ``contract`` must be the matching case-derived v3 contract.  L5 validates
+    executable IID, group, time-series, and nested assignments.  Time-series
+    partitions are chronological through an optional future holdout.  Nested
+    folds are checked for exact outer/inner row isolation; model fitting still
+    uses the declared top-level train partition.  Preprocessing, sampling,
+    search, feature selection, and target encoding remain unsupported and fail
+    closed.
 
     The case supplies the candidate model, seed set, selection partition,
     metrics, and a search budget containing exactly ``epochs`` and
@@ -109,6 +113,12 @@ def run_synthetic_experiment(
     data = _validate_dataset(dataset_payload)
     _validate_hash_bindings(dataset_payload, case_data)
     _validate_partitions(data, contract_data, final_partition)
+    try:
+        split_validation = _split_execution.validate_split_execution(
+            data, case_data["split"]
+        )
+    except _split_execution.SplitExecutionError as exc:
+        raise SyntheticRunnerError(str(exc)) from exc
     model = _validate_model(case_data, data["task_type"])
     metrics = _validate_metrics(case_data, data["task_type"])
     if case_data["selection"]["metric"] not in metrics:
@@ -173,6 +183,7 @@ def run_synthetic_experiment(
         "partition_assignment_sha256": case_data["split"]["parameters"][
             "assignment_sha256"
         ],
+        "split_validation": split_validation,
         "selection": {
             "partition": contract_data["selection_partition"],
             "selection_sha256": contract_data["selection_sha256"],
@@ -268,11 +279,8 @@ def _validate_contract(
                 f"contract {field} does not match the supplied ml-case/v1 payload"
             )
     split = case["split"]
-    if split.get("kind") != "iid":
-        raise SyntheticRunnerError(
-            "the L4.1 synthetic runner only executes iid splits; "
-            "group, time_series, and nested execution remain an L5 contract"
-        )
+    if split.get("kind") not in {"iid", "group", "time_series", "nested"}:
+        raise SyntheticRunnerError("unsupported split kind")
     split_projection = {
         "identity": split["identity"],
         "input_sha256": split["input_sha256"],
@@ -297,28 +305,28 @@ def _validate_contract(
         )
     if case.get("preprocessing"):
         raise SyntheticRunnerError(
-            "the L4.1 synthetic runner does not execute preprocessing; "
+            "the synthetic runner does not execute preprocessing; "
             "the declaration must be an empty array"
         )
     if case.get("sampling"):
         raise SyntheticRunnerError(
-            "the L4.1 synthetic runner does not execute sampling; "
+            "the synthetic runner does not execute sampling; "
             "the declaration must be an empty array"
         )
     feature = case.get("feature", {})
     if feature.get("selection_scope") != "none":
         raise SyntheticRunnerError(
-            "the L4.1 synthetic runner does not execute feature selection; "
+            "the synthetic runner does not execute feature selection; "
             "feature.selection_scope must be 'none'"
         )
     if feature.get("target_encoding_scope") != "none":
         raise SyntheticRunnerError(
-            "the L4.1 synthetic runner does not execute target encoding; "
+            "the synthetic runner does not execute target encoding; "
             "feature.target_encoding_scope must be 'none'"
         )
     if case.get("tuning", {}).get("search_space"):
         raise SyntheticRunnerError(
-            "the L4.1 synthetic runner does not execute hyperparameter search; "
+            "the synthetic runner does not execute hyperparameter search; "
             "tuning.search_space must be empty"
         )
     if case.get("tuning", {}).get("split_used") in {"test", "future_holdout"}:
@@ -459,9 +467,11 @@ def _validate_dataset(payload: Any) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise SyntheticRunnerError("dataset_payload must be an object")
     expected = {"task_type", "features", "targets", "partitions"}
-    if set(payload) != expected:
+    allowed_shapes = (expected, expected | {"split_context"})
+    if set(payload) not in allowed_shapes:
         raise SyntheticRunnerError(
-            f"dataset_payload keys must be exactly {sorted(expected)}"
+            "dataset_payload keys must be the base numeric payload with an "
+            "optional split_context"
         )
     task_type = payload["task_type"]
     if task_type not in _TASK_MODELS:
@@ -520,13 +530,12 @@ def _validate_dataset(payload: Any) -> dict[str, Any]:
             seen.add(index)
             clean.append(index)
         clean_partitions[name] = clean
-    if seen != set(range(len(features))):
-        raise SyntheticRunnerError("partitions must assign every row exactly once")
     return {
         "task_type": task_type,
         "features": clean_features,
         "targets": clean_targets,
         "partitions": clean_partitions,
+        "split_context": payload.get("split_context"),
     }
 
 
@@ -559,6 +568,14 @@ def _validate_hash_bindings(data: dict[str, Any], case: dict[str, Any]) -> None:
             "partition payload hash does not match "
             "case.split.parameters.assignment_sha256"
         )
+    context = data.get("split_context")
+    if context is not None:
+        if canonical_sha256(context) != case["split"]["parameters"].get(
+            "context_sha256"
+        ):
+            raise SyntheticRunnerError(
+                "split_context hash does not match case.split.parameters.context_sha256"
+            )
 
 
 def _validate_partitions(

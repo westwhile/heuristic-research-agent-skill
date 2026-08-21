@@ -1,8 +1,8 @@
 """Unit and integration tests for the deterministic synthetic ML runner."""
 
+import ast
 import copy
 import hashlib
-import re
 import unittest
 from decimal import Decimal
 from pathlib import Path
@@ -18,13 +18,16 @@ from research_evolution.adapters.ml.runner import (
 from research_evolution.core import canonical_sha256, load_strict_json
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "adapters"
-RUNNER_SOURCE = (
+ML_SOURCE_ROOT = (
     Path(__file__).resolve().parents[2]
     / "src"
     / "research_evolution"
     / "adapters"
     / "ml"
-    / "runner.py"
+)
+RUNNER_IMPLEMENTATION_SOURCES = tuple(
+    ML_SOURCE_ROOT / name
+    for name in ("runner.py", "_split_execution.py", "_evidence.py")
 )
 
 
@@ -255,27 +258,6 @@ class SyntheticMLRunnerTest(unittest.TestCase):
             )
         self.assertIn("protected tuning partition", str(ctx.exception))
 
-    def test_runner_fails_closed_on_unimplemented_split_families(self) -> None:
-        dataset = _classification_dataset()
-        for kind, parameters in (
-            ("group", {"group_key": "site"}),
-            ("time_series", {"gap": "999 sessions", "embargo": "999 sessions"}),
-            ("nested", {"outer_folds": 5, "inner_folds": 3}),
-        ):
-            with self.subTest(kind=kind):
-                case = _runner_case(dataset)
-                case["split"]["kind"] = kind
-                case["split"]["parameters"] = parameters
-                contract = MLAdapter().build_evaluation_contract(case)
-                with self.assertRaises(SyntheticRunnerError) as ctx:
-                    run_synthetic_experiment(
-                        dataset,
-                        case,
-                        contract=contract,
-                        final_partition="test",
-                    )
-                self.assertIn("only executes iid splits", str(ctx.exception))
-
     def test_runner_rejects_declared_preprocessing_it_does_not_execute(self) -> None:
         dataset = _classification_dataset()
         case = _runner_case(dataset)
@@ -424,7 +406,7 @@ class SyntheticMLRunnerTest(unittest.TestCase):
         case = _runner_case(dataset)
         result = _run(dataset, case)
         self.assertEqual(
-            runner_identity(), {"tool": "synthetic-ml-runner", "version": "0.2.0"}
+            runner_identity(), {"tool": "synthetic-ml-runner", "version": "0.3.0"}
         )
         self.assertEqual(result.artifact["runner"], runner_identity())
         self.assertEqual(result.evidence["schema"], "ml-evidence/v2")
@@ -549,17 +531,45 @@ class SyntheticMLRunnerTest(unittest.TestCase):
 
 class SyntheticMLRunnerStaticDisciplineTest(unittest.TestCase):
     def test_runner_has_no_io_clock_process_or_third_party_imports(self) -> None:
-        source = RUNNER_SOURCE.read_text(encoding="utf-8")
-        banned_imports = re.compile(
-            r"^\s*(?:import|from)\s+"
-            r"(?:os|pathlib|time|datetime|socket|urllib|requests|httpx|http|ssl|"
-            r"subprocess|ctypes|asyncio|numpy|pandas|sklearn|scipy)\b",
-            re.MULTILINE,
-        )
-        self.assertIsNone(banned_imports.search(source))
-        for call in ("open(", "Path(", "getenv(", "environ["):
-            with self.subTest(call=call):
-                self.assertNotIn(call, source)
+        allowed_absolute_roots = {
+            "__future__",
+            "collections",
+            "dataclasses",
+            "decimal",
+            "hashlib",
+            "math",
+            "re",
+            "research_evolution",
+            "statistics",
+            "typing",
+        }
+        for path in RUNNER_IMPLEMENTATION_SOURCES:
+            source = path.read_text(encoding="utf-8")
+            tree = ast.parse(source, filename=str(path))
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    roots = {alias.name.split(".", 1)[0] for alias in node.names}
+                    self.assertTrue(
+                        roots <= allowed_absolute_roots,
+                        f"disallowed import roots in {path.name}: "
+                        f"{sorted(roots - allowed_absolute_roots)}",
+                    )
+                elif isinstance(node, ast.ImportFrom):
+                    if node.level == 0:
+                        root = (node.module or "").split(".", 1)[0]
+                        self.assertIn(root, allowed_absolute_roots, path.name)
+                    elif node.module is None:
+                        names = {alias.name for alias in node.names}
+                        self.assertTrue(
+                            names <= {"_evidence", "_split_execution"},
+                            f"unscanned relative modules in {path.name}: "
+                            f"{sorted(names - {'_evidence', '_split_execution'})}",
+                        )
+                    else:
+                        self.assertEqual(node.module, "types", path.name)
+            for call in ("open(", "Path(", "getenv(", "environ["):
+                with self.subTest(path=path.name, call=call):
+                    self.assertNotIn(call, source)
 
 
 if __name__ == "__main__":

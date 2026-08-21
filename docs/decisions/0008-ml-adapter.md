@@ -186,3 +186,23 @@ L4 独立复核发现三项会削弱 L5 端到端证据的缺口：experiment ev
 4. **诚实执行包络**：L4.1 只执行 `iid`，且 preprocessing/sampling 必须为空、feature selection/target encoding 必须为 none、tuning search_space 必须为空、tuning.seed_count 必须等于唯一 seed 数、selection.metric 必须属于执行指标集。group/time_series/nested（含真实 gap/embargo/fold 验证）明确 fail-closed，必须在 L5 先定义带 group/timestamp/fold/purge 信息的执行合同后才能称端到端。
 5. **数值与 oracle 纪律**：非有限中间结果统一收敛为 `SyntheticRunnerError`；classification/regression 已知样例钉住独立 literal 指标值与实际 sample-visits，避免仅断言输出形状的自证。
 6. **版本与兼容**：runner interface 破坏性变化使内部版本升至 0.2.0；Adapter 三 seam 操作与 Core 公共面不变。`ml-evidence/v2`、A6/A7 仍只存在于未合并的 Phase 5 功能分支，故在首次发布前原地收紧并同步 schema byte pin、minimal fixture pin、valid/invalid fixtures；v1 字节保持冻结。
+
+## 增补 A8（2026-08-21，L5 冻结）：可执行 split context、20-case 目录与双切片
+
+L4.1 对 group/time-series/nested 明确 fail-closed 后，L5 只扩张 runner-local 的内存数据合同，不修改 `ml-case/v1`、Adapter interface 或 Core family。扩张后的 runner 版本为 0.3.0；四种 split 都必须携带实际 assignment 证据，不能仅凭声明字段通过。
+
+1. **Runner-local split context**：基础 numeric dataset payload 仍含 `task_type/features/targets/partitions`；非 IID 额外携带 `split_context`，其 canonical SHA-256 必须等于 `case.split.parameters.context_sha256`。`assignment_sha256` 继续只绑定 `{partitions}`，声明 pin、assignment pin、context pin 三者职责分离。IID 禁止 context 且 parameters 恰含 assignment pin；group parameters 恰含 group key 与两类 pin；time-series 恰含 gap/embargo 与两类 pin；nested 恰含 outer/inner fold 数与两类 pin。自由额外键 fail-closed。
+2. **四族可执行判据**：IID 的 partitions 恰覆盖全部行；group 的每行 label 非空、同一 label 只能属于一个 partition；time-series 使用连续递增的整数 session ordinal，assigned 与 excluded 合计恰覆盖全部行，excluded 恰为 train→validation gap 与 validation→test embargo 区间，实测隔离不得小于声明值；nested 的顶层 train+validation 构成 development 集，outer train/validation 每折恰划分该集合且 outer validation 各覆盖一次，inner train/validation 每折恰划分当前 outer-train 且 inner validation 各覆盖一次，test 永不进入 fold。
+3. **Nested 的诚实能力边界**：runner 对 nested 执行的是 fold assignment 隔离验证；候选与 baseline 仍只在顶层 train 上拟合一次。未实现 outer/inner 逐折训练、调参选择或重训循环，报告与 README 不得把它写成完整 nested-CV executor。
+4. **Catalog 不是 evaluator suite**：`benchmarks/public/ml-adapter/catalog.json` 是独立的 `ml-adapter-case-catalog/v1` 测试目录，不注册为 Core schema，也不冒充 Phase 3 `suite/v1`。目录固定 20 个 synthetic、raw-SHA-pinned locators：4 个四 split 正例、12 个六规则族泄漏负例、4 个 split/seed 语义负例。locator 只能落在已治理的 `tests/fixtures/adapters/ml-case/v1/valid/`；负例本身 schema 合法并经公共 `build_evaluation_contract` 触发预期 rule ID。
+5. **两条公共链切片**：非时间切片执行 group isolation；时间切片执行连续 session + gap/embargo。二者均走 `ml-task/v1 → normalize_task → research-task/v1 → evaluation-contract/v3 → runner → ml-evidence/v2 → validate_claim`，并以三次独立调用的 artifact byte hash 一致性验证确定性。每次 runner 内部执行三 seed，候选/基线资源相等、只改变 model 轴；最终 claim 必须触发 `synthetic-evidence-cap`，并如实点名 OOD/subgroup/calibration/drift 缺口，不能因测试全绿越级。
+6. **L5 报告与剩余边界**：leakage fixture 与重复实验报告落在 `reports/phase5-l5-*.md`。L5 仍不执行 preprocessing、sampling、feature selection、target encoding、hyperparameter search 或第三方/真实 ML 框架；L6 的 shadow cases、Case Package、ML/Quant 重合分析与 Phase 5 总验收尚未开始。
+
+## 增补 A9（2026-08-21，L5.1 独立审核闭合）：future holdout 时序与 Gate 承重
+
+L5 独立审核构造出 `future_holdout` 时间早于 train、但 runner 仍产出 `frozen_holdout=true` evidence 的假 PASS。根因是 A8 只检查 `train < validation < test`，而 A6 又允许 final evaluation 使用 `future_holdout`。本增补在 L5 commit 前闭合该缺口，不改变公共 runner interface 或 schema。
+
+1. **完整时间顺序**：time-series 只要声明 `future_holdout`，必须满足 `max(test timestamps) < min(future_holdout timestamps)`；无论本次 final partition 选择 test 还是 future，该不变量都执行。早于或与 test 交错的 future holdout fail-closed。正例同时钉住 test 之后的 future holdout 仍可作为合法 final partition。
+2. **split Gate 承重回归**：补充 IID 漏行、nested outer-validation 重复与 nested inner-validation 重复三个公共 runner seam 负例，分别承重完整 assignment、outer 轮转和 inner 轮转分支；不通过私有 helper 直接断言实现细节。
+3. **纯度依赖闭包**：静态零 I/O/时钟/第三方依赖 Gate 不再只扫描 facade `runner.py`；以 AST absolute-import allowlist 同时扫描 `runner.py`、`_split_execution.py`、`_evidence.py`，并把允许的相对 implementation 依赖钉死，新增未扫描私有模块即失败。
+4. **复验**：定向 runner/split/E2E 电池 46/46；工作树双 Python 环境 851/851；775-file clean snapshot 双环境 851/851，各有 1 个预期 Git tracking skip；PowerShell 治理 33 assertions / 6 cases。该证据仍仅为 synthetic engineering evidence。
