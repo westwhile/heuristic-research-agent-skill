@@ -28,11 +28,11 @@ def _payload(family: str, kind: str, name: str) -> dict:
     return load_strict_json((FIXTURES / family / "v1" / kind / name).read_bytes())
 
 
-def _v2_contract(case: dict, required_evidence: list) -> EvaluationContract:
-    """Hand-built evaluation-contract/v2 bound to *case* (hash + study)."""
+def _v3_contract(case: dict, required_evidence: list) -> EvaluationContract:
+    """Hand-built evaluation-contract/v3 bound to *case* (hash + study)."""
     return EvaluationContract.from_payload(
         {
-            "schema": "evaluation-contract/v2",
+            "schema": "evaluation-contract/v3",
             "case_sha256": canonical_sha256(case),
             "study_id": case["study_id"],
             "required_evidence": required_evidence,
@@ -42,6 +42,9 @@ def _v2_contract(case: dict, required_evidence: list) -> EvaluationContract:
                 {"dimension": dimension, "status": section["status"]}
                 for dimension, section in case["assessment"].items()
             ],
+            "selection_partition": case["selection"]["split_used"],
+            "selection_sha256": case["selection"]["sha256"],
+            "split_sha256": case["split"]["sha256"],
         }
     )
 
@@ -50,22 +53,32 @@ TASK_FULL = _payload("ml-task", "valid", "full.json")
 CLAIM_ENGINEERING = _payload("ml-claim", "valid", "minimal.json")
 CLAIM_DATA = _payload("ml-claim", "valid", "data-acceptance.json")
 CLAIM_GENERALIZATION = _payload("ml-claim", "valid", "full.json")
+CASE_MINIMAL = _payload("ml-case", "valid", "minimal.json")
+CASE_FULL = _payload("ml-case", "valid", "full.json")
+
+
+def _v2_experiment(name: str) -> dict:
+    payload = _payload("ml-evidence", "valid", name)
+    payload["schema"] = "ml-evidence/v2"
+    payload["final_evaluation"] = {
+        "partition": "test",
+        "split_sha256": CASE_FULL["split"]["sha256"],
+    }
+    return payload
+
+
 EVIDENCE_UNIT_TEST = _payload("ml-evidence", "valid", "minimal.json")
-EVIDENCE_SYNTHETIC_RUN = _payload("ml-evidence", "valid", "synthetic-experiment.json")
-EVIDENCE_SINGLE_SEED = _payload("ml-evidence", "valid", "single-seed-experiment.json")
-EVIDENCE_REAL_RUN = _payload("ml-evidence", "valid", "real-experiment.json")
-EVIDENCE_PUBLIC_RUN = _payload("ml-evidence", "valid", "full.json")
+EVIDENCE_SYNTHETIC_RUN = _v2_experiment("synthetic-experiment.json")
+EVIDENCE_SINGLE_SEED = _v2_experiment("single-seed-experiment.json")
+EVIDENCE_REAL_RUN = _v2_experiment("real-experiment.json")
+EVIDENCE_PUBLIC_RUN = _v2_experiment("full.json")
 EVIDENCE_CALIBRATION = _payload("ml-evidence", "valid", "calibration.json")
 EVIDENCE_SUBGROUP = _payload("ml-evidence", "valid", "subgroup.json")
 EVIDENCE_OOD = _payload("ml-evidence", "valid", "ood.json")
 EVIDENCE_DRIFT = _payload("ml-evidence", "valid", "drift.json")
 EVIDENCE_DATA_AUDIT = _payload("ml-evidence", "valid", "data-audit.json")
 EVIDENCE_OTHER = _payload("ml-evidence", "valid", "other.json")
-EVIDENCE_DUPLICATE_SEEDS = _payload(
-    "ml-evidence", "valid", "duplicate-seeds-experiment.json"
-)
-CASE_MINIMAL = _payload("ml-case", "valid", "minimal.json")
-CASE_FULL = _payload("ml-case", "valid", "full.json")
+EVIDENCE_DUPLICATE_SEEDS = _v2_experiment("duplicate-seeds-experiment.json")
 
 ALL_ASSESSMENTS = (
     EVIDENCE_CALIBRATION,
@@ -301,7 +314,7 @@ class MLValidateClaimTest(unittest.TestCase):
     def test_math_path_bar_fails_closed(self) -> None:
         # A bar outside the ML promotion path (mathematically_verified) must
         # fail closed, never report a false "meets the case promotion bar".
-        contract = _v2_contract(
+        contract = _v3_contract(
             CASE_FULL,
             [
                 {"claim_type": "empirical_claim", "min_maturity": "mathematically_verified"}
@@ -314,7 +327,7 @@ class MLValidateClaimTest(unittest.TestCase):
     def test_production_bar_is_below_bar_not_an_error(self) -> None:
         # production_observed is on the governance ladder (rank 6) but above
         # every adapter ceiling: the honest report is below-case-promotion-bar.
-        contract = _v2_contract(
+        contract = _v3_contract(
             CASE_FULL,
             [
                 {"claim_type": "empirical_claim", "min_maturity": "production_observed"}
@@ -362,9 +375,9 @@ class MLEvaluationContractTest(unittest.TestCase):
     def test_minimal_case_maps_two_gates(self) -> None:
         contract = MLAdapter().build_evaluation_contract(CASE_MINIMAL)
         self.assertIsInstance(contract, EvaluationContract)
-        # ML contracts ride the v2 seam version (ADR-0008 addendum A3): the
-        # binding surface v1 does not carry.
-        self.assertEqual(contract.payload["schema"], "evaluation-contract/v2")
+        # ML contracts ride the v3 seam version (ADR-0008 addendum A6): the
+        # case-derived selection/split binding surface older versions lack.
+        self.assertEqual(contract.payload["schema"], "evaluation-contract/v3")
         self.assertEqual(contract.payload["study_id"], CASE_MINIMAL["study_id"])
         self.assertEqual(
             contract.required_evidence,
@@ -387,7 +400,7 @@ class MLEvaluationContractTest(unittest.TestCase):
 
     def test_assessment_declaration_rides_the_contract(self) -> None:
         # The case's assessment section reaches validate_claim through the
-        # v2 contract (ADR-0008 addendum A3).
+        # v3 contract (ADR-0008 addendum A6).
         contract = MLAdapter().build_evaluation_contract(CASE_FULL)
         self.assertEqual(
             contract.payload["assessment_declaration"],
@@ -618,7 +631,7 @@ class MLR42cRegressionTest(unittest.TestCase):
 
     def test_contract_study_mismatch_fails_closed(self) -> None:
         payload = dict(
-            _v2_contract(
+            _v3_contract(
                 CASE_FULL,
                 [
                     {
@@ -667,7 +680,7 @@ class MLR42cRegressionTest(unittest.TestCase):
 
     def test_contract_without_applicable_bar_fails_closed(self) -> None:
         # R42b P1-4: CASE_FULL's hash and study but no generalization gate.
-        contract = _v2_contract(
+        contract = _v3_contract(
             CASE_FULL,
             [
                 {"claim_type": "engineering_claim", "min_maturity": "engineering_verified"},
@@ -683,7 +696,7 @@ class MLR42cRegressionTest(unittest.TestCase):
     def test_predictive_only_contract_fails_closed(self) -> None:
         # R42b P1-4: foreign entries are skipped; zero applicable bars then
         # fail closed instead of returning supported.
-        contract = _v2_contract(
+        contract = _v3_contract(
             CASE_FULL,
             [
                 {
@@ -699,7 +712,7 @@ class MLR42cRegressionTest(unittest.TestCase):
         self.assertIn("no applicable bar", str(ctx.exception))
 
     def test_duplicate_applicable_bars_fail_closed(self) -> None:
-        contract = _v2_contract(
+        contract = _v3_contract(
             CASE_FULL,
             [
                 {"claim_type": "empirical_claim", "min_maturity": "empirically_supported"},
@@ -713,13 +726,13 @@ class MLR42cRegressionTest(unittest.TestCase):
         self.assertIn("duplicate bars", str(ctx.exception))
 
     def test_v1_contract_is_rejected(self) -> None:
-        # The ML adapter requires the v2 binding surface.
+        # The ML adapter requires the v3 selection/split binding surface.
         v1 = EvaluationContract.from_json(
             (FIXTURES / "evaluation-contract" / "v1" / "valid" / "minimal.json").read_bytes()
         )
         with self.assertRaises(AdapterError) as ctx:
             self.adapter.validate_claim(CLAIM_GENERALIZATION, [EVIDENCE_REAL_RUN], v1)
-        self.assertIn("evaluation-contract/v2", str(ctx.exception))
+        self.assertIn("evaluation-contract/v3", str(ctx.exception))
 
 
 class MLR42dRegressionTest(unittest.TestCase):
@@ -733,13 +746,13 @@ class MLR42dRegressionTest(unittest.TestCase):
         self.contract_full = self.adapter.build_evaluation_contract(CASE_FULL)
 
     def _contract_with_declaration(self, declaration: list) -> EvaluationContract:
-        """Schema-legal evaluation-contract/v2 bound to CASE_FULL whose
-        assessment_declaration is replaced by the probe value. The v2
+        """Schema-legal evaluation-contract/v3 bound to CASE_FULL whose
+        assessment_declaration is replaced by the probe value. The v3
         schema keeps `dimension` free-form and sets no minItems, so every
         probe below passes schema validation — the adapter floor is the
         only gate (that is the point of the R42c findings)."""
         payload = dict(
-            _v2_contract(
+            _v3_contract(
                 CASE_FULL,
                 [
                     {

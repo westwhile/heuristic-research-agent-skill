@@ -4,7 +4,7 @@
 - 日期：2026-08-18
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）进行中——ADR-0008 已接受，L2（数据合同）与 L3（声明式泄漏检查；决策 9 跨记录 split 对比半侧未闭合，见 ADR-0008 增补 A5）已交付，L4—L6 未实施。尚无真实研究执行器、自动晋级闭环或生产发布能力。
+- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）进行中——ADR-0008 已接受，L2（数据合同）、L3（声明式泄漏检查）与 L4（final-evaluation split Gate + 标准库纯函数合成实验 runner）已交付，L5—L6 未实施。尚无真实 ML 执行器、数据验收、自动晋级闭环或生产发布能力。
 
 ## 1. 最终目标与非目标
 
@@ -470,9 +470,9 @@ $SKILL_LIBRARY_ROOT/
 ### 交付物
 
 - ADR-0008：ML Adapter——数据合同、声明式泄漏检查与确定性实验 runner（本 Phase 决策合同）；
-- 四个 `ml-*` adapter schema（`ml-task/v1`、`ml-case/v1`、`ml-claim/v1`、`ml-evidence/v1`）与 fixtures——零新 Core family，Core 保持 17 family；
+- 四个 `ml-*` v1 adapter schema（`ml-task/v1`、`ml-case/v1`、`ml-claim/v1`、`ml-evidence/v1`）及 L4 successor（`evaluation-contract/v3`、`ml-evidence/v2`）与 fixtures——零新 Core family，Core 保持 17 family；
 - 对已声明实验拓扑的确定性泄漏检查（split/preprocessing/采样/target-encoding/tuning/selection 规则面，"声明即证据下限" fail-closed；拓扑声明以 {identity, sha256} + 上游 input pin 构成 DAG，保证 lineage 可重建；语义规则的正例一律 schema 合法、mutation 可证伪）；
-- 标准库纯函数合成实验 runner（baseline/resource parity、seed 重复研究；零第三方依赖）；
+- 标准库纯函数合成实验 runner（baseline/resource parity、seed 重复研究、确定性规范产物；零 I/O、零第三方依赖；L4 已交付，只支持显式内存合成数据）；
 - 15—25 个公开/合成 cases、两条垂直切片（非时间序列 + 时间序列）与 leakage fixture/重复实验报告；
 - ML Heuristic shadow cases、ML Case Packages（复用 Phase 4 机器）、ML/Quant 重合分析（下沉判据三条件，结论先于动作）与 Phase 5 验收报告。
 

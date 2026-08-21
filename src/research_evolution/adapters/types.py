@@ -5,9 +5,10 @@ adapter-layer exchange types — translation contracts between domain
 semantics and the core kernel. ``DomainTask`` has two live pinned versions
 (v1, frozen for the math/quant producers, and v2, which adds the ``ml``
 domain label — ADR-0008 addendum A1); ``EvaluationContract`` likewise has
-two live pinned versions (v1, frozen for the math/quant producers, and v2,
-which adds the ``study_id``/``assessment_declaration`` binding surface the
-ML adapter requires — ADR-0008 addendum A3); ``ClaimAssessment`` remains at
+three live pinned versions: v1 stays frozen for the math/quant producers,
+v2 adds the ``study_id``/``assessment_declaration`` binding surface, and v3
+adds case-derived selection/split pins for the ML final-evaluation gate
+(ADR-0008 addenda A3/A6); ``ClaimAssessment`` remains at
 v1. They are NOT core record families: they
 are absent from the core family registry, cannot be published to a core
 store, and do not extend ``research_evolution.core.__all__``.
@@ -74,13 +75,10 @@ def _load_seam_record(expected_schema_id: str, source: Any) -> Record:
 def _load_seam_record_one_of(expected_schema_ids: tuple[str, ...], source: Any) -> Record:
     """Multi-version variant of :func:`_load_seam_record` (ADR-0008 L2 addendum).
 
-    Used for the two seam types with two live versions: ``DomainTask``
-    (the ML adapter emits ``domain-task/v2`` while the math/quant
-    producers keep emitting the frozen v1 shape — addendum A1) and
-    ``EvaluationContract`` (the ML adapter requires the v2 binding
-    surface; v1 stays frozen for the math/quant producers — addendum A3).
-    Each exchange type accepts exactly the listed live versions — never
-    more.
+    Used by seam types with multiple live versions: ``DomainTask`` has v1/v2,
+    while ``EvaluationContract`` has v1/v2/v3 after the ML final-evaluation
+    binding successor (ADR-0008 addenda A1/A3/A6).  Each exchange type accepts
+    exactly the listed live versions — never more.
     """
     try:
         if isinstance(source, dict):
@@ -224,11 +222,13 @@ class ClaimAssessment:
 
 
 # Live evaluation-contract versions the exchange type accepts: v1 stays
-# frozen for the math/quant producers; v2 (ADR-0008 addendum A3) adds the
-# study/assessment-declaration binding surface the ML adapter requires.
+# frozen for the math/quant producers; v2 adds the study/assessment binding
+# surface; v3 adds case-derived selection/split pins for final-evaluation
+# evidence (ADR-0008 addendum A6).
 _EVALUATION_CONTRACT_SCHEMA_IDS = (
     "evaluation-contract/v1",
     "evaluation-contract/v2",
+    "evaluation-contract/v3",
 )
 
 
@@ -236,11 +236,10 @@ _EVALUATION_CONTRACT_SCHEMA_IDS = (
 class EvaluationContract:
     """Evaluation contract derived from one case payload (ADR-0005 decision 5).
 
-    ``case_sha256`` binds the exact case payload. Two live pinned versions:
-    v1 (frozen, math/quant producers) and v2 (ADR-0008 addendum A3: adds
-    ``study_id`` and ``assessment_declaration`` so a consuming adapter can
-    bind claim/evidence to the contract's study and compare declared
-    evaluation dimensions against supplied evidence). The contract's own
+    ``case_sha256`` binds the exact case payload. Three live pinned versions:
+    v1 (frozen, math/quant producers), v2 (study and assessment declaration
+    bindings), and v3 (case-derived selection partition and selection/split
+    pins for result-side final-evaluation checks). The contract's own
     canonical hash can be pinned into core evidence inputs
     (``kind="config"``) so the judging contract stays auditable; the
     contract itself never enters the store.

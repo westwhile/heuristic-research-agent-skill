@@ -109,6 +109,25 @@ ADAPTER_FIXTURE_MANIFEST = {
             "whitespace-study-id.json": ("RecordValidationError", "study_id"),
         },
     },
+    "evaluation-contract/v3": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-selection-partition.json": (
+                "RecordValidationError",
+                "selection_partition",
+            ),
+            "bad-selection-sha256.json": (
+                "RecordValidationError",
+                "selection_sha256",
+            ),
+            "bad-split-sha256.json": ("RecordValidationError", "split_sha256"),
+            "missing-selection-partition.json": (
+                "RecordValidationError",
+                "selection_partition",
+            ),
+        },
+    },
     "math-task/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -345,6 +364,22 @@ ADAPTER_FIXTURE_MANIFEST = {
             "whitespace-summary.json": ("RecordValidationError", "summary"),
         },
     },
+    "ml-evidence/v2": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-final-partition.json": ("RecordValidationError", "partition"),
+            "bad-final-split-sha256.json": (
+                "RecordValidationError",
+                "split_sha256",
+            ),
+            "bad-kind.json": ("RecordValidationError", "$.kind"),
+            "missing-final-evaluation.json": (
+                "RecordValidationError",
+                "final_evaluation",
+            ),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -363,6 +398,9 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "evaluation-contract/v2": (
         "74c6e459eded8f376c52bbe352567c8dd047c87d145f9002272fe86595049b01"
+    ),
+    "evaluation-contract/v3": (
+        "9e2a7125b4b53b23b6d11ddf2164e055351c561e8add62acaf6aff7a37940c81"
     ),
     "math-case/v1": (
         "9836f8c7af72b063942e002acf63cf57255886c23e7981fa6495c704ac9ddac0"
@@ -397,6 +435,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "ml-evidence/v1": (
         "45482e3ee65ec4a094885fbd38dce350fc4054a3e5e866748122e02ca65c90a9"
     ),
+    "ml-evidence/v2": (
+        "5ebef6919556f0a270ec18a50a37c5bb54854ab939aca99686e4fc2fc83e05db"
+    ),
     "ml-task/v1": (
         "01c7b20405bc53acd9dc218730b15269958c16b344701f305985037bb97234b9"
     ),
@@ -419,6 +460,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "evaluation-contract-v2.schema.json": (
         "324a00414ad44653d2b3ed5e966221eced350e0cfa49ca9781e40c8fa209368a"
+    ),
+    "evaluation-contract-v3.schema.json": (
+        "85f504a336a50fc544123544e023d66d7aa08566e2da6756bfa148ac604566ae"
     ),
     "math-case-v1.schema.json": (
         "6c17344f768b6294468cd2d869b2820aa2f85ff33ccb8e9ba62e1071f38b4faa"
@@ -452,6 +496,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "ml-evidence-v1.schema.json": (
         "9e570378326ecafb942c6cda2a61fbf829c41f7c7fe59af49a2de60d0bdafb9b"
+    ),
+    "ml-evidence-v2.schema.json": (
+        "13d52564d6c91d4e051cf58d26175c33ec9e4e47d537e6bbf1219e97ade4f793"
     ),
     "ml-task-v1.schema.json": (
         "abef4cba8d8e36815f58d51aa78e31a8581872b8b7a432f9ca1deba5a0687637"
@@ -542,7 +589,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_seventeen_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_nineteen_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -552,6 +599,7 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "domain-task/v2",
                 "evaluation-contract/v1",
                 "evaluation-contract/v2",
+                "evaluation-contract/v3",
                 "math-case/v1",
                 "math-claim/v1",
                 "math-evidence/v1",
@@ -559,6 +607,7 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "ml-case/v1",
                 "ml-claim/v1",
                 "ml-evidence/v1",
+                "ml-evidence/v2",
                 "ml-task/v1",
                 "quant-case/v1",
                 "quant-claim/v1",

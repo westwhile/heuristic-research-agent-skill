@@ -93,6 +93,17 @@ def _payload(family: str, kind: str, name: str) -> dict:
     )
 
 
+def _ml_experiment_v2(name: str) -> dict:
+    payload = _payload("ml-evidence", "valid", name)
+    case = _payload("ml-case", "valid", "full.json")
+    payload["schema"] = "ml-evidence/v2"
+    payload["final_evaluation"] = {
+        "partition": "test",
+        "split_sha256": case["split"]["sha256"],
+    }
+    return payload
+
+
 MATH_HARNESS = AdapterContractHarness(
     adapter=MathAdapter(),
     valid_domain_input=_payload("math-task", "valid", "full.json"),
@@ -171,7 +182,7 @@ ML_HARNESS = AdapterContractHarness(
         CeilingProbe(
             label="generalization-with-synthetic-only-caps-at-engineering-verified",
             claim=_payload("ml-claim", "valid", "full.json"),
-            evidence=(_payload("ml-evidence", "valid", "synthetic-experiment.json"),),
+            evidence=(_ml_experiment_v2("synthetic-experiment.json"),),
             # R42d: the seed/holdout constraints register independently of
             # the provenance cap, so synthetic-only evidence lands at the
             # strictest of the three (single-seed-cap).
@@ -183,14 +194,14 @@ ML_HARNESS = AdapterContractHarness(
         CeilingProbe(
             label="generalization-single-seed-caps-at-engineering-verified",
             claim=_payload("ml-claim", "valid", "full.json"),
-            evidence=(_payload("ml-evidence", "valid", "single-seed-experiment.json"),),
+            evidence=(_ml_experiment_v2("single-seed-experiment.json"),),
             expected_ceiling="engineering_verified",
             case=_payload("ml-case", "valid", "full.json"),
         ),
         CeilingProbe(
             label="generalization-real-multi-seed-frozen-reaches-empirically-supported",
             claim=_payload("ml-claim", "valid", "full.json"),
-            evidence=(_payload("ml-evidence", "valid", "real-experiment.json"),),
+            evidence=(_ml_experiment_v2("real-experiment.json"),),
             expected_ceiling="empirically_supported",
             case=_payload("ml-case", "valid", "full.json"),
         ),
@@ -349,6 +360,8 @@ _ADAPTER_COUPLED_TESTS = frozenset(
         "tests/unit/test_math_adapter.py",
         "tests/unit/test_math_importer.py",
         "tests/unit/test_ml_adapter.py",
+        "tests/unit/test_ml_final_evaluation.py",
+        "tests/unit/test_ml_runner.py",
         "tests/unit/test_ml_topology.py",
         "tests/unit/test_quant_adapter.py",
     }

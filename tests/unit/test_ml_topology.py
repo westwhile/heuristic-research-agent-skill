@@ -135,7 +135,7 @@ class TopologySafeCaseTest(unittest.TestCase):
             with self.subTest(fixture=name):
                 contract = MLAdapter().build_evaluation_contract(_case(name))
                 self.assertEqual(
-                    contract.payload["schema"], "evaluation-contract/v2"
+                    contract.payload["schema"], "evaluation-contract/v3"
                 )
 
     def test_iid_extra_parameters_are_not_interpreted(self) -> None:

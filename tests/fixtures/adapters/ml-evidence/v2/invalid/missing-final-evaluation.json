@@ -1,0 +1,12 @@
+{
+  "schema": "ml-evidence/v2",
+  "evidence_id": "ml-evidence-v2-0104",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [7],
+  "frozen_holdout": true,
+  "summary": "Missing final evaluation probe.",
+  "limitations": []
+}

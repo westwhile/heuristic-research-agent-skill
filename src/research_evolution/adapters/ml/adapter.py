@@ -18,12 +18,13 @@ Frozen mapping table:
   still caps at engineering_verified), and the strictest one wins;
   concurrent violations are never hidden behind an if/elif chain or a
   provenance else-branch;
-- binding is fail-closed at three seams (ADR-0008 addenda A2/A3): every
+- binding is fail-closed at the study/case/final-evaluation seams (ADR-0008
+  addenda A2/A3/A6): every
   evidence item's study_id must equal the claim's; the claim's case_sha256
   must equal the contract's; and the claim's study_id must equal the
-  contract's. The ML adapter requires an evaluation-contract/v2 payload —
-  v1 carries no study/assessment binding surface;
-- the case's assessment_declaration (carried by the v2 contract) is the
+  contract's. The ML adapter requires an evaluation-contract/v3 payload —
+  older versions carry no case-derived selection/split binding surface;
+- the case's assessment_declaration (carried by the v3 contract) is the
   evidentiary floor: it must name each of the four dimensions
   (calibration, subgroup, ood, drift) exactly once — an empty, partial,
   duplicated, or unknown-dimension declaration fails closed. This floor is
@@ -69,7 +70,7 @@ from typing import Any, Sequence
 
 from research_evolution.core import canonical_sha256
 
-from . import _topology
+from . import _evidence, _topology
 from ..base import DomainAdapter
 from ..types import (
     AdapterError,
@@ -77,6 +78,7 @@ from ..types import (
     DomainTask,
     EvaluationContract,
     _load_seam_record,
+    _load_seam_record_one_of,
 )
 
 # Evidence kind that carries experimental results: the seed/provenance/
@@ -218,7 +220,7 @@ def _require_complete_assessment_declaration(
     """Fail closed unless the declaration names each ml assessment
     dimension exactly once (ADR-0008 addendum A3; R42c/R42d review).
 
-    The evaluation-contract/v2 schema keeps ``dimension`` a free string so
+    The evaluation-contract/v3 schema keeps ``dimension`` a free string so
     the seam stays domain-neutral, so this four-dimension floor lives in
     the adapter. It is enforced both when a contract is built from a case
     and when one is consumed by ``validate_claim``: a hand-crafted
@@ -324,10 +326,10 @@ class MLAdapter(DomainAdapter):
         # review — the check order now matches this invariant).
         if not isinstance(contract, EvaluationContract):
             raise AdapterError("contract must be an EvaluationContract")
-        if contract.payload["schema"] != "evaluation-contract/v2":
+        if contract.payload["schema"] != "evaluation-contract/v3":
             raise AdapterError(
-                "the ml adapter requires an evaluation-contract/v2 payload: "
-                "v1 carries no study/assessment binding surface, got "
+                "the ml adapter requires an evaluation-contract/v3 payload: "
+                "older versions carry no case-derived selection/split pins, got "
                 f"{contract.payload['schema']!r}"
             )
         # The declaration is the case's evidentiary floor: it must cover
@@ -337,13 +339,20 @@ class MLAdapter(DomainAdapter):
         _require_complete_assessment_declaration(
             contract.payload["assessment_declaration"], "the evaluation contract"
         )
+        _evidence.validate_selection_contract(contract.payload)
         if isinstance(evidence, (str, bytes)) or not isinstance(evidence, Sequence):
-            raise AdapterError("evidence must be a sequence of ml-evidence/v1 payloads")
+            raise AdapterError(
+                "evidence must be a sequence of ml-evidence/v1 or ml-evidence/v2 payloads"
+            )
         evidence_data = []
         for index, item in enumerate(evidence):
             if not isinstance(item, dict):
                 raise AdapterError(f"evidence[{index}] is not a payload object")
-            evidence_data.append(_load_seam_record("ml-evidence/v1", item).data)
+            evidence_data.append(
+                _load_seam_record_one_of(
+                    ("ml-evidence/v1", "ml-evidence/v2"), item
+                ).data
+            )
         # Study binding (ADR-0008 addendum A2): every evidence item must
         # belong to the claim's study; a mismatch fails closed.
         for index, item in enumerate(evidence_data):
@@ -371,6 +380,18 @@ class MLAdapter(DomainAdapter):
         outcome = claim_data["outcome"]
         suggested_claim_type = _CLAIM_TYPE[claim_class]
         kinds = {item["kind"] for item in evidence_data}
+
+        if claim_class == "generalization":
+            for index, item in enumerate(evidence_data):
+                if item["kind"] != "experiment_run":
+                    continue
+                if item["schema"] != "ml-evidence/v2":
+                    raise AdapterError(
+                        f"evidence[{index}] experiment_run must use ml-evidence/v2 "
+                        "for a generalization claim; v1 has no final-evaluation "
+                        "partition/split pin"
+                    )
+                _evidence.validate_final_evaluation(contract.payload, item)
 
         # Declaration <-> result comparison (ADR-0008 addendum A3): a
         # dimension declared not_performed contradicts supplied assessment
@@ -707,12 +728,15 @@ class MLAdapter(DomainAdapter):
         )
         return EvaluationContract.from_payload(
             {
-                "schema": "evaluation-contract/v2",
+                "schema": "evaluation-contract/v3",
                 "case_sha256": canonical_sha256(case_data),
                 "study_id": case_data["study_id"],
                 "required_evidence": required_evidence,
                 "forbidden_channels": list(_FORBIDDEN_CHANNELS),
                 "checkpoints": list(_CHECKPOINTS),
                 "assessment_declaration": assessment_declaration,
+                "selection_partition": case_data["selection"]["split_used"],
+                "selection_sha256": case_data["selection"]["sha256"],
+                "split_sha256": case_data["split"]["sha256"],
             }
         )

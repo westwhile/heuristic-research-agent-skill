@@ -1,0 +1,22 @@
+{
+  "schema": "evaluation-contract/v3",
+  "case_sha256": "db1a76c3c319affc78a4ecc075cd68f5efc5a042dd9994d8aeac3473f5cb5837",
+  "study_id": "synthetic-ml-study-001",
+  "required_evidence": [
+    {
+      "claim_type": "engineering_claim",
+      "min_maturity": "engineering_verified"
+    }
+  ],
+  "forbidden_channels": ["synthetic-as-real-data-evidence"],
+  "checkpoints": [],
+  "assessment_declaration": [
+    {"dimension": "calibration", "status": "not_performed"},
+    {"dimension": "subgroup", "status": "not_performed"},
+    {"dimension": "ood", "status": "not_performed"},
+    {"dimension": "drift", "status": "not_performed"}
+  ],
+  "selection_partition": "validation",
+  "selection_sha256": "5241955fc9ab05bf99181c36bf1e8213ca368684fbce7f4f29ff1f5397083404",
+  "split_sha256": "b903dd690536e72b25d898f7fc7e3dcc1d955e2d11a600bf895ad6e487730228"
+}

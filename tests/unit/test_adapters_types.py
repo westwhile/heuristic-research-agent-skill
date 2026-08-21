@@ -197,11 +197,20 @@ class EvaluationContractTest(unittest.TestCase):
         self.assertEqual(contract.payload["study_id"], "synthetic-ml-study-001")
         self.assertEqual(len(contract.payload["assessment_declaration"]), 4)
 
+    def test_v3_payload_is_accepted(self) -> None:
+        # ADR-0008 addendum A6: v3 binds case-side selection and split facts.
+        contract = EvaluationContract.from_json(
+            (FIXTURES / "evaluation-contract" / "v3" / "valid" / "minimal.json").read_bytes()
+        )
+        self.assertEqual(contract.payload["selection_partition"], "validation")
+        self.assertEqual(len(contract.payload["selection_sha256"]), 64)
+        self.assertEqual(len(contract.payload["split_sha256"]), 64)
+
     def test_unknown_future_version_fails_closed(self) -> None:
         payload = load_strict_json(
             (FIXTURES / "evaluation-contract" / "v2" / "valid" / "minimal.json").read_bytes()
         )
-        payload["schema"] = "evaluation-contract/v3"
+        payload["schema"] = "evaluation-contract/v4"
         with self.assertRaises(AdapterError):
             EvaluationContract.from_payload(payload)
 

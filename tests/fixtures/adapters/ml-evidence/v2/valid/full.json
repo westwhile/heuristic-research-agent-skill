@@ -1,0 +1,16 @@
+{
+  "schema": "ml-evidence/v2",
+  "evidence_id": "ml-evidence-v2-0002",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "public",
+  "content_sha256": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+  "seeds": [11, 22, 33],
+  "frozen_holdout": true,
+  "final_evaluation": {
+    "partition": "future_holdout",
+    "split_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee"
+  },
+  "summary": "Repeated-seed public-data final evaluation with a pinned split.",
+  "limitations": ["Public benchmark coverage does not imply production performance."]
+}
