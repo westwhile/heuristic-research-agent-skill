@@ -105,10 +105,51 @@ class MLResearchMemoryPackTest(unittest.TestCase):
                 self.assertEqual(case["eligibility"], {"status": "eligible", "reasons": []})
                 self.assertEqual(case["privacy_review_status"], "passed")
                 self.assertEqual(case["export_mode"], "benchmark_candidate")
-                self.assertEqual(len(case["runs"]), 1)
+                expected_runs = 3 if slug == "reproduction-difference" else 1
+                self.assertEqual(len(case["runs"]), expected_runs)
                 self.assertEqual(len(case["claims"]), 1)
                 self.assertEqual(len(case["evidence"]), 1)
                 self.assertTrue(case["decision_timeline"])
+
+    def test_reproduction_case_records_each_execution_and_seed_policy(self) -> None:
+        case = self.built["cases"]["reproduction-difference"]
+        expected_ids = {
+            "run-ml-l6-reproduction-a1",
+            "run-ml-l6-reproduction-a2",
+            "run-ml-l6-reproduction-b",
+        }
+        self.assertEqual({pin["run_id"] for pin in case["runs"]}, expected_ids)
+        runs = {
+            payload["run_id"]: payload
+            for payload in self.built["records"]
+            if payload["schema"] == "research-run/v1"
+            and payload["run_id"] in expected_ids
+        }
+        self.assertEqual(set(runs), expected_ids)
+        expected_seed_policies = {
+            "run-ml-l6-reproduction-a1": (
+                3,
+                "Master seed 3 derives explicit runner seed set [3, 5, 7] "
+                "with offsets [0, 2, 4].",
+            ),
+            "run-ml-l6-reproduction-a2": (
+                3,
+                "Master seed 3 derives explicit runner seed set [3, 5, 7] "
+                "with offsets [0, 2, 4].",
+            ),
+            "run-ml-l6-reproduction-b": (
+                11,
+                "Master seed 11 derives explicit runner seed set [11, 13, 15] "
+                "with offsets [0, 2, 4].",
+            ),
+        }
+        for run_id, (seed, details) in expected_seed_policies.items():
+            with self.subTest(run_id=run_id):
+                self.assertEqual(runs[run_id]["randomness"], {
+                    "mode": "fixed_seed",
+                    "seed": seed,
+                    "details": details,
+                })
 
     def test_case_artifact_manifests_bind_the_canonical_bundles(self) -> None:
         for slug, case in self.built["cases"].items():
@@ -129,6 +170,17 @@ class MLResearchMemoryPackTest(unittest.TestCase):
 
     def test_candidate_pattern_is_cross_case_and_never_a_skill(self) -> None:
         distilled, candidate = self.built["patterns"]
+        source_facets = {
+            tuple(sorted(self.built["cases"][slug]["problem_signature"]["facets"].items()))
+            for slug in ("leakage-repair", "reproduction-difference")
+        }
+        self.assertEqual(
+            source_facets,
+            {
+                (("category", "leakage-repair"), ("domain", "ml")),
+                (("category", "reproduction-difference"), ("domain", "ml")),
+            },
+        )
         self.assertEqual(distilled["status"], "distilled")
         self.assertEqual(candidate["status"], "candidate_pattern")
         self.assertEqual(candidate["supersedes"], distilled["pattern_id"])
@@ -138,6 +190,10 @@ class MLResearchMemoryPackTest(unittest.TestCase):
             {"case-ml-leakage-repair", "case-ml-reproduction-difference"},
         )
         self.assertEqual(candidate["confidence"], "low")
+        self.assertEqual(
+            candidate["problem_signature"]["facets"],
+            {"domain": "ml", "category": "protocol-evidence-comparison"},
+        )
         assert_no_promoted_skill(candidate)
 
     def test_three_heuristic_chains_end_at_shadow(self) -> None:
@@ -168,8 +224,34 @@ class MLResearchMemoryPackTest(unittest.TestCase):
         self.assertEqual(len(payload["heuristics"]), 3)
         self.assertEqual(len(payload["observations"]), 3)
         self.assertEqual(report.sha256, canonical_sha256(payload))
-        for observation in payload["observations"]:
-            self.assertIn("would", observation["hypothetical_decision"])
+        observations = {
+            entry["heuristic_id"]: (
+                entry["hypothetical_decision"],
+                entry["expected_difference"],
+            )
+            for entry in payload["observations"]
+        }
+        self.assertEqual(
+            observations,
+            {
+                "heuristic-ml-negative-result-retention-v3": (
+                    "would retain the zero-delta result and annotate it as non-winning",
+                    "the case manifest would include the negative result instead of winner-only evidence",
+                ),
+                "heuristic-ml-protected-selection-v3": (
+                    "would block the comparison because selection used the protected test partition",
+                    "the repaired validation-only selection would replace the unsafe protocol before execution",
+                ),
+                "heuristic-ml-replay-pin-match-v3": (
+                    "would block a same-protocol claim because the seed-policy and case pins differ",
+                    "the result difference would be classified as protocol drift rather than nondeterminism",
+                ),
+            },
+        )
+        self.assertEqual(
+            len({decision for decision, _ in observations.values()}),
+            3,
+        )
 
     def test_evidence_boundary_stays_engineering_only(self) -> None:
         for payload in self.built["records"]:

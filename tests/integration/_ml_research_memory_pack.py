@@ -71,6 +71,8 @@ _ML_CLAIM = (
 _STUDY_ID = "phase5-l6-synthetic-study"
 _TASK_AT = "2026-08-21T08:00:00Z"
 _RUN_AT = "2026-08-21T09:00:00Z"
+_RUN_A2_AT = "2026-08-21T09:01:00Z"
+_RUN_B_AT = "2026-08-21T09:02:00Z"
 _CASE_AT = "2026-08-21T10:00:00Z"
 _PATTERN_AT = "2026-08-21T11:00:00Z"
 _CANDIDATE_AT = "2026-08-21T12:00:00Z"
@@ -349,7 +351,7 @@ def _reproduction_difference_bundle() -> tuple[dict[str, Any], list[dict[str, An
     case_b = copy.deepcopy(case_a)
     case_b["case_id"] = "ml-l6-replay-b"
     case_b["selection"]["identity"] = "ml-l6-replay-b-selection"
-    case_b["selection"]["seed_set"] = [11, 13, 17]
+    case_b["selection"]["seed_set"] = [11, 13, 15]
     case_b["tuning"]["seed_count"] = 3
     _repin_selection(case_b)
 
@@ -438,14 +440,23 @@ def _core_task() -> dict[str, Any]:
 
 def _core_run(
     *,
-    slug: str,
+    run_id: str,
     task: dict[str, Any],
     inputs: list[dict[str, Any]],
+    seed_set: list[int],
+    recorded_at: str,
 ) -> dict[str, Any]:
+    if len(seed_set) != 3:
+        raise AssertionError("L6 run seed policy requires exactly three seeds")
+    master_seed = seed_set[0]
+    if seed_set != [master_seed, master_seed + 2, master_seed + 4]:
+        raise AssertionError(
+            "L6 run seed set must derive from the master with offsets [0, 2, 4]"
+        )
     return _validated(
         {
             "schema": "research-run/v1",
-            "run_id": f"run-ml-l6-{slug}",
+            "run_id": run_id,
             "task": {
                 "task_id": task["task_id"],
                 "sha256": canonical_sha256(task),
@@ -468,11 +479,14 @@ def _core_run(
             ],
             "randomness": {
                 "mode": "fixed_seed",
-                "seed": 3,
-                "details": "The complete seed set is pinned inside the ML case artifact.",
+                "seed": master_seed,
+                "details": (
+                    f"Master seed {master_seed} derives explicit runner seed set "
+                    f"{seed_set} with offsets [0, 2, 4]."
+                ),
             },
-            "started_at": _RUN_AT,
-            "completed_at": _RUN_AT,
+            "started_at": recorded_at,
+            "completed_at": recorded_at,
         }
     )
 
@@ -563,7 +577,7 @@ def _case_package(
     *,
     slug: str,
     task: dict[str, Any],
-    run: dict[str, Any],
+    runs: list[dict[str, Any]],
     claim: dict[str, Any],
     evidence: dict[str, Any],
     bundle: dict[str, Any],
@@ -582,7 +596,7 @@ def _case_package(
         title=spec["title"],
         created_at=_CASE_AT,
         task=task,
-        runs=[run],
+        runs=runs,
         claims=[claim],
         evidence=[evidence],
         observations=observations or [],
@@ -638,6 +652,14 @@ def _patterns(cases: dict[str, dict[str, Any]]) -> tuple[dict[str, Any], ...]:
         ),
         confidence="low",
         transition_rationale="Initial cross-case distillation from two eligible ML cases.",
+        signature_summary=_CASE_SPECS["leakage-repair"]["signature_summary"],
+        signature_sha256=hashlib.sha256(
+            _CASE_SPECS["leakage-repair"]["signature_key"]
+        ).hexdigest(),
+        signature_facets={
+            "domain": "ml",
+            "category": "protocol-evidence-comparison",
+        },
     )
     candidate = transition_pattern(
         pattern=distilled,
@@ -740,14 +762,86 @@ def build_ml_research_memory_pack() -> dict[str, Any]:
     files: dict[str, bytes] = {}
     records: list[dict[str, Any]] = [task]
     cases: dict[str, dict[str, Any]] = {}
-    runs: dict[str, dict[str, Any]] = {}
+    runs: dict[str, list[dict[str, Any]]] = {}
 
     files["evidence/ml/records/task-ml-l6.json"] = canonical_bytes(task)
     for slug, (bundle, input_pins) in raw_bundles.items():
         bundle_bytes = canonical_bytes(bundle)
         files[f"evidence/ml/captures/{slug}.json"] = bundle_bytes
-        run = _core_run(slug=slug, task=task, inputs=input_pins)
-        runs[slug] = run
+        if slug == "reproduction-difference":
+            protocol = bundle["protocol"]
+            dataset_pin = {
+                "name": "synthetic dataset",
+                "kind": "data",
+                "sha256": canonical_sha256(protocol["dataset"]),
+            }
+            case_a_inputs = [
+                {
+                    "name": "ml case a",
+                    "kind": "case",
+                    "sha256": canonical_sha256(protocol["case_a"]),
+                },
+                dataset_pin,
+                {
+                    "name": "evaluation contract a",
+                    "kind": "config",
+                    "sha256": canonical_sha256(protocol["contract_a"]),
+                },
+            ]
+            case_b_inputs = [
+                {
+                    "name": "ml case b",
+                    "kind": "case",
+                    "sha256": canonical_sha256(protocol["case_b"]),
+                },
+                dataset_pin,
+                {
+                    "name": "evaluation contract b",
+                    "kind": "config",
+                    "sha256": canonical_sha256(protocol["contract_b"]),
+                },
+            ]
+            run_specs = (
+                (
+                    "run-ml-l6-reproduction-a1",
+                    case_a_inputs,
+                    protocol["case_a"]["selection"]["seed_set"],
+                    _RUN_AT,
+                ),
+                (
+                    "run-ml-l6-reproduction-a2",
+                    case_a_inputs,
+                    protocol["case_a"]["selection"]["seed_set"],
+                    _RUN_A2_AT,
+                ),
+                (
+                    "run-ml-l6-reproduction-b",
+                    case_b_inputs,
+                    protocol["case_b"]["selection"]["seed_set"],
+                    _RUN_B_AT,
+                ),
+            )
+        else:
+            case_key = "repaired_case" if slug == "leakage-repair" else "case"
+            run_specs = (
+                (
+                    f"run-ml-l6-{slug}",
+                    input_pins,
+                    bundle["protocol"][case_key]["selection"]["seed_set"],
+                    _RUN_AT,
+                ),
+            )
+        case_runs = [
+            _core_run(
+                run_id=run_id,
+                task=task,
+                inputs=run_inputs,
+                seed_set=seed_set,
+                recorded_at=recorded_at,
+            )
+            for run_id, run_inputs, seed_set, recorded_at in run_specs
+        ]
+        runs[slug] = case_runs
         claim, evidence = _core_claim_and_evidence(
             slug=slug,
             statement=_CASE_SPECS[slug]["statement"],
@@ -759,7 +853,7 @@ def build_ml_research_memory_pack() -> dict[str, Any]:
         if slug == "leakage-repair":
             observation, analysis = _observation_and_analysis(
                 slug=slug,
-                run=run,
+                run=case_runs[0],
                 facts=[
                     "The unsafe declaration used test for model selection.",
                     "The public Adapter entry rejected it with selection-uses-test.",
@@ -771,24 +865,10 @@ def build_ml_research_memory_pack() -> dict[str, Any]:
             )
             observations.append(observation)
             analyses.append(analysis)
-        elif slug == "reproduction-difference":
-            observation, analysis = _observation_and_analysis(
-                slug=slug,
-                run=run,
-                facts=[
-                    "Two replays of protocol A produced the same artifact hash.",
-                    "Protocol B declared a different seed set and produced a different artifact hash.",
-                ],
-                hypotheses=[
-                    "The explicit seed-policy change explains the cross-protocol artifact difference."
-                ],
-            )
-            observations.append(observation)
-            analyses.append(analysis)
         case = _case_package(
             slug=slug,
             task=task,
-            run=run,
+            runs=case_runs,
             claim=claim,
             evidence=evidence,
             bundle=bundle,
@@ -796,9 +876,10 @@ def build_ml_research_memory_pack() -> dict[str, Any]:
             analyses=analyses,
         )
         cases[slug] = case
-        record_group = [run, claim, evidence, *observations, *analyses, case]
+        record_group = [*case_runs, claim, evidence, *observations, *analyses, case]
         records.extend(record_group)
-        files[f"evidence/ml/records/run-ml-l6-{slug}.json"] = canonical_bytes(run)
+        for run in case_runs:
+            files[f"evidence/ml/records/{run['run_id']}.json"] = canonical_bytes(run)
         files[f"evidence/ml/records/claim-ml-l6-{slug}.json"] = canonical_bytes(claim)
         files[f"evidence/ml/records/evidence-ml-l6-{slug}.json"] = canonical_bytes(evidence)
         for observation in observations:
@@ -828,17 +909,47 @@ def build_ml_research_memory_pack() -> dict[str, Any]:
     files["evidence/ml/shadow/heuristic-lint-report.json"] = canonical_bytes(
         lint_report.report_entry
     )
+    shadow_observations = {
+        "heuristic-ml-negative-result-retention-v3": {
+            "hypothetical_decision": (
+                "would retain the zero-delta result and annotate it as non-winning"
+            ),
+            "expected_difference": (
+                "the case manifest would include the negative result instead of "
+                "winner-only evidence"
+            ),
+        },
+        "heuristic-ml-protected-selection-v3": {
+            "hypothetical_decision": (
+                "would block the comparison because selection used the protected "
+                "test partition"
+            ),
+            "expected_difference": (
+                "the repaired validation-only selection would replace the unsafe "
+                "protocol before execution"
+            ),
+        },
+        "heuristic-ml-replay-pin-match-v3": {
+            "hypothetical_decision": (
+                "would block a same-protocol claim because the seed-policy and "
+                "case pins differ"
+            ),
+            "expected_difference": (
+                "the result difference would be classified as protocol drift "
+                "rather than nondeterminism"
+            ),
+        },
+    }
     observations = [
         {
             "heuristic_id": heuristic["heuristic_id"],
-            "hypothetical_decision": "would stop or annotate the synthetic review",
-            "expected_difference": "the evidence package would expose the guarded limitation",
+            **shadow_observations[heuristic["heuristic_id"]],
         }
         for heuristic in heuristic_tips
     ]
     shadow_report = record_shadow_report(
         heuristics=heuristic_tips,
-        run=runs["protocol"],
+        run=runs["protocol"][0],
         observations=observations,
         recorded_at=_SHADOW_AT,
     )
