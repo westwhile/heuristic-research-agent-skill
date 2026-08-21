@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix），并处于 **Phase 5 Machine Learning Adapter** 阶段。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何真实研究执行器、Heuristic Learning 闭环、真实 ML 训练/执行能力或生产发布能力已经实现。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 工作树实现与双环境验收已完成，commit-bound archive、PR、合并与 v0.6.0 发布仍待独立 Gate/审批**。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何真实研究执行器、Heuristic Learning 闭环、真实 ML 训练/执行能力或生产发布能力已经实现。
 
 ## 项目目标
 
@@ -43,6 +43,7 @@ Case Package
 - [Core Interface（Phase 1D）](docs/architecture/core-interface.md)
 - [Phase 2 验收报告：Math/Quant 双 Adapter 垂直切片](reports/phase2-acceptance-20260816.md)
 - [Phase 3 验收报告：Public Evaluator MVP](reports/phase3-acceptance-20260817.md)
+- [Phase 5 验收报告：Machine Learning Adapter](reports/phase5-acceptance-20260821.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Schema 兼容政策](docs/governance/SCHEMA_COMPATIBILITY.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
@@ -101,6 +102,6 @@ python -B scripts/verify_archive_suite.py 'C:\path\to\second\python.exe'
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
 - Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
-- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008）已接受；L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite 注册）、L3（DAG 拓扑合同前置 + 六规则族七谓词 + 三语义下限）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）与 L5（runner 0.3.0 的 IID/group/time-series/nested assignment Gate、20-case 合成目录、双垂直切片及两份报告）已交付。runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。L6 尚未实施（`feat/ml-adapter` 分支）。DL Adapter（Phase 6）未启动；不宣称真实 ML 训练/执行、数据验收或科研 Agent 能力
+- Phase 5 工作树实现已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付并通过工作树双环境 864/864。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；commit-bound archive、PR/merge 与 v0.6.0 Tag/Release 尚未执行。runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。DL Adapter（Phase 6）未启动；不宣称真实 ML 训练/执行、数据验收或科研 Agent 能力
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。
