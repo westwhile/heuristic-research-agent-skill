@@ -2,12 +2,13 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "ml-evidence/v2",
   "title": "ML final experiment evidence v2",
-  "description": "Hash-bound final experiment evidence for the ML adapter. v2 deliberately narrows kind to experiment_run and adds an explicit final-evaluation partition plus split pin. The partition vocabulary admits train/validation as schema-legal unsafe declarations so the adapter's protected-partition rule remains falsifiable; only test or future_holdout can support a final generalization report. Non-experiment evidence continues to use the frozen ml-evidence/v1 family.",
+  "description": "Hash-bound final experiment evidence for the ML adapter. v2 deliberately narrows kind to experiment_run and binds the result to an exact ml-case plus an explicit final-evaluation partition and split pin. The partition vocabulary admits train/validation as schema-legal unsafe declarations so the adapter's protected-partition rule remains falsifiable; only test or future_holdout can support a final generalization report. Non-experiment evidence continues to use the frozen ml-evidence/v1 family.",
   "type": "object",
   "required": [
     "schema",
     "evidence_id",
     "study_id",
+    "case_sha256",
     "kind",
     "data_provenance",
     "content_sha256",
@@ -30,6 +31,13 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^\\S+$"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical SHA-256 of the ml-case payload whose experiment produced this evidence; validate_claim must match it to the case-derived contract pin."
     },
     "kind": {
       "const": "experiment_run"

@@ -60,6 +60,7 @@ CASE_FULL = _payload("ml-case", "valid", "full.json")
 def _v2_experiment(name: str) -> dict:
     payload = _payload("ml-evidence", "valid", name)
     payload["schema"] = "ml-evidence/v2"
+    payload["case_sha256"] = canonical_sha256(CASE_FULL)
     payload["final_evaluation"] = {
         "partition": "test",
         "split_sha256": CASE_FULL["split"]["sha256"],

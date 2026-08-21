@@ -19,10 +19,11 @@ Frozen mapping table:
   concurrent violations are never hidden behind an if/elif chain or a
   provenance else-branch;
 - binding is fail-closed at the study/case/final-evaluation seams (ADR-0008
-  addenda A2/A3/A6): every
+  addenda A2/A3/A6/A7): every
   evidence item's study_id must equal the claim's; the claim's case_sha256
   must equal the contract's; and the claim's study_id must equal the
-  contract's. The ML adapter requires an evaluation-contract/v3 payload —
+  contract's. Generalization experiment evidence must also pin that exact
+  contract case. The ML adapter requires an evaluation-contract/v3 payload —
   older versions carry no case-derived selection/split binding surface;
 - the case's assessment_declaration (carried by the v3 contract) is the
   evidentiary floor: it must name each of the four dimensions

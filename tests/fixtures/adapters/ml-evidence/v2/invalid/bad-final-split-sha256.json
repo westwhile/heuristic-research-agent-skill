@@ -2,6 +2,7 @@
   "schema": "ml-evidence/v2",
   "evidence_id": "ml-evidence-v2-0102",
   "study_id": "synthetic-ml-study-001",
+  "case_sha256": "db1a76c3c319affc78a4ecc075cd68f5efc5a042dd9994d8aeac3473f5cb5837",
   "kind": "experiment_run",
   "data_provenance": "synthetic",
   "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",

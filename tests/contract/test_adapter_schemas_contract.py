@@ -368,6 +368,7 @@ ADAPTER_FIXTURE_MANIFEST = {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
             "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-case-sha256.json": ("RecordValidationError", "case_sha256"),
             "bad-final-partition.json": ("RecordValidationError", "partition"),
             "bad-final-split-sha256.json": (
                 "RecordValidationError",
@@ -377,6 +378,10 @@ ADAPTER_FIXTURE_MANIFEST = {
             "missing-final-evaluation.json": (
                 "RecordValidationError",
                 "final_evaluation",
+            ),
+            "missing-case-sha256.json": (
+                "RecordValidationError",
+                "case_sha256",
             ),
         },
     },
@@ -436,7 +441,7 @@ MINIMAL_FIXTURE_SHA256 = {
         "45482e3ee65ec4a094885fbd38dce350fc4054a3e5e866748122e02ca65c90a9"
     ),
     "ml-evidence/v2": (
-        "5ebef6919556f0a270ec18a50a37c5bb54854ab939aca99686e4fc2fc83e05db"
+        "1faba84d0d981a953df28ad0c118f29339c574d56092bb6922d3758ec2e32b39"
     ),
     "ml-task/v1": (
         "01c7b20405bc53acd9dc218730b15269958c16b344701f305985037bb97234b9"
@@ -498,7 +503,7 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
         "9e570378326ecafb942c6cda2a61fbf829c41f7c7fe59af49a2de60d0bdafb9b"
     ),
     "ml-evidence-v2.schema.json": (
-        "13d52564d6c91d4e051cf58d26175c33ec9e4e47d537e6bbf1219e97ade4f793"
+        "2cc375e9bdde843b2458e456a0eb940c52c43fdd6c52a4c6eb2d0eed32ca0679"
     ),
     "ml-task-v1.schema.json": (
         "abef4cba8d8e36815f58d51aa78e31a8581872b8b7a432f9ca1deba5a0687637"

@@ -46,6 +46,7 @@ from tests.contract.test_core_schemas_contract import _BANNED_TERMS
 from research_evolution.core import (
     CoreError,
     canonical_bytes,
+    canonical_sha256,
     load_record,
     load_strict_json,
 )
@@ -97,6 +98,7 @@ def _ml_experiment_v2(name: str) -> dict:
     payload = _payload("ml-evidence", "valid", name)
     case = _payload("ml-case", "valid", "full.json")
     payload["schema"] = "ml-evidence/v2"
+    payload["case_sha256"] = canonical_sha256(case)
     payload["final_evaluation"] = {
         "partition": "test",
         "split_sha256": case["split"]["sha256"],

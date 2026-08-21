@@ -73,6 +73,24 @@ heuristic-research-agent-skill/
 └── reports/                  # 仅保留经过筛选的可发布报告或模板
 ```
 
+## 本地验证
+
+项目使用标准库 `unittest`；无需 `pytest`。在仓库根目录使用 PowerShell 7：
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:PYTHONDONTWRITEBYTECODE = "1"
+python -B -m unittest discover -s tests -p "test_*.py" -v
+```
+
+发布形态必须从当前提交的 `git archive` 再跑两条不同 Python 路径：
+
+```powershell
+python -B scripts/verify_archive_suite.py 'C:\path\to\second\python.exe'
+```
+
+成功判据是两套测试均退出 0，且归档中的 fixture 跟踪检查仅因不存在 `.git` 而出现一个预期 skip。
+
 ## 当前状态
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
@@ -83,6 +101,6 @@ heuristic-research-agent-skill/
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
 - Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
-- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008）已接受；L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite 注册）与 L3（DAG 拓扑合同前置 + 六规则族七谓词 + 三语义下限）已交付；L4 已交付 `evaluation-contract/v3`、`ml-evidence/v2` 与跨记录 final-evaluation split Gate，并实现标准库纯函数合成实验 runner（baseline/resource parity、重复 seed、确定性产物）；L5–L6 未实施（`feat/ml-adapter` 分支）。DL Adapter（Phase 6）未启动；该 runner 只处理显式内存合成数据，不宣称真实 ML 训练/执行、数据验收或科研 Agent 能力
+- Phase 5 进行中：Machine Learning Adapter——L1（ADR-0008）已接受；L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite 注册）与 L3（DAG 拓扑合同前置 + 六规则族七谓词 + 三语义下限）已交付；L4/L4.1 已交付 `evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、跨记录 final-evaluation Gate 与 runner 0.2.0。当前 runner 只执行显式内存的 IID/no-transform/no-search 合成子集，并验证 contract、split/assignment/selection pins、baseline/resource parity 与重复 seed；group/time-series/nested 执行合同及 L5–L6 未实施（`feat/ml-adapter` 分支）。DL Adapter（Phase 6）未启动；不宣称真实 ML 训练/执行、数据验收或科研 Agent 能力
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

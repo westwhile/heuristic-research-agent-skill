@@ -1,11 +1,12 @@
 """Deterministic standard-library runner for small synthetic ML fixtures.
 
 This module is a protocol test machine, not a general training executor.  It
-accepts one in-memory numeric dataset payload plus one ``ml-case/v1`` payload
-and returns an immutable result containing a hash-bound ``ml-evidence/v2``
-record.  There is no I/O, clock, environment, network, subprocess, or global
-random state.  Seeded ordering and initialization are derived from SHA-256 so
-the same payloads produce the same artifact across supported Python runtimes.
+accepts one in-memory numeric dataset payload, one ``ml-case/v1`` payload, and
+the matching case-derived ``evaluation-contract/v3``.  It returns an immutable
+result containing a hash-bound ``ml-evidence/v2`` record.  There is no I/O,
+clock, environment, network, subprocess, or global random state.  Seeded
+ordering and initialization are derived from SHA-256 so the same payloads
+produce the same artifact across supported Python runtimes.
 """
 
 from __future__ import annotations
@@ -25,10 +26,10 @@ from research_evolution.core import (
 )
 
 from . import _evidence
-from ..types import AdapterError
+from ..types import AdapterError, EvaluationContract
 
 RUNNER_TOOL = "synthetic-ml-runner"
-RUNNER_VERSION = "0.1.0"
+RUNNER_VERSION = "0.2.0"
 
 _MAX_ROWS = 10_000
 _MAX_FEATURES = 64
@@ -78,6 +79,7 @@ def run_synthetic_experiment(
     dataset_payload: dict[str, Any],
     case: dict[str, Any],
     *,
+    contract: EvaluationContract,
     final_partition: str,
 ) -> SyntheticExperimentResult:
     """Run one deterministic baseline/candidate comparison in memory.
@@ -85,7 +87,14 @@ def run_synthetic_experiment(
     ``dataset_payload`` has exactly four keys: ``task_type``, ``features``,
     ``targets``, and ``partitions``.  The canonical hash of the first three
     keys must equal ``case.dataset.sha256``; the canonical hash of
-    ``{"partitions": partitions}`` must equal ``case.split.sha256``.
+    ``{"partitions": partitions}`` must equal the runner-specific
+    ``case.split.parameters.assignment_sha256``.  ``case.split.sha256``
+    separately pins the split declaration (identity/input/kind/parameters).
+
+    ``contract`` must be the matching case-derived v3 contract.  L4.1 executes
+    only IID cases with empty preprocessing/sampling/search declarations and
+    no feature selection or target encoding.  Other validation families and
+    transformation execution remain explicit L5 work and fail closed here.
 
     The case supplies the candidate model, seed set, selection partition,
     metrics, and a search budget containing exactly ``epochs`` and
@@ -96,17 +105,16 @@ def run_synthetic_experiment(
     """
 
     case_data, case_sha256 = _validate_case(case)
+    contract_data = _validate_contract(contract, case_data, case_sha256)
     data = _validate_dataset(dataset_payload)
     _validate_hash_bindings(dataset_payload, case_data)
-    contract = {
-        "case_sha256": case_sha256,
-        "selection_partition": case_data["selection"]["split_used"],
-        "selection_sha256": case_data["selection"]["sha256"],
-        "split_sha256": case_data["split"]["sha256"],
-    }
-    _validate_partitions(data, contract, final_partition)
+    _validate_partitions(data, contract_data, final_partition)
     model = _validate_model(case_data, data["task_type"])
     metrics = _validate_metrics(case_data, data["task_type"])
+    if case_data["selection"]["metric"] not in metrics:
+        raise SyntheticRunnerError(
+            "selection.metric must appear in the metric set executed by the runner"
+        )
     seeds, budget = _validate_repetition_and_budget(case_data, data)
 
     per_seed: list[dict[str, Any]] = []
@@ -125,9 +133,13 @@ def run_synthetic_experiment(
         baseline_metrics = _score(
             data["task_type"], data["targets"], final_indices, baseline_values, metrics
         )
-        usage = {
+        candidate_usage = {
             "epochs": budget["epochs"],
-            "sample_visits": budget["epochs"] * budget["sample_limit"],
+            "sample_visits": candidate[3],
+        }
+        baseline_usage = {
+            "epochs": budget["epochs"],
+            "sample_visits": baseline[3],
         }
         per_seed.append(
             {
@@ -135,8 +147,8 @@ def run_synthetic_experiment(
                 "candidate_metrics": candidate_metrics,
                 "baseline_metrics": baseline_metrics,
                 "resource_usage": {
-                    "candidate": usage,
-                    "baseline": dict(usage),
+                    "candidate": candidate_usage,
+                    "baseline": baseline_usage,
                 },
             }
         )
@@ -155,16 +167,19 @@ def run_synthetic_experiment(
     artifact = {
         "runner": runner_identity(),
         "study_id": case_data["study_id"],
-        "case_sha256": contract["case_sha256"],
+        "case_sha256": contract_data["case_sha256"],
         "dataset_sha256": case_data["dataset"]["sha256"],
         "split_sha256": case_data["split"]["sha256"],
+        "partition_assignment_sha256": case_data["split"]["parameters"][
+            "assignment_sha256"
+        ],
         "selection": {
-            "partition": contract["selection_partition"],
-            "selection_sha256": contract["selection_sha256"],
+            "partition": contract_data["selection_partition"],
+            "selection_sha256": contract_data["selection_sha256"],
         },
         "final_evaluation": {
             "partition": final_partition,
-            "split_sha256": contract["split_sha256"],
+            "split_sha256": contract_data["split_sha256"],
         },
         "models": {
             "candidate": {
@@ -182,11 +197,18 @@ def run_synthetic_experiment(
             "frozen_axes": {
                 "dataset_sha256": case_data["dataset"]["sha256"],
                 "split_sha256": case_data["split"]["sha256"],
+                "partition_assignment_sha256": case_data["split"]["parameters"][
+                    "assignment_sha256"
+                ],
                 "resource_budget": budget,
                 "seeds": seeds,
                 "heuristics": [],
             },
-            "resource_parity": True,
+            "resource_parity": all(
+                entry["resource_usage"]["candidate"]
+                == entry["resource_usage"]["baseline"]
+                for entry in per_seed
+            ),
             "candidate_minus_baseline": comparison,
         },
     }
@@ -196,6 +218,7 @@ def run_synthetic_experiment(
         "schema": "ml-evidence/v2",
         "evidence_id": f"ml-evidence-{artifact_sha256[:16]}",
         "study_id": case_data["study_id"],
+        "case_sha256": case_sha256,
         "kind": "experiment_run",
         "data_provenance": "synthetic",
         "content_sha256": artifact_sha256,
@@ -213,11 +236,110 @@ def run_synthetic_experiment(
     }
     evidence_bytes = canonical_bytes(evidence)
     validated_evidence = load_strict_json(evidence_bytes)
-    _evidence.validate_final_evaluation(contract, validated_evidence)
+    _evidence.validate_final_evaluation(contract_data, validated_evidence)
     return SyntheticExperimentResult(
         _artifact_bytes=artifact_bytes,
         _evidence_bytes=evidence_bytes,
     )
+
+
+def _validate_contract(
+    contract: Any, case: dict[str, Any], case_sha256: str
+) -> dict[str, Any]:
+    """Require the case-derived Adapter contract at the execution seam."""
+
+    if not isinstance(contract, EvaluationContract):
+        raise SyntheticRunnerError("contract must be an EvaluationContract")
+    payload = contract.payload
+    if payload["schema"] != "evaluation-contract/v3":
+        raise SyntheticRunnerError(
+            "contract must use evaluation-contract/v3 for synthetic ML execution"
+        )
+    comparisons = (
+        ("case_sha256", case_sha256),
+        ("study_id", case["study_id"]),
+        ("selection_partition", case["selection"]["split_used"]),
+        ("selection_sha256", case["selection"]["sha256"]),
+        ("split_sha256", case["split"]["sha256"]),
+    )
+    for field, expected in comparisons:
+        if payload[field] != expected:
+            raise SyntheticRunnerError(
+                f"contract {field} does not match the supplied ml-case/v1 payload"
+            )
+    split = case["split"]
+    if split.get("kind") != "iid":
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner only executes iid splits; "
+            "group, time_series, and nested execution remain an L5 contract"
+        )
+    split_projection = {
+        "identity": split["identity"],
+        "input_sha256": split["input_sha256"],
+        "kind": split["kind"],
+        "parameters": split["parameters"],
+    }
+    if canonical_sha256(split_projection) != split["sha256"]:
+        raise SyntheticRunnerError(
+            "case.split.sha256 does not match the synthetic split declaration hash"
+        )
+    selection = case["selection"]
+    selection_projection = {
+        "input_sha256": selection["input_sha256"],
+        "split_used": selection["split_used"],
+        "metric": selection["metric"],
+        "search_budget": selection["search_budget"],
+        "seed_set": selection["seed_set"],
+    }
+    if canonical_sha256(selection_projection) != selection["sha256"]:
+        raise SyntheticRunnerError(
+            "case.selection.sha256 does not match the synthetic selection declaration hash"
+        )
+    if case.get("preprocessing"):
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner does not execute preprocessing; "
+            "the declaration must be an empty array"
+        )
+    if case.get("sampling"):
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner does not execute sampling; "
+            "the declaration must be an empty array"
+        )
+    feature = case.get("feature", {})
+    if feature.get("selection_scope") != "none":
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner does not execute feature selection; "
+            "feature.selection_scope must be 'none'"
+        )
+    if feature.get("target_encoding_scope") != "none":
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner does not execute target encoding; "
+            "feature.target_encoding_scope must be 'none'"
+        )
+    if case.get("tuning", {}).get("search_space"):
+        raise SyntheticRunnerError(
+            "the L4.1 synthetic runner does not execute hyperparameter search; "
+            "tuning.search_space must be empty"
+        )
+    if case.get("tuning", {}).get("split_used") in {"test", "future_holdout"}:
+        raise SyntheticRunnerError(
+            "the synthetic runner refuses a protected tuning partition"
+        )
+    seed_set = case["selection"]["seed_set"]
+    if len(seed_set) != len(set(seed_set)):
+        raise SyntheticRunnerError("selection.seed_set must contain unique seeds")
+    tuning_seed_count = case.get("tuning", {}).get("seed_count")
+    executed_seed_count = len(seed_set)
+    if tuning_seed_count != executed_seed_count:
+        raise SyntheticRunnerError(
+            "tuning.seed_count must equal the unique selection.seed_set size "
+            "executed by the synthetic runner"
+        )
+    try:
+        _evidence.validate_selection_contract(payload)
+    except AdapterError as exc:
+        raise SyntheticRunnerError(str(exc)) from exc
+    return payload
 
 
 def _validate_case(payload: Any) -> tuple[dict[str, Any], str]:
@@ -237,10 +359,26 @@ def _validate_case(payload: Any) -> tuple[dict[str, Any], str]:
         case = load_strict_json(snapshot_bytes)
     except CoreError as exc:
         raise SyntheticRunnerError(f"case is not strict JSON: {exc}") from exc
-    required = {"schema", "study_id", "dataset", "split", "model", "metrics", "selection"}
-    missing = sorted(required - set(case))
-    if missing:
-        raise SyntheticRunnerError(f"case is missing runner fields: {missing}")
+    expected = {
+        "schema",
+        "case_id",
+        "study_id",
+        "gates",
+        "dataset",
+        "split",
+        "preprocessing",
+        "sampling",
+        "feature",
+        "model",
+        "metrics",
+        "tuning",
+        "selection",
+        "assessment",
+    }
+    if set(case) != expected:
+        raise SyntheticRunnerError(
+            f"case fields must be exactly {sorted(expected)}"
+        )
     if case["schema"] != "ml-case/v1":
         raise SyntheticRunnerError("case.schema must be ml-case/v1")
     study_id = case["study_id"]
@@ -248,9 +386,31 @@ def _validate_case(payload: Any) -> tuple[dict[str, Any], str]:
         character.isspace() for character in study_id
     ):
         raise SyntheticRunnerError("case.study_id must be a non-whitespace token")
-    for field in ("dataset", "split", "model", "selection"):
-        if not isinstance(case[field], dict):
-            raise SyntheticRunnerError(f"case.{field} must be an object")
+    nested_fields = {
+        "dataset": {"identity", "sha256", "description"},
+        "split": {"identity", "sha256", "input_sha256", "kind", "parameters"},
+        "feature": {"selection_scope", "target_encoding_scope"},
+        "model": {"family", "hyperparameters"},
+        "tuning": {"search_space", "split_used", "seed_count"},
+        "selection": {
+            "identity",
+            "sha256",
+            "input_sha256",
+            "split_used",
+            "metric",
+            "search_budget",
+            "seed_set",
+        },
+    }
+    for field, fields in nested_fields.items():
+        _require_exact_fields(case[field], fields, f"case.{field}")
+    if not isinstance(case["assessment"], dict):
+        raise SyntheticRunnerError("case.assessment must be an object")
+    if not isinstance(case["gates"], list) or not case["gates"]:
+        raise SyntheticRunnerError("case.gates must be a non-empty array")
+    for field in ("preprocessing", "sampling"):
+        if not isinstance(case[field], list):
+            raise SyntheticRunnerError(f"case.{field} must be an array")
     _require_sha256(case["dataset"], "sha256", "case.dataset.sha256")
     _require_sha256(case["split"], "sha256", "case.split.sha256")
     _require_sha256(case["selection"], "sha256", "case.selection.sha256")
@@ -278,6 +438,11 @@ def _validate_case(payload: Any) -> tuple[dict[str, Any], str]:
     if any(isinstance(seed, bool) or not isinstance(seed, int) for seed in selection["seed_set"]):
         raise SyntheticRunnerError("case.selection.seed_set must contain integers")
     return case, hashlib.sha256(snapshot_bytes).hexdigest()
+
+
+def _require_exact_fields(value: Any, expected: set[str], path: str) -> None:
+    if not isinstance(value, dict) or set(value) != expected:
+        raise SyntheticRunnerError(f"{path} fields must be exactly {sorted(expected)}")
 
 
 def _require_sha256(parent: dict[str, Any], field: str, path: str) -> None:
@@ -368,7 +533,12 @@ def _validate_dataset(payload: Any) -> dict[str, Any]:
 def _finite_number(value: Any, path: str) -> float:
     if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
         raise SyntheticRunnerError(f"{path} contains a non-numeric value")
-    result = float(value)
+    try:
+        result = float(value)
+    except (OverflowError, ValueError) as exc:
+        raise SyntheticRunnerError(
+            f"{path} contains a value that cannot be represented as a finite float"
+        ) from exc
     if not math.isfinite(result):
         raise SyntheticRunnerError(f"{path} contains a non-finite value")
     return result
@@ -383,8 +553,12 @@ def _validate_hash_bindings(data: dict[str, Any], case: dict[str, Any]) -> None:
     split_projection = {"partitions": data["partitions"]}
     if canonical_sha256(data_projection) != case["dataset"]["sha256"]:
         raise SyntheticRunnerError("dataset payload hash does not match case.dataset.sha256")
-    if canonical_sha256(split_projection) != case["split"]["sha256"]:
-        raise SyntheticRunnerError("partition payload hash does not match case.split.sha256")
+    assignment_sha256 = case["split"]["parameters"].get("assignment_sha256")
+    if canonical_sha256(split_projection) != assignment_sha256:
+        raise SyntheticRunnerError(
+            "partition payload hash does not match "
+            "case.split.parameters.assignment_sha256"
+        )
 
 
 def _validate_partitions(
@@ -400,6 +574,7 @@ def _validate_partitions(
     if final_partition not in data["partitions"]:
         raise SyntheticRunnerError("the requested final partition is absent from the dataset")
     probe = {
+        "case_sha256": contract["case_sha256"],
         "final_evaluation": {
             "partition": final_partition,
             "split_sha256": contract["split_sha256"],
@@ -507,15 +682,17 @@ def _fit_model(
     seed: int,
     *,
     use_features: bool,
-) -> tuple[list[float], float, str]:
+) -> tuple[list[float], float, str, int]:
     width = len(data["features"][0])
     weights = [_initial_weight(seed, index) for index in range(width)]
     intercept = _initial_weight(seed, width)
     learning_rate = model["learning_rate"]
     l2 = model["l2"]
     task_type = data["task_type"]
+    sample_visits = 0
     for order in orders:
         for row_index in order:
+            sample_visits += 1
             row = data["features"][row_index]
             linear = intercept
             if use_features:
@@ -528,7 +705,7 @@ def _fit_model(
                     weights[index] -= learning_rate * (
                         error * value + l2 * weights[index]
                     )
-    return weights, intercept, task_type
+    return weights, intercept, task_type, sample_visits
 
 
 def _sigmoid(value: float) -> float:
@@ -542,11 +719,11 @@ def _sigmoid(value: float) -> float:
 def _predict(
     data: dict[str, Any],
     indices: list[int],
-    fitted: tuple[list[float], float, str],
+    fitted: tuple[list[float], float, str, int],
     *,
     use_features: bool,
 ) -> list[float]:
-    weights, intercept, task_type = fitted
+    weights, intercept, task_type, _sample_visits = fitted
     predictions = []
     for row_index in indices:
         linear = intercept
@@ -606,7 +783,12 @@ def _aggregate(
 
 
 def _rounded(value: float) -> float:
-    return round(float(value), 12)
+    result = float(value)
+    if not math.isfinite(result):
+        raise SyntheticRunnerError(
+            "numeric instability produced a non-finite experiment result"
+        )
+    return round(result, 12)
 
 
 __all__ = [

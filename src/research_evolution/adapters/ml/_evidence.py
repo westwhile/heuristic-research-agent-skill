@@ -40,11 +40,18 @@ def _final_evaluation_split_mismatch(
     return evidence["final_evaluation"]["split_sha256"] != contract["split_sha256"]
 
 
+def _final_evaluation_case_mismatch(
+    contract: dict[str, Any], evidence: dict[str, Any]
+) -> bool:
+    return evidence["case_sha256"] != contract["case_sha256"]
+
+
 _SELECTION_CONTRACT_PREDICATES: tuple[tuple[str, _Predicate], ...] = (
     ("selection-uses-protected-partition", _selection_uses_protected_partition),
 )
 
 _FINAL_EVALUATION_PREDICATES: tuple[tuple[str, _Predicate], ...] = (
+    ("final-evaluation-case-mismatch", _final_evaluation_case_mismatch),
     ("final-evaluation-not-protected", _final_evaluation_is_not_protected),
     ("final-evaluation-split-mismatch", _final_evaluation_split_mismatch),
 )
