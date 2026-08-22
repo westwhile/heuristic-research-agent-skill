@@ -489,12 +489,12 @@ experience interface 生成 4 个 ML Case Package、1 条两版本 candidate Pat
 commit `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 双解释器通过 865/865
 （各 1 个预期 Git tracking skip）。
 
-PR 集成状态（2026-08-22）：合入公共 CI baseline 后的 head commit
+PR 代码集成基线证据（2026-08-22）：合入公共 CI baseline 后的集成提交
 `3b35ca5b2770fcff4d7fb6b02fe014c1f7cb7f99` 在工作树与真实 `git archive`
 双解释器均为 870/870（archive 各 1 个预期 Git tracking skip）；Draft PR #11
-的 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 也各为 870/870，
+在该集成提交上的 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 也各为 870/870，
 两个 Windows job 另过 PowerShell 33 assertions / 6 cases。PR 仍保持 Draft，
-尚未转 ready 或合并，`v0.6.0` Tag/Release 尚未执行。以上为当前 PR 状态；
+尚未转 ready 或合并，`v0.6.0` Tag/Release 尚未执行。以上为 PR 代码集成基线证据；
 前段 865/865 与 `a0dfc7d` 继续保留为 L6 独立审核时点的历史验收证据。
 
 ### 验收 Gate
