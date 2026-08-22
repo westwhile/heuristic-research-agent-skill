@@ -1,0 +1,14 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0011",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "public",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [
+    42
+  ],
+  "frozen_holdout": true,
+  "summary": "Single-seed experiment on the public dataset, frozen-holdout evaluated.",
+  "limitations": []
+}

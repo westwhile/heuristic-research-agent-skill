@@ -1,0 +1,9 @@
+{
+  "schema": "domain-task/v2",
+  "domain": "dl",
+  "domain_schema_id": "ml-task/v1",
+  "domain_payload": {},
+  "core_task_draft": {
+    "schema": "research-task/v1"
+  }
+}

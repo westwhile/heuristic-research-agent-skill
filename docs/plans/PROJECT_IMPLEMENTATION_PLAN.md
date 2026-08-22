@@ -1,10 +1,10 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v4.0-research-memory-and-skill-lifecycle
-- 日期：2026-08-14
+- 计划版本：v5.0-ml-adapter
+- 日期：2026-08-18
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0 仓库与治理基线已形成 `v0.1.0` annotated tag；尚无功能性平台发布
+- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 实现、独立审核与 commit-bound archive 验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付。功能分支已推送，Draft PR #11 已创建且 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 均通过；PR 仍保持 Draft，尚未转 ready 或合并，`v0.6.0` 尚未发布。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
 
 ## 1. 最终目标与非目标
 
@@ -346,6 +346,14 @@ $SKILL_LIBRARY_ROOT/
 11. 生成 HTML/Markdown/JSON 三种一致报告；
 12. 每份报告标注 L0/L1 覆盖范围。
 
+### 交付物
+
+- 四个评测 Core family schema（`evaluation-case/v1`、`suite/v1`、`evaluation-run/v1`、`comparison-report/v1`）与 fixtures；
+- replay envelope 与确定性离线 runner、scorer 四级与 score vector、统计三类、hard gates 六门与 evaluator meta-tests；
+- `evaluate_case`/`compare` 装配与 HTML/Markdown/JSON 三形态报告；
+- 首批公开 benchmark suites（Math/Quant 各 12 cases，全合成）与 Phase 3 验收报告；
+- ADR-0006：Public Evaluator MVP（编号续接：ADR-0005 = Phase 2）。
+
 ### 首批规模
 
 - Math：10—15 cases；
@@ -410,7 +418,8 @@ $SKILL_LIBRARY_ROOT/
 - Pattern Registry、append-only lifecycle events 与 deterministic retrieval MVP；
 - 检索结果中的 applicability/contraindication/evidence contract；
 - Heuristic Registry、linter 与 shadow report；
-- 中央库 layout contract 和 migration/retirement policy。
+- 中央库 layout contract 和 migration/retirement policy；
+- ADR-0007：Research Memory 与 Pattern/Heuristic Registry（case package 以 `research-case-package/v2` successor 落地、生命周期走 supersedes 链——与本计划交付物行文的偏差见该 ADR 背景事实①）。
 
 ### 验收 Gate
 
@@ -458,6 +467,36 @@ $SKILL_LIBRARY_ROOT/
 12. 增加 ML Heuristic shadow cases；
 13. 将 ML 实验的完整协议、负结果、泄漏修复和复现差异采集为 Case Package；只有跨案例稳定模式才能进入 Pattern Registry。
 
+### 交付物
+
+- ADR-0008：ML Adapter——数据合同、声明式泄漏检查与确定性实验 runner（本 Phase 决策合同）；
+- 四个 `ml-*` v1 adapter schema（`ml-task/v1`、`ml-case/v1`、`ml-claim/v1`、`ml-evidence/v1`）及 L4 successor（`evaluation-contract/v3`、`ml-evidence/v2`）与 fixtures——零新 Core family，Core 保持 17 family；
+- 对已声明实验拓扑的确定性泄漏检查（split/preprocessing/采样/target-encoding/tuning/selection 规则面，"声明即证据下限" fail-closed；拓扑声明以 {identity, sha256} + 上游 input pin 构成 DAG，保证 lineage 可重建；语义规则的正例一律 schema 合法、mutation 可证伪）；
+- 标准库纯函数合成实验 runner（baseline/resource parity、seed 重复研究、确定性规范产物；零 I/O、零第三方依赖；L5 runner 0.3.0 支持 contract-bound IID/group/time-series/nested assignment 验证，仍为 no-transform/no-search 显式内存合成数据，nested 不执行逐折训练）；
+- 15—25 个公开/合成 cases、两条垂直切片（非时间序列 + 时间序列）与 leakage fixture/重复实验报告；
+- ML Heuristic shadow cases、ML Case Packages（复用 Phase 4 机器）、ML/Quant 重合分析（下沉判据三条件，结论先于动作）与 Phase 5 验收报告。
+
+实施状态（2026-08-21）：L1–L6 工作树验收 PASS。L6 复用 Phase 4
+experience interface 生成 4 个 ML Case Package、1 条两版本 candidate Pattern
+链、3 条三版本 shadow Heuristic 链与 1 份 hypothetical-only shadow report；
+32-record 临时 store 图闭包通过，双 Python 环境全量均为 865/865，PowerShell
+治理 33 assertions / 6 cases。独立审核将 reproduction comparison 拆为 A1/A2/B
+三条 hash-bound Run，显式记录 master-seed 派生；将 Pattern facet 改为跨案例
+`protocol-evidence-comparison`；并使三条 shadow observation 具有独立决策与预期
+差异。ML/Quant 重合分析未发现同时满足三项下沉判据
+且具有足够 module depth 的新逻辑，因此零 Core/schema/interface 改动。最高
+证据等级仍为 engineering-only；真实 `git archive` 已绑定独立审核修复
+commit `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 双解释器通过 865/865
+（各 1 个预期 Git tracking skip）。
+
+PR 代码集成基线证据（2026-08-22）：合入公共 CI baseline 后的集成提交
+`3b35ca5b2770fcff4d7fb6b02fe014c1f7cb7f99` 在工作树与真实 `git archive`
+双解释器均为 870/870（archive 各 1 个预期 Git tracking skip）；Draft PR #11
+在该集成提交上的 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 也各为 870/870，
+两个 Windows job 另过 PowerShell 33 assertions / 6 cases。PR 仍保持 Draft，
+尚未转 ready 或合并，`v0.6.0` Tag/Release 尚未执行。以上为 PR 代码集成基线证据；
+前段 865/865 与 `a0dfc7d` 继续保留为 L6 独立审核时点的历史验收证据。
+
 ### 验收 Gate
 
 - test/holdout 不参与调参；
@@ -471,6 +510,7 @@ $SKILL_LIBRARY_ROOT/
 
 - 分支：`feat/ml-adapter`；
 - 数据合同、泄漏检查、runner、cases 分提交；
+- 切片与提交映射（ADR-0008 决策 10）：L1 = ADR → L2 = 数据合同 → L3 = 泄漏检查 → L4 = runner → L5 = cases/垂直切片 → L6 = shadow/Case Package/重合分析/验收报告；
 - PR 附重复实验和 leakage fixture 报告；
 - annotated tag：`v0.6.0`。
 
@@ -783,7 +823,9 @@ approved staged candidate
 | Git/Tag 漂移 | 发布不可追踪 | annotated immutable tags、SHA 校验、无 force push |
 | 私有科研泄漏 | 隐私/版权损失 | explicit exporter、Git ignore、secret/path scan |
 
-## 6. 首个执行批次建议
+## 6. 初始执行批次建议（历史基线，制定于 Phase 0 后）
+
+> 本节为 Phase 0 后的收缩建议存档，不反映当前进度；当前执行入口以文件头部「当前状态」与对应 Phase 节为准。其中第 4/5 条的克制原则（seam 证明前不自动晋级、检索评测证明前不引入向量库）继续有效。
 
 Phase 0 已形成仓库治理基线；下一批只启动：
 

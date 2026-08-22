@@ -1,0 +1,80 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0004",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "generalization"
+  ],
+  "dataset": {
+    "identity": "ml-case-0004-dataset",
+    "sha256": "9f386d272da6b98bb678b1f1ae240588f36d057b00b5e559919e750f57404159",
+    "description": "Synthetic tabular dataset, 1500 rows, 9 features, three-class label."
+  },
+  "split": {
+    "identity": "ml-case-0004-split",
+    "sha256": "d6c94e220c5dd5f28b96f00c98af1b016364042b2846498e211df36239c583ee",
+    "input_sha256": "9f386d272da6b98bb678b1f1ae240588f36d057b00b5e559919e750f57404159",
+    "kind": "nested",
+    "parameters": {
+      "inner_folds": 3
+    }
+  },
+  "preprocessing": [
+    {
+      "identity": "ml-case-0004-prep",
+      "sha256": "f0b99b3ef90daaa345c27f22e709482a5e37082427edbee5daecb5ab0540bb2d",
+      "input_sha256": "d6c94e220c5dd5f28b96f00c98af1b016364042b2846498e211df36239c583ee",
+      "operation": "standard-scaler",
+      "fit_scope": "train_only"
+    }
+  ],
+  "sampling": [],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "accuracy"
+  ],
+  "tuning": {
+    "search_space": {
+      "C": [
+        0.01,
+        0.1,
+        1.0
+      ]
+    },
+    "split_used": "validation",
+    "seed_count": 2
+  },
+  "selection": {
+    "identity": "ml-case-0004-selection",
+    "sha256": "bd617a8ef55b3f563861b74f9ae6a7e7f76447ebcf163b90a0d81db2d0736498",
+    "input_sha256": "d6c94e220c5dd5f28b96f00c98af1b016364042b2846498e211df36239c583ee",
+    "split_used": "train",
+    "metric": "accuracy",
+    "search_budget": {},
+    "seed_set": [
+      8,
+      9
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

@@ -12,11 +12,13 @@ case, maturity-ceiling probes, and the forbidden channels the domain
 contract must enumerate. The suite never hardcodes domain content.
 
 A2 landed the skeleton with an empty registry; A3/A4 registered the Math
-and Quant harnesses behind a fail-closed window test. A5 (this state)
-replaces the window with the permanent exact-membership assertion and adds
-the two remaining seam-establishment probes: the core static purity scan
+and Quant harnesses behind a fail-closed window test. A5 replaces the
+window with the permanent exact-membership assertion and adds the two
+remaining seam-establishment probes: the core static purity scan
 (criterion 2, decision 8a) and the core deletion subprocess test
-(criterion 3, decision 8b).
+(criterion 3, decision 8b). Phase 5 L2 registered the ML harness as the
+third member (ADR-0008 decision 2); the membership pin now requires
+exactly {math, quant, ml}.
 """
 
 import copy
@@ -38,11 +40,13 @@ from research_evolution.adapters import (
     EvaluationContract,
 )
 from research_evolution.adapters.math import MathAdapter
+from research_evolution.adapters.ml import MLAdapter
 from research_evolution.adapters.quant import QuantAdapter
 from tests.contract.test_core_schemas_contract import _BANNED_TERMS
 from research_evolution.core import (
     CoreError,
     canonical_bytes,
+    canonical_sha256,
     load_record,
     load_strict_json,
 )
@@ -50,12 +54,19 @@ from research_evolution.core import (
 
 @dataclass(frozen=True)
 class CeilingProbe:
-    """One domain maturity-cap scenario: claim + evidence must be capped."""
+    """One domain maturity-cap scenario: claim + evidence must be capped.
+
+    ``case`` overrides the harness sample case when the probe's claim is
+    hash-bound to a specific case (the ML adapter's claim payload pins its
+    case by canonical hash — ADR-0008 addendum A3); None means the harness
+    sample case judges the probe.
+    """
 
     label: str
     claim: dict[str, Any]
     evidence: tuple[dict[str, Any], ...]
     expected_ceiling: str
+    case: "dict[str, Any] | None" = None
 
 
 @dataclass(frozen=True)
@@ -81,6 +92,18 @@ def _payload(family: str, kind: str, name: str) -> dict:
     return load_strict_json(
         (_FIXTURES / family / "v1" / kind / name).read_bytes()
     )
+
+
+def _ml_experiment_v2(name: str) -> dict:
+    payload = _payload("ml-evidence", "valid", name)
+    case = _payload("ml-case", "valid", "full.json")
+    payload["schema"] = "ml-evidence/v2"
+    payload["case_sha256"] = canonical_sha256(case)
+    payload["final_evaluation"] = {
+        "partition": "test",
+        "split_sha256": case["split"]["sha256"],
+    }
+    return payload
 
 
 MATH_HARNESS = AdapterContractHarness(
@@ -150,17 +173,66 @@ QUANT_HARNESS = AdapterContractHarness(
     ),
 )
 
-ADAPTERS: tuple = (MATH_HARNESS, QUANT_HARNESS)
+ML_HARNESS = AdapterContractHarness(
+    adapter=MLAdapter(),
+    valid_domain_input=_payload("ml-task", "valid", "full.json"),
+    invalid_domain_input=_payload("ml-task", "invalid", "missing-holdout-policy.json"),
+    sample_claim=_payload("ml-claim", "valid", "minimal.json"),
+    sample_evidence=(_payload("ml-evidence", "valid", "minimal.json"),),
+    sample_case=_payload("ml-case", "valid", "minimal.json"),
+    ceiling_probes=(
+        CeilingProbe(
+            label="generalization-with-synthetic-only-caps-at-engineering-verified",
+            claim=_payload("ml-claim", "valid", "full.json"),
+            evidence=(_ml_experiment_v2("synthetic-experiment.json"),),
+            # R42d: the seed/holdout constraints register independently of
+            # the provenance cap, so synthetic-only evidence lands at the
+            # strictest of the three (single-seed-cap).
+            expected_ceiling="engineering_verified",
+            # ML claims pin their case by hash (ADR-0008 addendum A3): the
+            # generalization probes are judged by the full case's contract.
+            case=_payload("ml-case", "valid", "full.json"),
+        ),
+        CeilingProbe(
+            label="generalization-single-seed-caps-at-engineering-verified",
+            claim=_payload("ml-claim", "valid", "full.json"),
+            evidence=(_ml_experiment_v2("single-seed-experiment.json"),),
+            expected_ceiling="engineering_verified",
+            case=_payload("ml-case", "valid", "full.json"),
+        ),
+        CeilingProbe(
+            label="generalization-real-multi-seed-frozen-reaches-empirically-supported",
+            claim=_payload("ml-claim", "valid", "full.json"),
+            evidence=(_ml_experiment_v2("real-experiment.json"),),
+            expected_ceiling="empirically_supported",
+            case=_payload("ml-case", "valid", "full.json"),
+        ),
+    ),
+    expected_forbidden_channels=frozenset(
+        {
+            "synthetic-as-real-data-evidence",
+            "pre-split-data-preparation",
+            "test-set-for-model-selection",
+            "holdout-for-tuning",
+            "single-seed-best-as-stable-claim",
+        }
+    ),
+)
+
+ADAPTERS: tuple = (MATH_HARNESS, QUANT_HARNESS, ML_HARNESS)
 
 
 class AdapterContractSuite(unittest.TestCase):
-    def test_registry_membership_is_exactly_math_and_quant(self) -> None:
-        # Seam-establishment criterion 1 (permanent pin): exactly the Math
-        # and Quant harnesses are registered, and both pass this one suite.
-        self.assertEqual(len(ADAPTERS), 2)
+    def test_registry_membership_is_exactly_math_quant_and_ml(self) -> None:
+        # Seam-establishment criterion 1 (permanent pin): exactly the Math,
+        # Quant, and ML harnesses are registered, and all three pass this
+        # one suite. ML joined the suite in Phase 5 L2 (ADR-0008 decision 2)
+        # as the third-domain evidence that the seam holds no domain
+        # special cases.
+        self.assertEqual(len(ADAPTERS), 3)
         self.assertEqual(
             sorted(harness.adapter.domain for harness in ADAPTERS),
-            ["math", "quant"],
+            ["math", "ml", "quant"],
         )
 
     def test_harness_adapters_implement_the_abc(self) -> None:
@@ -219,10 +291,11 @@ class AdapterContractSuite(unittest.TestCase):
     def test_maturity_ceiling_probes(self) -> None:
         for harness in ADAPTERS:
             with self.subTest(adapter=harness.adapter.domain):
-                contract = harness.adapter.build_evaluation_contract(
-                    copy.deepcopy(harness.sample_case)
-                )
                 for probe in harness.ceiling_probes:
+                    case = probe.case if probe.case is not None else harness.sample_case
+                    contract = harness.adapter.build_evaluation_contract(
+                        copy.deepcopy(case)
+                    )
                     assessment = harness.adapter.validate_claim(
                         copy.deepcopy(probe.claim),
                         copy.deepcopy(list(probe.evidence)),
@@ -288,6 +361,11 @@ _ADAPTER_COUPLED_TESTS = frozenset(
         "tests/unit/test_adapters_types.py",
         "tests/unit/test_math_adapter.py",
         "tests/unit/test_math_importer.py",
+        "tests/unit/test_ml_adapter.py",
+        "tests/unit/test_ml_final_evaluation.py",
+        "tests/unit/test_ml_runner.py",
+        "tests/unit/test_ml_split_execution.py",
+        "tests/unit/test_ml_topology.py",
         "tests/unit/test_quant_adapter.py",
     }
 )

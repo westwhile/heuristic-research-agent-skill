@@ -1,0 +1,13 @@
+{
+  "schema": "ml-claim/v1",
+  "claim_id": "ml-claim-0001",
+  "study_id": "synthetic-ml-study-001",
+  "statement": "The synthetic training pipeline runs end to end without error.",
+  "claim_class": "engineering",
+  "outcome": "pass",
+  "limitations": [],
+  "declared_assessment_gaps": [],
+  "non_entailments": [
+    "This claim says nothing about out-of-sample generalization."
+  ]
+}

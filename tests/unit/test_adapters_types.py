@@ -109,7 +109,37 @@ class DomainTaskTest(unittest.TestCase):
     def test_wrong_seam_schema_fails_as_adapter_error(self) -> None:
         with self.assertRaises(AdapterError) as ctx:
             DomainTask.from_json(_fixture_bytes("claim-assessment", "minimal.json"))
-        self.assertIn("expected a domain-task/v1 payload", str(ctx.exception))
+        self.assertIn("expected one of", str(ctx.exception))
+
+    def test_v2_payload_is_accepted(self) -> None:
+        # ADR-0008 L2 addendum: the v2 seam version carries the ml domain.
+        task = DomainTask.from_json(
+            (FIXTURES / "domain-task" / "v2" / "valid" / "minimal.json").read_bytes()
+        )
+        self.assertEqual(task.domain, "ml")
+        self.assertEqual(task.domain_schema_id, "ml-task/v1")
+
+    def test_v1_payload_remains_accepted(self) -> None:
+        # The frozen v1 stays live for the math/quant producers.
+        task = DomainTask.from_json(_fixture_bytes("domain-task", "minimal.json"))
+        self.assertEqual(task.domain, "math")
+
+    def test_unknown_future_version_fails_closed(self) -> None:
+        payload = load_strict_json(
+            (FIXTURES / "domain-task" / "v2" / "valid" / "minimal.json").read_bytes()
+        )
+        payload["schema"] = "domain-task/v3"
+        with self.assertRaises(AdapterError):
+            DomainTask.from_payload(payload)
+
+    def test_v2_rejects_unlisted_domain(self) -> None:
+        # dl is deliberately NOT in the v2 vocabulary (Phase 6 will need its
+        # own governed schema version).
+        with self.assertRaises(AdapterError) as ctx:
+            DomainTask.from_json(
+                (FIXTURES / "domain-task" / "v2" / "invalid" / "bad-domain.json").read_bytes()
+            )
+        self.assertIn("domain-task/v2", str(ctx.exception))
 
     def test_direct_construction_with_foreign_record_fails(self) -> None:
         core_record = load_record(
@@ -156,6 +186,33 @@ class EvaluationContractTest(unittest.TestCase):
         raw = _fixture_bytes("evaluation-contract", "minimal.json")
         contract = EvaluationContract.from_json(raw)
         self.assertEqual(contract.sha256, canonical_sha256(load_strict_json(raw)))
+
+    def test_v2_payload_is_accepted(self) -> None:
+        # ADR-0008 addendum A3: v2 adds the study/assessment binding surface
+        # while v1 stays live for the math/quant producers.
+        contract = EvaluationContract.from_json(
+            (FIXTURES / "evaluation-contract" / "v2" / "valid" / "minimal.json").read_bytes()
+        )
+        self.assertEqual(len(contract.case_sha256), 64)
+        self.assertEqual(contract.payload["study_id"], "synthetic-ml-study-001")
+        self.assertEqual(len(contract.payload["assessment_declaration"]), 4)
+
+    def test_v3_payload_is_accepted(self) -> None:
+        # ADR-0008 addendum A6: v3 binds case-side selection and split facts.
+        contract = EvaluationContract.from_json(
+            (FIXTURES / "evaluation-contract" / "v3" / "valid" / "minimal.json").read_bytes()
+        )
+        self.assertEqual(contract.payload["selection_partition"], "validation")
+        self.assertEqual(len(contract.payload["selection_sha256"]), 64)
+        self.assertEqual(len(contract.payload["split_sha256"]), 64)
+
+    def test_unknown_future_version_fails_closed(self) -> None:
+        payload = load_strict_json(
+            (FIXTURES / "evaluation-contract" / "v2" / "valid" / "minimal.json").read_bytes()
+        )
+        payload["schema"] = "evaluation-contract/v4"
+        with self.assertRaises(AdapterError):
+            EvaluationContract.from_payload(payload)
 
 
 class DomainAdapterContractTest(unittest.TestCase):

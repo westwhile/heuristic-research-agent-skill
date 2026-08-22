@@ -1,0 +1,21 @@
+{
+  "schema": "evaluation-contract/v3",
+  "case_sha256": "05bc08db4c1d7e4235fa9f78d9ab12d0fd37eef32865905051c8b489124a3fca",
+  "study_id": "synthetic-ml-study-001",
+  "required_evidence": [
+    {"claim_type": "engineering_claim", "min_maturity": "engineering_verified"},
+    {"claim_type": "data_claim", "min_maturity": "data_accepted"},
+    {"claim_type": "empirical_claim", "min_maturity": "empirically_supported"}
+  ],
+  "forbidden_channels": ["synthetic-as-real-data-evidence", "test-set-for-model-selection"],
+  "checkpoints": ["M3: selection and final evaluation use distinct protected partitions"],
+  "assessment_declaration": [
+    {"dimension": "calibration", "status": "declared", "detail": "platt-scaling"},
+    {"dimension": "subgroup", "status": "declared", "detail": "season"},
+    {"dimension": "ood", "status": "declared", "detail": "shifted-distribution holdout"},
+    {"dimension": "drift", "status": "declared", "detail": "population-stability index"}
+  ],
+  "selection_partition": "validation",
+  "selection_sha256": "144df6642b8b1f5aaa6da27470da685fda94d192a205f64b40e9b83e8a6f2f20",
+  "split_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee"
+}

@@ -1,0 +1,115 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0002",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering",
+    "data_acceptance",
+    "generalization"
+  ],
+  "dataset": {
+    "identity": "ml-case-0002-dataset",
+    "sha256": "1607d6910de717ab40e6a2583876fa0cc17164b5d9da0bddfb586ebcbc9bfefa",
+    "description": "Synthetic seasonal panel, 5200 rows, two seasonalities plus noise."
+  },
+  "split": {
+    "identity": "ml-case-0002-split",
+    "sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee",
+    "input_sha256": "1607d6910de717ab40e6a2583876fa0cc17164b5d9da0bddfb586ebcbc9bfefa",
+    "kind": "time_series",
+    "parameters": {
+      "gap": "5 sessions",
+      "embargo": "20 sessions"
+    }
+  },
+  "preprocessing": [
+    {
+      "identity": "ml-case-0002-prep-scale",
+      "sha256": "b9c61a68f4dc49d63d749d92e7ad38404b57c3406cf905c92cf71085643cc631",
+      "input_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee",
+      "operation": "standard-scaler",
+      "fit_scope": "train_only"
+    },
+    {
+      "identity": "ml-case-0002-prep-impute",
+      "sha256": "7b961f0c1c79c9e3e51dcdf809b42b5fc8f6dc2202c98c65c5bda028a0cf5d78",
+      "input_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee",
+      "operation": "median-imputation",
+      "fit_scope": "per_fold"
+    }
+  ],
+  "sampling": [
+    {
+      "identity": "ml-case-0002-samp-over",
+      "sha256": "23977156591a37329d4aa0720300e3be0b20b71b97476a476247e319d1beccd5",
+      "input_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee",
+      "method": "random-oversampling",
+      "scope": "train_only"
+    },
+    {
+      "identity": "ml-case-0002-samp-under",
+      "sha256": "ca869d2be906407d6f56293561747190723a7575035b7788b84b23bdcb7ab444",
+      "input_sha256": "81588aa675aa98d192594473c437a7651c414bb4ec77a169184275c351d99cee",
+      "method": "random-undersampling",
+      "scope": "per_fold"
+    }
+  ],
+  "feature": {
+    "selection_scope": "per_fold",
+    "target_encoding_scope": "per_fold"
+  },
+  "model": {
+    "family": "gradient-boosted-trees",
+    "hyperparameters": {
+      "max_depth": 5,
+      "learning_rate": 0.05
+    }
+  },
+  "metrics": [
+    "f1",
+    "auc"
+  ],
+  "tuning": {
+    "search_space": {
+      "max_depth": [
+        3,
+        5,
+        7
+      ]
+    },
+    "split_used": "validation",
+    "seed_count": 3
+  },
+  "selection": {
+    "identity": "ml-case-0002-selection",
+    "sha256": "144df6642b8b1f5aaa6da27470da685fda94d192a205f64b40e9b83e8a6f2f20",
+    "input_sha256": "7b961f0c1c79c9e3e51dcdf809b42b5fc8f6dc2202c98c65c5bda028a0cf5d78",
+    "split_used": "validation",
+    "metric": "f1",
+    "search_budget": {
+      "trials": 27
+    },
+    "seed_set": [
+      11,
+      22,
+      33
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "declared",
+      "method": "platt-scaling on an in-fold calibration split"
+    },
+    "subgroup": {
+      "status": "declared",
+      "group_key": "season"
+    },
+    "ood": {
+      "status": "declared",
+      "probe": "shifted-seasonality synthetic holdout"
+    },
+    "drift": {
+      "status": "declared"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ml-claim/v1",
+  "title": "MLClaim input v1",
+  "description": "Domain claim payload assessed by the ML adapter's validate_claim. claim_class is the gate declaration: the evidentiary tier the claim asserts (engineering correctness, data acceptance, or out-of-sample generalization). The adapter maps claim_class plus evidence provenance, seed multiplicity, and frozen-holdout discipline to a maturity ceiling and never grants externally_validated or production_observed (ADR-0008 decision 4; ADR-0005 decisions 4/7). case_sha256 pins the exact ml-case payload this claim answers and declared_assessment_gaps is the machine-checked gap acknowledgment (ADR-0008 addendum A3). OOD/subgroup/calibration/drift gaps are named in the assessment without moving the ceiling; their limitation sentences live in this payload's limitations field.",
+  "type": "object",
+  "required": [
+    "schema",
+    "claim_id",
+    "study_id",
+    "case_sha256",
+    "statement",
+    "claim_class",
+    "outcome",
+    "limitations",
+    "declared_assessment_gaps",
+    "non_entailments"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ml-claim/v1"
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$",
+      "description": "Study this claim belongs to; binds the claim to the task/case scope of one study."
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical SHA-256 of the ml-case payload this claim answers; the adapter fails closed when it differs from the contract's case_sha256 (ADR-0008 addendum A3)."
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "Human-readable claim statement."
+    },
+    "claim_class": {
+      "enum": [
+        "engineering",
+        "data_acceptance",
+        "generalization"
+      ],
+      "description": "Evidentiary tier asserted: engineering (pipeline/run correctness), data_acceptance (dataset audit passed), generalization (out-of-sample generalization result on the empirical_claim path; this adapter never produces predictive_claim — ADR-0008 addendum A2)."
+    },
+    "outcome": {
+      "enum": [
+        "pass",
+        "fail",
+        "inconclusive"
+      ],
+      "description": "Outcome asserted by the source system. An asserted pass on a generalization claim does not by itself raise the evidence ceiling; provenance, seed multiplicity, and frozen-holdout discipline do."
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Known limitations of the claim, including the machine-assisted limitation sentences (missing OOD/subgroup evaluation, unevaluated calibration/drift, small-sample or single-seed caveats; ADR-0008 decision 4). Required; explicit empty array only after consideration."
+    },
+    "declared_assessment_gaps": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "calibration",
+          "drift",
+          "ood",
+          "subgroup"
+        ]
+      },
+      "description": "Assessment gaps this claim explicitly acknowledges, by dimension (ADR-0008 addendum A3): the machine-checked counterpart of the prose limitations. validate_claim fails closed when the gaps it detects from the case's assessment declaration and the supplied evidence are not a subset of this set; an explicit empty array declares no gaps."
+    },
+    "non_entailments": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      },
+      "description": "Statements this claim explicitly does not establish (for example: a synthetic-data result does not entail real-data validity; a single-seed best value is not a stable claim; validation-selected metrics do not entail test performance)."
+    }
+  },
+  "additionalProperties": false
+}

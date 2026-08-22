@@ -28,3 +28,7 @@ split 分布（每领域）：smoke 1、development 2、regression 3（golden）
 ```bash
 PYTHONPATH=src python -B -m unittest discover -s tests -p "test_public_benchmark.py"
 ```
+
+## ML Adapter 合成合同目录
+
+`ml-adapter/catalog.json` 是 Phase 5 的 20-case 合成 Adapter 合同目录，不是 evaluator `suite/v1`，因此不加入本目录的 Phase 3 `registry.json` 或 contamination ledger。它验证 ML 声明合同、泄漏拒止与语义下限；两条实际 runner 垂直切片由 `tests/e2e/test_ml_vertical_slices.py` 承担。边界与复现命令见 [`ml-adapter/README.md`](ml-adapter/README.md)。

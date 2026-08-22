@@ -1,0 +1,19 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0009",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "real",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [
+    5,
+    6,
+    7,
+    8
+  ],
+  "frozen_holdout": true,
+  "summary": "Repeated-seed experiment on the de-identified real dataset, frozen-holdout evaluated.",
+  "limitations": [
+    "Single-site de-identified extract; coverage is limited."
+  ]
+}

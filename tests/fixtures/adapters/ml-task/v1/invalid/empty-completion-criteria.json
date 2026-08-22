@@ -1,0 +1,16 @@
+{
+  "schema": "ml-task/v1",
+  "task_id": "ml-task-0001",
+  "study_id": "synthetic-ml-study-001",
+  "title": "Synthetic tabular classification smoke test",
+  "statement": "Does a logistic-regression baseline beat a majority-class baseline under a frozen holdout on the synthetic tabular dataset?",
+  "task_type": "classification",
+  "data_spec": {},
+  "holdout_policy": "All partitions are synthetic. The test partition is evaluated once at the end; the future holdout is never touched by tuning or selection.",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-18T09:00:00Z"
+}

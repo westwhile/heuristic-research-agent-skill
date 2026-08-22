@@ -1,0 +1,13 @@
+{
+  "schema": "ml-evidence/v2",
+  "evidence_id": "ml-evidence-v2-0105",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [7],
+  "frozen_holdout": true,
+  "final_evaluation": {"partition": "test", "split_sha256": "b903dd690536e72b25d898f7fc7e3dcc1d955e2d11a600bf895ad6e487730228"},
+  "summary": "Missing case hash probe.",
+  "limitations": []
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0204",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering",
+    "data_acceptance"
+  ],
+  "dataset": {
+    "identity": "ml-case-0204-dataset",
+    "sha256": "be0399e72e5020bad31a57792d5f2fd6a1ba8086034e8077ad5d800dcdca52da",
+    "description": "Synthetic tabular dataset, 1200 rows."
+  },
+  "split": {
+    "identity": "ml-case-0204-split",
+    "sha256": "3e370c2722a16223dfb459b9dfdfe8269603701ace8e7debf585aa987d3a40ce",
+    "input_sha256": "be0399e72e5020bad31a57792d5f2fd6a1ba8086034e8077ad5d800dcdca52da",
+    "kind": "stratified",
+    "parameters": {}
+  },
+  "preprocessing": [],
+  "sampling": [],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "accuracy"
+  ],
+  "tuning": {
+    "search_space": {},
+    "split_used": "validation",
+    "seed_count": 1
+  },
+  "selection": {
+    "identity": "ml-case-0204-selection",
+    "sha256": "00bdccd7eb266079895279de4375e2a119d3998b3600f9cbfb09526c7729642d",
+    "input_sha256": "3e370c2722a16223dfb459b9dfdfe8269603701ace8e7debf585aa987d3a40ce",
+    "split_used": "validation",
+    "metric": "accuracy",
+    "search_budget": {},
+    "seed_set": [
+      7
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

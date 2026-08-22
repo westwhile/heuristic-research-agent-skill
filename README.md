@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）与 Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1），并处于 **Phase 4 研究记忆与 Pattern Registry** 阶段。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何研究执行器、Heuristic Learning 闭环（Phase 4 上限为 active Pattern + shadow Heuristic）或生产发布能力已经实现。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 实现、独立审核与 commit-bound archive 验收已完成；功能分支已推送，Draft PR #11 已创建且 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 均通过。PR 仍保持 Draft，转 ready、合并与 v0.6.0 发布仍待后续 Gate/审批**。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何真实研究执行器、Heuristic Learning 闭环、真实 ML 训练/执行能力或生产发布能力已经实现。
 
 ## 项目目标
 
@@ -43,6 +43,7 @@ Case Package
 - [Core Interface（Phase 1D）](docs/architecture/core-interface.md)
 - [Phase 2 验收报告：Math/Quant 双 Adapter 垂直切片](reports/phase2-acceptance-20260816.md)
 - [Phase 3 验收报告：Public Evaluator MVP](reports/phase3-acceptance-20260817.md)
+- [Phase 5 验收报告：Machine Learning Adapter](reports/phase5-acceptance-20260821.md)
 - [科研结论治理](docs/governance/RESEARCH_CLAIM_GOVERNANCE.md)
 - [Schema 兼容政策](docs/governance/SCHEMA_COMPATIBILITY.md)
 - [Git、提交、推送与 Tag 流程](docs/governance/GIT_RELEASE_PROCESS.md)
@@ -54,6 +55,7 @@ Case Package
 - [ADR-0005：Adapter interface v1——seam 三类型、contract suite 与成立判据](docs/decisions/0005-adapter-interface-v1.md)
 - [ADR-0006：Public Evaluator MVP——L0/L1 评测记录、runner/scorer/统计纪律与 meta-test 义务](docs/decisions/0006-public-evaluator-mvp.md)
 - [ADR-0007：Research Memory 与 Pattern/Heuristic Registry——case-package/v2、生命周期纪律、检索 MVP 与 shadow 边界](docs/decisions/0007-research-memory-pattern-registry.md)
+- [ADR-0008：ML Adapter——数据合同、声明式泄漏检查与确定性实验 runner](docs/decisions/0008-ml-adapter.md)
 
 ## 目录
 
@@ -72,15 +74,34 @@ heuristic-research-agent-skill/
 └── reports/                  # 仅保留经过筛选的可发布报告或模板
 ```
 
+## 本地验证
+
+项目使用标准库 `unittest`；无需 `pytest`。在仓库根目录使用 PowerShell 7：
+
+```powershell
+$env:PYTHONPATH = "src"
+$env:PYTHONDONTWRITEBYTECODE = "1"
+python -B -m unittest discover -s tests -p "test_*.py" -v
+```
+
+发布形态必须从当前提交的 `git archive` 再跑两条不同 Python 路径：
+
+```powershell
+python -B scripts/verify_archive_suite.py 'C:\path\to\second\python.exe'
+```
+
+成功判据是两套测试均退出 0，且归档中的 fixture 跟踪检查仅因不存在 `.git` 而出现一个预期 skip。
+
 ## 当前状态
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前仓库 Tag：`v0.4.0`（Phase 3 Public Evaluator MVP 验收发布，仅覆盖 L0/L1，不代表功能平台已经发布）
+- 当前仓库 Tag：`v0.5.1`（Phase 4 验收发布为 `v0.5.0`，`v0.5.1` 为其归档缺件 hotfix——源码归档缺两 fixture，已修复并新增 archive 发布 Gate；不代表功能平台已经发布）
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
 - Phase 1 已完成：九个 v1 Core schema、25 种 violation 合同、append-only 发布与全图验证、只读 CLI（详见 v0.2.0 tag 与 Phase 1C/1D 验收报告）
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
-- Phase 4 进行中：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区（`feat/research-memory-pattern-registry` 分支，M1–M5 已审，M6 收官审核中）；ML/DL Adapter 尚未实现
+- Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
+- Phase 5 实现已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付。L6 独立审核修复 commit `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 的真实 `git archive` 双环境为 865/865（各 1 个预期 Git tracking skip）；合入公共 CI baseline 后的代码集成提交 `3b35ca5b2770fcff4d7fb6b02fe014c1f7cb7f99` 工作树与 commit-bound archive 双环境均为 870/870，Draft PR #11 在该集成提交上的 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 也各为 870/870（Windows 另过 PowerShell 33 assertions / 6 cases）。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；PR 仍为 Draft，尚未转 ready 或合并，`v0.6.0` Tag/Release 尚未执行。runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。DL Adapter（Phase 6）未启动；不宣称真实 ML 训练/执行、数据验收或科研 Agent 能力
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

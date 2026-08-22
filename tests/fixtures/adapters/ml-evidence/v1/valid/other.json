@@ -1,0 +1,12 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0008",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "other",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [],
+  "frozen_holdout": false,
+  "summary": "Auxiliary artifact (environment manifest).",
+  "limitations": []
+}

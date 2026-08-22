@@ -1,0 +1,78 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0102",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering"
+  ],
+  "dataset": {
+    "identity": "ml-case-0102-dataset",
+    "sha256": "6f3613ec4977d6ccef20a6104149c049f223af52d1bc3b79eb56d321d9fb209a",
+    "description": "Synthetic imbalanced tabular dataset, 3000 rows."
+  },
+  "split": {
+    "identity": "ml-case-0102-split",
+    "sha256": "7bb5964771686ed383385bb8cd3f8d8087621f5e1f6e7b276259e94cc024fd77",
+    "input_sha256": "6f3613ec4977d6ccef20a6104149c049f223af52d1bc3b79eb56d321d9fb209a",
+    "kind": "iid",
+    "parameters": {}
+  },
+  "preprocessing": [],
+  "sampling": [
+    {
+      "identity": "ml-case-0102-samp-over",
+      "sha256": "9eaf1073c8aea28f0d9240ad981bdcf37b37313ba1b1a00243fbcd6b4b7fe78a",
+      "input_sha256": "7bb5964771686ed383385bb8cd3f8d8087621f5e1f6e7b276259e94cc024fd77",
+      "method": "random-oversampling",
+      "scope": "full_data"
+    },
+    {
+      "identity": "ml-case-0102-samp-under",
+      "sha256": "71b842d7bcb998292c0034ab67b016bbe1e012e9c29b3e88842054e1043f91b0",
+      "input_sha256": "7bb5964771686ed383385bb8cd3f8d8087621f5e1f6e7b276259e94cc024fd77",
+      "method": "synthetic-minority",
+      "scope": "train_only"
+    }
+  ],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "f1"
+  ],
+  "tuning": {
+    "search_space": {},
+    "split_used": "validation",
+    "seed_count": 1
+  },
+  "selection": {
+    "identity": "ml-case-0102-selection",
+    "sha256": "8540d7eb04d12d00b2a1818455260ca5301863f561acadb27aaaa274aab726e1",
+    "input_sha256": "7bb5964771686ed383385bb8cd3f8d8087621f5e1f6e7b276259e94cc024fd77",
+    "split_used": "validation",
+    "metric": "f1",
+    "search_budget": {},
+    "seed_set": [
+      7
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

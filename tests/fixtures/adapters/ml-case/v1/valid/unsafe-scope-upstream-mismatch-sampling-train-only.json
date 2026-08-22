@@ -1,0 +1,71 @@
+{
+  "schema": "ml-case/v1",
+  "case_id": "ml-case-0103",
+  "study_id": "synthetic-ml-study-001",
+  "gates": [
+    "engineering"
+  ],
+  "dataset": {
+    "identity": "ml-case-0103-dataset",
+    "sha256": "20c8de5734125e72df0fa933a34a045de391ccd743c30b7bd7f51e63c64ed8ea",
+    "description": "Synthetic tabular dataset, 900 rows."
+  },
+  "split": {
+    "identity": "ml-case-0103-split",
+    "sha256": "d0d034a7b201591ecab6d500a81629bd96a2452061d379f50a68cf9db17baee2",
+    "input_sha256": "20c8de5734125e72df0fa933a34a045de391ccd743c30b7bd7f51e63c64ed8ea",
+    "kind": "iid",
+    "parameters": {}
+  },
+  "preprocessing": [],
+  "sampling": [
+    {
+      "identity": "ml-case-0103-samp-over",
+      "sha256": "9645476dee4daef84a28343f11cd79e5d5c463b9219c4c851a8ad9513a8a6f56",
+      "input_sha256": "20c8de5734125e72df0fa933a34a045de391ccd743c30b7bd7f51e63c64ed8ea",
+      "method": "random-oversampling",
+      "scope": "train_only"
+    }
+  ],
+  "feature": {
+    "selection_scope": "none",
+    "target_encoding_scope": "none"
+  },
+  "model": {
+    "family": "logistic-regression",
+    "hyperparameters": {}
+  },
+  "metrics": [
+    "accuracy"
+  ],
+  "tuning": {
+    "search_space": {},
+    "split_used": "validation",
+    "seed_count": 1
+  },
+  "selection": {
+    "identity": "ml-case-0103-selection",
+    "sha256": "32dee0c969dfdc31c9e9357b70c2f738e4212d1f0f1ec0aa5f101214b974f708",
+    "input_sha256": "d0d034a7b201591ecab6d500a81629bd96a2452061d379f50a68cf9db17baee2",
+    "split_used": "validation",
+    "metric": "accuracy",
+    "search_budget": {},
+    "seed_set": [
+      7
+    ]
+  },
+  "assessment": {
+    "calibration": {
+      "status": "not_performed"
+    },
+    "subgroup": {
+      "status": "not_performed"
+    },
+    "ood": {
+      "status": "not_performed"
+    },
+    "drift": {
+      "status": "not_performed"
+    }
+  }
+}

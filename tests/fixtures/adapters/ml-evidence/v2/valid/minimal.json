@@ -1,0 +1,17 @@
+{
+  "schema": "ml-evidence/v2",
+  "evidence_id": "ml-evidence-v2-0001",
+  "study_id": "synthetic-ml-study-001",
+  "case_sha256": "db1a76c3c319affc78a4ecc075cd68f5efc5a042dd9994d8aeac3473f5cb5837",
+  "kind": "experiment_run",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [7],
+  "frozen_holdout": true,
+  "final_evaluation": {
+    "partition": "test",
+    "split_sha256": "b903dd690536e72b25d898f7fc7e3dcc1d955e2d11a600bf895ad6e487730228"
+  },
+  "summary": "Deterministic synthetic final-evaluation experiment.",
+  "limitations": ["Synthetic data proves runner behavior only."]
+}

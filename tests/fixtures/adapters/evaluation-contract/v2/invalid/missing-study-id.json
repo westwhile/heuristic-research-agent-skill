@@ -1,0 +1,34 @@
+{
+  "schema": "evaluation-contract/v2",
+  "case_sha256": "db1a76c3c319affc78a4ecc075cd68f5efc5a042dd9994d8aeac3473f5cb5837",
+  "required_evidence": [
+    {
+      "claim_type": "engineering_claim",
+      "min_maturity": "engineering_verified"
+    }
+  ],
+  "forbidden_channels": [
+    "synthetic-as-real-data-evidence"
+  ],
+  "checkpoints": [
+    "M3: tuning never uses test or future holdout; selection never uses test metrics"
+  ],
+  "assessment_declaration": [
+    {
+      "dimension": "calibration",
+      "status": "not_performed"
+    },
+    {
+      "dimension": "subgroup",
+      "status": "not_performed"
+    },
+    {
+      "dimension": "ood",
+      "status": "not_performed"
+    },
+    {
+      "dimension": "drift",
+      "status": "not_performed"
+    }
+  ]
+}

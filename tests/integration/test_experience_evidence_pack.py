@@ -1,7 +1,10 @@
 """M6: qualification evidence pack (plan Phase 4 task 20; ADR-0007 decision 12).
 
 The pack under ``staging/research-memory/`` is built entirely through the
-public experience face with fixed, caller-injected timestamps:
+public experience face with fixed, caller-injected timestamps.  The Phase 4
+Math/Quant qualification bytes remain unchanged; Phase 5 L6 appends a
+separately built ML subtree containing case, pattern, heuristic, lint, and
+shadow evidence:
 
 - per domain (math, quant): three eligible ``research-case-package/v2``
   payloads via :func:`capture_case`, two candidate patterns via
@@ -35,6 +38,9 @@ from research_evolution.experience import (
     transition_pattern,
 )
 from tests.unit.test_experience_cases import _run, _task
+from tests.integration._ml_research_memory_pack import (
+    build_ml_research_memory_pack,
+)
 
 STAGING = Path(__file__).resolve().parents[2] / "staging" / "research-memory"
 
@@ -42,6 +48,7 @@ _CREATED = "2026-08-18T09:00:00Z"
 _DISTILLED_AT = "2026-08-18T10:00:00Z"
 _PROMOTED_AT = "2026-08-18T11:00:00Z"
 _QUERY_AT = "2026-08-18T12:00:00Z"
+_L6_AT = "2026-08-21T13:00:00Z"
 
 # Domain vocabularies deliberately avoid every _BANNED_TERMS token even
 # though staging data is outside the static scan surface.
@@ -186,21 +193,37 @@ def build_evidence_pack() -> dict:
     files["evidence/abstain/retrieval-session.json"] = canonical_bytes(
         abstain.session_entry
     )
+    ml = build_ml_research_memory_pack()
+    files.update(ml["files"])
     manifest = {
         "kind": "research-memory-evidence-manifest",
-        "generated_at": _QUERY_AT,
+        "generated_at": _L6_AT,
         "synthetic": True,
         "domains": {
-            domain: {"cases": 3, "candidate_patterns": 2} for domain in _DOMAINS
+            **{
+                domain: {"cases": 3, "candidate_patterns": 2}
+                for domain in _DOMAINS
+            },
+            "ml": {
+                "cases": 4,
+                "candidate_patterns": 1,
+                "shadow_heuristics": 3,
+            },
         },
         "abstain_sessions": 1,
+        "shadow_reports": 1,
         "files": {
             path: hashlib.sha256(content).hexdigest()
             for path, content in sorted(files.items())
         },
     }
     files["manifest.json"] = canonical_bytes(manifest)
-    return {"files": files, "abstain": abstain, "candidate_tips": candidate_tips}
+    return {
+        "files": files,
+        "abstain": abstain,
+        "candidate_tips": candidate_tips,
+        "ml": ml,
+    }
 
 
 class EvidencePackIntegrityTest(unittest.TestCase):
@@ -228,7 +251,12 @@ class EvidencePackIntegrityTest(unittest.TestCase):
 
     def test_every_payload_is_a_valid_record_or_session(self) -> None:
         for path in sorted(STAGING.rglob("*.json")):
+            relative = path.relative_to(STAGING).as_posix()
             if path.name in ("manifest.json", "retrieval-session.json"):
+                continue
+            if relative.startswith("evidence/ml/captures/"):
+                continue
+            if relative.startswith("evidence/ml/shadow/"):
                 continue
             with self.subTest(path=path.name):
                 load_record(path.read_bytes())

@@ -93,6 +93,41 @@ ADAPTER_FIXTURE_MANIFEST = {
             ),
         },
     },
+    "evaluation-contract/v2": {
+        "valid": ["all-vocabulary.json", "full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-assessment-status.json": (
+                "RecordValidationError",
+                "assessment_declaration",
+            ),
+            "missing-assessment-declaration.json": (
+                "RecordValidationError",
+                "assessment_declaration",
+            ),
+            "missing-study-id.json": ("RecordValidationError", "study_id"),
+            "whitespace-study-id.json": ("RecordValidationError", "study_id"),
+        },
+    },
+    "evaluation-contract/v3": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-selection-partition.json": (
+                "RecordValidationError",
+                "selection_partition",
+            ),
+            "bad-selection-sha256.json": (
+                "RecordValidationError",
+                "selection_sha256",
+            ),
+            "bad-split-sha256.json": ("RecordValidationError", "split_sha256"),
+            "missing-selection-partition.json": (
+                "RecordValidationError",
+                "selection_partition",
+            ),
+        },
+    },
     "math-task/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -189,6 +224,167 @@ ADAPTER_FIXTURE_MANIFEST = {
             "missing-study-id.json": ("RecordValidationError", "study_id"),
         },
     },
+    "domain-task/v2": {
+        "valid": ["full.json", "math.json", "minimal.json", "quant.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-domain-schema-id.json": ("RecordValidationError", "domain_schema_id"),
+            "bad-domain.json": ("RecordValidationError", "$.domain"),
+            "draft-missing-schema.json": ("RecordValidationError", "core_task_draft"),
+            "draft-wrong-schema-tag.json": ("RecordValidationError", "research-task/v1"),
+            "missing-domain-payload.json": ("RecordValidationError", "domain_payload"),
+            "payload-not-object.json": ("RecordValidationError", "domain_payload"),
+        },
+    },
+    "ml-task/v1": {
+        "valid": ["clustering.json", "full.json", "minimal.json", "regression.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-task-type.json": ("RecordValidationError", "task_type"),
+            "empty-completion-criteria.json": (
+                "RecordValidationError",
+                "completion_criteria",
+            ),
+            "missing-created-at.json": ("RecordValidationError", "created_at"),
+            "missing-holdout-policy.json": ("RecordValidationError", "holdout_policy"),
+            "whitespace-holdout-policy.json": ("RecordValidationError", "holdout_policy"),
+        },
+    },
+    "ml-case/v1": {
+        "valid": [
+            "full.json",
+            "group-split.json",
+            "minimal.json",
+            "nested-split.json",
+            "unsafe-assessment-calibration-detail-missing.json",
+            "unsafe-assessment-calibration-detail-present.json",
+            "unsafe-assessment-drift-detail-missing.json",
+            "unsafe-assessment-drift-detail-present.json",
+            "unsafe-assessment-ood-detail-missing.json",
+            "unsafe-assessment-ood-detail-present.json",
+            "unsafe-assessment-subgroup-detail-missing.json",
+            "unsafe-assessment-subgroup-detail-present.json",
+            "unsafe-feature-selection.json",
+            "unsafe-fit-scope-full-data.json",
+            "unsafe-sampling-scope-full-data.json",
+            "unsafe-sampling-scope-pre-split.json",
+            "unsafe-sampling-scope.json",
+            "unsafe-scope-upstream-mismatch-preprocessing-per-fold.json",
+            "unsafe-scope-upstream-mismatch-sampling-per-fold.json",
+            "unsafe-scope-upstream-mismatch-sampling-train-only.json",
+            "unsafe-scope-upstream-mismatch.json",
+            "unsafe-selection-split-test.json",
+            "unsafe-split-group-key-blank.json",
+            "unsafe-split-group-key-missing.json",
+            "unsafe-split-group-key-wrong-type.json",
+            "unsafe-split-nested-inner-folds-below-floor.json",
+            "unsafe-split-nested-inner-folds-float.json",
+            "unsafe-split-nested-outer-folds-bool.json",
+            "unsafe-split-nested-outer-folds-missing.json",
+            "unsafe-split-time-series-embargo-wrong-type.json",
+            "unsafe-split-time-series-gap-blank.json",
+            "unsafe-split-time-series-gap-missing.json",
+            "unsafe-target-encoding.json",
+            "unsafe-tuning-seed-count-zero.json",
+            "unsafe-tuning-split-future-holdout.json",
+            "unsafe-tuning-split-test.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-assessment-status.json": (
+                "RecordValidationError",
+                "assessment.calibration.status",
+            ),
+            "bad-gate.json": ("RecordValidationError", "$.gates"),
+            "bad-preprocessing-fit-scope.json": ("RecordValidationError", "fit_scope"),
+            "bad-selection-split-used.json": ("RecordValidationError", "selection.split_used"),
+            "bad-split-kind.json": ("RecordValidationError", "split.kind"),
+            "bad-tuning-split-used.json": ("RecordValidationError", "tuning.split_used"),
+            "empty-gates.json": ("RecordValidationError", "$.gates"),
+            "malformed-dataset-sha256.json": ("RecordValidationError", "dataset.sha256"),
+            "missing-assessment.json": ("RecordValidationError", "'assessment'"),
+            "missing-dataset.json": ("RecordValidationError", "dataset"),
+            "missing-sampling-scope.json": ("RecordValidationError", "'scope'"),
+        },
+    },
+    "ml-claim/v1": {
+        "valid": [
+            "data-acceptance.json",
+            "full.json",
+            "minimal.json",
+            "outcome-fail.json",
+            "outcome-inconclusive.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-case-sha256.json": ("RecordValidationError", "case_sha256"),
+            "bad-claim-class.json": ("RecordValidationError", "claim_class"),
+            "bad-declared-assessment-gap.json": (
+                "RecordValidationError",
+                "declared_assessment_gaps",
+            ),
+            "bad-outcome.json": ("RecordValidationError", "$.outcome"),
+            "missing-case-sha256.json": ("RecordValidationError", "case_sha256"),
+            "missing-declared-assessment-gaps.json": (
+                "RecordValidationError",
+                "declared_assessment_gaps",
+            ),
+            "missing-limitations.json": ("RecordValidationError", "limitations"),
+            "missing-non-entailments.json": (
+                "RecordValidationError",
+                "non_entailments",
+            ),
+            "whitespace-statement.json": ("RecordValidationError", "statement"),
+        },
+    },
+    "ml-evidence/v1": {
+        "valid": [
+            "calibration.json",
+            "data-audit.json",
+            "drift.json",
+            "duplicate-seeds-experiment.json",
+            "full.json",
+            "minimal.json",
+            "ood.json",
+            "other.json",
+            "real-experiment.json",
+            "single-seed-experiment.json",
+            "subgroup.json",
+            "synthetic-experiment.json",
+        ],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-content-sha256.json": ("RecordValidationError", "content_sha256"),
+            "bad-kind.json": ("RecordValidationError", "$.kind"),
+            "bad-provenance.json": ("RecordValidationError", "data_provenance"),
+            "bad-seed-type.json": ("RecordValidationError", "seeds"),
+            "missing-frozen-holdout.json": ("RecordValidationError", "frozen_holdout"),
+            "missing-seeds.json": ("RecordValidationError", "seeds"),
+            "missing-study-id.json": ("RecordValidationError", "study_id"),
+            "whitespace-summary.json": ("RecordValidationError", "summary"),
+        },
+    },
+    "ml-evidence/v2": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-case-sha256.json": ("RecordValidationError", "case_sha256"),
+            "bad-final-partition.json": ("RecordValidationError", "partition"),
+            "bad-final-split-sha256.json": (
+                "RecordValidationError",
+                "split_sha256",
+            ),
+            "bad-kind.json": ("RecordValidationError", "$.kind"),
+            "missing-final-evaluation.json": (
+                "RecordValidationError",
+                "final_evaluation",
+            ),
+            "missing-case-sha256.json": (
+                "RecordValidationError",
+                "case_sha256",
+            ),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -199,8 +395,17 @@ MINIMAL_FIXTURE_SHA256 = {
     "domain-task/v1": (
         "d4220f70af2cc8df6bfe4790d914d8bae25f3f8bfd7987290f7e90e1320890cd"
     ),
+    "domain-task/v2": (
+        "6247567e285b884f869d7ad4d0e9dbc8a2bc740b1c14cbe600fb7969690ba488"
+    ),
     "evaluation-contract/v1": (
         "8d28c5756a2ec8f90341562bbfbdd605350c3bc52cb3a6b03bfd6eac4b02d1ab"
+    ),
+    "evaluation-contract/v2": (
+        "74c6e459eded8f376c52bbe352567c8dd047c87d145f9002272fe86595049b01"
+    ),
+    "evaluation-contract/v3": (
+        "9e2a7125b4b53b23b6d11ddf2164e055351c561e8add62acaf6aff7a37940c81"
     ),
     "math-case/v1": (
         "9836f8c7af72b063942e002acf63cf57255886c23e7981fa6495c704ac9ddac0"
@@ -226,6 +431,21 @@ MINIMAL_FIXTURE_SHA256 = {
     "quant-task/v1": (
         "26d71ed439531b946676f7e192ccdaaca1fcde003fe5fc381521a1705971e410"
     ),
+    "ml-case/v1": (
+        "db1a76c3c319affc78a4ecc075cd68f5efc5a042dd9994d8aeac3473f5cb5837"
+    ),
+    "ml-claim/v1": (
+        "5476a90a25128d8cb8e56c85b1a4dde09feac1d07fb20df3a94acc6e00197d1e"
+    ),
+    "ml-evidence/v1": (
+        "45482e3ee65ec4a094885fbd38dce350fc4054a3e5e866748122e02ca65c90a9"
+    ),
+    "ml-evidence/v2": (
+        "1faba84d0d981a953df28ad0c118f29339c574d56092bb6922d3758ec2e32b39"
+    ),
+    "ml-task/v1": (
+        "01c7b20405bc53acd9dc218730b15269958c16b344701f305985037bb97234b9"
+    ),
 }
 
 # Golden pins (ADR-0004 decision 7): SHA-256 of each schema file's raw
@@ -237,8 +457,17 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     "domain-task-v1.schema.json": (
         "3e49118d4d3b17b68fafc95a2f5dd7389eefe0a200acd0c5194bc5127d8faf61"
     ),
+    "domain-task-v2.schema.json": (
+        "a0d69dbc81f99262de4d1eb0b6d0e21b2e1270fcd57e83ded60c45bd0b8da775"
+    ),
     "evaluation-contract-v1.schema.json": (
         "ab8294815264af74b19d325c7e1bd9e70bf938d4a39192736aee6a5d3e65be27"
+    ),
+    "evaluation-contract-v2.schema.json": (
+        "324a00414ad44653d2b3ed5e966221eced350e0cfa49ca9781e40c8fa209368a"
+    ),
+    "evaluation-contract-v3.schema.json": (
+        "85f504a336a50fc544123544e023d66d7aa08566e2da6756bfa148ac604566ae"
     ),
     "math-case-v1.schema.json": (
         "6c17344f768b6294468cd2d869b2820aa2f85ff33ccb8e9ba62e1071f38b4faa"
@@ -263,6 +492,21 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "quant-task-v1.schema.json": (
         "80a0c41c517a28f91154b3400ebc58566eecf8ce892fe958f1647de217793f33"
+    ),
+    "ml-case-v1.schema.json": (
+        "6c62f0d57ed3e791488496f2496e0b8c82d595dab127b2fd3e855393267ad6b0"
+    ),
+    "ml-claim-v1.schema.json": (
+        "0d549e740615e60e2abc9790c9ba2dc8980e01b9be4d8a96cf8b3cee5a3ed22f"
+    ),
+    "ml-evidence-v1.schema.json": (
+        "9e570378326ecafb942c6cda2a61fbf829c41f7c7fe59af49a2de60d0bdafb9b"
+    ),
+    "ml-evidence-v2.schema.json": (
+        "2cc375e9bdde843b2458e456a0eb940c52c43fdd6c52a4c6eb2d0eed32ca0679"
+    ),
+    "ml-task-v1.schema.json": (
+        "abef4cba8d8e36815f58d51aa78e31a8581872b8b7a432f9ca1deba5a0687637"
     ),
 }
 
@@ -350,18 +594,26 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_eleven_v1_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_nineteen_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "claim-assessment/v1",
                 "domain-task/v1",
+                "domain-task/v2",
                 "evaluation-contract/v1",
+                "evaluation-contract/v2",
+                "evaluation-contract/v3",
                 "math-case/v1",
                 "math-claim/v1",
                 "math-evidence/v1",
                 "math-task/v1",
+                "ml-case/v1",
+                "ml-claim/v1",
+                "ml-evidence/v1",
+                "ml-evidence/v2",
+                "ml-task/v1",
                 "quant-case/v1",
                 "quant-claim/v1",
                 "quant-evidence/v1",

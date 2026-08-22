@@ -1,0 +1,23 @@
+{
+  "schema": "ml-task/v1",
+  "task_id": "ml-task-0002",
+  "study_id": "synthetic-ml-study-001",
+  "title": "Synthetic forecasting repetition study",
+  "statement": "Do lag-feature ridge forecasts stay above a seasonal-naive baseline across seeds under a gapped time-series split?",
+  "task_type": "forecasting",
+  "data_spec": {
+    "source": "synthetic generator, two seasonalities plus noise",
+    "rows": 5200,
+    "label_space": "continuous target"
+  },
+  "holdout_policy": "All partitions are synthetic. The test partition is evaluated once at the end; the future holdout is never touched by tuning or selection.",
+  "scope": {},
+  "resources": {},
+  "completion_criteria": [
+    "Gap and embargo declarations are present in the split section.",
+    "Seed repetition study reports mean and variance, never best-only."
+  ],
+  "permissions": [],
+  "allowed_external_effects": [],
+  "created_at": "2026-08-18T09:00:00Z"
+}

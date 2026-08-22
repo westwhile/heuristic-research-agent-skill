@@ -1,0 +1,12 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0003",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "data_audit_report",
+  "data_provenance": "synthetic",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [],
+  "frozen_holdout": false,
+  "summary": "Schema and coverage audit of the synthetic dataset.",
+  "limitations": []
+}

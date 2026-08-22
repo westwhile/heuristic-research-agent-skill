@@ -1,0 +1,18 @@
+{
+  "schema": "ml-evidence/v1",
+  "evidence_id": "ml-evidence-0002",
+  "study_id": "synthetic-ml-study-001",
+  "kind": "experiment_run",
+  "data_provenance": "public",
+  "content_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "frozen_holdout": true,
+  "summary": "Repeated-seed experiment on the public dataset, evaluated once on the frozen holdout.",
+  "limitations": [
+    "Public benchmark distribution differs from any deployment distribution."
+  ]
+}
