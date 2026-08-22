@@ -1,10 +1,17 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.0-ml-adapter
-- 日期：2026-08-18
+- 计划版本：v5.2-post-release-planning
+- 初次制定日期：2026-08-18
+- 状态同步日期：2026-08-22
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 实现、独立审核与 commit-bound archive 验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付。PR #11 已通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入 `main`，该提交的 Windows/Ubuntu × Python 3.12/3.14 四项 CI 与 commit-bound archive 双解释器验收均通过；`v0.6.0` 尚未发布。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 实现、独立审核、main CI、commit-bound archive、annotated tag 与 GitHub Release evidence assets 均已闭环；发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
+
+### 规划补充（仅计划，不代表已实施）
+
+- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：`v0.6.0` 前置已完成，但许可证/来源仍为 P0；后续按 O1—O6 分离 Quick Start、公共协作、真实采用和申请证据；
+- [math-research-solve v13 跨领域吸收与升级计划](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：只吸收可独立证明的设计不变量；外部包许可未确认，v8/1.0.1 不可变，v13 不复制、不安装、不覆盖；
+- 两份补充计划均保持 `PLANNING_ONLY`，不授权 schema、代码、状态机、许可证选择、安装、外部申请或 v13 实施。
 
 ## 1. 最终目标与非目标
 
@@ -500,8 +507,18 @@ Post-merge 验收证据（2026-08-22）：PR #11 已通过 merge commit
 `216ec216af385a3b585fc1c6505d25ac67eac585` 合入 `main`；该提交的 main push CI
 run `32574399179` 在 Windows/Ubuntu × Python 3.12/3.14 四项 job 全部成功，
 两个 Windows governance 步骤成功。真实 `git archive` 双解释器均为 870/870
-（各 1 个预期 Git tracking skip），verdict 与 commit SHA 一致。`v0.6.0`
-Tag/Release 尚未执行，仍需独立发布 Gate。
+（各 1 个预期 Git tracking skip），verdict 与 commit SHA 一致。以上为 Phase 5
+功能 PR 的 post-merge 历史验收点。
+
+发布终态证据（2026-08-22）：PR #12 将 post-merge 状态文档通过 merge commit
+`c72e31eb4d5dbd367b20f24678e94682b963fed9` 合入 `main`；main push CI run
+`32579211332` 的 Windows/Ubuntu × Python 3.12/3.14 四项 job 与两个 Windows
+governance 步骤全部成功，真实 `git archive` 双解释器均为 870/870（各 1 个预期
+Git tracking skip）。annotated tag object
+`3f109b3e0c1366b93f780be21447e229aa3c3b3e` 指向该提交；`v0.6.0` GitHub Release
+以正式、非 prerelease、latest 状态发布六项 evidence assets，GitHub digest 与逐项
+回下载 SHA-256 对账均一致。该发布仍只是 engineering-only source milestone，
+不产生 Python package、OSS、Skill 安装或 Champion promotion 事实。
 
 ### 验收 Gate
 
@@ -585,7 +602,12 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 12. 防止 Candidate 修改 evaluator、报告、baseline、中央正式库、安装根或 Default/Preset；
 13. 生成 comparison report、publication plan、installation plan 和拒绝原因；publication/installation 只输出计划，除非分别获得授权；
 14. 实现 candidate archive、去重、compression review、deprecation、replacement 和 orphan cleanup 检查；
-15. 自动化等级最多到 E2：自动 candidate + public suite，人工决定 canonical publication、Git 发布、安装和激活。
+15. 自动化等级最多到 E2：自动 candidate + public suite，人工决定 canonical publication、Git 发布、安装和激活；
+16. 为 Candidate/Case/Experiment bundle 定义 `Artifact Closure Receipt`：manifest 成员、字节 hash、DAG、排除清单和 receipt-last 规则；明确闭包不等于科研正确；
+17. 生成 manifest 驱动的 `ContextBundle`（normal/compact/minimal-safe），保留 objective、权威 head、未解决义务、来源失效与省略清单；安全最小集超预算时 fail closed；
+18. 建立来源 lifecycle 与 impacted closure：correction/retraction/license-blocked 不改写历史，但阻塞受影响 Candidate 的 publication/promotion；
+19. 独立语义审查绑定 exact candidate hash，author/reviewer principal 分离；structural PASS、semantic PASS 与 ready-for-private-review 分开；
+20. 至少用 Math 与一个经验领域实现运行 seam/deletion test；只有两域字段语义与消费者均成立时才提通用 Core successor。
 
 ### 子 Skill 晋级最小证据包
 
@@ -607,6 +629,10 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 - 作者自检不能替代独立 fresh-session 动态验收；目录存在和静态发现不能替代真实运行时加载；
 - 新 Skill 的正触发、排除、Router 选择和相邻 Skill 冲突均有测试；
 - Phase 7 结束时 Candidate 仅可标记 `READY_FOR_PRIVATE_REVIEW`，不得标记 canonical、installed 或 active；
+- closure receipt 后任一成员字节变化都会使 receipt 失效；byte closure 不得满足 semantic Gate；
+- ContextBundle 的 minimal-safe 模式不会静默省略 objective、PIT/split/holdout、失效来源或 blocker；
+- 来源失效只改变证据可用性/复核状态，不自动断言 Claim 为假，也不重写历史；
+- 一个领域的实现或名字相似不能证明 Core seam；两域实现与 deletion test 是下沉前置条件；
 - canonical publication、Git push/tag、安装和 Default/Preset/Champion activation 四类操作分别审批；
 - 不执行自动 push/tag/publication/installation/promotion。
 
@@ -640,7 +666,11 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 11. 演练 reject、canary plan 和 rollback plan；
 12. 对已批准 Skill Candidate 补做独立运行时验收：dynamic discovery、隐式触发、Router 实际选择、fresh-session verdict、相邻 Skill 负例和接收方元数据保留；
 13. 将 Pattern/Skill 检索的负迁移、过度触发和上下文污染纳入 hidden/future holdout；
-14. 记录最小化的公开 Release evidence，不泄漏 hidden 内容。
+14. 记录最小化的公开 Release evidence，不泄漏 hidden 内容；
+15. 故障注入 receipt 后 byte mutation、成员遗漏/DAG 成环、旧 semantic verdict 复用和 reviewer principal 复用；
+16. 故障注入 stale/retracted/license-blocked source，证明其阻塞 publication/promotion 且不修改历史记录；
+17. 故障注入派生 Research Map/ContextBundle 携带 hidden 路线、答案或自动 route decision，验证派生层拒绝；
+18. 对 support matrix 注入同平台 `expected`/`verified` 矛盾，确保单一事实源 meta-test 拒绝。
 
 ### 验收 Gate
 
@@ -652,6 +682,8 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 - Promotion 仍要求人工批准；
 - Phase 8 只形成 hash-bound publication/promotion decision；canonical 写入、安装和激活仍由 Phase 9 分别执行；
 - 静态 `quick_validate`、作者自检和 staged payload 一致性不被表述为运行时验收；
+- structural PASS、independent semantic PASS、private/hidden PASS 三层 verdict 不可互相替代；
+- source invalidation 和 receipt mutation 的 fault injection 全部被 meta-tests 杀死；
 - 未安装 Candidate 不得声称完成 dynamic discovery 或隐式路由验证；
 - 回滚演练恢复 baseline hash 且不修改历史报告。
 
@@ -677,7 +709,7 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 2. snapshot 在 run 创建时复制为 immutable input 并 hash-bound；
 3. 已运行任务不动态读取 Registry；
 4. 为 Math、Quant、ML/DL executor 分别定义接入协议；
-5. 当前 `math-research-solve` v8 保持只读；新接入使用显式 successor/protocol version；
+5. 当前 `math-research-solve` v8/1.0.1 基线保持只读；外部工具包 1.11 中的 v13 只可作为单独登记、hash-bound 的候选设计基线，先过来源/许可和独立动态验收，再以显式 Math executor successor/protocol version 接入，绝不覆盖 v8；
 6. 第一批只 canary advisory/verifier checks，不自动 hard-block 高不确定规则；
 7. 观察 false block、false completion、成本和人工接管；
 8. 实现 one-step rollback，并验证新增文件 hash 后再移除；
@@ -686,7 +718,11 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 11. 准备 changelog、migration、release notes 和 artifact manifest；
 12. 发布 approved canonical Skill 时生成中央库 publication receipt、逐文件 manifest 和安装前 comparison report；
 13. 用户批准后提交、push、tag、Release；Skill 安装和 Champion activation 再单独批准；
-14. 每次研究项目 closeout 生成 Case Package，经过 eligibility/redaction 后进入 Pattern 队列；不得因项目结束而自动创建新 Skill。
+14. 每次研究项目 closeout 生成 Case Package，经过 eligibility/redaction 后进入 Pattern 队列；不得因项目结束而自动创建新 Skill；
+15. Math executor successor 将已验证 research-authority 与可恢复 execution-state 分头保存；先写不可变对象，再 validate/compare expected head，最后 guarded commit head 并 read-back；
+16. 并发失败只允许 conditional rollback：仅当 current head 仍等于本次写入值时回退，不覆盖其他 writer 的成功提交；
+17. publication 采用 prepare/validate/commit 与 completion receipt 两阶段；完成声明不能先于 exact snapshot、语义 verdict、receipt 和回读验证；
+18. Math 的 exactly-three attempts 与逻辑充分条件不推广为全域规则；Quant/ML/DL 只采用领域化 bounded portfolio 与 claim obligation graph。
 
 ### v1.0 Definition of Done
 
@@ -697,6 +733,8 @@ Tag/Release 尚未执行，仍需独立发布 Gate。
 - Candidate 无 hidden/evaluator/production 写权限；
 - Champion/Challenger 使用相同资源 envelope；
 - canary 与 rollback 至少真实演练一次；
+- v8 baseline 可按原 hash 回放；Math successor 的 authority/execution 双头、并发提交和 conditional rollback 已通过故障注入；
+- Math/Quant/ML/DL 的 bounded portfolio、ContextBundle 与 semantic reviewer 均保留领域语义，没有被 Core 统一状态机抹平；
 - Release artifact、Git tag、commit 和 manifest hash 一致；
 - Pattern promotion、canonical Skill publication、Git/Release、Skill 安装和 Champion promotion 有五类独立 decision/receipt；
 - 文档没有把工程、合成、样本外或 canary 结果夸大为更强 Claim。
@@ -806,6 +844,23 @@ approved staged candidate
 - 中央库是权威源码库，安装根是派生副本；不得在多个安装根手工并行编辑；
 - 同步前后记录 hash manifest、目标不存在/add-only 状态、receiver-owned metadata 处理和 rollback 位置；
 - 真实安装、提交、push、tag、Release 和激活均按各自授权边界执行。
+
+### 4.8 外部基线与跨领域设计吸收
+
+- 外部 Skill/工具包先登记 artifact hash、版本、来源、许可、获取日期和只读审查状态；无明确兼容许可时只允许抽象层设计评审，不复制 payload；
+- 当前 Math v8/1.0.1 基线不可变；v13 候选与其并列登记，不覆盖、不静默升级；
+- 跨领域吸收遵循 [math-research-solve v13 跨领域吸收与升级计划](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：先区分跨域不变量、领域同构机制和 Math 专属机制；
+- exactly-three、证明路线和逻辑充分条件留在 Math；Quant/ML/DL 只借鉴有界组合、来源失效、受限上下文、包闭包和独立语义审核的形态；
+- 新 Core seam 必须有至少两个领域的实际消费者、字段语义一致性和 deletion test；单领域实现只能留在 Adapter/Executor；
+- Research Map/ContextBundle 是可重建派生物，既不作为 Evidence，也不授予 route、publication、installation 或 activation 权限。
+
+### 4.9 开源资格与外部申请
+
+- Codex for Open Source 的建设与申请按 [资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md) 执行；
+- `v0.6.0` GitHub source milestone 已完成，但公开仓库仍不等于开源：许可证与全部 tracked files 来源审计继续是 P0 阻塞 Gate；
+- Quick Start、archive install/demo、协作治理和真实外部试用在申请前分别留证；现有四项 public CI 只是 O3 的已完成子项；
+- star、fork、download、contributor 等指标只在申请日实时读取，不制造或夸大采用；
+- 表单文案逐句绑定公开证据，私密字段不进入仓库；填写和提交申请仍需用户单独授权。
 
 ## 5. 风险登记
 
