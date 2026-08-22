@@ -4,7 +4,7 @@
 - 日期：2026-08-18
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 实现、独立审核与 commit-bound archive 验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付。功能分支已推送，Draft PR #11 已创建且 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 均通过；PR 仍保持 Draft，尚未转 ready 或合并，`v0.6.0` 尚未发布。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
+- 当前状态：Phase 0—4 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix，发布证据链见各 Phase 验收报告）；Phase 5（ML Adapter）L1–L6 实现、独立审核与 commit-bound archive 验收已完成——L2（数据合同）、L3（声明式泄漏检查）、L4/L4.1（final-evaluation Gate、合成 runner 与合同加固）、L5（四 split assignment Gate、20-case 合成目录、非时间/时间双切片）及 L6（4 个 Case Package、cross-case candidate Pattern、3 条 shadow Heuristic、重合分析与验收报告）均已交付。PR #11 已通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入 `main`，该提交的 Windows/Ubuntu × Python 3.12/3.14 四项 CI 与 commit-bound archive 双解释器验收均通过；`v0.6.0` 尚未发布。尚无真实 ML 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环或生产发布能力。
 
 ## 1. 最终目标与非目标
 
@@ -489,13 +489,19 @@ experience interface 生成 4 个 ML Case Package、1 条两版本 candidate Pat
 commit `a0dfc7d389adc46070ba6ec35a1daaeeff098310` 双解释器通过 865/865
 （各 1 个预期 Git tracking skip）。
 
-PR 代码集成基线证据（2026-08-22）：合入公共 CI baseline 后的集成提交
+PR 代码集成基线证据（2026-08-22，合并前历史时点）：合入公共 CI baseline 后的集成提交
 `3b35ca5b2770fcff4d7fb6b02fe014c1f7cb7f99` 在工作树与真实 `git archive`
-双解释器均为 870/870（archive 各 1 个预期 Git tracking skip）；Draft PR #11
+双解释器均为 870/870（archive 各 1 个预期 Git tracking skip）；PR #11
 在该集成提交上的 Windows/Ubuntu × Python 3.12/3.14 四项 required checks 也各为 870/870，
-两个 Windows job 另过 PowerShell 33 assertions / 6 cases。PR 仍保持 Draft，
-尚未转 ready 或合并，`v0.6.0` Tag/Release 尚未执行。以上为 PR 代码集成基线证据；
+两个 Windows job 另过 PowerShell 33 assertions / 6 cases。以上为 PR 合并前的代码集成基线证据；
 前段 865/865 与 `a0dfc7d` 继续保留为 L6 独立审核时点的历史验收证据。
+
+Post-merge 验收证据（2026-08-22）：PR #11 已通过 merge commit
+`216ec216af385a3b585fc1c6505d25ac67eac585` 合入 `main`；该提交的 main push CI
+run `32574399179` 在 Windows/Ubuntu × Python 3.12/3.14 四项 job 全部成功，
+两个 Windows governance 步骤成功。真实 `git archive` 双解释器均为 870/870
+（各 1 个预期 Git tracking skip），verdict 与 commit SHA 一致。`v0.6.0`
+Tag/Release 尚未执行，仍需独立发布 Gate。
 
 ### 验收 Gate
 
