@@ -3,7 +3,7 @@
   "status": "active",
   "reviewed_at": "2026-08-23",
   "baseline_commit": "b9a3b8268575fe32399b83295595710944c6a772",
-  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, and nine proposed Phase 6 L4 study/case/matrix/report files; modified paths remain covered by existing first-match rules.",
+  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21; modified paths remain covered by existing first-match rules.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",

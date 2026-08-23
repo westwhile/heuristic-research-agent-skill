@@ -15,9 +15,9 @@ OpenAI program.
 The maintainer `westwhile` confirmed ownership of, or authorization to license,
 all files tracked at the baseline commit and repository-native work performed
 under the maintainer's direction, including the two O6 application-evidence
-files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, and
-three Phase 6 L3 runner/selection files, plus nine proposed Phase 6 L4
-study/case/matrix/report files,
+files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three
+Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report
+files merged to `main` by PR #21,
 under Apache-2.0. This confirmation
 does not extend to excluded external payloads and does not waive obligations
 that accompany any third-party material added later.
@@ -29,7 +29,8 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed Phase 6 L4 acceptance tree contains 873 files:
+The Phase 6 L4 mainline tree at merge commit
+`6c63c0bad88f032fb1091cdc5c91242bf22b2087` contains 873 files:
 
 | Source class | Count | Boundary |
 |---|---:|---|

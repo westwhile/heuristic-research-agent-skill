@@ -1,11 +1,11 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.11-phase6-l4-commit-bound
+- 计划版本：v5.12-phase6-l4-main-merged
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-23
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。PR #19 的 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 已把 O5 公开入口合入 `main`，对应 run `32622282409` 四项全绿；当前等待维护者选择外部参与者，仍无外部结果。O6 仅进入公开证据草案准备，私密字段和最终提交均未启动。Phase 6 Draft PR #21 已推送 L1–L4；L4 implementation commit `45047261c0ccd48cd141801225b01de24cfd1067` 的真实 archive 双解释器 Gate 均为 971/971（各 1 个预期 Git tracking skip），CI run `32633282906` 的 Windows/Ubuntu × Python 3.12/3.14 四项 required jobs 与两个 Windows governance 步骤全绿。当前证据上限仍为 synthetic engineering；没有训练框架/GPU 执行、真实外部 checkpoint store、scheduler recovery、真实 ML/DL 数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。PR 保持 Draft；任何后续状态同步提交仍须通过 exact-commit archive、四项 required checks 与最终声明审计，`v0.7.0` Gate 未开启。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。PR #19 的 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 已把 O5 公开入口合入 `main`，对应 run `32622282409` 四项全绿；当前等待维护者选择外部参与者，仍无外部结果。O6 仅进入公开证据草案准备，私密字段和最终提交均未启动。Phase 6 L1–L4 已通过 PR #21 的 merge commit `6c63c0bad88f032fb1091cdc5c91242bf22b2087` 合入 `main`；其 Git tree 与通过真实 archive 双解释器 971/971（各 1 个预期 Git tracking skip）的 PR final head `2f5f11dc64c07a5227b58d69c294112f50c5a138` 完全一致。main push CI run `32634831816` 的 Windows/Ubuntu × Python 3.12/3.14 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤全绿。当前证据上限仍为 synthetic engineering；没有训练框架/GPU 执行、真实外部 checkpoint store、scheduler recovery、真实 ML/DL 数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。未创建 `v0.7.0` Tag 或 Release，发布 Gate 未开启。
 
 ### 规划补充（仅计划，不代表已实施）
 
@@ -541,7 +541,7 @@ Git tracking skip）。annotated tag object
 
 ## Phase 6：Deep Learning 扩展
 
-当前实施状态（2026-08-23）：L1 manifest、L2 runner 0.1.0、L3 runner 0.2.0/selector 0.1.0 与 L4 study reporter 0.1.0 已分四个提交推送 Draft PR #21。L4 implementation commit `45047261c0ccd48cd141801225b01de24cfd1067` 包含 10-case 合成验收目录、5 个测试内重建 Case Package、单因素 ablation、scale 与 FLOP-proxy compute-matched Gate、机器可读 DL support matrix 和验收报告；该 exact commit 的真实 `git archive` 双解释器 Gate 均为 971/971（各 1 个预期 Git tracking skip），CI run `32633282906` 的 Windows/Ubuntu × Python 3.12/3.14 四项 required jobs 与两个 Windows governance 步骤成功。L1 为 configuration-only，L2–L4 上限均为 synthetic engineering；不执行框架/GPU 探测、真实外部 checkpoint store、真实调度器抢占或真实数据验收。PR 保持 Draft，Ready/merge 与 `v0.7.0` 发布仍是独立 Gate。
+当前实施状态（2026-08-23）：L1 manifest、L2 runner 0.1.0、L3 runner 0.2.0/selector 0.1.0 与 L4 study reporter 0.1.0 已通过 PR #21 的 merge commit `6c63c0bad88f032fb1091cdc5c91242bf22b2087` 合入 `main`。L4 包含 10-case 合成验收目录、5 个测试内重建 Case Package、单因素 ablation、scale 与 FLOP-proxy compute-matched Gate、机器可读 DL support matrix 和验收报告。PR final head `2f5f11dc64c07a5227b58d69c294112f50c5a138` 的真实 `git archive` 双解释器 Gate 均为 971/971（各 1 个预期 Git tracking skip），其 Git tree 与 merge commit 完全一致；merge commit 的 main push CI run `32634831816` 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤成功。L1 为 configuration-only，L2–L4 上限均为 synthetic engineering；不执行框架/GPU 探测、真实外部 checkpoint store、真实调度器抢占或真实数据验收。`v0.7.0` Tag/Release Gate 未开启。
 
 ### 目标
 
