@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 已以 annotated `v0.6.0` Tag 发布，随后 Apache-2.0、来源治理、source-install Quick Start、双平台 archive Gate 与公共协作入口又以 annotated [`v0.6.1` source Release](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1) 发布。`v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向提交 `5af73595f847702930e0c1966986f3d06d3c1c35`；六项 Release assets 已回下载并与 GitHub digest、发布前 SHA-256 三方对账**。O5 外部 Quick Start 试用入口现已准备，但尚无外部结果；这不是 PyPI 发布、Skill 安装、真实 ML 执行、真实科研验收或生产能力证明。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 已以 annotated `v0.6.0` Tag 发布，随后 Apache-2.0、来源治理、source-install Quick Start、双平台 archive Gate 与公共协作入口又以 annotated [`v0.6.1` source Release](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1) 发布。`v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向提交 `5af73595f847702930e0c1966986f3d06d3c1c35`；六项 Release assets 已回下载并与 GitHub digest、发布前 SHA-256 三方对账**。O5 外部 Quick Start 试用入口已公开，当前等待维护者选择参与者且仍无外部结果；O6 只建立公开证据草案，不代表已提交申请。这不是 PyPI 发布、Skill 安装、真实 ML 执行、真实科研验收或生产能力证明。
 
 ## 项目目标
 
@@ -41,6 +41,7 @@ Case Package
 - [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
 - [Codex for Open Source 资格申请计划](docs/plans/CODEX_FOR_OSS_APPLICATION_PLAN.md)
 - [O5 外部 Quick Start 试用协议](docs/governance/EXTERNAL_TRIAL_PROTOCOL.md)
+- [O6 公开申请证据与逐句核证草案](docs/governance/codex-for-oss/application-claims.md)
 - [math-research-solve v13 来源边界与延期说明](docs/plans/MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)
 - [来源、权利与第三方边界](docs/governance/SOURCE_PROVENANCE.md)
 - [总体架构](docs/architecture/ARCHITECTURE.md)

@@ -1,19 +1,19 @@
 # Codex for Open Source 资格申请完整计划
 
-- 计划状态：`O1_O2_O3_O4_COMPLETE / V0.6.1_RELEASED / O5_TRIAL_LAUNCH`
-- 计划版本：v1.7-o5-trial-launch
+- 计划状态：`O1_O2_O3_O4_COMPLETE / V0.6.1_RELEASED / O5_WAITING / O6_EVIDENCE_PREP`
+- 计划版本：v1.8-o6-evidence-prep
 - 初次评估日期：2026-08-20
 - 状态同步日期：2026-08-23
 - 适用仓库：`westwhile/heuristic-research-agent-skill`
 - 已完成前置：PR #14—#18 已完成 Apache-2.0/来源治理、Quick Start/合成 demo、archive install 支持矩阵、公共协作治理与 `v0.6.1` release prep；annotated `v0.6.1` source Release 及六项 checksum-bound assets 已发布并回下载验证；OSS 外部动作仍为未申请、未提交表单
 
-> 本文件主要定义申请前的建设、证据和审批 Gate。O1—O4 与 `v0.6.1` source Release Gate 已完成；当前启动 O5 外部 Quick Start 试用入口。真实外部尝试、O6 证据包以及填写/提交申请表仍是相互独立的 Gate。
+> 本文件主要定义申请前的建设、证据和审批 Gate。O1—O4 与 `v0.6.1` source Release Gate 已完成；O5 公开入口已合入，当前等待维护者选择外部参与者。O6 可先准备公开证据包，但真实外部尝试、私密字段、最终文案批准以及填写/提交申请表仍是相互独立的 Gate。
 
 ## 1. 裁定摘要
 
 该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。PR #14—#18 已完成 Apache-2.0、`unknown=0` 来源 Gate、source-install Quick Start、四 lane clean-archive install/demo Gate、公共贡献/安全治理与 release prep。annotated `v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35`；main CI run `32619619333` 四项 required jobs 全绿，正式 Release 六项 assets 已回下载并与 GitHub digest、发布前 SHA-256 三方一致。项目仍不宜直接提交申请，因为真实外部采用证据尚未形成。
 
-推荐路线：在已完成 O1—O4 与 `v0.6.1` source Release Gate 的基础上，按 [O5 外部 Quick Start 试用协议](../governance/EXTERNAL_TRIAL_PROTOCOL.md)开放 2—4 周真实试用并积累可核验证据，随后执行 O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试、合成 demo、维护者回下载或本试用入口本身都不构成采用证明。
+推荐路线：在已完成 O1—O4 与 `v0.6.1` source Release Gate 的基础上，先建立 [O6 公开证据草案](../governance/codex-for-oss/application-claims.md)，再按 [O5 外部 Quick Start 试用协议](../governance/EXTERNAL_TRIAL_PROTOCOL.md)完成 2—4 周真实试用并用结果刷新 O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试、合成 demo、维护者回下载、本试用入口或 O6 草案本身都不构成采用证明。
 
 ## 2. 官方项目要求与表单字段
 
@@ -38,11 +38,11 @@
 |---|---|---|
 | 可见性 | GitHub public，默认分支 `main` | 满足“仓库公开”的表单前提，但不等于已开源 |
 | 许可证 | PR #14 已以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 把 Apache-2.0、`NOTICE`、包元数据和 `unknown=0` 来源登记合入 `main`；GitHub 已识别 Apache-2.0 | O1 已完成；后续仍须保持来源 Gate，且不得把仓库许可证外推为第三方内容授权 |
-| 采用度 | 1 star、0 fork、1 contributor、0 open issue；`v0.6.1` 六项 assets 各有本轮维护者回下载产生的 1 次下载 | 采用度信号仍弱；这 6 次下载是发布校验，不是外部采用，需真实试用证据补强 |
-| 维护活动 | 18 个已合并 PR、7 个 GitHub Release、8 个 Tag，当前无 open PR | 有持续维护基础，但活动来自单一维护者；该内部活动不等于外部采用 |
+| 采用度 | 1 star、0 fork、1 authenticated maintainer account、0 independent external contributor、0 issue；`v0.6.1` 六项 assets 各有本轮维护者回下载产生的 1 次下载 | 采用度信号仍弱；匿名 Git 归属不计作第二个人，这 6 次下载也不是外部采用，需真实试用证据补强 |
+| 维护活动 | 19 个已合并 PR、7 个 GitHub Release、8 个 Tag，当前无 open PR | 有持续维护基础，但活动来自单一维护者；该内部活动不等于外部采用 |
 | 发布版本 | annotated `v0.6.1` 与六项 checksum-bound assets 已发布；Tag/commit/package/support matrix 均为 `0.6.1` 语义 | O3 Release Gate 已闭环；仍未发布 PyPI/wheel 或 Skill |
 | CI | release merge SHA `5af73595f847702930e0c1966986f3d06d3c1c35` 的 main run `32619619333` 在 Windows/Ubuntu × Python 3.12/3.14 四项 required jobs 全绿，Windows governance 成功 | O3 工程与 Release Gate 完成；只证明该提交的可复跑工程状态 |
-| 协作治理 | PR #17 已合入协作治理入口；O5 变更新增公开试用协议与专用反馈 form | O4 已完成，O5 入口进入启动；尚无外部贡献、试用结果或安全报告 |
+| 协作治理 | PR #17 已合入协作治理入口；PR #19 已以 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 合入 O5 协议与专用反馈 form，对应 main run `32622282409` 四项全绿 | O4 已完成；O5 入口公开但等待参与者，尚无外部贡献、试用结果或安全报告 |
 | 安装/演示 | PR #15 已提供 source-install Quick Start，PR #16 已在四 required lanes 从 exact commit archive 安装并运行成功/拒绝 demo | O2 与 O3 archive install 子项已完成；仍不构成真实研究或采用证据 |
 | 架构与测试 | PR #17/main 当前为 886 tests；四 required lanes 均含 provenance、full suite 与 archive install/demo，Windows governance 成功 | 是可复跑的工程基础，但仍须通过真实外部使用转化为采用证据 |
 
@@ -158,7 +158,7 @@
 
 目标：补足当前 1 star/0 fork/单贡献者的弱采用信号，不追求虚假增长。
 
-启动状态（2026-08-23）：`v0.6.1` 已发布；本变更增加独立试用协议和专用 Quick Start 反馈 form。状态仍为 `LAUNCH_READY / NO_EXTERNAL_RESULTS_YET`，因为入口、维护者自测、机器人活动与资产回下载都不是外部采用。试用记录与退出判据以 [O5 external Quick Start trial protocol](../governance/EXTERNAL_TRIAL_PROTOCOL.md) 为准。
+等待状态（2026-08-23）：`v0.6.1` 已发布，PR #19 已把独立试用协议和专用 Quick Start 反馈 form 合入 `main`。维护者决定过几天再选择并邀请 2—3 位参与者；当前状态为 `WAITING_FOR_EXTERNAL_PARTICIPANTS / NO_EXTERNAL_RESULTS_YET`，所有合格计数均为零。入口、维护者自测、机器人活动与资产回下载都不是外部采用。试用记录与退出判据以 [O5 external Quick Start trial protocol](../governance/EXTERNAL_TRIAL_PROTOCOL.md) 为准。
 
 任务：
 
@@ -181,10 +181,17 @@
 
 目标：用可追踪事实完成表单，不靠夸张叙事。
 
+准备状态（2026-08-23）：已建立公开的机器可读
+[`application-evidence.json`](../governance/codex-for-oss/application-evidence.json)
+和逐句核证的 [`application-claims.md`](../governance/codex-for-oss/application-claims.md)。
+三个草案均低于最后一次核验的 500-character 限制，但 O5 为零、表单非交互
+重取受到 anti-bot challenge、私密字段未提供且提交未授权，因此状态保持
+`PREPARATION_ONLY / HOLD_FOR_EXTERNAL_EVIDENCE / DO_NOT_SUBMIT`。
+
 证据包：
 
-1. `application-evidence.json`：申请日期、repo SHA、Release、CI runs、实时仓库指标、Quick Start 结果；
-2. `application-claims.md`：表单每句话 → 支撑 URL/文件/commit；
+1. [`application-evidence.json`](../governance/codex-for-oss/application-evidence.json)：申请准备日期、repo SHA、Release、CI runs、实时仓库指标、Quick Start 结果；
+2. [`application-claims.md`](../governance/codex-for-oss/application-claims.md)：表单每句话 → 支撑 URL/文件/commit；
 3. maintainer role 说明与公开 GitHub profile 检查；
 4. OpenAI Organization ID 由用户从其账户确认，不写入仓库；
 5. 计划使用 credits 的预算与用途，不包含真实交易、敏感数据或未经授权的第三方内容；

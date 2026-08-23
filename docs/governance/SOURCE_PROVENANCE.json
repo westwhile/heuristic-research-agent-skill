@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-08-23",
-  "baseline_commit": "5af73595f847702930e0c1966986f3d06d3c1c35",
-  "inventory_scope": "All 842 files tracked at baseline_commit plus two proposed repository-native O5 trial-entry files; modified paths remain covered by existing first-match rules.",
+  "baseline_commit": "b9a3b8268575fe32399b83295595710944c6a772",
+  "inventory_scope": "All 844 files tracked at baseline_commit plus two proposed repository-native O6 application-evidence files; modified paths remain covered by existing first-match rules.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 711,
+      "independently_authored": 713,
       "generated": 118,
       "design_inspired": 13,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 844
+      "total": 846
     },
     "rules": [
       {
@@ -268,7 +268,7 @@
       ],
       "visible_license": "official non-vendored references; no page or terms text copied",
       "tracked_expression_reused": false,
-      "tracked_use": "Links and independently paraphrased eligibility, form-field, benefit, review, and agreement facts in the application plan.",
+      "tracked_use": "Links and independently paraphrased eligibility, form-field, benefit, review, and agreement facts in the application plan and public O6 evidence drafts.",
       "disposition": "Retain direct official links, keep quotations short or absent, and re-check the live pages before any application submission.",
       "notice_action": "None for non-vendored links and independently written factual summaries.",
       "evidence_sufficient_for_reuse": true

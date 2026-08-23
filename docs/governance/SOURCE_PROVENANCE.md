@@ -1,7 +1,7 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `5af73595f847702930e0c1966986f3d06d3c1c35`
+- Baseline commit: `b9a3b8268575fe32399b83295595710944c6a772`
 - Review date: 2026-08-23
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
@@ -13,8 +13,8 @@ OpenAI program.
 ## Rights confirmation
 
 The maintainer `westwhile` confirmed ownership of, or authorization to license,
-all files tracked at the baseline commit and the two independently authored O5
-trial-entry files under Apache-2.0. This confirmation does not extend to
+all files tracked at the baseline commit and the two independently authored O6
+public application-evidence files under Apache-2.0. This confirmation does not extend to
 excluded external payloads and does not waive obligations that accompany any
 third-party material added later.
 
@@ -25,11 +25,11 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed O5 external-trial launch tree contains 844 files:
+The proposed O6 application-evidence preparation tree contains 846 files:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 711 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 713 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -87,11 +87,11 @@ references commit-pinned MIT-licensed `actions/checkout` and
 is referenced by dialect URI and vocabulary only. These references do not add
 third-party source payloads to this distribution.
 
-The Codex for Open Source plan links to OpenAI's official project page,
-application form, and Program Terms. The repository records independently
-written factual summaries of the live pages checked on 2026-08-23; it does not
-vendor or copy page or terms text. The live sources must be checked again before
-any application submission.
+The Codex for Open Source plan and O6 public evidence drafts link to OpenAI's
+official project page, application form, and Program Terms. The repository
+records independently written factual summaries of the live pages checked on
+2026-08-23; it does not vendor or copy page or terms text. The live sources must
+be checked again before any application submission.
 
 ## Change rule
 
