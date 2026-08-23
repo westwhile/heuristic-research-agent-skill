@@ -1,7 +1,7 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-23",
-  "phase": "phase6-l4-working-tree",
+  "phase": "phase6-l4-commit-bound-pr-draft",
   "evidence_ceiling": "synthetic_engineering",
   "interfaces": [
     {
@@ -22,14 +22,14 @@
     {
       "name": "reference-dl-study-reporter",
       "version": "0.1.0",
-      "status": "implemented_in_working_tree_pending_commit_bound_gate"
+      "status": "implemented_synthetic_commit_bound"
     }
   ],
   "ci_lanes": {
     "source_of_truth": "docs/governance/SUPPORT_MATRIX.json",
     "last_commit_bound_phase6_evidence": {
-      "commit": "322159b8bc0abe5dcbca74b22d5cc1fd4545802f",
-      "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32630395189",
+      "commit": "45047261c0ccd48cd141801225b01de24cfd1067",
+      "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32633282906",
       "jobs": [
         {
           "os": "ubuntu-latest",
@@ -54,7 +54,7 @@
           "powershell_governance": "success"
         }
       ],
-      "scope": "Phase 6 L1-L3; this is not evidence for the uncommitted L4 tree"
+      "scope": "Phase 6 L1-L4 synthetic engineering behavior at the exact PR head; this is not real framework, GPU, dataset, scientific, adoption, or production evidence"
     }
   },
   "execution_matrix": [
@@ -121,6 +121,6 @@
     "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
     "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
     "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
-    "No v0.7.0 tag or release gate is open while L4 lacks commit-bound archive and CI evidence."
+    "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
 }

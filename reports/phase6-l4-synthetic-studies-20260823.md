@@ -1,6 +1,6 @@
 # Phase 6 L4 合成失败与比较报告（2026-08-23）
 
-状态：**本地工作树合成工程证据**。本报告只证明 L4 case、study-report 与
+状态：**commit-bound 合成工程证据**。本报告只证明 L4 case、study-report 与
 resource-parity Gate 在标准库 tiny-MLP fixture 上按合同工作；不构成真实 OOM、
 真实抢占、框架/GPU 执行、数据验收、模型能力或科研结论。
 
@@ -51,6 +51,8 @@ engineering-only Evidence 与 output hash，且通过 privacy/eligibility Gate�
 
 机器可读矩阵见 `docs/governance/DL_SUPPORT_MATRIX.json`。当前实际实现是 Python
 标准库 CPU tiny-MLP；runner artifact 明确写入 `hardware=declared_not_observed`
-与 `framework=not_loaded`。PR #21 的提交 `322159b8...` 已有四平台/解释器 CI
-证据，但只覆盖 L1–L3；当前 L4 仍需 commit-bound `git archive` 双解释器 Gate
-和该提交的四项 CI 后，才能形成 L4 平台证据。跨 GPU 数值复现性全部未验证。
+与 `framework=not_loaded`。PR #21 的 L4 implementation commit `45047261...`
+已通过真实 `git archive` 双解释器 971/971（各 1 个预期 Git tracking skip）与
+exact-head CI run `32633282906` 的四项 required jobs；两个 Windows PowerShell
+governance 步骤成功。以上只形成 L4 合成平台工程证据，跨 GPU 数值复现性仍
+全部未验证。
