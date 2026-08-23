@@ -1,17 +1,17 @@
 # Codex for Open Source 资格申请完整计划
 
-- 计划状态：`O1_O2_COMPLETE / O3_IMPLEMENTATION_DRAFT / HOLD_FOR_READINESS`
-- 计划版本：v1.4-oss-r0-pr-c
+- 计划状态：`O1_O2_COMPLETE / O3_ENGINEERING_COMPLETE_RELEASE_PENDING / O4_IMPLEMENTATION_DRAFT / HOLD_FOR_READINESS`
+- 计划版本：v1.5-oss-r0-pr-d
 - 初次评估日期：2026-08-20
 - 状态同步日期：2026-08-23
 - 适用仓库：`westwhile/heuristic-research-agent-skill`
-- 已完成前置：`v0.6.0` GitHub source milestone 已发布；PR #14 已完成 Apache-2.0/来源治理，PR #15 已完成 Quick Start/合成 demo；OSS 外部动作仍为未申请、未提交表单
+- 已完成前置：`v0.6.0` GitHub source milestone 已发布；PR #14—#16 已完成 Apache-2.0/来源治理、Quick Start/合成 demo 与 archive install 支持矩阵；OSS 外部动作仍为未申请、未提交表单
 
-> 本文件主要定义申请前的建设、证据和审批 Gate。O1—O2 已合入 `main`；当前 PR-C 只实施 O3 的支持矩阵、diff 卫生与 clean-archive install/demo Gate。Tag、Release、外部试用及填写/提交申请表仍是独立 Gate。
+> 本文件主要定义申请前的建设、证据和审批 Gate。O1—O2 与 O3 工程 Gate 已合入 `main`；当前 PR-D 只实施 O4 的贡献、安全、行为准则、治理、变更记录、引用与 Issue/PR 入口。Tag、Release、外部试用及填写/提交申请表仍是独立 Gate。
 
 ## 1. 裁定摘要
 
-该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。Phase 5 与 `v0.6.0` source milestone 已完成，公共 CI、annotated tag、Release evidence assets 和 commit-bound archive Gate 已形成。PR #14 已把 Apache-2.0 与 `unknown=0` 来源 Gate 合入 `main`；PR #15 又以 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae` 合入未发布的 `0.6.1` 候选、source-install CLI、合成 demo 与 Quick Start，main CI run `32616812612` 四项全绿。当前 PR-C 正在补充权威支持矩阵和 clean-archive install/demo Gate。项目仍不宜直接提交申请，因为 PR-C 尚待验证合入，协作治理与真实外部采用证据也尚未完成。
+该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。PR #14 已把 Apache-2.0 与 `unknown=0` 来源 Gate 合入 `main`；PR #15 已合入未发布的 `0.6.1` 候选、source-install CLI、合成 demo 与 Quick Start；PR #16 又以 merge commit `b6b2b9aff27b054b1e4324d1dba308873e5b394a` 合入权威支持矩阵、diff hygiene 与四 lane clean-archive install/demo Gate，main CI run `32617521658` 全绿。当前 PR-D 正在补充公共贡献、安全和治理入口。项目仍不宜直接提交申请，因为 O4 尚待验证合入，`v0.6.1` 尚未发布，真实外部采用证据也尚未形成。
 
 推荐路线：在已完成 O1—O2 的基础上，依次完成 O3—O4，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试或合成 demo 本身不构成项目资格或采用证明。
 
@@ -37,11 +37,11 @@
 | 可见性 | GitHub public，默认分支 `main` | 满足“仓库公开”的表单前提，但不等于已开源 |
 | 许可证 | PR #14 已以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 把 Apache-2.0、`NOTICE`、包元数据和 `unknown=0` 来源登记合入 `main`；GitHub 已识别 Apache-2.0 | O1 已完成；后续仍须保持来源 Gate，且不得把仓库许可证外推为第三方内容授权 |
 | 采用度 | 1 star、0 fork、1 contributor、0 issue | 采用度信号仍弱，需依靠生态价值说明和真实试用证据补强 |
-| 维护活动 | 15 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
+| 维护活动 | 16 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
 | 发布版本 | annotated `v0.6.0` 与六项 evidence assets 已发布；PR #15 已把包元数据改为未发布的 `0.6.1` 候选 | GitHub source milestone 已闭环；发布 Gate 仍须核对 package、Tag、Release 和 support matrix 语义 |
-| CI | Windows/Ubuntu × Python 3.12/3.14 四项 required checks 已启用并保护 `main`；当前 PR-C 候选在每个 lane 增加 archive install/demo | PR-C 的 PR 与 main push checks 全绿前，不宣称 O3 archive install 矩阵完成 |
-| 协作治理 | 未发现 CONTRIBUTING、SECURITY、Code of Conduct、CHANGELOG、CITATION | 外部参与入口与安全披露渠道缺失 |
-| 安装/演示 | PR #15 已提供 source-install 命令、只读合成 demo 及预期拒绝路径 | O2 已完成；当前 PR-C 将其提升为 exact-commit clean-archive CI Gate |
+| CI | PR #16 已把 Windows/Ubuntu × Python 3.12/3.14 的 provenance、diff、full suite 与 archive install/demo 接入四项 required checks；merge SHA 的 main run 全绿 | O3 工程 Gate 完成；Tag/Release/包版本一致性仍在 `v0.6.1` 发布 Gate |
+| 协作治理 | 当前 PR-D 候选增加 CONTRIBUTING、SECURITY、Code of Conduct、GOVERNANCE、CHANGELOG、CITATION 与 Issue/PR forms；用户已确认邮箱私密报告路线 | O4 仍须完成来源 Gate、review、merge 与 main CI |
+| 安装/演示 | PR #15 已提供 source-install Quick Start，PR #16 已在四 required lanes 从 exact commit archive 安装并运行成功/拒绝 demo | O2 与 O3 archive install 子项已完成；仍不构成真实研究或采用证据 |
 | 架构与测试 | Phase 5 的 870-test 基线已形成；PR #15 为 878 tests，另有隔离 source-install smoke | 是差异化优势，但仍须通过 PR-C 公共 Gate 与真实外部使用转化为采用证据 |
 
 所有会变化的 GitHub 数字只作为此日期的快照；填写申请表前必须重新获取，不得复制旧数字。
@@ -114,7 +114,7 @@
 
 目标：把本地强 Gate 变成外部维护者可见、可复跑的公共证据。
 
-当前进度（2026-08-23）：Windows/Ubuntu × Python 3.12/3.14 公共 CI、四项 required checks、commit-bound test archive、`v0.6.0` Release checksums、`0.6.1` 候选版本和 source-install smoke 已完成。当前 PR-C 候选增加机器可读 support matrix、PR/main diff whitespace Gate，以及每个 required lane 的 exact-commit clean-archive install/Quick Start smoke；PR 与 main push CI 全绿前仍视为实施草案。Tag/Release 一致性留在单独的 `v0.6.1` 发布 Gate。
+当前进度（2026-08-23）：PR #16 的机器可读 support matrix、PR/main diff whitespace Gate 和每个 required lane 的 exact-commit clean-archive install/Quick Start smoke 已通过 PR 与 merge SHA main push CI。O3 工程 Gate 已完成；Tag/Release 一致性仍留在单独的 `v0.6.1` 发布 Gate。
 
 任务：
 
@@ -136,6 +136,8 @@
 ### O4：OSS 协作与安全入口
 
 目标：证明该仓库能接收、审查并维护外部贡献，而非只作为个人展示页。
+
+当前实现状态（2026-08-23）：PR-D 候选正在增加贡献指南、支持版本与私密漏洞入口、Contributor Covenant 3.0（CC BY-SA 4.0 单独归属）、maintainer-led 治理、里程碑 changelog、CFF 1.2.0 引用元数据，以及 bug/schema/docs/research-boundary Issue forms。GitHub Private Vulnerability Reporting 仍关闭；用户已确认由 `SECURITY.md` 与 `CODE_OF_CONDUCT.md` 公布的邮箱作为私密报告路线。O4 仍须通过来源 Gate、review、merge 与 merge SHA 的 main CI。
 
 后续实施清单：
 
@@ -241,7 +243,7 @@ credits will not auto-promote skills or turn synthetic tests into research claim
 
 ## 8. 执行顺序、分支与提交切分
 
-Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14 合入 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae`，O2 已由 PR #15 合入 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae`。当前 `feat/oss-archive-install-gate` 分支只实施 O3 的支持矩阵与 archive install Gate；v13/Pika payload 与详细表达继续排除。
+Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、O3 工程 Gate 已由 PR #16 合入 `main`。当前 `docs/oss-governance-entrypoints` 分支只实施 O4 公共协作与安全治理；v13/Pika payload 与详细表达继续排除。
 
 建议提交层：
 
@@ -278,7 +280,7 @@ Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14 合入 merge commit `
 - [x] OSI 兼容许可证已由权利持有人批准并进入 archive；
 - [x] 来源/第三方/AI 辅助开发登记完整，无未知权属文件；
 - [x] README 有五分钟 Quick Start 和诚实能力边界；
-- [ ] Windows/Ubuntu public CI 与 archive install/demo Gate 通过；
+- [x] Windows/Ubuntu public CI 与 archive install/demo Gate 通过；
 - [ ] 包版本、Tag、Release、support matrix 一致；
 - [ ] CONTRIBUTING/SECURITY/Code of Conduct/CHANGELOG 在位；
 - [ ] 至少两名独立外部用户的真实试用证据已获得；

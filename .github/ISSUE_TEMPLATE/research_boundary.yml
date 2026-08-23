@@ -1,0 +1,33 @@
+name: Research or evidence boundary concern
+description: Report an overclaim, missing limitation, leakage risk, or evidence mismatch
+title: "[Boundary] "
+labels: []
+body:
+  - type: input
+    id: claim
+    attributes:
+      label: Claim location
+      description: Link the file, report, release, or output containing the claim.
+    validations:
+      required: true
+  - type: textarea
+    id: concern
+    attributes:
+      label: Boundary concern
+      description: Distinguish engineering tests, data acceptance, research/market evidence, adoption, Skill state, and release/legal status.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Available evidence
+      description: Identify the evidence grade, time range, data source, and any leakage or contamination risk.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Safe correction
+      description: Suggest a narrower claim, explicit non-entailment, or additional Gate.
+    validations:
+      required: true
