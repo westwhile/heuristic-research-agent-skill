@@ -1,7 +1,8 @@
 """Read-only command line interface (ADR-0004, decision 8).
 
-Three subcommands over the kernel's read operations: ``validate`` and
-``hash`` a record file, ``verify-graph`` a store root. The CLI never
+Four subcommands over the kernel's read operations: ``validate`` and
+``hash`` a record file, ``verify-graph`` a store root, and ``demo`` a
+bundled synthetic ResearchTask. The CLI never
 creates, modifies, or deletes files, never touches the network, and does
 not expose publish — the write path stays library-only, a deliberate
 misuse-surface shrink for Phase 1D.
@@ -30,6 +31,42 @@ from pathlib import Path
 
 from .core import CoreError, canonical_bytes, load_record, verify_record_graph
 from .core._store import identity_of
+
+
+_DEMO_TASK = {
+    "schema": "research-task/v1",
+    "task_id": "task-oss-quickstart-001",
+    "title": "Validate a synthetic research task",
+    "problem_statement": (
+        "Demonstrate deterministic record validation without real research data."
+    ),
+    "domain": "engineering",
+    "scope": {
+        "time_range": "synthetic",
+        "data": "bundled synthetic input only",
+    },
+    "resources": {"compute": "local-cpu", "budget_minutes": 1},
+    "completion_criteria": [
+        "The synthetic record validates and produces a canonical SHA-256."
+    ],
+    "permissions": ["read:bundled-demo"],
+    "allowed_external_effects": [],
+    "created_at": "2026-08-23T00:00:00Z",
+}
+
+_DEMO_EVIDENCE_SCOPE = {
+    "data_acceptance": "not_performed",
+    "external_adoption": "not_evaluated",
+    "input": "bundled synthetic ResearchTask",
+    "scientific_or_market_validation": "not_performed",
+    "skill_installation_or_activation": "not_performed",
+}
+
+_DEMO_NON_ENTAILMENTS = [
+    "No real ML training or data acceptance was performed.",
+    "No mathematical, scientific, or market claim was validated.",
+    "No external adoption, Skill installation, or production readiness was shown.",
+]
 
 
 class _InputError(Exception):
@@ -122,9 +159,85 @@ def _cmd_verify_graph(args: argparse.Namespace) -> int:
     return 0 if report.ok else 1
 
 
+def _demo_report(tamper: bool) -> tuple[dict, int]:
+    task = dict(_DEMO_TASK)
+    if tamper:
+        # A whitespace-only title violates the frozen ResearchTask schema.
+        task["title"] = "   "
+    try:
+        record = load_record(canonical_bytes(task))
+    except CoreError as exc:
+        report = {
+            "demo_id": "synthetic-research-task-validation/v1",
+            "engineering_validation": {
+                "error": {"message": str(exc), "type": type(exc).__name__},
+                "expected_rejection": tamper,
+                "ok": False,
+                "record": None,
+            },
+            "evidence_scope": _DEMO_EVIDENCE_SCOPE,
+            "non_entailments": _DEMO_NON_ENTAILMENTS,
+        }
+        return report, 1
+    report = {
+        "demo_id": "synthetic-research-task-validation/v1",
+        "engineering_validation": {
+            "error": None,
+            "expected_rejection": tamper,
+            "ok": True,
+            "record": {
+                "record_id": identity_of(record),
+                "schema_id": record.schema_id,
+                "sha256": record.sha256,
+            },
+        },
+        "evidence_scope": _DEMO_EVIDENCE_SCOPE,
+        "non_entailments": _DEMO_NON_ENTAILMENTS,
+    }
+    return report, 0
+
+
+def _cmd_demo(args: argparse.Namespace) -> int:
+    report, exit_code = _demo_report(args.tamper)
+    if args.json:
+        _emit_json(report)
+        return exit_code
+    validation = report["engineering_validation"]
+    status = "pass" if validation["ok"] else "rejected"
+    lines = [
+        "[engineering validation]",
+        f"status: {status}",
+        f"expected_rejection: {'true' if validation['expected_rejection'] else 'false'}",
+    ]
+    record = validation["record"]
+    if record is not None:
+        lines.extend(
+            [
+                f"schema_id: {record['schema_id']}",
+                f"record_id: {record['record_id']}",
+                f"sha256: {record['sha256']}",
+            ]
+        )
+    else:
+        error = validation["error"]
+        lines.extend([f"error_type: {error['type']}", f"error: {error['message']}"])
+    lines.extend(
+        [
+            "",
+            "[evidence scope]",
+            *(f"{key}: {value}" for key, value in sorted(_DEMO_EVIDENCE_SCOPE.items())),
+            "",
+            "[non-entailments]",
+            *(f"- {item}" for item in _DEMO_NON_ENTAILMENTS),
+        ]
+    )
+    sys.stdout.buffer.write(("\n".join(lines) + "\n").encode("utf-8"))
+    return exit_code
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="research_evolution",
+        prog="research-evolution",
         description="Read-only inspection of core records and stores.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -140,6 +253,19 @@ def _build_parser() -> argparse.ArgumentParser:
             action="store_true",
             help="write the machine-readable report as canonical JSON bytes",
         )
+    demo = subparsers.add_parser(
+        "demo", help="validate a bundled synthetic ResearchTask"
+    )
+    demo.add_argument(
+        "--tamper",
+        action="store_true",
+        help="run the expected rejection path with an invalid synthetic record",
+    )
+    demo.add_argument(
+        "--json",
+        action="store_true",
+        help="write the machine-readable report as canonical JSON bytes",
+    )
     return parser
 
 
@@ -150,7 +276,9 @@ def main(argv: list[str] | None = None) -> int:
             return _cmd_validate(args)
         if args.command == "hash":
             return _cmd_hash(args)
-        return _cmd_verify_graph(args)
+        if args.command == "verify-graph":
+            return _cmd_verify_graph(args)
+        return _cmd_demo(args)
     except _InputError as exc:
         _emit_error("InputError", str(exc), args.json)
         return 2

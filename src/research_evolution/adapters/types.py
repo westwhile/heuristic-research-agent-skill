@@ -30,10 +30,19 @@ from typing import Any
 
 from research_evolution.core import CoreError, Record, canonical_bytes, load_record
 
-# Repository-local adapter schema root, mirroring the core default in
-# core/records.py (same package depth). Not configurable in v1: the frozen
-# seam schemas ship with the repository.
-_ADAPTER_SCHEMA_ROOT = Path(__file__).resolve().parents[3] / "schemas" / "adapters"
+# Source checkouts use the canonical repository tree; wheels force-include the
+# same frozen seam schemas under the package. Not configurable in v1.
+_REPOSITORY_ADAPTER_SCHEMA_ROOT = (
+    Path(__file__).resolve().parents[3] / "schemas" / "adapters"
+)
+_PACKAGED_ADAPTER_SCHEMA_ROOT = (
+    Path(__file__).resolve().parents[1] / "_schemas" / "adapters"
+)
+_ADAPTER_SCHEMA_ROOT = (
+    _PACKAGED_ADAPTER_SCHEMA_ROOT
+    if _PACKAGED_ADAPTER_SCHEMA_ROOT.is_dir()
+    else _REPOSITORY_ADAPTER_SCHEMA_ROOT
+)
 
 
 class AdapterError(Exception):

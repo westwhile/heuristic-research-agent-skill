@@ -1,19 +1,19 @@
 # Codex for Open Source 资格申请完整计划
 
-- 计划状态：`O1_IMPLEMENTATION_DRAFT / HOLD_FOR_READINESS`
-- 计划版本：v1.2-oss-r0-pr-a
+- 计划状态：`O1_COMPLETE / O2_IMPLEMENTATION_DRAFT / HOLD_FOR_READINESS`
+- 计划版本：v1.3-oss-r0-pr-b
 - 初次评估日期：2026-08-20
 - 状态同步日期：2026-08-23
 - 适用仓库：`westwhile/heuristic-research-agent-skill`
-- 已完成前置：`v0.6.0` GitHub source milestone 已发布；权利持有人已确认授权范围并选择 Apache-2.0；OSS 外部动作仍为未申请、未提交表单
+- 已完成前置：`v0.6.0` GitHub source milestone 已发布；PR #14 已把 Apache-2.0 与来源治理合入 `main`；OSS 外部动作仍为未申请、未提交表单
 
-> 本文件主要定义申请前的建设、证据和审批 Gate。用户已单独授权当前 O1 PR-A 的 Apache-2.0 与来源治理本地实现；该授权不扩展到 commit、push、PR、发布或填写/提交申请表。
+> 本文件主要定义申请前的建设、证据和审批 Gate。O1 已合入 `main`；当前 PR-B 只实施 O2 的版本候选、安装入口、合成 demo 与 Quick Start。Tag、Release、外部试用及填写/提交申请表仍是独立 Gate。
 
 ## 1. 裁定摘要
 
-该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。Phase 5 与 `v0.6.0` source milestone 已完成，公共 CI、annotated tag、Release evidence assets 和 commit-bound archive Gate 已形成。权利持有人已确认当前 tracked-file 授权范围并选择 Apache-2.0；当前 O1 PR-A 已加入 `LICENSE`、`NOTICE`、来源登记和 `unknown=0` 自动 Gate，但仍待 review/merge。项目仍不宜直接提交申请，因为 Quick Start、archive install、协作治理与真实外部采用证据尚未完成。
+该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。Phase 5 与 `v0.6.0` source milestone 已完成，公共 CI、annotated tag、Release evidence assets 和 commit-bound archive Gate 已形成。权利持有人已确认当前 tracked-file 授权范围并选择 Apache-2.0；PR #14 已把 `LICENSE`、`NOTICE`、来源登记和 `unknown=0` 自动 Gate 合入 `main`，GitHub 也已识别 Apache-2.0。当前 PR-B 正在补充未发布的 `0.6.1` 候选、source-install CLI、合成 demo 与 Quick Start。项目仍不宜直接提交申请，因为 archive install 支持矩阵、协作治理与真实外部采用证据尚未完成。
 
-推荐路线：先完成 O1 PR-A 的 review、干净 archive Gate 与 merge，再完成 O2—O4，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；本地计划或许可证文件本身不构成项目资格或采用证明。
+推荐路线：在已完成 O1 的基础上，依次完成 O2—O4，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试或合成 demo 本身不构成项目资格或采用证明。
 
 ## 2. 官方项目要求与表单字段
 
@@ -35,14 +35,14 @@
 | 维度 | 已核事实 | 申请含义 |
 |---|---|---|
 | 可见性 | GitHub public，默认分支 `main` | 满足“仓库公开”的表单前提，但不等于已开源 |
-| 许可证 | 权利持有人已选择 Apache-2.0；O1 PR-A 已加入 `LICENSE`、`NOTICE`、包元数据和来源登记，`unknown=0` | 本地实施已消除许可证决定阻塞；GitHub 识别与 main/archive 状态仍待 review/merge 后核验 |
+| 许可证 | PR #14 已以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 把 Apache-2.0、`NOTICE`、包元数据和 `unknown=0` 来源登记合入 `main`；GitHub 已识别 Apache-2.0 | O1 已完成；后续仍须保持来源 Gate，且不得把仓库许可证外推为第三方内容授权 |
 | 采用度 | 1 star、0 fork、1 contributor、0 issue | 采用度信号仍弱，需依靠生态价值说明和真实试用证据补强 |
-| 维护活动 | 13 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
-| 发布版本 | annotated `v0.6.0` 与六项 evidence assets 已发布；包/运行时元数据仍为 `0.0.0` | GitHub source milestone 已闭环，但 package/安装版本语义仍待 O3 收口 |
+| 维护活动 | 14 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
+| 发布版本 | annotated `v0.6.0` 与六项 evidence assets 已发布；当前 PR-B 把包元数据改为未发布的 `0.6.1` 候选 | GitHub source milestone 已闭环；PR-C 与发布 Gate 仍须核对包、Tag、Release 和支持矩阵语义 |
 | CI | Windows/Ubuntu × Python 3.12/3.14 四项 required checks 已启用并保护 `main` | O3 公共 CI 基线已完成；Quick Start/archive install/demo Gate 仍缺 |
 | 协作治理 | 未发现 CONTRIBUTING、SECURITY、Code of Conduct、CHANGELOG、CITATION | 外部参与入口与安全披露渠道缺失 |
-| 安装/演示 | README 无面向陌生用户的五分钟安装与可运行示例 | 难以证明外部可用性和申请后的 credits 用途 |
-| 架构与测试 | 870-test suite、commit-bound archive、ADR、合同测试和 Release checksums 已形成 | 是差异化优势，但仍须通过 Quick Start 与真实外部使用转化为采用证据 |
+| 安装/演示 | 当前 PR-B 提供 source-install 命令、只读合成 demo 及预期拒绝路径 | 工作树验证不等于 clean-archive 双平台 Gate；需由 PR-C 补齐后才可宣称支持矩阵成立 |
+| 架构与测试 | Phase 5 的 870-test 基线已形成；当前 PR-B 候选为 878 tests，另有隔离 source-install smoke | 是差异化优势，但仍须通过 clean-archive 双平台 Gate 与真实外部使用转化为采用证据 |
 
 所有会变化的 GitHub 数字只作为此日期的快照；填写申请表前必须重新获取，不得复制旧数字。
 
@@ -65,7 +65,7 @@
 
 目标：证明“有权以 Apache-2.0 发布什么”，并让该判断可审计、可在归档树自动验证。
 
-当前实现状态（2026-08-23）：权利持有人已确认授权范围并选择 Apache-2.0；PR-A proposed tree 覆盖 828 个文件，其中 `independently_authored=696`、`generated=118`、`design_inspired=13`、`third_party_reused=1`（仅标准 Apache-2.0 文本）、`unknown=0`。该状态尚待完整测试、review、commit、PR 与 merge，不能提前表述为 main 已完成 O1。
+完成状态（2026-08-23）：权利持有人已确认授权范围并选择 Apache-2.0；PR #14 已通过完整测试、commit-bound archive Gate、review、merge 与 main push CI。合入树覆盖 828 个文件，其中 `independently_authored=696`、`generated=118`、`design_inspired=13`、`third_party_reused=1`（仅标准 Apache-2.0 文本）、`unknown=0`。GitHub 已识别 Apache-2.0。
 
 任务：
 
@@ -91,6 +91,8 @@
 
 目标：让未参与项目的人能理解、安装、运行并正确解读结果。
 
+当前实现状态（2026-08-23）：PR-B 候选把包版本设为未发布的 `0.6.1`，增加 `research-evolution` console entry point、包内合成 `demo`、`demo --tamper` 预期拒绝路径及 Windows/Ubuntu source-install Quick Start。当前只计入工作树与 commit-bound 测试证据；clean-archive 双平台安装矩阵仍由 PR-C 单独完成。
+
 任务：
 
 1. 重写 README 首屏：一句话价值、当前成熟度、明确非声明、支持平台、许可证；
@@ -112,7 +114,7 @@
 
 目标：把本地强 Gate 变成外部维护者可见、可复跑的公共证据。
 
-当前进度（2026-08-22）：Windows/Ubuntu × Python 3.12/3.14 公共 CI、四项 required checks、commit-bound archive 与 `v0.6.0` Release checksums 已完成；support matrix 单一事实源、archive install/Quick Start smoke、包版本语义仍未完成。
+当前进度（2026-08-23）：Windows/Ubuntu × Python 3.12/3.14 公共 CI、四项 required checks、commit-bound archive 与 `v0.6.0` Release checksums 已完成；当前 PR-B 已形成 `0.6.1` 候选版本和工作树 source-install smoke，support matrix 单一事实源、clean-archive install/Quick Start smoke 与发布语义仍未完成。
 
 任务：
 
@@ -239,7 +241,7 @@ credits will not auto-promote skills or turn synthetic tests into research claim
 
 ## 8. 执行顺序、分支与提交切分
 
-Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning worktree 不再作为 OSS 实施入口。用户完成 O1 权利/许可证决策后，已从最新、干净且受保护的 `main` merge commit `bd53d195344df3a1457e6185b0f5968444b81a35` 创建 `feat/oss-application-readiness`。当前分支只实施 O1；v13/Pika payload 与详细表达已排除，不混入来源吸收或其他领域功能。
+Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning worktree 不再作为 OSS 实施入口。O1 已由 PR #14 合入 `main` merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae`。当前 `feat/oss-quickstart-package` 分支只实施 O2；v13/Pika payload 与详细表达继续排除，不混入来源吸收或其他领域功能。
 
 建议提交层：
 
@@ -250,7 +252,7 @@ Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning wor
 5. O5：仅提交可公开的反馈驱动改进，不提交私人证据；
 6. O6：公共申请证据模板；含私密字段的最终包留在仓库外。
 
-每层均单独 review；commit、push、PR、merge、tag、Release 和表单提交仍分别授权。
+每层均单独 review；当前执行授权仅覆盖依次实施 OSS readiness PR。Tag、Release、外部协调和表单提交仍分别保留独立 Gate。
 
 ## 9. 时间表与决策点
 
@@ -273,8 +275,8 @@ Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning wor
 
 - [ ] 用户确认自己是 primary/core maintainer，并有权代表该仓库申请；
 - [ ] GitHub 个人资料和仓库在提交时为 public；
-- [ ] OSI 兼容许可证已由权利持有人批准并进入 archive；
-- [ ] 来源/第三方/AI 辅助开发登记完整，无未知权属文件；
+- [x] OSI 兼容许可证已由权利持有人批准并进入 archive；
+- [x] 来源/第三方/AI 辅助开发登记完整，无未知权属文件；
 - [ ] README 有五分钟 Quick Start 和诚实能力边界；
 - [ ] Windows/Ubuntu public CI 与 archive install/demo Gate 通过；
 - [ ] 包版本、Tag、Release、support matrix 一致；

@@ -13,9 +13,11 @@ import os
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 from pathlib import Path
 
+import research_evolution
 from research_evolution.core import (
     canonical_bytes,
     canonical_sha256,
@@ -199,6 +201,53 @@ class CliTest(unittest.TestCase):
             [v["kind"] for v in report["violations"]], ["store_root_missing"]
         )
 
+    # -- bundled synthetic demo --------------------------------------------
+
+    def test_demo_human_readable_separates_evidence_layers(self) -> None:
+        proc = self._run("demo")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        stdout = proc.stdout.decode("utf-8")
+        self.assertIn("[engineering validation]\nstatus: pass\n", stdout)
+        self.assertIn("[evidence scope]\n", stdout)
+        self.assertIn("input: bundled synthetic ResearchTask\n", stdout)
+        self.assertIn("scientific_or_market_validation: not_performed\n", stdout)
+        self.assertIn("[non-entailments]\n", stdout)
+        self.assertIn("No real ML training or data acceptance", stdout)
+        self.assertEqual(proc.stderr, b"")
+
+    def test_demo_json_is_canonical_and_hash_bound(self) -> None:
+        proc = self._run("demo", "--json")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        report = load_strict_json(proc.stdout)
+        validation = report["engineering_validation"]
+        self.assertTrue(validation["ok"])
+        self.assertFalse(validation["expected_rejection"])
+        self.assertEqual(validation["record"]["schema_id"], "research-task/v1")
+        self.assertRegex(validation["record"]["sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(proc.stdout, canonical_bytes(report))
+        self.assertEqual(report["evidence_scope"]["external_adoption"], "not_evaluated")
+
+    def test_demo_tamper_is_expected_nonzero_rejection(self) -> None:
+        proc = self._run("demo", "--tamper", "--json")
+        self.assertEqual(proc.returncode, 1, proc.stderr)
+        report = load_strict_json(proc.stdout)
+        validation = report["engineering_validation"]
+        self.assertFalse(validation["ok"])
+        self.assertTrue(validation["expected_rejection"])
+        self.assertEqual(validation["error"]["type"], "RecordValidationError")
+        self.assertIsNone(validation["record"])
+        self.assertEqual(proc.stdout, canonical_bytes(report))
+
+    def test_package_version_and_console_entry_point_match(self) -> None:
+        with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
+            project = tomllib.load(handle)["project"]
+        self.assertEqual(project["version"], "0.6.1")
+        self.assertEqual(project["version"], research_evolution.__version__)
+        self.assertEqual(
+            project["scripts"]["research-evolution"],
+            "research_evolution.cli:main",
+        )
+
     # -- usage and read-only boundary ----------------------------------------
 
     def test_usage_errors_exit_2(self) -> None:
@@ -217,6 +266,9 @@ class CliTest(unittest.TestCase):
             ("hash", str(TASK_MINIMAL)),
             ("verify-graph", str(store)),
             ("verify-graph", "--json", str(store)),
+            ("demo",),
+            ("demo", "--json"),
+            ("demo", "--tamper", "--json"),
             ("validate", str(TASK_WHITESPACE_TITLE)),
             ("validate", str(self.work / "missing.json")),
         ):
