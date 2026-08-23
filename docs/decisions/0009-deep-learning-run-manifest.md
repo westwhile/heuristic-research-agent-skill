@@ -83,3 +83,21 @@ L3 保持 L1 manifest schema 和 Core 公共面不变，在显式 runner/selecti
 6. **诚实能力包络**：0.2 仍只执行标准库 CPU tiny-MLP 和 synthetic validation；optimizer 只实现 deterministic synthetic SGD，scheduler 必须为 `none`。框架/GPU、真实数据、真实外部 artifact store、scheduler recovery、真实 OOM/preemption、ablation/scale/compute-matched 报告和硬件矩阵继续 fail-closed 或留给 L4。
 
 L3 仍只构成 synthetic engineering evidence；它证明 checkpoint/恢复/选择协议机器的确定性工程行为，不证明真实训练框架、GPU 可复现性、数据验收、科研结论或生产恢复能力。
+
+## 增补 A3（2026-08-23，L4）：失败 case、比较公平性与支持矩阵
+
+L4 在 L3 canonical runner/selection artifacts 之上增加一个显式 study 子模块，
+不修改 manifest schema、Core family、根 Adapter seam 或 L2/L3 artifact bytes。
+
+1. **唯一 study interface**：`build_fixture_study_report(plan_payload, evidence_by_arm) -> DLStudyReport`。每个 arm 以 `DLStudyArmEvidence` 同时提供 selector artifact、它引用的 exact runner results、原 manifest 与 fixture；reporter 交叉绑定 selection/result、manifest/fixture hash、study/case、run/seed 与 runner pin，并从输入验证数据、learning rate、optimizer/scheduler、硬件/运行时/框架声明等冻结轴。它不训练、不打开 checkpoint payload、不探测硬件、不读时钟或文件系统。
+2. **复现单位与失败保留**：expected seed 是比较单位；失败、缺失或不足最低成功数的任一 arm 进入 `incomplete_evidence`，所有失败记录进入 `failure_inventory`。selected checkpoint 不能替代 expected-seed 完整性，也不能建立稳定性。
+3. **三类比较合同**：ablation 只允许 early-stopping policy 一个声明因素变化，并要求所有 consumed 维度与 caps 相等；scale 只允许 hidden units 变化、固定 steps/caps，结果始终是描述性 scale 记录；compute-matched 允许 hidden units 与用于配平的 steps 联动，但逐 seed 的 samples/tokens/FLOP proxy 和相关 caps 必须相同。资源不匹配返回可审计 verdict，不抛弃结果，也不允许直接比较。
+4. **解释上限固定**：即使公平性 Gate 通过，也只有 `eligible_descriptive_comparison`；`capability_claim_allowed=false` 恒成立。population mean/variance/observed range 来自 L3 selector，observed range 不是置信区间，合成 metric 差异不是模型质量、因果或科研结论。
+5. **公开 case 与 Case Package**：`benchmarks/public/dl-adapter/catalog.json` 固定 10 个合成场景，覆盖 OOM/NaN/interrupt 注入、failed seed、best-only selection、checkpoint tamper、ablation、scale、compute-matched 与 payload 隔离。集成测试通过既有 `capture_case` seam 为 OOM、NaN、interrupt、recovery rejection 与 compute-matched 构建 5 个可重建 `research-case-package/v2`；不新增 Pattern、Heuristic 或 Skill 晋级。
+6. **artifact retention**：report 与 Case Package 只绑定 locator、SHA-256、lineage 和输出 manifest；模型/optimizer/checkpoint payload 不写入 Git。真实外部 store 的持久性、权限和恢复仍未观察。
+7. **硬件矩阵诚实分层**：`DL_SUPPORT_MATRIX.json` 将标准库 synthetic CPU protocol、声明但未观察的硬件、未加载的框架与完全未执行的 CUDA/ROCm/MPS 分开。Windows/Ubuntu CI 只能证明对应 commit 的 Python 工程测试，不能证明 GPU 存在。跨 GPU reproducibility envelope 保持未验证。
+
+L4 本地通过不等于 Phase 6 完成。只有 L4 exact commit 的真实 `git archive`
+双解释器 Gate 与该提交的四项 CI 成功后，才形成平台工程验收；真实框架/GPU、
+真实数据与外部 checkpoint store 证据仍需独立授权和新层级，`v0.7.0` Gate
+继续关闭。
