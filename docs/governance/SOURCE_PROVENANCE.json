@@ -260,6 +260,20 @@
       "evidence_sufficient_for_reuse": true
     },
     {
+      "id": "openai-codex-for-oss-official-pages",
+      "source_name": "Codex for Open Source official project page, application form, and Program Terms",
+      "source_url": "https://developers.openai.com/community/codex-for-oss",
+      "versions": [
+        "live pages checked 2026-08-23"
+      ],
+      "visible_license": "official non-vendored references; no page or terms text copied",
+      "tracked_expression_reused": false,
+      "tracked_use": "Links and independently paraphrased eligibility, form-field, benefit, review, and agreement facts in the application plan.",
+      "disposition": "Retain direct official links, keep quotations short or absent, and re-check the live pages before any application submission.",
+      "notice_action": "None for non-vendored links and independently written factual summaries.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
       "id": "json-schema-2020-12",
       "source_name": "JSON Schema Draft 2020-12",
       "source_url": "https://json-schema.org/draft/2020-12/schema",

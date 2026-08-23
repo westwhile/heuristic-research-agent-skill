@@ -87,6 +87,12 @@ references commit-pinned MIT-licensed `actions/checkout` and
 is referenced by dialect URI and vocabulary only. These references do not add
 third-party source payloads to this distribution.
 
+The Codex for Open Source plan links to OpenAI's official project page,
+application form, and Program Terms. The repository records independently
+written factual summaries of the live pages checked on 2026-08-23; it does not
+vendor or copy page or terms text. The live sources must be checked again before
+any application submission.
+
 ## Change rule
 
 Every PR that adds or changes an external source, generated artifact family,
