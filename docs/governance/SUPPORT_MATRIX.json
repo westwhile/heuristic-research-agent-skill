@@ -1,0 +1,45 @@
+{
+  "schema": "research-evolution-support-matrix/v1",
+  "package_version": "0.6.1",
+  "requires_python": ">=3.12",
+  "distribution_channel": "source-archive-only",
+  "pypi_status": "not_published",
+  "skill_status": "not_packaged_or_installed",
+  "required_jobs": [
+    {
+      "os": "ubuntu-latest",
+      "python": "3.12"
+    },
+    {
+      "os": "ubuntu-latest",
+      "python": "3.14"
+    },
+    {
+      "os": "windows-latest",
+      "python": "3.12"
+    },
+    {
+      "os": "windows-latest",
+      "python": "3.14"
+    }
+  ],
+  "archive_install_gate": {
+    "command": "python -B scripts/verify_archive_install.py",
+    "success_args": [
+      "demo",
+      "--json"
+    ],
+    "rejection_args": [
+      "demo",
+      "--tamper",
+      "--json"
+    ],
+    "rejection_exit_code": 1
+  },
+  "boundaries": [
+    "A required job verifies only the exact commit named by its CI run.",
+    "Python 3.13 is inside package metadata but has no separate required lane.",
+    "macOS and PyPI installation are not claimed by this matrix.",
+    "The synthetic demo is engineering evidence, not research or adoption evidence."
+  ]
+}

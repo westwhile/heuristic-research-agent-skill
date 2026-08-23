@@ -1,15 +1,15 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.4-oss-r0-pr-b
+- 计划版本：v5.5-oss-r0-pr-c
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-23
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 实现、独立审核、main CI、commit-bound archive、annotated tag 与 GitHub Release evidence assets 均已闭环；发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。PR #13 又以 merge commit `bd53d195344df3a1457e6185b0f5968444b81a35` 完成发布后状态同步。OSS-R0 PR-A 已由 PR #14 以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 合入 `main`，Apache-2.0、NOTICE 与 tracked-file 来源 Gate 已生效并通过 main CI。当前 PR-B 候选只实施未发布的 `0.6.1` 元数据、安装入口、合成 demo 与 Quick Start；archive install 支持矩阵、公共协作治理和 O5—O6 仍未完成。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 实现、独立审核、main CI、commit-bound archive、annotated tag 与 GitHub Release evidence assets 均已闭环；发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A 已由 PR #14 以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 合入 `main`；PR-B 已由 PR #15 以 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae` 合入未发布的 `0.6.1` 元数据、安装入口、合成 demo 与 Quick Start，main CI run `32616812612` 四项全绿。当前 PR-C 候选只实施支持矩阵、diff 卫生与 exact-commit clean-archive install/demo Gate；公共协作治理和 O5—O6 仍未完成。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
 
 ### 规划补充（仅计划，不代表已实施）
 
-- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：`v0.6.0` 前置与 O1 的 Apache-2.0/来源治理已完成；当前 PR-B 实施 O2 候选，后续仍按 O3—O6 分离 archive 支持矩阵、公共协作、真实采用和申请证据；
+- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：`v0.6.0` 前置及 O1—O2 已完成；当前 PR-C 实施 O3 支持矩阵/archive Gate，后续仍按 O4—O6 分离公共协作、真实采用和申请证据；
 - [math-research-solve v13 来源边界与延期说明](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：外部 artifact 本轮不可得且许可未确认，详细表达已排除；v8/1.0.1 不可变，v13 不复制、不安装、不覆盖；
 - 补充计划不授权 schema、研究状态机、外部申请或 v13 实施；OSS readiness 变更仍按独立 PR 和证据 Gate 执行。
 
@@ -858,7 +858,7 @@ approved staged candidate
 
 - Codex for Open Source 的建设与申请按 [资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md) 执行；
 - `v0.6.0` GitHub source milestone 已完成；OSS-R0 PR-A 的 Apache-2.0、NOTICE、来源清单与 `unknown=0` Gate 已由 PR #14 合入 `main`，GitHub 已识别 Apache-2.0；
-- 当前 PR-B 候选实施 source-install Quick Start、合成 demo 与 `0.6.1` 包版本语义；archive install 支持矩阵、协作治理和真实外部试用在申请前分别留证，现有四项 public CI 只是 O3 的已完成子项；
+- PR #15 已完成 source-install Quick Start、合成 demo 与 `0.6.1` 候选包版本语义；当前 PR-C 候选把 support matrix、diff hygiene 和 exact-commit archive install/demo 接入四项 required checks，协作治理和真实外部试用仍须分别留证；
 - star、fork、download、contributor 等指标只在申请日实时读取，不制造或夸大采用；
 - 表单文案逐句绑定公开证据，私密字段不进入仓库；填写和提交申请仍需用户单独授权。
 

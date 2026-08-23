@@ -1,9 +1,9 @@
 {
   "schema": "research-evolution-source-provenance/v1",
-  "status": "implementation_draft",
+  "status": "active",
   "reviewed_at": "2026-08-23",
-  "baseline_commit": "bd53d195344df3a1457e6185b0f5968444b81a35",
-  "inventory_scope": "All 822 files tracked at baseline_commit plus the six PR-A implementation files.",
+  "baseline_commit": "6096ca719502baa1d88a35a5501dfeb0616afcae",
+  "inventory_scope": "All 828 files tracked at baseline_commit plus the two PR-C support-matrix and archive-install Gate files.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 696,
+      "independently_authored": 698,
       "generated": 118,
       "design_inspired": 13,
       "third_party_reused": 1,
       "unknown": 0,
-      "total": 828
+      "total": 830
     },
     "rules": [
       {

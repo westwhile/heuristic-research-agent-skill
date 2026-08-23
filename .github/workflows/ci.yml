@@ -27,7 +27,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -37,11 +39,22 @@ jobs:
       - name: Verify source provenance and license gate
         run: python -B scripts/verify_source_provenance.py
 
+      - name: Check pull request diff whitespace
+        if: github.event_name == 'pull_request'
+        run: git diff --check "${{ github.event.pull_request.base.sha }}...HEAD"
+
+      - name: Check main push diff whitespace
+        if: github.event_name == 'push'
+        run: git diff --check "${{ github.event.before }}..HEAD"
+
       - name: Run full unittest suite
         env:
           PYTHONPATH: src
           PYTHONDONTWRITEBYTECODE: "1"
         run: python -B -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Verify clean archive install and demo
+        run: python -B scripts/verify_archive_install.py
 
       - name: Run PowerShell governance tests
         if: runner.os == 'Windows'
