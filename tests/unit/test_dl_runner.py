@@ -59,7 +59,7 @@ def _fixture(*, failure: str = "none", at_step: int = 0) -> dict:
 class DLRunnerInterfaceTest(unittest.TestCase):
     def test_identity_matches_manifest_contract(self) -> None:
         self.assertEqual(
-            runner_identity(), {"name": "reference-dl-runner", "version": "0.1.0"}
+            runner_identity(), {"name": "reference-dl-runner", "version": "0.2.0"}
         )
 
     def test_cpu_fixture_result_is_deterministic_and_golden_pinned(self) -> None:
@@ -162,7 +162,7 @@ class DLRunnerInputGateTest(unittest.TestCase):
         manifest = DLRunManifest.from_payload(
             load_strict_json(FULL_MANIFEST_FIXTURE.read_bytes())
         )
-        self.assert_runner_error(manifest, _fixture(), "resume is not implemented")
+        self.assert_runner_error(manifest, _fixture(), "requires runner 0.2.0")
 
     def test_gpu_modes_are_fail_closed(self) -> None:
         payload = load_strict_json(FULL_MANIFEST_FIXTURE.read_bytes())

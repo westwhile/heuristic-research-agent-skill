@@ -70,3 +70,16 @@ L2 在 L1 manifest 上增加一个显式 runner 子模块，不扩张根 Adapter
 6. **确定性与测试面**：初始化只由 SHA-256(seed,label) 派生；无全局随机状态。相同 manifest/fixture 在 Python 3.12/3.14 上必须得到 byte-identical artifact hash。测试只穿过公开 runner interface，覆盖 dry-run、正常 CPU fixture、四类预算 Gate、三类注入失败、预算前停止、输入/runner/resume/GPU fail-closed、依赖 allowlist 和零文件系统副作用。
 
 L2 仍只构成 synthetic engineering evidence。checkpoint emission/recovery、early stopping/selection、多 seed 聚合、真实框架/GPU 观察、OOM/NaN/preemption 真实 case 与硬件矩阵继续属于 L3/L4。
+
+## 增补 A2（2026-08-23，L3）：checkpoint/recovery、early stopping 与多 seed selection
+
+L3 保持 L1 manifest schema 和 Core 公共面不变，在显式 runner/selection 子模块内闭合合成执行状态治理。
+
+1. **runner interface 向后兼容而不扩大根 Adapter seam**：唯一执行入口仍是 `run_fixture(manifest, fixture_payload, *, checkpoint_payload=None)`。runner 0.1.0 + fixture v1 继续走逐字节兼容路径，L2 golden artifact SHA 不变；runner 0.2.0 + `synthetic-dl-fixture/v2` 才启用验证集、checkpoint 和 early stopping。`deep_learning.__all__` 仍只暴露 `DLRunManifest`。
+2. **checkpoint payload 与审计 artifact 分离**：0.2 runner 返回的 canonical result 只记录 `checkpoint://` locator、content/ledger/optimizer SHA-256、source run、step/epoch 和 validation metric；bounded synthetic model payload 仅通过 `DLRunResult.checkpoint_payloads` 在内存中交给调用方。本实现不创建目录、不写 checkpoint、不声称 locator 已持久化；真实或大型 payload 仍禁止进入 Git。
+3. **exact resume 逐面交叉绑定**：恢复同时验证 manifest 声明、checkpoint 全量 content hash、study/case/runner、training identity、模型形状、validation metric、optimizer state 和既有 consumption ledger。training identity 排除“本段目标 step”与合成故障注入，使同一训练问题可从较短目标继续到较长目标；累计 budget 以 prior ledger 为基准，只扣新增 segment，样本数保持唯一行计数。篡改、错 case/fixture、漏 payload、fresh 带 payload 均 fail-closed。
+4. **early stopping 只看合成 validation partition**：fixture v2 显式分离 train/validation，0.2 只支持 `validation_loss/minimize`。patience、min-delta 和 warmup 均进入 canonical fixture；启用时 retention 必须为 `best_and_last` 或 `all`，result 同时记录 best 与 last，避免把停止时状态伪装成被选择状态。
+5. **selection 是独立深模块**：`select_fixture_runs(results, selection_payload) -> DLSelectionResult` 是唯一 selector interface。计划必须预登记至少两个互异 `run_id/seed` 和最低成功数；missing、budget-exhausted、OOM/NaN/interruption 与其他失败都保留为逐 seed 记录。达到 minimum Gate 后才允许选择 checkpoint，同时报告成功 seed 的 mean、population variance 与 observed range；observed range 明确不是置信区间，best checkpoint 不代表稳定性。
+6. **诚实能力包络**：0.2 仍只执行标准库 CPU tiny-MLP 和 synthetic validation；optimizer 只实现 deterministic synthetic SGD，scheduler 必须为 `none`。框架/GPU、真实数据、真实外部 artifact store、scheduler recovery、真实 OOM/preemption、ablation/scale/compute-matched 报告和硬件矩阵继续 fail-closed 或留给 L4。
+
+L3 仍只构成 synthetic engineering evidence；它证明 checkpoint/恢复/选择协议机器的确定性工程行为，不证明真实训练框架、GPU 可复现性、数据验收、科研结论或生产恢复能力。
