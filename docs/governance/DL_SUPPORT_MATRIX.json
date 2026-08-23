@@ -1,7 +1,7 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-23",
-  "phase": "phase6-l4-commit-bound-pr-draft",
+  "phase": "phase6-l4-main-merged",
   "evidence_ceiling": "synthetic_engineering",
   "interfaces": [
     {
@@ -22,14 +22,14 @@
     {
       "name": "reference-dl-study-reporter",
       "version": "0.1.0",
-      "status": "implemented_synthetic_commit_bound"
+      "status": "implemented_synthetic_mainline"
     }
   ],
   "ci_lanes": {
     "source_of_truth": "docs/governance/SUPPORT_MATRIX.json",
     "last_commit_bound_phase6_evidence": {
-      "commit": "45047261c0ccd48cd141801225b01de24cfd1067",
-      "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32633282906",
+      "commit": "6c63c0bad88f032fb1091cdc5c91242bf22b2087",
+      "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32634831816",
       "jobs": [
         {
           "os": "ubuntu-latest",
@@ -54,7 +54,7 @@
           "powershell_governance": "success"
         }
       ],
-      "scope": "Phase 6 L1-L4 synthetic engineering behavior at the exact PR head; this is not real framework, GPU, dataset, scientific, adoption, or production evidence"
+      "scope": "Phase 6 L1-L4 synthetic engineering behavior at the exact main merge commit; this is not real framework, GPU, dataset, scientific, adoption, or production evidence"
     }
   },
   "execution_matrix": [
