@@ -1,7 +1,7 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `2340191e1d6f7548a35be85cf03ca58e8d02b1f2`
+- Baseline commit: `5af73595f847702930e0c1966986f3d06d3c1c35`
 - Review date: 2026-08-23
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
@@ -13,8 +13,8 @@ OpenAI program.
 ## Rights confirmation
 
 The maintainer `westwhile` confirmed ownership of, or authorization to license,
-all files tracked at the baseline commit and the repository-native release-prep
-updates under Apache-2.0. This confirmation does not extend to
+all files tracked at the baseline commit and the two independently authored O5
+trial-entry files under Apache-2.0. This confirmation does not extend to
 excluded external payloads and does not waive obligations that accompany any
 third-party material added later.
 
@@ -25,11 +25,11 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed `release/v0.6.1` tree contains 842 files:
+The proposed O5 external-trial launch tree contains 844 files:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 709 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 711 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |

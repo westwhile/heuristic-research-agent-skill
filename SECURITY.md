@@ -8,7 +8,7 @@ states:
 | Version or branch | Supported |
 |---|---|
 | `main` | Yes |
-| Latest GitHub Release (`v0.6.0` at the time of this policy) | Yes |
+| Latest GitHub Release (`v0.6.1` at the time of this policy) | Yes |
 | `v0.5.x` and earlier | No |
 
 This repository is not published on PyPI, does not distribute an installed

@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-08-23",
-  "baseline_commit": "2340191e1d6f7548a35be85cf03ca58e8d02b1f2",
-  "inventory_scope": "All 842 files tracked at baseline_commit; release-prep updates modify only already classified repository-native files and add no paths.",
+  "baseline_commit": "5af73595f847702930e0c1966986f3d06d3c1c35",
+  "inventory_scope": "All 842 files tracked at baseline_commit plus two proposed repository-native O5 trial-entry files; modified paths remain covered by existing first-match rules.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 709,
+      "independently_authored": 711,
       "generated": 118,
       "design_inspired": 13,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 842
+      "total": 844
     },
     "rules": [
       {

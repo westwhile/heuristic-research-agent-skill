@@ -7,6 +7,8 @@ authors:
 abstract: "Auditable evaluation and controlled evolution infrastructure for research agents."
 license: Apache-2.0
 repository-code: "https://github.com/westwhile/heuristic-research-agent-skill"
+version: "0.6.1"
+date-released: "2026-08-23"
 keywords:
   - research agents
   - evaluation

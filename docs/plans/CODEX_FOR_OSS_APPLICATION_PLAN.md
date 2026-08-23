@@ -1,25 +1,26 @@
 # Codex for Open Source 资格申请完整计划
 
-- 计划状态：`O1_O2_O4_COMPLETE / O3_RELEASE_PREP / HOLD_FOR_EXTERNAL_EVIDENCE`
-- 计划版本：v1.6-oss-r0-release-prep
+- 计划状态：`O1_O2_O3_O4_COMPLETE / V0.6.1_RELEASED / O5_TRIAL_LAUNCH`
+- 计划版本：v1.7-o5-trial-launch
 - 初次评估日期：2026-08-20
 - 状态同步日期：2026-08-23
 - 适用仓库：`westwhile/heuristic-research-agent-skill`
-- 已完成前置：`v0.6.0` GitHub source milestone 已发布；PR #14—#17 已完成 Apache-2.0/来源治理、Quick Start/合成 demo、archive install 支持矩阵与公共协作治理；OSS 外部动作仍为未申请、未提交表单
+- 已完成前置：PR #14—#18 已完成 Apache-2.0/来源治理、Quick Start/合成 demo、archive install 支持矩阵、公共协作治理与 `v0.6.1` release prep；annotated `v0.6.1` source Release 及六项 checksum-bound assets 已发布并回下载验证；OSS 外部动作仍为未申请、未提交表单
 
-> 本文件主要定义申请前的建设、证据和审批 Gate。O1、O2、O4 与 O3 工程 Gate 已合入 `main`；当前 `release/v0.6.1` 只收口版本 changelog、状态同步与 commit-bound 发布证据。Tag、Release、外部试用及填写/提交申请表仍是独立 Gate。
+> 本文件主要定义申请前的建设、证据和审批 Gate。O1—O4 与 `v0.6.1` source Release Gate 已完成；当前启动 O5 外部 Quick Start 试用入口。真实外部尝试、O6 证据包以及填写/提交申请表仍是相互独立的 Gate。
 
 ## 1. 裁定摘要
 
-该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。PR #14—#16 已完成 Apache-2.0、`unknown=0` 来源 Gate、source-install Quick Start 与四 lane clean-archive install/demo Gate；PR #17 又以 merge commit `2340191e1d6f7548a35be85cf03ca58e8d02b1f2` 合入公共贡献、安全和治理入口，main CI run `32618983528` 全绿。项目仍不宜直接提交申请，因为 `v0.6.1` 尚未发布，真实外部采用证据也尚未形成。
+该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。PR #14—#18 已完成 Apache-2.0、`unknown=0` 来源 Gate、source-install Quick Start、四 lane clean-archive install/demo Gate、公共贡献/安全治理与 release prep。annotated `v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35`；main CI run `32619619333` 四项 required jobs 全绿，正式 Release 六项 assets 已回下载并与 GitHub digest、发布前 SHA-256 三方一致。项目仍不宜直接提交申请，因为真实外部采用证据尚未形成。
 
-推荐路线：在已完成 O1、O2、O4 与 O3 工程 Gate 的基础上，先完成 `v0.6.1` source Release Gate，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试或合成 demo 本身不构成项目资格或采用证明。
+推荐路线：在已完成 O1—O4 与 `v0.6.1` source Release Gate 的基础上，按 [O5 外部 Quick Start 试用协议](../governance/EXTERNAL_TRIAL_PROTOCOL.md)开放 2—4 周真实试用并积累可核验证据，随后执行 O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；许可证、内部测试、合成 demo、维护者回下载或本试用入口本身都不构成采用证明。
 
 ## 2. 官方项目要求与表单字段
 
-权威来源为 OpenAI 的 [Codex for Open Source 申请页](https://openai.com/form/codex-for-oss/)。2026-08-23 OSS-R0 审计时已实时复核官方项目页、申请页和 Program Terms；以下核心字段与限制仍须在正式申请前再次核验：
+权威来源为 OpenAI 的 [Codex for Open Source 项目页](https://developers.openai.com/community/codex-for-oss)、[申请页](https://openai.com/form/codex-for-oss/)和 [Program Terms](https://learn.chatgpt.com/docs/codex-for-oss-terms)。2026-08-23 O5 启动时已再次实时复核；以下核心字段与限制仍须在正式申请前重取：
 
 - 申请人应是 active open-source project 的 primary 或 core maintainer；
+- Program Terms 还要求有效 ChatGPT 账户以及关于申请人、仓库和维护角色的准确完整信息；OpenAI 可要求验证身份、仓库关联、维护者状态或控制权；
 - 项目应有 meaningful usage、broad adoption，或对软件生态具有清晰重要性；
 - 会考察仓库使用、生态重要性与持续维护证据，包括 PR review、issue triage、release management 等；
 - 申请滚动审核；不完全符合典型指标但具有重要生态作用的项目仍可解释后申请；
@@ -27,6 +28,7 @@
 - 表单要求公开的 GitHub 个人资料与仓库、maintainer 角色、OpenAI Organization ID；
 - “为什么项目符合资格”“如何使用 API credits”“其他说明”各最多 500 characters；
 - 被选中者可能获得六个月 ChatGPT Pro、API credits，并可能获得有条件的 Codex Security 访问。
+- 提交不保证入选、credits、资金或任何访问权限；提交申请或接受项目权益即表示同意 Program Terms。
 
 申请时必须再次打开官方页面复核字段与条款；本文件不把当前页面视为永久冻结合同。
 
@@ -36,11 +38,11 @@
 |---|---|---|
 | 可见性 | GitHub public，默认分支 `main` | 满足“仓库公开”的表单前提，但不等于已开源 |
 | 许可证 | PR #14 已以 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 把 Apache-2.0、`NOTICE`、包元数据和 `unknown=0` 来源登记合入 `main`；GitHub 已识别 Apache-2.0 | O1 已完成；后续仍须保持来源 Gate，且不得把仓库许可证外推为第三方内容授权 |
-| 采用度 | 1 star、0 fork、1 contributor、0 issue | 采用度信号仍弱，需依靠生态价值说明和真实试用证据补强 |
-| 维护活动 | 17 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
-| 发布版本 | annotated `v0.6.0` 与六项 evidence assets 已发布；PR #15 已把包元数据改为未发布的 `0.6.1` 候选 | GitHub source milestone 已闭环；发布 Gate 仍须核对 package、Tag、Release 和 support matrix 语义 |
-| CI | PR #16 已把 Windows/Ubuntu × Python 3.12/3.14 的 provenance、diff、full suite 与 archive install/demo 接入四项 required checks；merge SHA 的 main run 全绿 | O3 工程 Gate 完成；Tag/Release/包版本一致性仍在 `v0.6.1` 发布 Gate |
-| 协作治理 | PR #17 已合入 CONTRIBUTING、SECURITY、Code of Conduct、GOVERNANCE、CHANGELOG、CITATION 与 Issue/PR forms；用户已确认邮箱私密报告路线 | O4 已完成工程验收；尚无外部贡献或安全报告，不把文件存在写成社区采用 |
+| 采用度 | 1 star、0 fork、1 contributor、0 open issue；`v0.6.1` 六项 assets 各有本轮维护者回下载产生的 1 次下载 | 采用度信号仍弱；这 6 次下载是发布校验，不是外部采用，需真实试用证据补强 |
+| 维护活动 | 18 个已合并 PR、7 个 GitHub Release、8 个 Tag，当前无 open PR | 有持续维护基础，但活动来自单一维护者；该内部活动不等于外部采用 |
+| 发布版本 | annotated `v0.6.1` 与六项 checksum-bound assets 已发布；Tag/commit/package/support matrix 均为 `0.6.1` 语义 | O3 Release Gate 已闭环；仍未发布 PyPI/wheel 或 Skill |
+| CI | release merge SHA `5af73595f847702930e0c1966986f3d06d3c1c35` 的 main run `32619619333` 在 Windows/Ubuntu × Python 3.12/3.14 四项 required jobs 全绿，Windows governance 成功 | O3 工程与 Release Gate 完成；只证明该提交的可复跑工程状态 |
+| 协作治理 | PR #17 已合入协作治理入口；O5 变更新增公开试用协议与专用反馈 form | O4 已完成，O5 入口进入启动；尚无外部贡献、试用结果或安全报告 |
 | 安装/演示 | PR #15 已提供 source-install Quick Start，PR #16 已在四 required lanes 从 exact commit archive 安装并运行成功/拒绝 demo | O2 与 O3 archive install 子项已完成；仍不构成真实研究或采用证据 |
 | 架构与测试 | PR #17/main 当前为 886 tests；四 required lanes 均含 provenance、full suite 与 archive install/demo，Windows governance 成功 | 是可复跑的工程基础，但仍须通过真实外部使用转化为采用证据 |
 
@@ -114,7 +116,7 @@
 
 目标：把本地强 Gate 变成外部维护者可见、可复跑的公共证据。
 
-当前进度（2026-08-23）：PR #16 的机器可读 support matrix、PR/main diff whitespace Gate 和每个 required lane 的 exact-commit clean-archive install/Quick Start smoke 已通过 PR 与 merge SHA main push CI。O3 工程 Gate 已完成；Tag/Release 一致性仍留在单独的 `v0.6.1` 发布 Gate。
+完成状态（2026-08-23）：PR #16 的机器可读 support matrix、PR/main diff whitespace Gate 和每个 required lane 的 exact-commit clean-archive install/Quick Start smoke 已通过；PR #18 的发布 merge SHA main run、双解释器 archive suite、archive install Gate、annotated Tag、六项 Release assets 与回下载 SHA-256 对账又完成了 `v0.6.1` 发布一致性闭环。O3 已完成。
 
 任务：
 
@@ -155,6 +157,8 @@
 ### O5：真实采用与维护证据
 
 目标：补足当前 1 star/0 fork/单贡献者的弱采用信号，不追求虚假增长。
+
+启动状态（2026-08-23）：`v0.6.1` 已发布；本变更增加独立试用协议和专用 Quick Start 反馈 form。状态仍为 `LAUNCH_READY / NO_EXTERNAL_RESULTS_YET`，因为入口、维护者自测、机器人活动与资产回下载都不是外部采用。试用记录与退出判据以 [O5 external Quick Start trial protocol](../governance/EXTERNAL_TRIAL_PROTOCOL.md) 为准。
 
 任务：
 
@@ -243,7 +247,7 @@ credits will not auto-promote skills or turn synthetic tests into research claim
 
 ## 8. 执行顺序、分支与提交切分
 
-Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、O3 工程 Gate 已由 PR #16、O4 已由 PR #17 合入 `main`。当前 `release/v0.6.1` 分支只实施版本 changelog、状态同步与发布前证据收口；v13/Pika payload 与详细表达继续排除。
+Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、O3 工程 Gate 已由 PR #16 与 `v0.6.1` 发布闭环、O4 已由 PR #17 完成；PR #18 和正式 `v0.6.1` Release 已完成。本阶段只启动 O5 试用入口与发布后状态同步；v13/Pika payload 与详细表达继续排除。
 
 建议提交层：
 
@@ -254,7 +258,7 @@ Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、
 5. O5：仅提交可公开的反馈驱动改进，不提交私人证据；
 6. O6：公共申请证据模板；含私密字段的最终包留在仓库外。
 
-每层均单独 review；当前执行授权仅覆盖依次实施 OSS readiness PR。Tag、Release、外部协调和表单提交仍分别保留独立 Gate。
+每层均单独 review；Tag 与 Release Gate 已完成。邀请具体外部联系人、代表参与者公开反馈、处理私密材料和提交申请仍分别保留独立授权与同意 Gate。
 
 ## 9. 时间表与决策点
 
@@ -270,7 +274,7 @@ Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、
 申请时机：
 
 - **最早可提交**：O1—O4 全绿，能诚实解释项目早期阶段；
-- **推荐提交**：`v0.6.0` 已发布，继续等待 O1—O5 全绿和 2—4 周维护证据形成；
+- **推荐提交**：`v0.6.1` 已发布，继续等待 O1—O5 全绿和 2—4 周维护证据形成；
 - **必须延后**：许可证/来源 Gate 回归、Quick Start 不能在归档树运行、CI 不可复现，或申请文本只能靠未验证的能力/采用度支撑。
 
 ## 10. 最终 Go/No-Go 清单
@@ -281,7 +285,7 @@ Phase 5 已通过 `v0.6.0` 发布收口。O1 已由 PR #14、O2 已由 PR #15、
 - [x] 来源/第三方/AI 辅助开发登记完整，无未知权属文件；
 - [x] README 有五分钟 Quick Start 和诚实能力边界；
 - [x] Windows/Ubuntu public CI 与 archive install/demo Gate 通过；
-- [ ] 包版本、Tag、Release、support matrix 一致；
+- [x] 包版本、Tag、Release、support matrix 一致；
 - [x] CONTRIBUTING/SECURITY/Code of Conduct/CHANGELOG 在位；
 - [ ] 至少两名独立外部用户的真实试用证据已获得；
 - [ ] 实时 GitHub 指标在申请日重取，未虚报 downloads 或 adoption；
