@@ -7,18 +7,24 @@ Skill installation unless it explicitly says so.
 
 ## Unreleased
 
+No user-visible changes are recorded after the 0.6.1 release-candidate freeze.
+Git Tag and GitHub Release metadata remain the authority for publication time.
+
+## 0.6.1
+
 ### Added
 
 - Apache-2.0 licensing, NOTICE, tracked-file provenance, and `unknown=0` CI Gate.
-- Unpublished 0.6.1 package metadata, bundled schema resources, source-install
+- Versioned package metadata, bundled schema resources, source-install
   console entry point, and synthetic success/rejection demo.
 - Machine-readable Windows/Ubuntu × Python 3.12/3.14 support matrix and
   exact-commit clean-archive install/demo checks in every required CI lane.
 - Contributor, security, conduct, governance, citation, and issue/PR entrypoints.
 
-### Not released
+### Distribution and evidence boundaries
 
-- Version 0.6.1 has not been tagged, published to PyPI, or released on GitHub.
+- Version 0.6.1 has not been published to PyPI and does not contain an
+  installable or activated Skill payload.
 - Phase 6, v13/Pika payloads, real ML/data acceptance, production research
   execution, external adoption evidence, and Skill installation remain absent.
 
