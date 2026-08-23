@@ -236,6 +236,18 @@ ADAPTER_FIXTURE_MANIFEST = {
             "payload-not-object.json": ("RecordValidationError", "domain_payload"),
         },
     },
+    "dl-run-manifest/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-created-at.json": ("RecordValidationError", "created_at"),
+            "bad-device-count-type.json": ("RecordValidationError", "device_count"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-locator.json": ("RecordValidationError", "locator"),
+            "missing-case-sha256.json": ("RecordValidationError", "case_sha256"),
+            "missing-max-tokens.json": ("RecordValidationError", "max_tokens"),
+        },
+    },
     "ml-task/v1": {
         "valid": ["clustering.json", "full.json", "minimal.json", "regression.json"],
         "invalid": {
@@ -398,6 +410,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "domain-task/v2": (
         "6247567e285b884f869d7ad4d0e9dbc8a2bc740b1c14cbe600fb7969690ba488"
     ),
+    "dl-run-manifest/v1": (
+        "55a7a42f595bf39697e7fff3ba1395225138e8c2a5221c8c594665ee2d11574a"
+    ),
     "evaluation-contract/v1": (
         "8d28c5756a2ec8f90341562bbfbdd605350c3bc52cb3a6b03bfd6eac4b02d1ab"
     ),
@@ -459,6 +474,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "domain-task-v2.schema.json": (
         "a0d69dbc81f99262de4d1eb0b6d0e21b2e1270fcd57e83ded60c45bd0b8da775"
+    ),
+    "dl-run-manifest-v1.schema.json": (
+        "9495f56a62691e81d4ca92025221672744bb8089bbcf80e322a0c7202c5c4acf"
     ),
     "evaluation-contract-v1.schema.json": (
         "ab8294815264af74b19d325c7e1bd9e70bf938d4a39192736aee6a5d3e65be27"
@@ -594,12 +612,13 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_nineteen_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "claim-assessment/v1",
+                "dl-run-manifest/v1",
                 "domain-task/v1",
                 "domain-task/v2",
                 "evaluation-contract/v1",

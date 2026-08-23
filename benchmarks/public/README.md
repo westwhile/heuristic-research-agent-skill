@@ -32,3 +32,10 @@ PYTHONPATH=src python -B -m unittest discover -s tests -p "test_public_benchmark
 ## ML Adapter 合成合同目录
 
 `ml-adapter/catalog.json` 是 Phase 5 的 20-case 合成 Adapter 合同目录，不是 evaluator `suite/v1`，因此不加入本目录的 Phase 3 `registry.json` 或 contamination ledger。它验证 ML 声明合同、泄漏拒止与语义下限；两条实际 runner 垂直切片由 `tests/e2e/test_ml_vertical_slices.py` 承担。边界与复现命令见 [`ml-adapter/README.md`](ml-adapter/README.md)。
+
+## DL Adapter 合成验收目录
+
+`dl-adapter/catalog.json` 是 Phase 6 L4 的 10-case 合成失败、selection、
+checkpoint 与比较公平性目录，同样不属于 evaluator `suite/v1`，不加入 Phase 3
+registry 或 contamination ledger。它不证明真实框架、GPU、OOM/抢占或模型能力；
+边界与 PowerShell 复现命令见 [`dl-adapter/README.md`](dl-adapter/README.md)。

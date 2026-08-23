@@ -9,3 +9,8 @@ Phase 5 合成工程报告：
 - [`phase5-l6-ml-research-memory-20260821.md`](phase5-l6-ml-research-memory-20260821.md)
 - [`phase5-l6-ml-quant-overlap-20260821.md`](phase5-l6-ml-quant-overlap-20260821.md)
 - [`phase5-acceptance-20260821.md`](phase5-acceptance-20260821.md)
+
+Phase 6 合成工程报告：
+
+- [`phase6-l4-synthetic-studies-20260823.md`](phase6-l4-synthetic-studies-20260823.md)
+- [`phase6-acceptance-20260823.md`](phase6-acceptance-20260823.md)

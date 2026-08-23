@@ -359,6 +359,11 @@ _DELETION_RUNNER = Path(__file__).resolve().parent / "_core_deletion_runner.py"
 _ADAPTER_COUPLED_TESTS = frozenset(
     {
         "tests/unit/test_adapters_types.py",
+        "tests/unit/test_dl_manifest.py",
+        "tests/unit/test_dl_runner.py",
+        "tests/unit/test_dl_runner_l3.py",
+        "tests/unit/test_dl_selection.py",
+        "tests/unit/test_dl_studies.py",
         "tests/unit/test_math_adapter.py",
         "tests/unit/test_math_importer.py",
         "tests/unit/test_ml_adapter.py",

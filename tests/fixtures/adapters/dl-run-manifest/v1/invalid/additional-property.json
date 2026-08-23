@@ -1,0 +1,20 @@
+{
+  "schema": "dl-run-manifest/v1",
+  "manifest_id": "dl-manifest-0001",
+  "run_id": "dl-run-0001",
+  "study_id": "synthetic-dl-study-001",
+  "case_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "evidence_scope": "configuration_only",
+  "execution_mode": "cpu_fixture",
+  "runner": {"name": "reference-dl-runner", "version": "0.1.0", "source_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+  "hardware": {"accelerator": "cpu", "device_model": "generic-x86-64", "device_count": 1, "memory_bytes_per_device": 8589934592},
+  "runtime": {"os": "windows", "architecture": "x86_64", "python_version": "3.12.13"},
+  "framework": {"name": "pytorch", "version": "2.8.0", "determinism": "strict"},
+  "container": {"kind": "none"},
+  "budget": {"max_samples": 32, "max_steps": 10, "max_epochs": 0, "max_tokens": 0, "max_flops": 0, "cost_limit": 60, "cost_unit": "cpu_seconds"},
+  "optimizer": {"name": "sgd", "config_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+  "scheduler": {"name": "none", "config_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"},
+  "checkpoint_policy": {"artifact_reference": "external_locator_and_hash_only", "retention": "last", "max_retained": 1, "selection_metric": "validation_loss", "selection_direction": "minimize", "save_optimizer_state": true, "save_scheduler_state": false, "recovery_accounting": "cumulative_no_double_charge", "resume": {"mode": "fresh"}},
+  "created_at": "2026-08-23T12:00:00Z",
+  "unexpected": true
+}

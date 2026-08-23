@@ -1,0 +1,126 @@
+{
+  "schema": "research-evolution-dl-support-matrix/v1",
+  "reviewed_at": "2026-08-23",
+  "phase": "phase6-l4-commit-bound-pr-draft",
+  "evidence_ceiling": "synthetic_engineering",
+  "interfaces": [
+    {
+      "name": "DLRunManifest",
+      "version": "dl-run-manifest/v1",
+      "status": "implemented"
+    },
+    {
+      "name": "reference-dl-runner",
+      "version": "0.2.0",
+      "status": "implemented_synthetic_cpu_only"
+    },
+    {
+      "name": "reference-dl-selector",
+      "version": "0.1.0",
+      "status": "implemented_synthetic_only"
+    },
+    {
+      "name": "reference-dl-study-reporter",
+      "version": "0.1.0",
+      "status": "implemented_synthetic_commit_bound"
+    }
+  ],
+  "ci_lanes": {
+    "source_of_truth": "docs/governance/SUPPORT_MATRIX.json",
+    "last_commit_bound_phase6_evidence": {
+      "commit": "45047261c0ccd48cd141801225b01de24cfd1067",
+      "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32633282906",
+      "jobs": [
+        {
+          "os": "ubuntu-latest",
+          "python": "3.12",
+          "result": "success"
+        },
+        {
+          "os": "ubuntu-latest",
+          "python": "3.14",
+          "result": "success"
+        },
+        {
+          "os": "windows-latest",
+          "python": "3.12",
+          "result": "success",
+          "powershell_governance": "success"
+        },
+        {
+          "os": "windows-latest",
+          "python": "3.14",
+          "result": "success",
+          "powershell_governance": "success"
+        }
+      ],
+      "scope": "Phase 6 L1-L4 synthetic engineering behavior at the exact PR head; this is not real framework, GPU, dataset, scientific, adoption, or production evidence"
+    }
+  },
+  "execution_matrix": [
+    {
+      "execution": "standard_library_tiny_mlp",
+      "accelerator": "cpu",
+      "framework": "none_loaded",
+      "data": "bounded_synthetic_fixture",
+      "status": "verified_engineering_behavior",
+      "hardware_observation": "declared_not_observed"
+    },
+    {
+      "execution": "pytorch",
+      "accelerator": "cpu_or_gpu",
+      "framework": "not_loaded",
+      "data": "not_executed",
+      "status": "unverified",
+      "hardware_observation": "not_observed"
+    },
+    {
+      "execution": "tensorflow",
+      "accelerator": "cpu_or_gpu",
+      "framework": "not_loaded",
+      "data": "not_executed",
+      "status": "unverified",
+      "hardware_observation": "not_observed"
+    },
+    {
+      "execution": "jax",
+      "accelerator": "cpu_or_gpu",
+      "framework": "not_loaded",
+      "data": "not_executed",
+      "status": "unverified",
+      "hardware_observation": "not_observed"
+    },
+    {
+      "execution": "gpu_training",
+      "accelerator": "cuda_rocm_or_mps",
+      "framework": "not_loaded",
+      "data": "not_executed",
+      "status": "unverified",
+      "hardware_observation": "not_observed"
+    }
+  ],
+  "reproducibility_envelope": {
+    "verified": [
+      "canonical synthetic artifacts bind runner, manifest, fixture, seed, budget, checkpoint lineage, and selection plan",
+      "failed and missing expected seeds remain explicit",
+      "compute-matched reports compare per-seed samples, tokens, FLOP proxy, and related caps",
+      "checkpoint reports retain locator/hash/lineage only"
+    ],
+    "not_verified": [
+      "cross-GPU numerical reproducibility",
+      "driver, CUDA, ROCm, MPS, compiler, or kernel determinism",
+      "framework version interoperability",
+      "distributed or mixed-precision training",
+      "real scheduler preemption and process restart",
+      "external checkpoint-store durability or authorization",
+      "wall-clock, monetary cost, energy, or production reliability"
+    ]
+  },
+  "boundaries": [
+    "A manifest hardware declaration is configuration, not an observation.",
+    "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
+    "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
+    "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
+    "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
+  ]
+}

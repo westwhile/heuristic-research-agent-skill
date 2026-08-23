@@ -1,0 +1,69 @@
+{
+  "schema": "dl-adapter-case-catalog/v1",
+  "catalog_id": "dl-adapter-public-synthetic-l4-v1",
+  "provenance": "synthetic",
+  "evidence_scope": "synthetic_engineering",
+  "description": "Synthetic Phase 6 L4 failure, selection, checkpoint-integrity, comparison-fairness, and artifact-retention cases.",
+  "cases": [
+    {
+      "case_id": "DLC-001-oom-seed-preserved",
+      "category": "failure-preservation",
+      "scenario": "injected-oom",
+      "expected_outcome": "failed/resource_exhausted"
+    },
+    {
+      "case_id": "DLC-002-nan-seed-preserved",
+      "category": "failure-preservation",
+      "scenario": "injected-nan",
+      "expected_outcome": "failed/numerical_failure"
+    },
+    {
+      "case_id": "DLC-003-preemption-proxy-preserved",
+      "category": "failure-preservation",
+      "scenario": "injected-interrupt",
+      "expected_outcome": "failed/interrupted"
+    },
+    {
+      "case_id": "DLC-004-failed-seed-blocks-comparison",
+      "category": "selection-integrity",
+      "scenario": "failed-expected-seed",
+      "expected_outcome": "incomplete_evidence"
+    },
+    {
+      "case_id": "DLC-005-best-only-selection-blocked",
+      "category": "selection-integrity",
+      "scenario": "minimum-successful-runs-not-met",
+      "expected_outcome": "insufficient_successful_runs"
+    },
+    {
+      "case_id": "DLC-006-checkpoint-tamper-rejected",
+      "category": "checkpoint-integrity",
+      "scenario": "checkpoint-content-tamper",
+      "expected_outcome": "rejected/content-hash"
+    },
+    {
+      "case_id": "DLC-007-single-factor-ablation",
+      "category": "comparison-fairness",
+      "scenario": "early-stopping-ablation",
+      "expected_outcome": "eligible_descriptive_comparison"
+    },
+    {
+      "case_id": "DLC-008-scale-resource-mismatch",
+      "category": "comparison-fairness",
+      "scenario": "hidden-unit-scale",
+      "expected_outcome": "descriptive_scale_only"
+    },
+    {
+      "case_id": "DLC-009-compute-matched-baseline",
+      "category": "comparison-fairness",
+      "scenario": "flops-matched-hidden-unit-change",
+      "expected_outcome": "eligible_descriptive_comparison"
+    },
+    {
+      "case_id": "DLC-010-checkpoint-payload-excluded",
+      "category": "artifact-retention",
+      "scenario": "report-reference-only",
+      "expected_outcome": "locator_hash_and_lineage_only"
+    }
+  ]
+}

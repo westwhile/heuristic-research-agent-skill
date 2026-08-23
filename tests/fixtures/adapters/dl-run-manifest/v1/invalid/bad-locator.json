@@ -1,0 +1,19 @@
+{
+  "schema": "dl-run-manifest/v1",
+  "manifest_id": "dl-manifest-0002",
+  "run_id": "dl-run-0002",
+  "study_id": "public-dl-study-002",
+  "case_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "evidence_scope": "configuration_only",
+  "execution_mode": "gpu_training",
+  "runner": {"name": "reference-dl-runner", "version": "0.1.0", "source_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+  "hardware": {"accelerator": "cuda", "device_model": "declared-gpu-model", "device_count": 2, "memory_bytes_per_device": 25769803776, "driver_version": "580.95"},
+  "runtime": {"os": "linux", "architecture": "x86_64", "python_version": "3.14.0"},
+  "framework": {"name": "pytorch", "version": "2.8.0", "backend_version": "cuda-12.8", "determinism": "best_effort"},
+  "container": {"kind": "docker", "image": "registry.example.invalid/research/dl-runner:0.1.0", "digest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "budget": {"max_samples": 10000, "max_steps": 1000, "max_epochs": 10, "max_tokens": 0, "max_flops": 1000000000000, "cost_limit": 7200, "cost_unit": "accelerator_seconds"},
+  "optimizer": {"name": "adamw", "config_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+  "scheduler": {"name": "cosine", "config_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"},
+  "checkpoint_policy": {"artifact_reference": "external_locator_and_hash_only", "retention": "best_and_last", "max_retained": 2, "selection_metric": "validation_loss", "selection_direction": "minimize", "save_optimizer_state": true, "save_scheduler_state": true, "recovery_accounting": "cumulative_no_double_charge", "resume": {"mode": "exact_checkpoint", "checkpoint_id": "checkpoint-0007", "locator": "D:/models/checkpoint.pt", "content_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "source_run_id": "dl-run-0001", "completed_steps": 250, "completed_epochs": 2, "consumed_budget_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "optimizer_state_sha256": "123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0", "scheduler_state_sha256": "23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01"}},
+  "created_at": "2026-08-23T12:30:00+08:00"
+}
