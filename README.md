@@ -2,7 +2,7 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
-本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 实现与独立审核已完成，并以 annotated `v0.6.0` Tag 和 [GitHub Release](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.0) 发布。发布提交 `c72e31eb4d5dbd367b20f24678e94682b963fed9` 的 Windows/Ubuntu × Python 3.12/3.14 四项 CI 与双解释器 archive Gate 均通过，六项 Release assets 已逐项回下载并通过 SHA-256 对账**。现阶段冻结项目计划、模块职责、治理规则、Core/Adapter seam 与分层验收证据；尚未宣称任何真实研究执行器、Heuristic Learning 闭环、真实 ML 训练/执行能力或生产发布能力已经实现。
+本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 已以 annotated `v0.6.0` Tag 发布，随后 Apache-2.0、来源治理、source-install Quick Start、双平台 archive Gate 与公共协作入口又以 annotated [`v0.6.1` source Release](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1) 发布。`v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向提交 `5af73595f847702930e0c1966986f3d06d3c1c35`；六项 Release assets 已回下载并与 GitHub digest、发布前 SHA-256 三方对账**。O5 外部 Quick Start 试用入口现已准备，但尚无外部结果；这不是 PyPI 发布、Skill 安装、真实 ML 执行、真实科研验收或生产能力证明。
 
 ## 项目目标
 
@@ -40,6 +40,7 @@ Case Package
 
 - [详细实施计划](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md)
 - [Codex for Open Source 资格申请计划](docs/plans/CODEX_FOR_OSS_APPLICATION_PLAN.md)
+- [O5 外部 Quick Start 试用协议](docs/governance/EXTERNAL_TRIAL_PROTOCOL.md)
 - [math-research-solve v13 来源边界与延期说明](docs/plans/MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)
 - [来源、权利与第三方边界](docs/governance/SOURCE_PROVENANCE.md)
 - [总体架构](docs/architecture/ARCHITECTURE.md)
@@ -82,6 +83,10 @@ heuristic-research-agent-skill/
 当前安装入口来自 GitHub source checkout，不代表已经发布到 PyPI。需要 Python
 3.12 或更高版本；demo 只使用包内合成 `ResearchTask`，不读取真实科研或市场数据，
 也不写入项目文件。
+
+独立试用请固定到 annotated `v0.6.1` tag，并按
+[O5 试用协议](docs/governance/EXTERNAL_TRIAL_PROTOCOL.md)记录真实环境和结果；维护者
+自测、机器人活动和没有可核尝试记录的下载不计作外部采用。
 
 Windows PowerShell 7：
 
@@ -139,7 +144,8 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 - 所有参与者遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)；
 - 漏洞按 [SECURITY.md](SECURITY.md) 私下报告，不要把细节写进公开 Issue；
 - 公开里程碑见 [CHANGELOG.md](CHANGELOG.md)，引用元数据见 [CITATION.cff](CITATION.cff)；
-- bug、schema/contract、文档和 evidence-boundary 问题使用仓库 Issue forms。
+- bug、schema/contract、文档和 evidence-boundary 问题使用仓库 Issue forms；
+- 独立用户可使用 [Quick Start 试用反馈表](https://github.com/westwhile/heuristic-research-agent-skill/issues/new?template=quick_start_trial.yml)记录 `v0.6.1` 的真实尝试；安全问题仍必须私下报告。
 
 ## 开发者全量验证
 
@@ -166,12 +172,12 @@ python -B scripts/verify_archive_install.py
 
 - 远程仓库：`https://github.com/westwhile/heuristic-research-agent-skill.git`
 - 默认开发分支：`main`
-- 当前仓库许可证：Apache License 2.0（见 [LICENSE](LICENSE)、[NOTICE](NOTICE) 与[来源登记](docs/governance/SOURCE_PROVENANCE.md)）；PR #14 已通过 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 合入，GitHub 已识别该许可证。现有 Tag `v0.6.0` 早于 OSS-R0 变更，仍只是 Phase 5 Machine Learning Adapter 的 GitHub source milestone；当前包元数据为未发布的 `0.6.1` 候选，不代表 PyPI/wheel、可安装 Skill 或新 GitHub Release 已发布
+- 当前仓库许可证：Apache License 2.0（见 [LICENSE](LICENSE)、[NOTICE](NOTICE) 与[来源登记](docs/governance/SOURCE_PROVENANCE.md)）；PR #14 已通过 merge commit `f47a0307a4ac7cf52603aa9d3da8aa3852af19ae` 合入，GitHub 已识别该许可证。包元数据 `0.6.1` 与 annotated `v0.6.1` source Release 一致；该 Release 不代表 PyPI/wheel、可安装 Skill 或生产部署已经发布
 - Phase 0 工程基线：`math-research-solve 1.0.1` portable、candidate 与安装树 79 文件一致；Windows 回归 19 passed、1 个真实 legacy fixture 用例延期
 - Phase 1 已完成：九个 v1 Core schema、25 种 violation 合同、append-only 发布与全图验证、只读 CLI（详见 v0.2.0 tag 与 Phase 1C/1D 验收报告）
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
 - Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
-- Phase 5 实现与发布已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付。PR #11 通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入功能实现，PR #12 通过 merge commit `c72e31eb4d5dbd367b20f24678e94682b963fed9` 同步发布前状态；最终 main CI run `32579211332` 四项 job 全部成功，两个 Windows governance 步骤成功，真实 `git archive` 双解释器均为 870/870（各 1 个预期 Git tracking skip）。annotated tag object `3f109b3e0c1366b93f780be21447e229aa3c3b3e` 指向 `c72e31eb`，正式 Release 的六项 assets 与本地 evidence bundle 逐项 SHA-256 一致。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。OSS-R0 的 Apache-2.0 许可证与来源清单已进入 main；PR #15 已通过 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae` 合入 `0.6.1` 候选元数据、source-install CLI 与合成 Quick Start；PR #16 已通过 merge commit `b6b2b9aff27b054b1e4324d1dba308873e5b394a` 合入支持矩阵与 exact-commit archive install Gate，main CI run `32617521658` 四项全绿；PR #17 已通过 merge commit `2340191e1d6f7548a35be85cf03ca58e8d02b1f2` 合入公共协作与安全治理入口，main CI run `32618983528` 四项全绿。`v0.6.1` Tag/Release 与真实外部试用仍待独立 Gate；DL Adapter（Phase 6）、真实 ML 执行/数据验收、Skill 安装均未完成
+- Phase 5 实现与发布已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付。PR #11 通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入功能实现，PR #12 通过 merge commit `c72e31eb4d5dbd367b20f24678e94682b963fed9` 同步发布前状态；最终 main CI run `32579211332` 四项 job 全部成功，两个 Windows governance 步骤成功，真实 `git archive` 双解释器均为 870/870（各 1 个预期 Git tracking skip）。annotated tag object `3f109b3e0c1366b93f780be21447e229aa3c3b3e` 指向 `c72e31eb`，正式 Release 的六项 assets 与本地 evidence bundle 逐项 SHA-256 一致。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。OSS-R0 的 Apache-2.0 许可证与来源清单已进入 main；PR #15—#17 已依次合入 `0.6.1` 元数据与 Quick Start、支持矩阵与 archive install Gate、公共协作与安全治理入口。release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器真实 archive suite 与 source-install Gate；annotated `v0.6.1` Tag 和六项 checksum-bound Release assets 已发布并回下载验证。O5 外部试用入口已准备，但尚无独立外部用户结果；DL Adapter（Phase 6）、真实 ML 执行/数据验收、Skill 安装均未完成
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

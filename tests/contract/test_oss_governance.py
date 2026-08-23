@@ -21,7 +21,7 @@ class OSSGovernanceContractTest(unittest.TestCase):
             self.assertTrue(path.is_file(), relative)
             self.assertTrue(path.read_text(encoding="utf-8").strip(), relative)
 
-    def test_citation_uses_confirmed_public_metadata_without_fake_release(self) -> None:
+    def test_citation_uses_confirmed_public_release_metadata(self) -> None:
         citation = (REPO_ROOT / "CITATION.cff").read_text(encoding="utf-8")
         self.assertIn("cff-version: 1.2.0", citation)
         self.assertIn('name: "westwhile"', citation)
@@ -31,8 +31,8 @@ class OSSGovernanceContractTest(unittest.TestCase):
             'heuristic-research-agent-skill"',
             citation,
         )
-        self.assertNotIn("date-released:", citation)
-        self.assertNotRegex(citation, r"(?m)^version:")
+        self.assertIn('version: "0.6.1"', citation)
+        self.assertIn('date-released: "2026-08-23"', citation)
 
     def test_changelog_covers_release_history_without_pypi_overclaim(self) -> None:
         changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
@@ -62,6 +62,7 @@ class OSSGovernanceContractTest(unittest.TestCase):
         self.assertIn("Supported versions", security)
         self.assertIn("Do not open a public issue", security)
         self.assertIn("private", security.lower())
+        self.assertIn("Latest GitHub Release (`v0.6.1`", security)
         for placeholder in ("TODO", "TBD", "INSERT", "example.com"):
             self.assertNotIn(placeholder, security)
 
@@ -69,6 +70,7 @@ class OSSGovernanceContractTest(unittest.TestCase):
         forms = {
             "bug_report.yml",
             "documentation.yml",
+            "quick_start_trial.yml",
             "research_boundary.yml",
             "schema_contract_proposal.yml",
         }
@@ -81,8 +83,29 @@ class OSSGovernanceContractTest(unittest.TestCase):
             self.assertIn("required: true", text, name)
         bug = (issue_root / "bug_report.yml").read_text(encoding="utf-8")
         self.assertIn("Security reports follow SECURITY.md", bug)
+        trial = (issue_root / "quick_start_trial.yml").read_text(encoding="utf-8")
+        for evidence_field in (
+            "id: relationship",
+            "id: version",
+            "id: operating_system",
+            "id: python",
+            "id: elapsed",
+            "id: outcome",
+            "id: interpretation",
+            "id: public_confirmation",
+        ):
+            self.assertIn(evidence_field, trial)
+        self.assertIn("This describes my own real attempt", trial)
+        self.assertIn("Security reports follow SECURITY.md", trial)
         config = (issue_root / "config.yml").read_text(encoding="utf-8")
         self.assertIn("/security/policy", config)
+
+        protocol = (
+            REPO_ROOT / "docs" / "governance" / "EXTERNAL_TRIAL_PROTOCOL.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("NO_EXTERNAL_RESULTS_YET", protocol)
+        self.assertIn("at least two independent external users", protocol)
+        self.assertIn("do **not** count as external adoption", protocol)
 
     def test_pull_request_template_carries_provenance_and_claim_gates(self) -> None:
         template = (REPO_ROOT / ".github" / "pull_request_template.md").read_text(

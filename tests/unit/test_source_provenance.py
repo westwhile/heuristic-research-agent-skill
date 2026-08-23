@@ -24,8 +24,8 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(report["counts"]["unknown"], 0)
         self.assertEqual(report["counts"]["third_party_reused"], 2)
-        self.assertEqual(report["counts"]["independently_authored"], 709)
-        self.assertEqual(report["counts"]["total"], 842)
+        self.assertEqual(report["counts"]["independently_authored"], 711)
+        self.assertEqual(report["counts"]["total"], 844)
 
     def test_apache_license_metadata_and_rights_confirmation(self) -> None:
         manifest = json.loads(
@@ -41,6 +41,14 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertEqual(package["license"], "Apache-2.0")
         self.assertTrue((REPO_ROOT / "LICENSE").is_file())
         self.assertTrue((REPO_ROOT / "NOTICE").is_file())
+
+        openai_reference = next(
+            source
+            for source in manifest["external_sources"]
+            if source["id"] == "openai-codex-for-oss-official-pages"
+        )
+        self.assertFalse(openai_reference["tracked_expression_reused"])
+        self.assertTrue(openai_reference["evidence_sufficient_for_reuse"])
 
     def test_v13_external_expression_remains_excluded(self) -> None:
         manifest = json.loads(

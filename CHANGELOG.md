@@ -7,10 +7,13 @@ Skill installation unless it explicitly says so.
 
 ## Unreleased
 
-No user-visible changes are recorded after the 0.6.1 release-candidate freeze.
-Git Tag and GitHub Release metadata remain the authority for publication time.
+- Opened a public O5 Quick Start trial protocol and dedicated feedback form.
+- Synchronized documentation with the published `v0.6.1` source Release.
 
-## 0.6.1
+The trial intake is available, but no external attempt or adoption result is
+claimed by this change.
+
+## 0.6.1 — 2026-08-23
 
 ### Added
 
@@ -20,6 +23,8 @@ Git Tag and GitHub Release metadata remain the authority for publication time.
 - Machine-readable Windows/Ubuntu × Python 3.12/3.14 support matrix and
   exact-commit clean-archive install/demo checks in every required CI lane.
 - Contributor, security, conduct, governance, citation, and issue/PR entrypoints.
+- Published as an annotated Git Tag and GitHub source Release with six
+  checksum-bound assets.
 
 ### Distribution and evidence boundaries
 

@@ -1,0 +1,95 @@
+name: Quick Start trial feedback
+description: Report a real v0.6.1 source-install attempt without sensitive data
+title: "[Quick Start trial] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        This is a public issue. Do not include credentials, private paths,
+        personal or market data, hidden cases, restricted third-party material,
+        or vulnerability details. Security reports follow SECURITY.md.
+  - type: dropdown
+    id: relationship
+    attributes:
+      label: Relationship to the project
+      description: This helps distinguish independent trials from maintainer activity.
+      options:
+        - No prior involvement in this repository
+        - Previously reported or contributed to this repository
+        - Other relationship, explained below
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Tested tag or commit
+      description: Use the exact Git tag or full commit SHA; v0.6.1 is the trial baseline.
+      placeholder: v0.6.1
+    validations:
+      required: true
+  - type: dropdown
+    id: operating_system
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - Ubuntu
+        - Other or unsupported
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Paste the output of python --version without local paths.
+      placeholder: Python 3.12.x
+    validations:
+      required: true
+  - type: input
+    id: elapsed
+    attributes:
+      label: Approximate elapsed minutes
+      description: Include setup and reading time, but not Python installation time.
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Both success and expected-rejection demos behaved as documented
+        - Blocked during source installation
+        - Blocked during the success demo
+        - The tampered demo was not rejected as documented
+        - Completed, but the output or evidence boundary was unclear
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Commands and reproducible observations
+      description: Provide sanitized commands, output, and the first point of failure or confusion.
+    validations:
+      required: true
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: Evidence-boundary interpretation
+      description: State what you think the demo establishes and what it does not establish.
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Relationship details or additional context
+      description: Required only when you selected another relationship or need to clarify the report.
+  - type: checkboxes
+    id: public_confirmation
+    attributes:
+      label: Public and authenticity confirmation
+      options:
+        - label: I understand this report is public and contains no sensitive or vulnerability information.
+          required: true
+        - label: This describes my own real attempt and is not bot-generated or submitted to manufacture adoption metrics.
+          required: true
