@@ -10,3 +10,8 @@
 - `check_github_auth_context.ps1`：识别 Codex 沙箱与真实 Windows 用户的 keyring 边界；不读取、不返回 Token 值，并用不同状态区分上下文隔离和真实认证失败。
 
 `freeze_external_skill_baseline.py` 与 `build_external_skill_portable.py` 要求输出目录位于已安装 Skill 之外。回归编排器以 `0/1/2` 分别表示 `passed/failed/partial`；`blocked` 和 `not_run` 都会阻止全量 PASS。
+
+## OSS-R0 provenance
+
+- `verify_source_provenance.py`：在工作树中使用 Git 的 tracked + 非忽略拟议文件清单，在归档树中使用实际文件清单；按 `docs/governance/SOURCE_PROVENANCE.json` 的 first-match 规则验证全覆盖、固定分类计数、`unknown=0`、Apache-2.0 元数据以及 `LICENSE`/`NOTICE`。使用 `--json` 可输出机器可读报告。
+- `verify_archive_suite.py`：从指定 commit 的真实 `git archive` 运行双解释器完整测试；只接受与调用解释器不同的第二解释器，并在结论中绑定 commit SHA。

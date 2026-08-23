@@ -8,7 +8,8 @@ version = "0.0.0"
 description = "Auditable evaluation and controlled evolution for research agents across mathematics, quantitative research, machine learning, and deep learning."
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "All rights reserved until a LICENSE file is selected." }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "westwhile" }]
 dependencies = []
 

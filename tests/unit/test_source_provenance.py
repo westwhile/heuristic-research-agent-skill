@@ -1,0 +1,70 @@
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+import tomllib
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+class SourceProvenanceTests(unittest.TestCase):
+    def test_repository_provenance_gate(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "-B", "scripts/verify_source_provenance.py", "--json"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(report["ok"])
+        self.assertEqual(report["counts"]["unknown"], 0)
+        self.assertEqual(report["counts"]["third_party_reused"], 1)
+        self.assertEqual(report["counts"]["total"], 828)
+
+    def test_apache_license_metadata_and_rights_confirmation(self) -> None:
+        manifest = json.loads(
+            (REPO_ROOT / "docs/governance/SOURCE_PROVENANCE.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
+            package = tomllib.load(handle)["project"]
+
+        self.assertEqual(manifest["project_license"]["spdx"], "Apache-2.0")
+        self.assertEqual(manifest["rights_confirmation"]["status"], "confirmed")
+        self.assertEqual(package["license"], "Apache-2.0")
+        self.assertTrue((REPO_ROOT / "LICENSE").is_file())
+        self.assertTrue((REPO_ROOT / "NOTICE").is_file())
+
+    def test_v13_external_expression_remains_excluded(self) -> None:
+        manifest = json.loads(
+            (REPO_ROOT / "docs/governance/SOURCE_PROVENANCE.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        pika = next(
+            source
+            for source in manifest["external_sources"]
+            if source["id"] == "pika-toolkit-v13"
+        )
+        plan = (
+            REPO_ROOT
+            / "docs/plans/MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertFalse(pika["tracked_expression_reused"])
+        self.assertFalse(pika["evidence_sufficient_for_reuse"])
+        self.assertIn("SOURCE_EXCLUDED", plan)
+        self.assertIn("本轮无法重新核验原始 artifact", plan)
+        self.assertLess(len(plan.splitlines()), 100)
+        for stale_count in ("493", "249", "170", "18 个"):
+            self.assertNotIn(stale_count, plan)
+
+
+if __name__ == "__main__":
+    unittest.main()

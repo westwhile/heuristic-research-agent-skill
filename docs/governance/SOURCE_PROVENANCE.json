@@ -1,0 +1,246 @@
+{
+  "schema": "research-evolution-source-provenance/v1",
+  "status": "implementation_draft",
+  "reviewed_at": "2026-08-23",
+  "baseline_commit": "bd53d195344df3a1457e6185b0f5968444b81a35",
+  "inventory_scope": "All 822 files tracked at baseline_commit plus the six PR-A implementation files.",
+  "project_license": {
+    "spdx": "Apache-2.0",
+    "license_file": "LICENSE",
+    "notice_file": "NOTICE"
+  },
+  "rights_confirmation": {
+    "status": "confirmed",
+    "principal": "westwhile",
+    "confirmed_at": "2026-08-23",
+    "scope": "The maintainer confirmed ownership of, or authorization to license, all tracked files covered by this inventory.",
+    "limitations": "This confirmation does not license excluded external payloads or remove upstream obligations if third-party content is added later."
+  },
+  "ai_and_tool_assistance": {
+    "status": "disclosed",
+    "statement": "Repository-native code, documentation, tests, schemas, and generated evidence may have been drafted or reviewed with AI or automation under maintainer direction. The maintainer accepts responsibility for source review, rights clearance, and the final licensed form.",
+    "boundary": "AI or tool assistance is not evidence of permission to copy third-party expression. External payloads remain excluded unless separately licensed and registered."
+  },
+  "classification": {
+    "allowed": [
+      "independently_authored",
+      "generated",
+      "design_inspired",
+      "third_party_reused",
+      "unknown"
+    ],
+    "first_match_wins": true,
+    "expected_counts": {
+      "independently_authored": 696,
+      "generated": 118,
+      "design_inspired": 13,
+      "third_party_reused": 1,
+      "unknown": 0,
+      "total": 828
+    },
+    "rules": [
+      {
+        "id": "generated-external-baseline-metadata",
+        "class": "generated",
+        "patterns": [
+          "baselines/math-research-solve-1.0.0/**",
+          "baselines/math-research-solve-1.0.1/**"
+        ],
+        "source": "Repository baseline-freeze and verification scripts operating on excluded local external-skill trees."
+      },
+      {
+        "id": "generated-public-benchmark-artifacts",
+        "class": "generated",
+        "patterns": [
+          "benchmarks/public/math/artifacts/**",
+          "benchmarks/public/quant/artifacts/**"
+        ],
+        "source": "Deterministic repository evaluator output over public synthetic benchmark inputs."
+      },
+      {
+        "id": "generated-baseline-json-reports",
+        "class": "generated",
+        "patterns": [
+          "reports/baseline/math-research-solve-1.0.0/*.json",
+          "reports/baseline/math-research-solve-1.0.1/*.json"
+        ],
+        "source": "Repository baseline acceptance and regression commands."
+      },
+      {
+        "id": "generated-research-memory-evidence",
+        "class": "generated",
+        "patterns": [
+          "staging/research-memory/evidence/**",
+          "staging/research-memory/manifest.json"
+        ],
+        "source": "Repository integration fixtures and deterministic research-memory materialization helpers."
+      },
+      {
+        "id": "v8-design-compatibility",
+        "class": "design_inspired",
+        "patterns": [
+          "scripts/run_math_research_baseline.py",
+          "src/research_evolution/adapters/math/importer.py",
+          "tests/fixtures/math-archives/minimal-v8/**",
+          "tests/integration/test_vertical_slices.py",
+          "tests/unit/test_math_importer.py"
+        ],
+        "source": "Independently implemented compatibility handling for the external math-research-project/v8 interface; fixtures are explicitly synthetic and no external payload is tracked."
+      },
+      {
+        "id": "canonical-apache-license-text",
+        "class": "third_party_reused",
+        "patterns": [
+          "LICENSE"
+        ],
+        "source": "Canonical Apache License, Version 2.0 text obtained from the GitHub license API and compared byte-for-byte after newline normalization."
+      },
+      {
+        "id": "repository-root",
+        "class": "independently_authored",
+        "patterns": [
+          ".gitattributes",
+          ".gitignore",
+          "AGENTS.md",
+          "NOTICE",
+          "README.md",
+          "pyproject.toml"
+        ],
+        "source": "Repository-native material covered by the maintainer rights confirmation."
+      },
+      {
+        "id": "repository-native-trees",
+        "class": "independently_authored",
+        "patterns": [
+          ".github/**",
+          "baselines/**",
+          "benchmarks/**",
+          "docs/**",
+          "policies/**",
+          "reports/**",
+          "schemas/**",
+          "scripts/**",
+          "skills/**",
+          "src/**",
+          "staging/**",
+          "taxonomies/**",
+          "tests/**"
+        ],
+        "source": "Repository-native material covered by the maintainer rights confirmation; earlier exception rules take precedence."
+      }
+    ]
+  },
+  "external_sources": [
+    {
+      "id": "canonical-apache-license-text",
+      "source_name": "Apache License, Version 2.0",
+      "source_url": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+      "versions": [
+        "2.0"
+      ],
+      "visible_license": "Apache-2.0",
+      "tracked_expression_reused": true,
+      "tracked_use": "The canonical license terms are distributed verbatim as the repository LICENSE file.",
+      "disposition": "Retain the standard text verbatim; do not customize the license terms. Project-specific notices remain in NOTICE.",
+      "notice_action": "The project NOTICE identifies the product and copyright holder; no upstream Apache product payload is included.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "math-research-solve-v8-baselines",
+      "source_name": "math-research-solve",
+      "source_url": null,
+      "versions": [
+        "1.0.0",
+        "1.0.1"
+      ],
+      "visible_license": "not recorded for the excluded external payload",
+      "tracked_expression_reused": false,
+      "tracked_use": "Generated manifests, hashes, environment facts, acceptance facts, and independently implemented synthetic compatibility fixtures only.",
+      "disposition": "Retain tracked metadata and synthetic fixtures; keep the external portable/installed payload excluded and the v8/1.0.1 baseline immutable.",
+      "notice_action": "No upstream NOTICE is copied because no external payload is distributed. Re-audit before any payload inclusion.",
+      "evidence_sufficient_for_reuse": false
+    },
+    {
+      "id": "pika-toolkit-v13",
+      "source_name": "pika_math_learning_toolkit-1.11.zip / math-research-solve v13",
+      "source_url": null,
+      "versions": [
+        "toolkit 1.11",
+        "math-research-solve v13"
+      ],
+      "visible_license": "not established; original artifact unavailable during OSS-R0",
+      "tracked_expression_reused": false,
+      "tracked_use": "Source-boundary facts only. The former detailed mechanism plan was replaced with an independently written exclusion and deferred-review note.",
+      "disposition": "Exclude all source, schemas, fixtures, templates, payloads, and detailed descriptive expression unless a compatible license and a separate adoption authorization are later recorded.",
+      "notice_action": "None while the payload and expressive content remain excluded.",
+      "evidence_sufficient_for_reuse": false
+    },
+    {
+      "id": "hatchling",
+      "source_name": "Hatchling",
+      "source_url": "https://github.com/pypa/hatch",
+      "versions": [
+        ">=1.27,<2"
+      ],
+      "visible_license": "MIT",
+      "tracked_expression_reused": false,
+      "tracked_use": "Build-system dependency reference only; not vendored.",
+      "disposition": "Retain dependency declaration and upstream attribution record.",
+      "notice_action": "No bundled upstream NOTICE required for a non-vendored dependency.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "pyyaml",
+      "source_name": "PyYAML",
+      "source_url": "https://github.com/yaml/pyyaml",
+      "versions": [
+        "6.0.3"
+      ],
+      "visible_license": "MIT",
+      "tracked_expression_reused": false,
+      "tracked_use": "Optional validation dependency reference only; not vendored.",
+      "disposition": "Retain dependency declaration and upstream attribution record.",
+      "notice_action": "No bundled upstream NOTICE required for a non-vendored dependency.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "github-actions",
+      "source_name": "actions/checkout and actions/setup-python",
+      "source_url": "https://github.com/actions",
+      "versions": [
+        "checkout v7.0.1",
+        "setup-python v7.0.0"
+      ],
+      "visible_license": "MIT",
+      "tracked_expression_reused": false,
+      "tracked_use": "Commit-pinned CI action references only; action source is not vendored.",
+      "disposition": "Retain pinned references and re-audit on replacement or vendoring.",
+      "notice_action": "No bundled upstream NOTICE required for non-vendored actions.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "json-schema-2020-12",
+      "source_name": "JSON Schema Draft 2020-12",
+      "source_url": "https://json-schema.org/draft/2020-12/schema",
+      "versions": [
+        "2020-12"
+      ],
+      "visible_license": "standards reference; no specification text vendored",
+      "tracked_expression_reused": false,
+      "tracked_use": "Schema dialect URI and interoperability vocabulary only.",
+      "disposition": "Retain standards reference; re-audit if specification text is copied.",
+      "notice_action": "None for the URI/reference-only use.",
+      "evidence_sufficient_for_reuse": true
+    }
+  ],
+  "gates": {
+    "unknown_must_equal": 0,
+    "third_party_payloads_must_be_registered": true,
+    "license_and_notice_must_exist": true,
+    "package_license_must_equal": "Apache-2.0",
+    "application_submission_authorized": false,
+    "tag_or_release_authorized": false,
+    "skill_installation_authorized": false,
+    "v13_implementation_authorized": false
+  }
+}

@@ -1,17 +1,17 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.2-post-release-planning
+- 计划版本：v5.3-oss-r0-pr-a
 - 初次制定日期：2026-08-18
-- 状态同步日期：2026-08-22
+- 状态同步日期：2026-08-23
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 实现、独立审核、main CI、commit-bound archive、annotated tag 与 GitHub Release evidence assets 均已闭环；发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 实现、独立审核、main CI、commit-bound archive、annotated tag 与 GitHub Release evidence assets 均已闭环；发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。PR #13 又以 merge commit `bd53d195344df3a1457e6185b0f5968444b81a35` 完成发布后状态同步。当前 OSS-R0 PR-A 分支已按权利持有人决定加入 Apache-2.0、NOTICE 与 tracked-file 来源 Gate；仍待 review/merge，且 O2—O6 未完成。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
 
 ### 规划补充（仅计划，不代表已实施）
 
-- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：`v0.6.0` 前置已完成，但许可证/来源仍为 P0；后续按 O1—O6 分离 Quick Start、公共协作、真实采用和申请证据；
-- [math-research-solve v13 跨领域吸收与升级计划](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：只吸收可独立证明的设计不变量；外部包许可未确认，v8/1.0.1 不可变，v13 不复制、不安装、不覆盖；
-- 两份补充计划均保持 `PLANNING_ONLY`，不授权 schema、代码、状态机、许可证选择、安装、外部申请或 v13 实施。
+- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：`v0.6.0` 前置已完成；O1 的 Apache-2.0 与来源治理正在 PR-A 实现，后续仍按 O2—O6 分离 Quick Start、公共协作、真实采用和申请证据；
+- [math-research-solve v13 来源边界与延期说明](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：外部 artifact 本轮不可得且许可未确认，详细表达已排除；v8/1.0.1 不可变，v13 不复制、不安装、不覆盖；
+- 补充计划不授权 schema、代码、状态机、安装、外部申请或 v13 实施；许可证实现只限用户已明确选择的 Apache-2.0 PR-A 范围。
 
 ## 1. 最终目标与非目标
 
@@ -169,7 +169,7 @@ $SKILL_LIBRARY_ROOT/
 8. 定义 Candidate/Evaluator/Promotion/Hidden 权限矩阵；
 9. 定义私有数据、hidden case、checkpoint、凭据的 Git 排除规则；
 10. 建立版本、分支、commit、PR、push、annotated tag 和 Release 流程；
-11. 选择许可证；在选择前保持 all rights reserved，不擅自假定开源许可；
+11. 选择许可证；2026-08-23 权利持有人已选择 Apache-2.0 并授权 OSS-R0 PR-A 实现，合入前仍以分支 Gate 为准；
 12. 建立 ADR 机制并接受 ADR-0001。
 
 ### 交付物
@@ -848,16 +848,16 @@ approved staged candidate
 ### 4.8 外部基线与跨领域设计吸收
 
 - 外部 Skill/工具包先登记 artifact hash、版本、来源、许可、获取日期和只读审查状态；无明确兼容许可时只允许抽象层设计评审，不复制 payload；
-- 当前 Math v8/1.0.1 基线不可变；v13 候选与其并列登记，不覆盖、不静默升级；
-- 跨领域吸收遵循 [math-research-solve v13 跨领域吸收与升级计划](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：先区分跨域不变量、领域同构机制和 Math 专属机制；
-- exactly-three、证明路线和逻辑充分条件留在 Math；Quant/ML/DL 只借鉴有界组合、来源失效、受限上下文、包闭包和独立语义审核的形态；
+- 当前 Math v8/1.0.1 基线不可变；v13 不与其并列登记、不覆盖、不静默升级；
+- v13/Pika 处理遵循 [来源边界与延期说明](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：原始 artifact 与许可不可核验时排除 payload 和详细表达；
+- 任何未来设计必须从本项目自身需求独立形成 ADR，并先满足来源、许可、隔离审查和用户单独授权 Gate；
 - 新 Core seam 必须有至少两个领域的实际消费者、字段语义一致性和 deletion test；单领域实现只能留在 Adapter/Executor；
 - Research Map/ContextBundle 是可重建派生物，既不作为 Evidence，也不授予 route、publication、installation 或 activation 权限。
 
 ### 4.9 开源资格与外部申请
 
 - Codex for Open Source 的建设与申请按 [资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md) 执行；
-- `v0.6.0` GitHub source milestone 已完成，但公开仓库仍不等于开源：许可证与全部 tracked files 来源审计继续是 P0 阻塞 Gate；
+- `v0.6.0` GitHub source milestone 已完成；OSS-R0 PR-A 已在当前分支实现 Apache-2.0、NOTICE、来源清单与 `unknown=0` Gate，只有 review/merge 后才可视为 main 的许可证状态；
 - Quick Start、archive install/demo、协作治理和真实外部试用在申请前分别留证；现有四项 public CI 只是 O3 的已完成子项；
 - star、fork、download、contributor 等指标只在申请日实时读取，不制造或夸大采用；
 - 表单文案逐句绑定公开证据，私密字段不进入仓库；填写和提交申请仍需用户单独授权。

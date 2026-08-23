@@ -1,23 +1,23 @@
 # Codex for Open Source 资格申请完整计划
 
-- 计划状态：`PLANNING_ONLY / HOLD_FOR_LICENSE_DECISION`
-- 计划版本：v1.1-post-v0.6.0
+- 计划状态：`O1_IMPLEMENTATION_DRAFT / HOLD_FOR_READINESS`
+- 计划版本：v1.2-oss-r0-pr-a
 - 初次评估日期：2026-08-20
-- 状态同步日期：2026-08-22
+- 状态同步日期：2026-08-23
 - 适用仓库：`westwhile/heuristic-research-agent-skill`
-- 已完成前置：`v0.6.0` GitHub source milestone 已发布；OSS 外部动作仍为未申请、未提交表单、未选择许可证
+- 已完成前置：`v0.6.0` GitHub source milestone 已发布；权利持有人已确认授权范围并选择 Apache-2.0；OSS 外部动作仍为未申请、未提交表单
 
-> 本文件只定义申请前的建设、证据和审批 Gate，不代表项目已经满足资格，也不授权添加许可证、提交、推送、发布或填写申请表。
+> 本文件主要定义申请前的建设、证据和审批 Gate。用户已单独授权当前 O1 PR-A 的 Apache-2.0 与来源治理本地实现；该授权不扩展到 commit、push、PR、发布或填写/提交申请表。
 
 ## 1. 裁定摘要
 
-该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。Phase 5 与 `v0.6.0` source milestone 已完成，公共 CI、annotated tag、Release evidence assets 和 commit-bound archive Gate 已形成；但当前仍不宜直接提交申请。首要阻塞项不是功能数量，而是许可证与外部可用性：仓库虽公开，但没有 `LICENSE`，`pyproject.toml` 仍声明 `All rights reserved`，因此不能把“公开可见”直接等同于“开源”。
+该项目在方向上可以申请 Codex for Open Source：它有持续发布记录、明确的科研软件治理问题、可把 Codex 用于 PR 审核、测试生成、发布验证和维护自动化。Phase 5 与 `v0.6.0` source milestone 已完成，公共 CI、annotated tag、Release evidence assets 和 commit-bound archive Gate 已形成。权利持有人已确认当前 tracked-file 授权范围并选择 Apache-2.0；当前 O1 PR-A 已加入 `LICENSE`、`NOTICE`、来源登记和 `unknown=0` 自动 Gate，但仍待 review/merge。项目仍不宜直接提交申请，因为 Quick Start、archive install、协作治理与真实外部采用证据尚未完成。
 
-推荐路线：`v0.6.0` 前置条件已经完成；下一步先由权利持有人完成 O1 的来源审计与许可证决定，再完成 O2—O4，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。最短仍需在许可证决定后约 4—7 个工作日形成“可诚实提交”的基础包；更稳妥的申请窗口是 O1—O5 全绿、外部使用证据形成后的 3—6 周。
+推荐路线：先完成 O1 PR-A 的 review、干净 archive Gate 与 merge，再完成 O2—O4，随后开放 2—4 周真实外部试用并积累可核验证据，最后执行 O5—O6。更稳妥的申请窗口仍是 O1—O5 全绿并形成外部使用证据之后；本地计划或许可证文件本身不构成项目资格或采用证明。
 
 ## 2. 官方项目要求与表单字段
 
-权威来源为 OpenAI 的 [Codex for Open Source 申请页](https://openai.com/form/codex-for-oss/)。2026-08-22 状态同步时已实时复核该页面；以下核心字段与限制仍在：
+权威来源为 OpenAI 的 [Codex for Open Source 申请页](https://openai.com/form/codex-for-oss/)。2026-08-23 OSS-R0 审计时已实时复核官方项目页、申请页和 Program Terms；以下核心字段与限制仍须在正式申请前再次核验：
 
 - 申请人应是 active open-source project 的 primary 或 core maintainer；
 - 项目应有 meaningful usage、broad adoption，或对软件生态具有清晰重要性；
@@ -30,14 +30,14 @@
 
 申请时必须再次打开官方页面复核字段与条款；本文件不把当前页面视为永久冻结合同。
 
-## 3. 2026-08-22 状态同步快照
+## 3. 2026-08-23 状态同步快照
 
 | 维度 | 已核事实 | 申请含义 |
 |---|---|---|
 | 可见性 | GitHub public，默认分支 `main` | 满足“仓库公开”的表单前提，但不等于已开源 |
-| 许可证 | GitHub 未识别许可证；无 `LICENSE`；`pyproject.toml` 为 `All rights reserved` | **P0 阻塞**：未取得并选择许可证前不得自称 OSS |
+| 许可证 | 权利持有人已选择 Apache-2.0；O1 PR-A 已加入 `LICENSE`、`NOTICE`、包元数据和来源登记，`unknown=0` | 本地实施已消除许可证决定阻塞；GitHub 识别与 main/archive 状态仍待 review/merge 后核验 |
 | 采用度 | 1 star、0 fork、1 contributor、0 issue | 采用度信号仍弱，需依靠生态价值说明和真实试用证据补强 |
-| 维护活动 | 12 个 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者 |
+| 维护活动 | 13 个已合并 PR、6 个 GitHub Release，最近发布 `v0.6.0` | 有持续维护基础，但社区参与仍主要来自单一维护者；该内部活动不等于外部采用 |
 | 发布版本 | annotated `v0.6.0` 与六项 evidence assets 已发布；包/运行时元数据仍为 `0.0.0` | GitHub source milestone 已闭环，但 package/安装版本语义仍待 O3 收口 |
 | CI | Windows/Ubuntu × Python 3.12/3.14 四项 required checks 已启用并保护 `main` | O3 公共 CI 基线已完成；Quick Start/archive install/demo Gate 仍缺 |
 | 协作治理 | 未发现 CONTRIBUTING、SECURITY、Code of Conduct、CHANGELOG、CITATION | 外部参与入口与安全披露渠道缺失 |
@@ -63,7 +63,9 @@
 
 ### O1：权利、许可证与来源治理（阻塞）
 
-目标：先证明“有权开源什么”，再选择许可证。
+目标：证明“有权以 Apache-2.0 发布什么”，并让该判断可审计、可在归档树自动验证。
+
+当前实现状态（2026-08-23）：权利持有人已确认授权范围并选择 Apache-2.0；PR-A proposed tree 覆盖 828 个文件，其中 `independently_authored=696`、`generated=118`、`design_inspired=13`、`third_party_reused=1`（仅标准 Apache-2.0 文本）、`unknown=0`。该状态尚待完整测试、review、commit、PR 与 merge，不能提前表述为 main 已完成 O1。
 
 任务：
 
@@ -71,8 +73,8 @@
 2. 对外部 baseline、附件、fixtures、文档引文、工具生成物逐项记录来源 URL/文件、版本、获取日期、许可证、允许的使用方式和本仓处理方式；
 3. 对 `unknown` 或无明确再许可权的内容执行“隔离、重写或删除”决策，不能用“非商业/研究用途”自行补足许可；
 4. 把 Pika 工具包只当作设计审查输入；在未取得兼容许可前，不导入其 payload；
-5. 由权利持有人选择项目许可证。若所有权清晰且希望允许广泛商用，默认候选为 Apache-2.0；最终选择必须由用户拍板，不由执行者代签；
-6. 后续实施时新增 `LICENSE`、必要的 `NOTICE`、第三方来源登记与 AI/工具辅助开发披露；同步 `pyproject.toml` license 元数据；
+5. 由权利持有人选择项目许可证；2026-08-23 用户已明确选择 Apache-2.0；
+6. 新增 `LICENSE`、必要的 `NOTICE`、第三方来源登记与 AI/工具辅助开发披露；同步 `pyproject.toml` license 元数据；
 7. 对源码归档执行许可证存在性、NOTICE 完整性与未知来源为零的自动 Gate。
 
 验收：
@@ -237,7 +239,7 @@ credits will not auto-promote skills or turn synthetic tests into research claim
 
 ## 8. 执行顺序、分支与提交切分
 
-Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning worktree 不再作为 OSS 实施入口。只有在用户完成 O1 权利/许可证决策后，才从最新、干净且受保护的 `main` 创建 `feat/oss-application-readiness`；不得把 v13 来源吸收或其他领域功能混入该分支。
+Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning worktree 不再作为 OSS 实施入口。用户完成 O1 权利/许可证决策后，已从最新、干净且受保护的 `main` merge commit `bd53d195344df3a1457e6185b0f5968444b81a35` 创建 `feat/oss-application-readiness`。当前分支只实施 O1；v13/Pika payload 与详细表达已排除，不混入来源吸收或其他领域功能。
 
 建议提交层：
 
@@ -254,7 +256,7 @@ Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning wor
 
 | 周期 | 工作 | 出口 |
 |---|---|---|
-| 第 1—2 天 | O1 权利清单与许可证选项 | 用户批准许可证；否则 HOLD |
+| 第 1—2 天 | O1 权利清单与 Apache-2.0 实现 | 来源 Gate、review、archive 与 main 合入全绿 |
 | 第 2—4 天 | O2 Quick Start/demo | 双平台陌生用户路径可跑 |
 | 第 3—5 天 | O3 CI/version/release Gate | public checks 绿且 archive 可复现 |
 | 第 4—7 天 | O4 协作治理 | 外部贡献入口完整 |
@@ -265,7 +267,7 @@ Phase 5 已通过 `v0.6.0` 发布收口，旧 `feat/ml-adapter` 与 planning wor
 
 - **最早可提交**：O1—O4 全绿，能诚实解释项目早期阶段；
 - **推荐提交**：`v0.6.0` 已发布，继续等待 O1—O5 全绿和 2—4 周维护证据形成；
-- **必须延后**：许可证未定、来源未知、Quick Start 不能在归档树运行、CI 不可复现，或申请文本只能靠未验证的能力/采用度支撑。
+- **必须延后**：许可证/来源 Gate 回归、Quick Start 不能在归档树运行、CI 不可复现，或申请文本只能靠未验证的能力/采用度支撑。
 
 ## 10. 最终 Go/No-Go 清单
 
