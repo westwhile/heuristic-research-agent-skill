@@ -34,7 +34,7 @@ class OSSGovernanceContractTest(unittest.TestCase):
         self.assertNotIn("date-released:", citation)
         self.assertNotRegex(citation, r"(?m)^version:")
 
-    def test_changelog_covers_every_tag_without_pypi_overclaim(self) -> None:
+    def test_changelog_covers_release_history_without_pypi_overclaim(self) -> None:
         changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
         for version in (
             "0.1.0",
@@ -47,7 +47,8 @@ class OSSGovernanceContractTest(unittest.TestCase):
         ):
             self.assertIn(f"## {version} ", changelog)
         self.assertIn("## Unreleased", changelog)
-        self.assertIn("has not been tagged, published to PyPI", changelog)
+        self.assertIn("## 0.6.1", changelog)
+        self.assertIn("has not been published to PyPI", changelog)
 
     def test_conduct_template_is_attributed_and_fully_adapted(self) -> None:
         conduct = (REPO_ROOT / "CODE_OF_CONDUCT.md").read_text(encoding="utf-8")

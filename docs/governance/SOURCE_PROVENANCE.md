@@ -1,7 +1,7 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `b6b2b9aff27b054b1e4324d1dba308873e5b394a`
+- Baseline commit: `2340191e1d6f7548a35be85cf03ca58e8d02b1f2`
 - Review date: 2026-08-23
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
@@ -13,8 +13,8 @@ OpenAI program.
 ## Rights confirmation
 
 The maintainer `westwhile` confirmed ownership of, or authorization to license,
-all files tracked at the baseline commit and the repository-native PR-D
-implementation files under Apache-2.0. This confirmation does not extend to
+all files tracked at the baseline commit and the repository-native release-prep
+updates under Apache-2.0. This confirmation does not extend to
 excluded external payloads and does not waive obligations that accompany any
 third-party material added later.
 
@@ -25,7 +25,7 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed PR-D tree contains 842 files:
+The proposed `release/v0.6.1` tree contains 842 files:
 
 | Source class | Count | Boundary |
 |---|---:|---|

@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-08-23",
-  "baseline_commit": "b6b2b9aff27b054b1e4324d1dba308873e5b394a",
-  "inventory_scope": "All 830 files tracked at baseline_commit plus the 12 PR-D governance, community-health, citation, intake, and contract-test files.",
+  "baseline_commit": "2340191e1d6f7548a35be85cf03ca58e8d02b1f2",
+  "inventory_scope": "All 842 files tracked at baseline_commit; release-prep updates modify only already classified repository-native files and add no paths.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
