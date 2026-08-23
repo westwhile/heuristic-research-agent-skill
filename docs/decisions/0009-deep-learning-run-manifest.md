@@ -57,3 +57,16 @@ Phase 5 已建立 `ml` 领域的任务、case、claim、evidence 合同和标准
 3. **只写自由格式 YAML/Markdown manifest**：无法获得 schema Gate、canonical hash 与 archive 中的确定性合同。
 4. **在 manifest 构造时自动探测 CUDA/GPU**：破坏纯度与可重放性，也会把“当前机器状态”混成调用方可移植配置。
 5. **把 checkpoint 文件提交到 Git**：违反 Phase 6 artifact retention Gate，并给仓库体积、隐私和权利审计带来不可接受风险。
+
+## 增补 A1（2026-08-23，L2）：dry-run、CPU small fixture 与预算/失败终态
+
+L2 在 L1 manifest 上增加一个显式 runner 子模块，不扩张根 Adapter interface，也不新增 schema/Core family。
+
+1. **唯一 runner interface**：`run_fixture(manifest, fixture_payload) -> DLRunResult`。runner 同时拥有 fixture 校验、确定性 tiny-MLP、预算规划/记账和终态分类；调用方不需要分别调用 validator、trainer、ledger 或 failure mapper。`deep_learning.__all__` 仍只暴露 `DLRunManifest`，runner 通过显式子模块导入。
+2. **能力包络**：runner 0.1.0 仅接受 `dry_run` 与 `cpu_fixture`。前者验证完整声明并预测首个预算 Gate，但不训练、不消耗预算；后者使用 Python 标准库对最多 32 行、8 个 feature、8 个 hidden unit、100 step 的合成标量回归 fixture 执行确定性 tiny-MLP。`gpu_fixture`/`gpu_training` 和 `exact_checkpoint` 一律 fail-closed；无 PyTorch/TensorFlow/JAX/CUDA import、GPU 探测或 checkpoint I/O。
+3. **结果是 canonical artifact，不是新事实 family**：`DLRunResult` 包装 `synthetic-dl-run-result/v1` canonical bytes，并绑定 manifest SHA-256、case/study/run、runner source pin、fixture content hash、execution observation、预算 ledger、metrics、failure 和 limitations。它不可进入 Core store，也不是 GPU/真实数据/科研 Claim。
+4. **预算 ledger 语义**：`max_samples` 在 L2 表示参与训练的唯一 fixture 行数上限；每个 full-batch step 计一个 epoch；token 消耗恒为 0；FLOP 是公开固定公式的确定性 proxy。wall-clock 和货币成本不读取时钟，固定为 `not_observed`，不得把 cost limit 假装成已执行 Gate。若 manifest 只给 cost cap、没有 L2 能执行的 step/epoch/FLOP cap，runner 拒绝执行。恢复尚未开放，故 `prior_consumption_sha256=null`，同时保留 `cumulative_no_double_charge` 记账标签供 L3 交叉绑定。
+5. **终态而非异常吞失**：合法但超预算的运行返回 `budget_exhausted`；fixture 声明的 `nan`/`interrupt`/`oom` 注入分别返回 `numerical_failure`/`interrupted`/`resource_exhausted`，并记录失败前已消费的 step。注入故障必须带 `synthetic_injection=true` 和限制句，不能表述为实际 OOM、中断或框架故障。结构非法、runner pin 不匹配、能力未实现继续抛 `DLRunnerError`。
+6. **确定性与测试面**：初始化只由 SHA-256(seed,label) 派生；无全局随机状态。相同 manifest/fixture 在 Python 3.12/3.14 上必须得到 byte-identical artifact hash。测试只穿过公开 runner interface，覆盖 dry-run、正常 CPU fixture、四类预算 Gate、三类注入失败、预算前停止、输入/runner/resume/GPU fail-closed、依赖 allowlist 和零文件系统副作用。
+
+L2 仍只构成 synthetic engineering evidence。checkpoint emission/recovery、early stopping/selection、多 seed 聚合、真实框架/GPU 观察、OOM/NaN/preemption 真实 case 与硬件矩阵继续属于 L3/L4。

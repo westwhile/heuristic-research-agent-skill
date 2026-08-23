@@ -5,7 +5,7 @@
 - 状态同步日期：2026-08-23
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。PR #19 的 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 已把 O5 公开入口合入 `main`，对应 run `32622282409` 四项全绿；当前等待维护者选择外部参与者，仍无外部结果。O6 仅进入公开证据草案准备，私密字段和最终提交均未启动。Phase 6 已在 `feat/deep-learning-adapter` 开始 L1 manifest 契约切片（ADR-0009、`dl-run-manifest/v1`、`DLRunManifest`），仍未发布；该 manifest 仅为 `configuration_only`。仍无 DL runner、训练框架/GPU 执行、checkpoint I/O、真实 ML/DL 数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。PR #19 的 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 已把 O5 公开入口合入 `main`，对应 run `32622282409` 四项全绿；当前等待维护者选择外部参与者，仍无外部结果。O6 仅进入公开证据草案准备，私密字段和最终提交均未启动。Phase 6 已在 Draft PR #21 完成 L1 manifest 契约，并在工作树进入 L2 runner：runner 0.1.0 只支持 dry-run 与标准库合成 CPU tiny-MLP，预算/失败结果为 synthetic engineering artifact，仍未发布。仍无训练框架/GPU 执行、checkpoint I/O/recovery、selection、多 seed、真实 ML/DL 数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
 
 ### 规划补充（仅计划，不代表已实施）
 
@@ -541,7 +541,7 @@ Git tracking skip）。annotated tag object
 
 ## Phase 6：Deep Learning 扩展
 
-当前实施状态（2026-08-23）：L1 manifest 契约切片已在 `feat/deep-learning-adapter` 落地，包含 ADR-0009、`dl-run-manifest/v1` 与不可变 `DLRunManifest` 深模块；它只验证 caller-declared configuration，不执行硬件探测、训练或 checkpoint I/O。L2 runner、L3 selection/recovery 和 L4 cases/reports 尚未实施，`v0.7.0` Gate 未开启。
+当前实施状态（2026-08-23）：L1 manifest 契约切片已在 Draft PR #21 落地；L2 runner 0.1.0 已在工作树实现唯一 `run_fixture` interface、dry-run、标准库合成 CPU tiny-MLP、确定性预算 ledger 与 budget/NaN/interruption/OOM 终态。L1/L2 都不执行框架/GPU 探测或 checkpoint I/O，证据上限分别为 configuration-only 与 synthetic engineering。L3 selection/recovery 和 L4 cases/reports 尚未实施，`v0.7.0` Gate 未开启。
 
 ### 目标
 
