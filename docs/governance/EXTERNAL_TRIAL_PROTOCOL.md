@@ -1,9 +1,16 @@
 # O5 external Quick Start trial protocol
 
-- Status: `LAUNCH_READY / NO_EXTERNAL_RESULTS_YET`
+- Status: `WAITING_FOR_EXTERNAL_PARTICIPANTS / NO_EXTERNAL_RESULTS_YET`
 - Release under trial: [`v0.6.1`](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1)
 - Release commit: `5af73595f847702930e0c1966986f3d06d3c1c35`
 - Intended public window: 2–4 weeks after this protocol enters `main`
+- Outreach decision: on 2026-08-23 the maintainer deferred selecting and
+  inviting the two or three participants for a few days
+
+The public entry point remains open. Current qualifying counts are zero
+participants, zero attempts, zero findings, and zero feedback-driven changes.
+This waiting marker does not pause provenance or public application-evidence
+preparation, but it keeps the O5 exit Gate and final application Gate closed.
 
 This protocol opens a bounded path for independent users to try the synthetic
 Quick Start and report installation, documentation, or interpretation friction.

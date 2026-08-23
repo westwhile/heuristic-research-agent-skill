@@ -1,15 +1,15 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.8-o5-trial-launch
+- 计划版本：v5.9-o6-evidence-prep
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-23
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。O5 外部试用入口进入启动阶段，但尚无外部结果；O6 申请证据包和提交未启动。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
+- 当前状态：Phase 0—5 已逐层验收发布（`v0.1.0`/`v0.2.0`/`v0.3.0`/`v0.4.0`/`v0.5.0`；`v0.5.1` 为归档缺件 hotfix；Phase 5 为 `v0.6.0`）。Phase 5（ML Adapter）L1–L6 的发布提交为 `c72e31eb4d5dbd367b20f24678e94682b963fed9`。OSS-R0 PR-A—PR-D 已由 PR #14—#17 合入；release-prep PR #18 的 merge commit `5af73595f847702930e0c1966986f3d06d3c1c35` 通过 main CI run `32619619333` 四项 required jobs、Windows governance、双解释器 archive suite 与 archive install Gate。annotated `v0.6.1` Tag object `2cdb9621d05211c779f933836adae476241206c0` 已指向该提交，正式 GitHub Release 的六项 assets 已回下载并通过 SHA-256 对账。PR #19 的 merge commit `b9a3b8268575fe32399b83295595710944c6a772` 已把 O5 公开入口合入 `main`，对应 run `32622282409` 四项全绿；当前等待维护者选择外部参与者，仍无外部结果。O6 仅进入公开证据草案准备，私密字段和最终提交均未启动。Phase 6 尚未启动；仍无真实 ML/DL 执行器、真实数据验收、完整 nested-CV 训练、自动晋级闭环、可安装 Skill 或生产发布能力。
 
 ### 规划补充（仅计划，不代表已实施）
 
-- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：O1—O4 与 `v0.6.1` source Release Gate 已完成；当前启动 O5 外部 Quick Start 试用，仍按 O5—O6 分离真实采用和申请证据；
+- [Codex for Open Source 资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md)：O1—O4 与 `v0.6.1` source Release Gate 已完成；O5 等待外部参与者，O6 只准备 [公开证据草案](../governance/codex-for-oss/application-claims.md)，仍把真实采用、私密字段和最终提交分离为独立 Gate；
 - [math-research-solve v13 来源边界与延期说明](MATH_RESEARCH_SOLVE_V13_CROSS_DOMAIN_ADOPTION_PLAN.md)：外部 artifact 本轮不可得且许可未确认，详细表达已排除；v8/1.0.1 不可变，v13 不复制、不安装、不覆盖；
 - 补充计划不授权 schema、研究状态机、外部申请或 v13 实施；OSS readiness 变更仍按独立 PR 和证据 Gate 执行。
 
@@ -858,7 +858,7 @@ approved staged candidate
 
 - Codex for Open Source 的建设与申请按 [资格申请完整计划](CODEX_FOR_OSS_APPLICATION_PLAN.md) 执行；
 - `v0.6.0` Phase 5 milestone 与 `v0.6.1` OSS-readiness source Release 均已完成；Apache-2.0、NOTICE、来源清单与 `unknown=0` Gate 已进入 `main`，GitHub 已识别 Apache-2.0；
-- PR #15—#17 已完成 source-install Quick Start、support matrix、四项 exact-commit archive install/demo required checks 与公共协作治理；PR #18、annotated `v0.6.1` Tag、六项 Release assets 和回下载校验已完成。当前按 [O5 外部试用协议](../governance/EXTERNAL_TRIAL_PROTOCOL.md)启动真实试用入口，但尚无外部结果；
+- PR #15—#17 已完成 source-install Quick Start、support matrix、四项 exact-commit archive install/demo required checks 与公共协作治理；PR #18、annotated `v0.6.1` Tag、六项 Release assets 和回下载校验已完成；PR #19 已合入 [O5 外部试用协议](../governance/EXTERNAL_TRIAL_PROTOCOL.md)和反馈 form。O5 当前等待维护者选择参与者，所有外部结果仍为零；O6 仅建立 [公开申请证据草案](../governance/codex-for-oss/application-claims.md)，不含私密字段且不授权提交；
 - star、fork、download、contributor 等指标只在申请日实时读取，不制造或夸大采用；
 - 表单文案逐句绑定公开证据，私密字段不进入仓库；填写和提交申请仍需用户单独授权。
 

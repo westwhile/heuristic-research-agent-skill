@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from pathlib import Path
 
@@ -104,8 +105,52 @@ class OSSGovernanceContractTest(unittest.TestCase):
             REPO_ROOT / "docs" / "governance" / "EXTERNAL_TRIAL_PROTOCOL.md"
         ).read_text(encoding="utf-8")
         self.assertIn("NO_EXTERNAL_RESULTS_YET", protocol)
+        self.assertIn("WAITING_FOR_EXTERNAL_PARTICIPANTS", protocol)
         self.assertIn("at least two independent external users", protocol)
         self.assertIn("do **not** count as external adoption", protocol)
+
+    def test_application_evidence_is_public_safe_and_not_submission_ready(self) -> None:
+        evidence_root = REPO_ROOT / "docs" / "governance" / "codex-for-oss"
+        evidence = json.loads(
+            (evidence_root / "application-evidence.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        claims = (evidence_root / "application-claims.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertEqual(
+            evidence["status"], "preparation_only_external_trial_pending"
+        )
+        self.assertFalse(evidence["external_trial"]["o5_exit_gate_met"])
+        for field in (
+            "independent_participants",
+            "qualifying_attempts",
+            "genuine_findings",
+            "feedback_driven_changes",
+        ):
+            self.assertEqual(evidence["external_trial"][field], 0, field)
+        self.assertFalse(evidence["private_fields"]["stored_in_repository"])
+        self.assertFalse(evidence["submission_gate"]["ready"])
+        self.assertFalse(
+            evidence["submission_gate"]["user_submission_authorization"]
+        )
+
+        for name, draft in evidence["application_drafts"].items():
+            self.assertEqual(draft["character_limit"], 500, name)
+            self.assertEqual(draft["character_count"], len(draft["text"]), name)
+            self.assertLessEqual(draft["character_count"], 500, name)
+
+        for marker in (
+            "PREPARATION_ONLY",
+            "WAITING_FOR_EXTERNAL_PARTICIPANTS",
+            "NO_EXTERNAL_RESULTS_YET",
+            "DO_NOT_SUBMIT",
+            "https://developers.openai.com/community/codex-for-oss",
+            "https://learn.chatgpt.com/docs/codex-for-oss-terms",
+        ):
+            self.assertIn(marker, claims)
 
     def test_pull_request_template_carries_provenance_and_claim_gates(self) -> None:
         template = (REPO_ROOT / ".github" / "pull_request_template.md").read_text(

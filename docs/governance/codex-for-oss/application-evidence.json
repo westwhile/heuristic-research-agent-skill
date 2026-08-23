@@ -1,0 +1,162 @@
+{
+  "schema": "codex-for-oss-application-evidence/v1",
+  "status": "preparation_only_external_trial_pending",
+  "captured_at": "2026-08-23T06:37:42Z",
+  "evidence_date": "2026-08-23",
+  "repository": {
+    "url": "https://github.com/westwhile/heuristic-research-agent-skill",
+    "visibility": "public",
+    "default_branch": "main",
+    "main_sha": "b9a3b8268575fe32399b83295595710944c6a772",
+    "license_spdx": "Apache-2.0",
+    "github_license_recognized": true,
+    "maintainer_profile": "https://github.com/westwhile",
+    "maintainer_role_evidence": "GOVERNANCE.md"
+  },
+  "official_program": {
+    "project_page": "https://developers.openai.com/community/codex-for-oss",
+    "application_form": "https://openai.com/form/codex-for-oss/",
+    "program_terms": "https://learn.chatgpt.com/docs/codex-for-oss-terms",
+    "project_page_checked_at": "2026-08-23",
+    "terms_checked_at": "2026-08-23",
+    "application_form_last_verified_at": "2026-08-23",
+    "application_form_current_noninteractive_check": "blocked_by_anti_bot_challenge",
+    "submission_recheck_required": true,
+    "facts": [
+      "The official project page invites core maintainers or maintainers of widely used public projects and permits an ecosystem-importance explanation.",
+      "Possible benefits are API credits, six months of ChatGPT Pro with Codex, and conditional Codex Security access; scope and selection are not guaranteed.",
+      "Program Terms require a valid ChatGPT account and accurate repository and maintainer information, and permit verification of identity, role, affiliation, or control.",
+      "Submitting an application or accepting a benefit agrees to the Program Terms.",
+      "The live application form and terms must be checked again immediately before submission."
+    ]
+  },
+  "release_evidence": {
+    "tag": "v0.6.1",
+    "tag_object": "2cdb9621d05211c779f933836adae476241206c0",
+    "target_commit": "5af73595f847702930e0c1966986f3d06d3c1c35",
+    "release_url": "https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1",
+    "release_count": 7,
+    "tag_count": 8,
+    "asset_count": 6,
+    "asset_downloads": {
+      "environment-manifest.json": 1,
+      "heuristic-research-agent-skill-v0.6.1.tar": 1,
+      "release-notes-v0.6.1.md": 1,
+      "SHA256SUMS.txt": 1,
+      "source-tree-manifest.json": 1,
+      "test-summary.json": 1
+    },
+    "download_boundary": "The six downloads were maintainer release verification and are not external adoption."
+  },
+  "ci_evidence": {
+    "main_push_run": {
+      "url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32622282409",
+      "head_sha": "b9a3b8268575fe32399b83295595710944c6a772",
+      "event": "push",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "name": "Python 3.12 / ubuntu-latest",
+          "conclusion": "success",
+          "archive_install_demo": "success",
+          "powershell_governance": "not_applicable"
+        },
+        {
+          "name": "Python 3.14 / ubuntu-latest",
+          "conclusion": "success",
+          "archive_install_demo": "success",
+          "powershell_governance": "not_applicable"
+        },
+        {
+          "name": "Python 3.12 / windows-latest",
+          "conclusion": "success",
+          "archive_install_demo": "success",
+          "powershell_governance": "success"
+        },
+        {
+          "name": "Python 3.14 / windows-latest",
+          "conclusion": "success",
+          "archive_install_demo": "success",
+          "powershell_governance": "success"
+        }
+      ]
+    },
+    "evidence_boundary": "CI and synthetic demos establish commit-bound engineering evidence only."
+  },
+  "github_snapshot": {
+    "stars": 1,
+    "forks": 0,
+    "subscribers": 1,
+    "issues": {
+      "total": 0,
+      "open": 0,
+      "closed": 0
+    },
+    "pull_requests": {
+      "total": 19,
+      "open": 0,
+      "merged": 19,
+      "closed_unmerged": 0
+    },
+    "contributors": {
+      "api_rows_including_anonymous_attribution": 2,
+      "authenticated_github_accounts": 1,
+      "maintainer_accounts": [
+        "westwhile"
+      ],
+      "anonymous_git_attributions_under_maintainer_name": 1,
+      "independent_external_contributors": 0,
+      "boundary": "The anonymous Git attribution is not counted as a second person or external contributor."
+    },
+    "adoption_boundary": "Stars, watchers, downloads, maintainer PRs, and bot activity are not qualifying external attempts."
+  },
+  "external_trial": {
+    "status": "waiting_for_external_participants",
+    "public_protocol": "docs/governance/EXTERNAL_TRIAL_PROTOCOL.md",
+    "feedback_form": "https://github.com/westwhile/heuristic-research-agent-skill/issues/new?template=quick_start_trial.yml",
+    "independent_participants": 0,
+    "qualifying_attempts": 0,
+    "genuine_findings": 0,
+    "feedback_driven_changes": 0,
+    "responsive_maintenance_weeks": 0,
+    "o5_exit_gate_met": false,
+    "boundary": "No participant, attempt, finding, improvement, or adoption result is claimed."
+  },
+  "application_drafts": {
+    "why_repository_qualifies": {
+      "character_limit": 500,
+      "character_count": 402,
+      "text": "heuristic-research-agent-skill is an Apache-2.0, audit-first toolkit for evidence governance, evaluation, and controlled evolution in research agents. It has seven public releases, reproducible Windows/Ubuntu CI across Python 3.12/3.14, an unknown-zero source inventory, and a synthetic Quick Start. It is early-stage: external trials are pending, and current evidence supports engineering claims only."
+    },
+    "api_credit_use": {
+      "character_limit": 500,
+      "character_count": 425,
+      "text": "We would use API credits for bounded OSS maintenance: independent PR review, adversarial and mutation test generation, issue triage, documentation updates, clean-archive release verification, and security/provenance scans. Runs would be commit-bound and human-reviewed. Credits would not auto-approve changes, auto-promote Skills, process restricted data, make trading decisions, or turn synthetic tests into research claims."
+    },
+    "anything_else": {
+      "character_limit": 500,
+      "character_count": 379,
+      "text": "The repository publishes an Apache-2.0 license, provenance manifest, support matrix, source-install demo, governance policies, and checksum-bound release evidence. The demo is synthetic; the project has no real ML executor, real research validation, packaged Skill, or production deployment. A 2-4 week external Quick Start trial is open, but no external results are claimed yet."
+    }
+  },
+  "private_fields": {
+    "stored_in_repository": false,
+    "excluded": [
+      "OpenAI Organization ID",
+      "ChatGPT account details",
+      "private correspondence",
+      "participant identities without consent",
+      "final form screenshots or PDFs"
+    ]
+  },
+  "submission_gate": {
+    "ready": false,
+    "user_submission_authorization": false,
+    "blockers": [
+      "O5 has zero independent external participants and no qualifying feedback.",
+      "The maintainer must confirm authority to apply and supply private account fields outside the repository.",
+      "The official form and Program Terms must be rechecked immediately before submission.",
+      "The maintainer must separately approve the final text and submission action."
+    ]
+  }
+}
