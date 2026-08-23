@@ -1,0 +1,43 @@
+name: Bug report
+description: Report a reproducible engineering defect without sensitive data
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include credentials, private data, hidden cases, or vulnerability details. Security reports follow SECURITY.md."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What failed, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide deterministic steps and synthetic or public inputs.
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Commit or version
+      description: Exact Git SHA, Tag, or package metadata version.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, command, and relevant dependency versions.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs and evidence boundaries
+      description: Paste sanitized output and state what the failure does not establish.
+    validations:
+      required: true

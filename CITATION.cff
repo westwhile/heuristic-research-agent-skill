@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the exact Git tag or commit together with these metadata."
+title: "Heuristic Research Agent Skill"
+type: software
+authors:
+  - name: "westwhile"
+abstract: "Auditable evaluation and controlled evolution infrastructure for research agents."
+license: Apache-2.0
+repository-code: "https://github.com/westwhile/heuristic-research-agent-skill"
+keywords:
+  - research agents
+  - evaluation
+  - provenance
+  - reproducibility

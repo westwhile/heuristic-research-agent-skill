@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-08-23",
-  "baseline_commit": "6096ca719502baa1d88a35a5501dfeb0616afcae",
-  "inventory_scope": "All 828 files tracked at baseline_commit plus the two PR-C support-matrix and archive-install Gate files.",
+  "baseline_commit": "b6b2b9aff27b054b1e4324d1dba308873e5b394a",
+  "inventory_scope": "All 830 files tracked at baseline_commit plus the 12 PR-D governance, community-health, citation, intake, and contract-test files.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 698,
+      "independently_authored": 709,
       "generated": 118,
       "design_inspired": 13,
-      "third_party_reused": 1,
+      "third_party_reused": 2,
       "unknown": 0,
-      "total": 830
+      "total": 842
     },
     "rules": [
       {
@@ -96,14 +96,27 @@
         "source": "Canonical Apache License, Version 2.0 text obtained from the GitHub license API and compared byte-for-byte after newline normalization."
       },
       {
+        "id": "contributor-covenant-v3",
+        "class": "third_party_reused",
+        "patterns": [
+          "CODE_OF_CONDUCT.md"
+        ],
+        "source": "Contributor Covenant, version 3.0, adapted under CC BY-SA 4.0 with project-specific reporting and enforcement procedures."
+      },
+      {
         "id": "repository-root",
         "class": "independently_authored",
         "patterns": [
           ".gitattributes",
           ".gitignore",
           "AGENTS.md",
+          "CHANGELOG.md",
+          "CITATION.cff",
+          "CONTRIBUTING.md",
+          "GOVERNANCE.md",
           "NOTICE",
           "README.md",
+          "SECURITY.md",
           "pyproject.toml"
         ],
         "source": "Repository-native material covered by the maintainer rights confirmation."
@@ -143,6 +156,34 @@
       "tracked_use": "The canonical license terms are distributed verbatim as the repository LICENSE file.",
       "disposition": "Retain the standard text verbatim; do not customize the license terms. Project-specific notices remain in NOTICE.",
       "notice_action": "The project NOTICE identifies the product and copyright holder; no upstream Apache product payload is included.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "contributor-covenant-v3",
+      "source_name": "Contributor Covenant",
+      "source_url": "https://www.contributor-covenant.org/version/3/0/code_of_conduct/",
+      "versions": [
+        "3.0"
+      ],
+      "visible_license": "CC-BY-SA-4.0",
+      "tracked_expression_reused": true,
+      "tracked_use": "The repository Code of Conduct adapts the Contributor Covenant 3.0 text with project-specific reporting and enforcement procedures.",
+      "disposition": "Retain the upstream attribution, license link, and indication of adaptation; keep the reporting route accurate.",
+      "notice_action": "Contributor Covenant attribution and CC BY-SA 4.0 status are retained in CODE_OF_CONDUCT.md and NOTICE.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "citation-file-format",
+      "source_name": "Citation File Format",
+      "source_url": "https://github.com/citation-file-format/citation-file-format",
+      "versions": [
+        "1.2.0"
+      ],
+      "visible_license": "CC-BY-4.0",
+      "tracked_expression_reused": false,
+      "tracked_use": "Independently authored repository metadata conforming to the public CFF 1.2.0 schema; no specification or example payload is vendored.",
+      "disposition": "Retain the schema-version reference and re-audit if specification text or examples are copied later.",
+      "notice_action": "No attribution notice is required for schema-conformant independently authored metadata without copied specification expression.",
       "evidence_sufficient_for_reuse": true
     },
     {

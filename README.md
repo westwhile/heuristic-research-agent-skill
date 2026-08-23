@@ -132,6 +132,15 @@ required CI lanes 的权威清单；合同测试阻止它与 `pyproject.toml` �
 包元数据声明 Python `>=3.12`；3.12 与 3.14 是 required 验证 lanes，3.13 没有独立
 required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或生产科研支持。
 
+## 参与、治理与安全
+
+- 从 [CONTRIBUTING.md](CONTRIBUTING.md) 开始准备环境、测试、来源说明和最小 PR；
+- [GOVERNANCE.md](GOVERNANCE.md) 记录当前 maintainer、review、ADR、版本和发布权限；
+- 所有参与者遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)；
+- 漏洞按 [SECURITY.md](SECURITY.md) 私下报告，不要把细节写进公开 Issue；
+- 公开里程碑见 [CHANGELOG.md](CHANGELOG.md)，引用元数据见 [CITATION.cff](CITATION.cff)；
+- bug、schema/contract、文档和 evidence-boundary 问题使用仓库 Issue forms。
+
 ## 开发者全量验证
 
 项目使用标准库 `unittest`；无需 `pytest`。在仓库根目录使用 PowerShell 7：
@@ -163,6 +172,6 @@ python -B scripts/verify_archive_install.py
 - Phase 2 已完成：Math/Quant 双 Adapter、seam 成立三判据、Adapter interface v1 冻结（详见 v0.3.0 tag 与 Phase 2 验收报告）
 - Phase 3 已完成：Public Evaluator MVP——L0/L1 评测记录四 family、replay runner、scorer 四级、统计三类、六门 hard gates、meta-tests、首批公开 benchmark suites（详见 v0.4.0 tag 与 Phase 3 验收报告；已知限制含 evaluation-run/v1 schema 缺口，v2 候选已登记 Phase 4 backlog 任务 21）
 - Phase 4 已完成：研究记忆与 Pattern Registry——case package v2、pattern/heuristic registry、检索 MVP、shadow runner、隔离暂存区与合格证据包（详见 v0.5.0 tag 与 Phase 4 验收报告；上限 active Pattern + shadow Heuristic，零安装零晋级）
-- Phase 5 实现与发布已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付。PR #11 通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入功能实现，PR #12 通过 merge commit `c72e31eb4d5dbd367b20f24678e94682b963fed9` 同步发布前状态；最终 main CI run `32579211332` 四项 job 全部成功，两个 Windows governance 步骤成功，真实 `git archive` 双解释器均为 870/870（各 1 个预期 Git tracking skip）。annotated tag object `3f109b3e0c1366b93f780be21447e229aa3c3b3e` 指向 `c72e31eb`，正式 Release 的六项 assets 与本地 evidence bundle 逐项 SHA-256 一致。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。OSS-R0 的 Apache-2.0 许可证与来源清单已进入 main；PR #15 已通过 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae` 合入 `0.6.1` 候选元数据、source-install CLI 与合成 Quick Start，main CI run `32616812612` 四项全绿。当前 PR-C 候选增加权威支持矩阵与 exact-commit archive install/demo Gate；公共协作治理和真实外部试用仍待后续工作。DL Adapter（Phase 6）、真实 ML 执行/数据验收、Skill 安装均未完成
+- Phase 5 实现与发布已完成：Machine Learning Adapter——L1（ADR-0008）、L2（四个 `ml-*` v1 schema + 三操作实现 + contract suite）、L3（DAG 拓扑合同 + 七 leakage predicates + 三 semantic floors）、L4/L4.1（`evaluation-contract/v3`、带 case pin 的 `ml-evidence/v2`、final-evaluation Gate）、L5（runner 0.3.0 的四 split assignment Gate、20-case 合成目录、双垂直切片）与 L6（4 个 ML Case Package、1 条 cross-case candidate Pattern、3 条 shadow Heuristic、ML/Quant 重合分析与验收报告）均已交付。PR #11 通过 merge commit `216ec216af385a3b585fc1c6505d25ac67eac585` 合入功能实现，PR #12 通过 merge commit `c72e31eb4d5dbd367b20f24678e94682b963fed9` 同步发布前状态；最终 main CI run `32579211332` 四项 job 全部成功，两个 Windows governance 步骤成功，真实 `git archive` 双解释器均为 870/870（各 1 个预期 Git tracking skip）。annotated tag object `3f109b3e0c1366b93f780be21447e229aa3c3b3e` 指向 `c72e31eb`，正式 Release 的六项 assets 与本地 evidence bundle 逐项 SHA-256 一致。L6 未新增 Core/schema/公共接口，证据上限仍为 engineering-only；runner 仍是显式内存、no-transform/no-search 的标准库协议机器；nested 只验证 fold assignment，未执行逐折训练。OSS-R0 的 Apache-2.0 许可证与来源清单已进入 main；PR #15 已通过 merge commit `6096ca719502baa1d88a35a5501dfeb0616afcae` 合入 `0.6.1` 候选元数据、source-install CLI 与合成 Quick Start；PR #16 已通过 merge commit `b6b2b9aff27b054b1e4324d1dba308873e5b394a` 合入支持矩阵与 exact-commit archive install Gate，main CI run `32617521658` 四项全绿。当前 PR-D 候选增加公共协作与安全治理入口；真实外部试用仍待后续工作。DL Adapter（Phase 6）、真实 ML 执行/数据验收、Skill 安装均未完成
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

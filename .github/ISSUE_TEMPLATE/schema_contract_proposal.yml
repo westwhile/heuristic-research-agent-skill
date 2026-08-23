@@ -1,0 +1,40 @@
+name: Schema or contract proposal
+description: Propose a versioned schema, seam, or compatibility change
+title: "[Contract] "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and consumers
+      description: Identify the unmet need and at least two domain consumers, or explain why it stays adapter-local.
+    validations:
+      required: true
+  - type: input
+    id: contracts
+    attributes:
+      label: Affected contracts
+      description: Schema IDs, public interfaces, policies, or ADRs.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Successor and compatibility plan
+      description: Explain versioning, immutable bytes, migration, fixtures, pins, and old-version tests.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authority and evidence impact
+      description: Describe permission changes, claim implications, and required non-entailments.
+    validations:
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Source and provenance
+      description: List external inputs, licenses, copied expression, or state that the proposal is independently authored.
+    validations:
+      required: true

@@ -1,0 +1,35 @@
+name: Documentation improvement
+description: Correct or clarify public documentation
+title: "[Docs] "
+labels: []
+body:
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: File, heading, link, or command that needs attention.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Explain what is incorrect, ambiguous, stale, or inaccessible.
+    validations:
+      required: true
+  - type: textarea
+    id: correction
+    attributes:
+      label: Proposed correction and evidence
+      description: Provide the replacement concept and authoritative source when applicable.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary checks
+      options:
+        - label: The proposal does not turn engineering or synthetic evidence into research or adoption claims.
+          required: true
+        - label: Any copied or adapted third-party text is identified with its license and attribution.
+          required: true
