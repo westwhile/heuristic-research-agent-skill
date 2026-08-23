@@ -1,0 +1,424 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-run-manifest/v1",
+  "title": "Deep-learning run manifest v1",
+  "description": "Caller-declared configuration manifest for one deep-learning run. It binds the ML case, runner source, requested hardware/runtime/framework/container, training-budget caps, and checkpoint/recovery policy without claiming that execution occurred. evidence_scope is fixed to configuration_only; observed execution and result evidence belong to later runner records. Checkpoints are represented only by opaque external locators and SHA-256 pins, never model bytes or repository paths (ADR-0009).",
+  "type": "object",
+  "required": [
+    "schema",
+    "manifest_id",
+    "run_id",
+    "study_id",
+    "case_sha256",
+    "evidence_scope",
+    "execution_mode",
+    "runner",
+    "hardware",
+    "runtime",
+    "framework",
+    "container",
+    "budget",
+    "optimizer",
+    "scheduler",
+    "checkpoint_policy",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dl-run-manifest/v1"
+    },
+    "manifest_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical SHA-256 of the governed ml-case/v1 payload."
+    },
+    "evidence_scope": {
+      "const": "configuration_only",
+      "description": "A v1 manifest is a declaration, not proof that the requested hardware or training path ran."
+    },
+    "execution_mode": {
+      "enum": [
+        "dry_run",
+        "cpu_fixture",
+        "gpu_fixture",
+        "gpu_training"
+      ],
+      "description": "Requested execution envelope. Semantic validation binds fixture/training modes to compatible accelerators; no value proves execution by itself."
+    },
+    "runner": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "source_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "source_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hardware": {
+      "type": "object",
+      "required": [
+        "accelerator",
+        "device_model",
+        "device_count",
+        "memory_bytes_per_device"
+      ],
+      "properties": {
+        "accelerator": {
+          "enum": [
+            "cpu",
+            "cuda",
+            "rocm",
+            "mps"
+          ]
+        },
+        "device_model": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "device_count": {
+          "type": "integer",
+          "description": "Positive requested device count; the numeric floor is enforced semantically because the schema engine has no minimum keyword."
+        },
+        "memory_bytes_per_device": {
+          "type": "integer",
+          "description": "Positive declared memory capacity per device; not a runtime probe."
+        },
+        "driver_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "runtime": {
+      "type": "object",
+      "required": [
+        "os",
+        "architecture",
+        "python_version"
+      ],
+      "properties": {
+        "os": {
+          "enum": [
+            "windows",
+            "linux",
+            "macos"
+          ]
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "python_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?([+.-][0-9A-Za-z.-]+)?$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "framework": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "determinism"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "backend_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$",
+          "description": "Required for CUDA/ROCm and forbidden for CPU/MPS by semantic validation."
+        },
+        "determinism": {
+          "enum": [
+            "strict",
+            "best_effort",
+            "off"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "container": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "none",
+            "docker",
+            "podman"
+          ]
+        },
+        "image": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "digest_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget": {
+      "type": "object",
+      "required": [
+        "max_samples",
+        "max_steps",
+        "max_epochs",
+        "max_tokens",
+        "max_flops",
+        "cost_limit",
+        "cost_unit"
+      ],
+      "properties": {
+        "max_samples": {
+          "type": "integer"
+        },
+        "max_steps": {
+          "type": "integer"
+        },
+        "max_epochs": {
+          "type": "integer"
+        },
+        "max_tokens": {
+          "type": "integer"
+        },
+        "max_flops": {
+          "type": "number"
+        },
+        "cost_limit": {
+          "type": "number"
+        },
+        "cost_unit": {
+          "enum": [
+            "cpu_seconds",
+            "accelerator_seconds",
+            "estimated_usd",
+            "other"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "description": "Hard declared caps. Zero means not used for that dimension; semantic validation requires max_samples > 0, all values non-negative, and at least one work/cost cap above zero."
+    },
+    "optimizer": {
+      "type": "object",
+      "required": [
+        "name",
+        "config_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "config_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scheduler": {
+      "type": "object",
+      "required": [
+        "name",
+        "config_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$",
+          "description": "Use the literal name none with the canonical hash of an empty scheduler configuration when no scheduler is configured."
+        },
+        "config_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "checkpoint_policy": {
+      "type": "object",
+      "required": [
+        "artifact_reference",
+        "retention",
+        "max_retained",
+        "selection_metric",
+        "selection_direction",
+        "save_optimizer_state",
+        "save_scheduler_state",
+        "recovery_accounting",
+        "resume"
+      ],
+      "properties": {
+        "artifact_reference": {
+          "const": "external_locator_and_hash_only"
+        },
+        "retention": {
+          "enum": [
+            "none",
+            "last",
+            "best_and_last",
+            "last_n",
+            "all"
+          ]
+        },
+        "max_retained": {
+          "type": "integer"
+        },
+        "selection_metric": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "selection_direction": {
+          "enum": [
+            "minimize",
+            "maximize"
+          ]
+        },
+        "save_optimizer_state": {
+          "type": "boolean"
+        },
+        "save_scheduler_state": {
+          "type": "boolean"
+        },
+        "recovery_accounting": {
+          "const": "cumulative_no_double_charge"
+        },
+        "resume": {
+          "type": "object",
+          "required": [
+            "mode"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "fresh",
+                "exact_checkpoint"
+              ]
+            },
+            "checkpoint_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(artifact|checkpoint)://\\S+$",
+              "description": "Opaque externally managed locator. File paths, HTTP URLs, and repository-relative paths are not accepted."
+            },
+            "content_sha256": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "source_run_id": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "completed_steps": {
+              "type": "integer"
+            },
+            "completed_epochs": {
+              "type": "integer"
+            },
+            "consumed_budget_sha256": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "optimizer_state_sha256": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "scheduler_state_sha256": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true,
+      "description": "Caller-injected freeze timestamp; manifest construction reads no clock."
+    }
+  },
+  "additionalProperties": false
+}

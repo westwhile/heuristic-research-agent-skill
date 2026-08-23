@@ -34,3 +34,7 @@ ML 领域载荷 schema（Phase 5 L2，同样不可发布）：
 - `ml-evidence/v1` → `ml-evidence-v1.schema.json`（kind 八值词表 + data_provenance ∈ synthetic/public/real + seeds/frozen_holdout 成熟度驱动字段 + study_id 研究绑定；schema 只固定词表，封顶规则、唯一 seed 计数与 claim↔evidence 绑定强制在 adapter——ADR-0008 增补 A2）
 - `ml-evidence/v2` → `ml-evidence-v2.schema.json`（L4/L4.1 final experiment successor：kind 固定 experiment_run，显式携带 case pin、最终评估 partition 与 split pin；case/split mismatch 及 train/validation 不安全值由 adapter 语义层拒绝；非实验 assessment/audit evidence 继续使用冻结 v1）
 - `ml-case/v1` → `ml-case-v1.schema.json`（build_evaluation_contract 输入 + 已声明实验拓扑 DAG：dataset/split/preprocessing/sampling/selection 以 {identity, sha256} + input_sha256 上游 pin 互证；必填 assessment 声明段——calibration/subgroup/OOD/drift 四键各含 status ∈ declared/not_performed，声明即证据下限；声明↔结果比对已在 L2 由 adapter 落地——四维恰好各一次的完备性闸（v3 合同侧 dimension 为自由串，完备性由 adapter 强制）+ not_performed 被证据推翻即拒；schema 层允许不安全 scope 值，由语义泄漏规则拒绝（L3 已落地：DAG 结构前置 + 六规则族七谓词 + 三语义下限，见 ADR-0008 增补 A5），保持可证伪）
+
+Deep Learning 执行治理 schema（Phase 6 L1，同样不可发布）：
+
+- `dl-run-manifest/v1` → `dl-run-manifest-v1.schema.json`（绑定既有 `ml-case/v1`、runner source、请求的硬件/runtime/framework/container、训练预算上限与 checkpoint/recovery policy；`evidence_scope` 固定为 `configuration_only`，不证明 GPU/训练已经执行；checkpoint 只允许 opaque external locator + SHA-256，不承载模型字节或仓库路径；跨字段一致性由 `DLRunManifest` 强制，见 ADR-0009）

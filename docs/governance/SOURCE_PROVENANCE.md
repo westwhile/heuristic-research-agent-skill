@@ -13,10 +13,11 @@ OpenAI program.
 ## Rights confirmation
 
 The maintainer `westwhile` confirmed ownership of, or authorization to license,
-all files tracked at the baseline commit and the two independently authored O6
-public application-evidence files under Apache-2.0. This confirmation does not extend to
-excluded external payloads and does not waive obligations that accompany any
-third-party material added later.
+all files tracked at the baseline commit and repository-native work performed
+under the maintainer's direction, including the two O6 application-evidence
+files and thirteen Phase 6 manifest files, under Apache-2.0. This confirmation
+does not extend to excluded external payloads and does not waive obligations
+that accompany any third-party material added later.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -25,11 +26,11 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed O6 application-evidence preparation tree contains 846 files:
+The proposed Phase 6 manifest tree contains 859 files:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 713 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 726 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
