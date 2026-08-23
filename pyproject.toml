@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "heuristic-research-agent-skill"
-version = "0.0.0"
+version = "0.6.1"
 description = "Auditable evaluation and controlled evolution for research agents across mathematics, quantitative research, machine learning, and deep learning."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,11 +13,18 @@ license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "westwhile" }]
 dependencies = []
 
+[project.scripts]
+research-evolution = "research_evolution.cli:main"
+
 [project.optional-dependencies]
 validation = ["PyYAML==6.0.3"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/research_evolution"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"schemas/core" = "research_evolution/_schemas/core"
+"schemas/adapters" = "research_evolution/_schemas/adapters"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

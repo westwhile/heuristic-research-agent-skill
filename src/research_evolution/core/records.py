@@ -18,10 +18,16 @@ from ._errors import CoreError, StrictJsonError, UnknownSchemaError
 from ._schema import SchemaRegistry
 from ._strict_json import load_strict_json
 
-# Repository-local default: <repo>/schemas/core. Phase 1A has no packaging or
-# installation step; callers embedding the kernel elsewhere must pass an
-# explicit schema_root.
-_DEFAULT_SCHEMA_ROOT = Path(__file__).resolve().parents[3] / "schemas" / "core"
+# A source checkout keeps the canonical schemas at <repo>/schemas/core. Wheels
+# force-include that same tree under the package so an installed CLI has the
+# identical frozen contracts without depending on repository layout.
+_REPOSITORY_SCHEMA_ROOT = Path(__file__).resolve().parents[3] / "schemas" / "core"
+_PACKAGED_SCHEMA_ROOT = Path(__file__).resolve().parents[1] / "_schemas" / "core"
+_DEFAULT_SCHEMA_ROOT = (
+    _PACKAGED_SCHEMA_ROOT
+    if _PACKAGED_SCHEMA_ROOT.is_dir()
+    else _REPOSITORY_SCHEMA_ROOT
+)
 
 _CONSTRUCTION_TOKEN = object()
 
