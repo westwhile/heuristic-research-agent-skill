@@ -34,6 +34,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Verify source provenance and license gate
+        run: python -B scripts/verify_source_provenance.py
+
       - name: Run full unittest suite
         env:
           PYTHONPATH: src
