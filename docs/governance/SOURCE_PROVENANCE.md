@@ -23,9 +23,11 @@ checkpoint-recovery schema/source/script/test/fixture files merged by PR #25,
 eleven Phase 6 R3 same-host-reproducibility files merged by PR #26, and eleven
 Phase 6 R4 controlled-interruption schema/source/script/test/fixture files
 merged by PR #28, and twenty-three Phase 6 R5 portability-receipt/report
-schema/source/script/test/fixture files merged by PR #30, under Apache-2.0. This confirmation
-does not extend to excluded external payloads and does not waive obligations
-that accompany any third-party material added later.
+schema/source/script/test/fixture files merged by PR #30, plus thirty-eight
+Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance
+files merged by PR #32, under Apache-2.0. This confirmation does not extend to
+excluded external payloads and does not waive obligations that accompany any
+third-party material added later.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -34,14 +36,16 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 6 R5 mainline inventory at merge commit
-`434078538f9bf14611b4a263d77f93e8946091fa` contains 940 files. Its tree
-`8831ab3519c539b77804519dcbcd4702063be1e7` equals the exact PR head tree that
-passed the archive, clean-install, and portability-trial CUDA gates:
+The Phase 6 R6A mainline inventory at merge commit
+`c99a5c59572d24f8c6980bb8496719e0f38485a0` contains 978 files. Its tree
+`8e3e1be5231ed99932d3ae04bec8af80430379f6` equals the exact PR #32 head tree
+that passed the dual-interpreter archive suite, clean-install/demo, local CUDA
+compatibility, and PR/main CI gates. R6A received and accepted zero external
+submissions; synthetic fixtures are not external-source or adoption evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 807 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 845 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
