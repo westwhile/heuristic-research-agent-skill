@@ -236,6 +236,19 @@ ADAPTER_FIXTURE_MANIFEST = {
             "payload-not-object.json": ("RecordValidationError", "domain_payload"),
         },
     },
+    "dl-checkpoint-recovery-observation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "missing-manifest-sha256.json": (
+                "RecordValidationError",
+                "manifest_sha256",
+            ),
+            "wrong-runner.json": ("RecordValidationError", "runner.name"),
+        },
+    },
     "dl-run-manifest/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -424,6 +437,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "domain-task/v2": (
         "6247567e285b884f869d7ad4d0e9dbc8a2bc740b1c14cbe600fb7969690ba488"
     ),
+    "dl-checkpoint-recovery-observation/v1": (
+        "f4f10c417ac0211c583162f054858fa744db5defb5d5c3376cc5fd09f91710b9"
+    ),
     "dl-run-manifest/v1": (
         "55a7a42f595bf39697e7fff3ba1395225138e8c2a5221c8c594665ee2d11574a"
     ),
@@ -491,6 +507,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "domain-task-v2.schema.json": (
         "a0d69dbc81f99262de4d1eb0b6d0e21b2e1270fcd57e83ded60c45bd0b8da775"
+    ),
+    "dl-checkpoint-recovery-observation-v1.schema.json": (
+        "8671549b3686297276037dbcdc5045823072514a8e8fa20e3a8c11dacaab7687"
     ),
     "dl-run-manifest-v1.schema.json": (
         "9495f56a62691e81d4ca92025221672744bb8089bbcf80e322a0c7202c5c4acf"
@@ -632,12 +651,13 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_one_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_two_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "claim-assessment/v1",
+                "dl-checkpoint-recovery-observation/v1",
                 "dl-run-manifest/v1",
                 "dl-run-observation/v1",
                 "domain-task/v1",

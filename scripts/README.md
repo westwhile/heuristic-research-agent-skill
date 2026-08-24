@@ -15,3 +15,4 @@
 
 - `verify_source_provenance.py`：在工作树中使用 Git 的 tracked + 非忽略拟议文件清单，在归档树中使用实际文件清单；按 `docs/governance/SOURCE_PROVENANCE.json` 的 first-match 规则验证全覆盖、固定分类计数、`unknown=0`、Apache-2.0 元数据以及 `LICENSE`/`NOTICE`。使用 `--json` 可输出机器可读报告。
 - `verify_archive_suite.py`：从指定 commit 的真实 `git archive` 运行双解释器完整测试；只接受与调用解释器不同的第二解释器，并在结论中绑定 commit SHA。
+- `verify_dl_checkpoint_recovery.py`：仅从精确 commit 的归档树运行真实 PyTorch/CUDA checkpoint 恢复 Gate；绑定 commit/tree/archive SHA-256，使用 source、resume、uninterrupted control 三个独立进程，并只输出不含本机路径的哈希收据。该 Gate 仍只是单主机 bounded synthetic engineering evidence。
