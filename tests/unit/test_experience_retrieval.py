@@ -169,6 +169,29 @@ class RetrievalTest(unittest.TestCase):
             any("semantic proposal only" in note for note in semantic[0].differences)
         )
 
+    def test_unrelated_cjk_query_abstains_instead_of_false_retrieval(self) -> None:
+        kwargs = _distill_kwargs(
+            [
+                _make_case("case-cn-a", sig=b"cn-a"),
+                _make_case("case-cn-b", sig=b"cn-b"),
+            ]
+        )
+        kwargs.update(
+            pattern_id="pat-cn",
+            signature_summary="深度学习图像分类完全无关",
+            signature_sha256=hashlib.sha256(b"cn-pattern").hexdigest(),
+        )
+        base = distill_patterns(**kwargs)
+        promoted = _promoted(base, "pat-cn-2")
+        result = retrieve_patterns(
+            signature_summary="量化金融中的因子回测",
+            signature_sha256=hashlib.sha256(b"cn-query").hexdigest(),
+            patterns=build_pattern_index([base, promoted]),
+            recorded_at="2026-08-17T16:00:00Z",
+        )
+        self.assertTrue(result.abstained)
+        self.assertEqual(result.candidates, ())
+
 
 if __name__ == "__main__":
     unittest.main()

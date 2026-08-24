@@ -180,6 +180,22 @@ class ReportLintTest(unittest.TestCase):
         )
         self.assertNotIn("compression_candidate", _kinds(report))
 
+    def test_unrelated_cjk_and_tokenless_text_do_not_suggest_compression(self) -> None:
+        pairs = (
+            ("量化金融中的因子回测", "深度学习图像分类完全无关"),
+            ("🧪🧪", "🚀🚀"),
+        )
+        for index, (left_statement, right_statement) in enumerate(pairs):
+            with self.subTest(pair=index):
+                report = lint_heuristics(
+                    [
+                        _propose(f"h-{index}-a", statement=left_statement),
+                        _propose(f"h-{index}-b", statement=right_statement),
+                    ],
+                    now=NOW,
+                )
+                self.assertNotIn("compression_candidate", _kinds(report))
+
     def test_staleness_relative_to_injected_now(self) -> None:
         stale = _propose("h-1", created_at="2026-01-01T00:00:00Z")
         report = lint_heuristics([stale], now=NOW)
