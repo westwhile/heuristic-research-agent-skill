@@ -20,8 +20,9 @@ Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report
 files merged to `main` by PR #21, plus eleven Phase 6 R1 observation
 schema/source/test/fixture files merged by PR #23, eleven Phase 6 R2
 checkpoint-recovery schema/source/script/test/fixture files merged by PR #25,
-and eleven Phase 6 R3 same-host-reproducibility files merged by PR #26, under
-Apache-2.0. This confirmation
+eleven Phase 6 R3 same-host-reproducibility files merged by PR #26, and eleven
+Phase 6 R4 controlled-interruption schema/source/script/test/fixture files
+merged by PR #28, under Apache-2.0. This confirmation
 does not extend to excluded external payloads and does not waive obligations
 that accompany any third-party material added later.
 
@@ -32,14 +33,14 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 6 R3 mainline inventory at merge commit
-`72e71eb7c1c3a01e97030606d1c74c31a44f3ba4` contains 906 files. Its tree
-`cc8e2751c050bc7e43dc6216d479d67860c183dc` equals the exact PR head tree that
-passed the archive and same-host CUDA reproducibility gates:
+The Phase 6 R4 mainline inventory at merge commit
+`b2240e8fde7d88372df6b4562d9dcf24285deab6` contains 917 files. Its tree
+`22326b9469c1b3b9cf15ace16cf5a413f68ca256` equals the exact PR head tree that
+passed the archive and controlled-interruption CUDA recovery gates:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 773 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 784 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
