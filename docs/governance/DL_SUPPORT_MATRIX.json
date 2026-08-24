@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase7-p7a-artifact-closure-context-foundation-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_and_p7a_artifact_closure_context_foundation_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
+  "phase": "correctness-reset-cr1-cr2-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_restricted_content_ingress_and_unicode_cjk_lexical_similarity_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -718,6 +718,41 @@
         ]
       },
       "scope": "P7A establishes strict candidate-manifest, member-byte closure, source-lifecycle, principal-separation, and explicit-retention ContextBundle engineering contracts with Math/Quant synthetic seam fixtures. It issued no real candidate, closure receipt, ContextBundle, Skill payload, semantic review, installation, activation, or publication evidence; R6B remains frozen with zero external submissions."
+    },
+    "last_commit_bound_correctness_reset_cr1_cr2_evidence": {
+      "cr1": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/36",
+        "pr_head_commit": "23c59f82758ce86b3f7c7bd1f58129d5c5db1dc7",
+        "main_merge_commit": "7269dfe1fcc6fc218a5e898f90ff63c2bd4057b5",
+        "shared_tree": "b13bb14c75e987ee9316a5a2daee6d380d69060e",
+        "archive_tests_per_interpreter": 1048,
+        "expected_archive_skips_per_interpreter": 6,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32747089697",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32747362317",
+        "main_ci_head_sha": "7269dfe1fcc6fc218a5e898f90ff63c2bd4057b5",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Closes the directly reproducible restricted-content ingress at P7A candidate validation and candidate/context publication without echoing matched values; it is not a complete taint, privacy, retention, encryption, or deletion system."
+      },
+      "cr2": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/37",
+        "pr_head_commit": "ae18567262a12c9f9703d065dbf8658ac499073b",
+        "main_merge_commit": "42fb906be364d87ba5dce113413b2d0caaae2431",
+        "shared_tree": "b694a1f181f113256f5c7e196fdf63e2b3557694",
+        "archive_sha256": "d55eabb8742d3bef3a002507ce573503d607618f0bfb3373ca693d3f4e33d078",
+        "archive_tests_per_interpreter": 1052,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_stable_projection_sha256": "9814ab136e156c6600999df2ada3f07642169ba2eccf2fd46fe83741fecaca6e",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32748241758",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32748487238",
+        "main_ci_head_sha": "42fb906be364d87ba5dce113413b2d0caaae2431",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Closes deterministic all-CJK and tokenless false similarity with Unicode terms, CJK 2-4 grams, and empty abstention; it does not establish semantic retrieval quality, negative-transfer safety, or promotion validity."
+      }
     }
   },
   "execution_matrix": [
@@ -781,7 +816,9 @@
       "R6A validates nonce-hardened pseudonymous submission and coordinator-review records with canonical hash bindings, duplicate rejection, and public-safety scans",
       "R6A exact-archive and CUDA compatibility gates used only synthetic contract fixtures and one local ephemeral receipt; no participant invitation, external submission, upload, or framework installation occurred",
       "P7A closes an exact manifest-declared byte set only after hash, size, exclusion, and acyclic dependency checks; receipt-last byte closure is not semantic review",
-      "P7A ContextBundle mode selection is explicit and fails rather than silently dropping the declared safe minimum under budget pressure; invalidated sources remain visible"
+      "P7A ContextBundle mode selection is explicit and fails rather than silently dropping the declared safe minimum under budget pressure; invalidated sources remain visible",
+      "CR1 refuses directly detectable restricted candidate/context content before publication without echoing matched values",
+      "CR2 uses deterministic Unicode lexical terms and CJK 2-4 grams, and tokenless comparisons abstain instead of returning perfect similarity"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -807,7 +844,9 @@
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
     "P7A is P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS; byte closure, synthetic Math/Quant fixtures, and ContextBundle construction do not establish semantic review, candidate quality, installation, activation, or publication.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A and the Correctness Reset did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
+    "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
