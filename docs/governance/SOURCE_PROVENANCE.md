@@ -17,7 +17,8 @@ all files tracked at the baseline commit and repository-native work performed
 under the maintainer's direction, including the two O6 application-evidence
 files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three
 Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report
-files merged to `main` by PR #21,
+files merged to `main` by PR #21, plus eleven Phase 6 R1 observation
+schema/source/test/fixture files,
 under Apache-2.0. This confirmation
 does not extend to excluded external payloads and does not waive obligations
 that accompany any third-party material added later.
@@ -29,12 +30,14 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 6 L4 mainline tree at merge commit
-`6c63c0bad88f032fb1091cdc5c91242bf22b2087` contains 873 files:
+The Phase 6 R1 candidate inventory contains 884 files; the last fully merged
+L4 evidence anchor remains merge commit
+`6c63c0bad88f032fb1091cdc5c91242bf22b2087` until R1 passes its exact-commit
+archive and main-CI gates:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 740 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 751 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -86,7 +89,12 @@ artifact, license decision, and separate implementation authorization.
 
 ### Referenced dependencies and services
 
-Hatchling and PyYAML are non-vendored MIT-licensed dependencies. The CI workflow
+Hatchling and PyYAML are non-vendored MIT-licensed dependencies. PyTorch is a
+caller-managed, non-vendored optional runtime: the project source describes its
+license as BSD-style, while current official package metadata records the
+complete installed distribution's composite SPDX expression. No PyTorch wheel,
+CUDA payload, source, LICENSE, NOTICE, model, or fixture is redistributed by
+this repository. The CI workflow
 references commit-pinned MIT-licensed `actions/checkout` and
 `actions/setup-python`; their source is not vendored. JSON Schema Draft 2020-12
 is referenced by dialect URI and vocabulary only. These references do not add

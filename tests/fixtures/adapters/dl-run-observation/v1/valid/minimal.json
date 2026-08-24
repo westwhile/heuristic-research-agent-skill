@@ -1,0 +1,20 @@
+{
+  "schema": "dl-run-observation/v1",
+  "observation_id": "dl-observation-0001",
+  "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "run_id": "dl-run-real-0001",
+  "study_id": "synthetic-pytorch-cuda-study-001",
+  "case_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "observed_at": "2026-08-24T01:30:00Z",
+  "evidence_scope": "real_framework_hardware_engineering",
+  "status": "completed",
+  "runner": {"name": "pytorch-gpu-fixture-runner", "version": "0.1.0", "source_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+  "fixture": {"fixture_sha256": "4444444444444444444444444444444444444444444444444444444444444444", "seed": 20260824, "samples": 16, "requested_steps": 1},
+  "execution": {"mode": "gpu_fixture", "os": "windows", "architecture": "AMD64", "python_version": "3.12.13", "framework": {"name": "pytorch", "version": "2.12.1+cu130", "backend": "cuda", "backend_version": "13.0", "determinism": "strict"}, "hardware": {"device_model": "NVIDIA GeForce RTX 4060 Laptop GPU", "device_count": 1, "memory_bytes_per_device": 8585216000, "compute_capability": "8.9"}},
+  "metrics": [{"name": "initial_loss", "value": 1.25898826122284}, {"name": "final_loss", "value": 1.24816489219666}, {"name": "loss_delta", "value": -0.01082336902618}],
+  "resources": {"duration_seconds": 0.05, "peak_memory_bytes": 8388608},
+  "budget_ledger": {"declared": {"max_samples": 16, "max_steps": 1, "cost_limit": 60, "cost_unit": "accelerator_seconds"}, "consumed": {"samples": 16, "steps": 1, "accelerator_seconds": 0.05, "accounting": "exact"}},
+  "checkpointing": {"performed": false, "external_store_observed": false},
+  "failure": {"class": "none", "message": "none"},
+  "limitations": ["Synthetic fixture only.", "No real dataset was observed.", "GPU driver version was not re-probed by this module.", "No external checkpoint store was observed."]
+}

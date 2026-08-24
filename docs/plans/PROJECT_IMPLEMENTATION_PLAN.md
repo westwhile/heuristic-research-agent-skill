@@ -541,7 +541,7 @@ Git tracking skip）。annotated tag object
 
 ## Phase 6：Deep Learning 扩展
 
-当前实施状态（2026-08-23）：L1 manifest、L2 runner 0.1.0、L3 runner 0.2.0/selector 0.1.0 与 L4 study reporter 0.1.0 已通过 PR #21 的 merge commit `6c63c0bad88f032fb1091cdc5c91242bf22b2087` 合入 `main`。L4 包含 10-case 合成验收目录、5 个测试内重建 Case Package、单因素 ablation、scale 与 FLOP-proxy compute-matched Gate、机器可读 DL support matrix 和验收报告。PR final head `2f5f11dc64c07a5227b58d69c294112f50c5a138` 的真实 `git archive` 双解释器 Gate 均为 971/971（各 1 个预期 Git tracking skip），其 Git tree 与 merge commit 完全一致；merge commit 的 main push CI run `32634831816` 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤成功。L1 为 configuration-only，L2–L4 上限均为 synthetic engineering；不执行框架/GPU 探测、真实外部 checkpoint store、真实调度器抢占或真实数据验收。`v0.7.0` Tag/Release Gate 未开启。
+当前实施状态（2026-08-24）：L1 manifest、L2 runner 0.1.0、L3 runner 0.2.0/selector 0.1.0 与 L4 study reporter 0.1.0 已通过 PR #21 的 merge commit `6c63c0bad88f032fb1091cdc5c91242bf22b2087` 合入 `main`。L4 包含 10-case 合成验收目录、5 个测试内重建 Case Package、单因素 ablation、scale 与 FLOP-proxy compute-matched Gate、机器可读 DL support matrix 和验收报告。PR final head `2f5f11dc64c07a5227b58d69c294112f50c5a138` 的真实 `git archive` 双解释器 Gate 均为 971/971（各 1 个预期 Git tracking skip），其 Git tree 与 merge commit 完全一致；merge commit 的 main push CI run `32634831816` 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤成功。L1 为 configuration-only，L2–L4 上限均为 synthetic engineering。R1 增加调用方管理、lazy-import 的 PyTorch/CUDA small-fixture runner 和正式 `dl-run-observation/v1`；其 exact-commit opt-in CUDA Gate 只能把证据上限推进到单主机 real-framework/hardware engineering observation。真实数据、driver/跨 GPU 复现、外部 checkpoint store、真实调度器抢占、生产和外部采用仍未验收。`v0.7.0` Tag/Release Gate 未开启。
 
 ### 目标
 

@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-run-observation/v1",
+  "title": "Deep-learning real-framework run observation v1",
+  "description": "Hash-bound result of the bounded PyTorch CUDA fixture runner. This record proves only that one real framework/hardware engineering fixture was attempted under the bound manifest and runtime. It is not real-data, scientific, predictive, production, adoption, checkpoint-store, or cross-hardware evidence.",
+  "type": "object",
+  "required": [
+    "schema",
+    "observation_id",
+    "manifest_sha256",
+    "run_id",
+    "study_id",
+    "case_sha256",
+    "observed_at",
+    "evidence_scope",
+    "status",
+    "runner",
+    "fixture",
+    "execution",
+    "metrics",
+    "resources",
+    "budget_ledger",
+    "checkpointing",
+    "failure",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dl-run-observation/v1"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "observed_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    },
+    "evidence_scope": {
+      "const": "real_framework_hardware_engineering"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "failed"
+      ]
+    },
+    "runner": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "source_sha256"
+      ],
+      "properties": {
+        "name": {
+          "const": "pytorch-gpu-fixture-runner"
+        },
+        "version": {
+          "const": "0.1.0"
+        },
+        "source_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fixture": {
+      "type": "object",
+      "required": [
+        "fixture_sha256",
+        "seed",
+        "samples",
+        "requested_steps"
+      ],
+      "properties": {
+        "fixture_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "samples": {
+          "type": "integer"
+        },
+        "requested_steps": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "mode",
+        "os",
+        "architecture",
+        "python_version",
+        "framework",
+        "hardware"
+      ],
+      "properties": {
+        "mode": {
+          "const": "gpu_fixture"
+        },
+        "os": {
+          "enum": [
+            "windows",
+            "linux"
+          ]
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "python_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?([+.-][0-9A-Za-z.-]+)?$"
+        },
+        "framework": {
+          "type": "object",
+          "required": [
+            "name",
+            "version",
+            "backend",
+            "backend_version",
+            "determinism"
+          ],
+          "properties": {
+            "name": {
+              "const": "pytorch"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "backend": {
+              "const": "cuda"
+            },
+            "backend_version": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "determinism": {
+              "const": "strict"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hardware": {
+          "type": "object",
+          "required": [
+            "device_model",
+            "device_count",
+            "memory_bytes_per_device",
+            "compute_capability"
+          ],
+          "properties": {
+            "device_model": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            },
+            "device_count": {
+              "type": "integer"
+            },
+            "memory_bytes_per_device": {
+              "type": "integer"
+            },
+            "compute_capability": {
+              "type": "string",
+              "minLength": 3,
+              "pattern": "^[0-9]+\\.[0-9]+$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "enum": [
+              "initial_loss",
+              "final_loss",
+              "loss_delta"
+            ]
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "resources": {
+      "type": "object",
+      "required": [
+        "duration_seconds",
+        "peak_memory_bytes"
+      ],
+      "properties": {
+        "duration_seconds": {
+          "type": "number"
+        },
+        "peak_memory_bytes": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget_ledger": {
+      "type": "object",
+      "required": [
+        "declared",
+        "consumed"
+      ],
+      "properties": {
+        "declared": {
+          "type": "object",
+          "required": [
+            "max_samples",
+            "max_steps",
+            "cost_limit",
+            "cost_unit"
+          ],
+          "properties": {
+            "max_samples": {
+              "type": "integer"
+            },
+            "max_steps": {
+              "type": "integer"
+            },
+            "cost_limit": {
+              "type": "number"
+            },
+            "cost_unit": {
+              "const": "accelerator_seconds"
+            }
+          },
+          "additionalProperties": false
+        },
+        "consumed": {
+          "type": "object",
+          "required": [
+            "samples",
+            "steps",
+            "accelerator_seconds",
+            "accounting"
+          ],
+          "properties": {
+            "samples": {
+              "type": "integer"
+            },
+            "steps": {
+              "type": "integer"
+            },
+            "accelerator_seconds": {
+              "type": "number"
+            },
+            "accounting": {
+              "enum": [
+                "exact",
+                "lower_bound"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "checkpointing": {
+      "type": "object",
+      "required": [
+        "performed",
+        "external_store_observed"
+      ],
+      "properties": {
+        "performed": {
+          "const": false
+        },
+        "external_store_observed": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": [
+        "class",
+        "message"
+      ],
+      "properties": {
+        "class": {
+          "enum": [
+            "none",
+            "runtime_error",
+            "numerical_failure",
+            "budget_exhausted"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "\\S"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "x-conditional-min-items": [
+    {
+      "when_property": "status",
+      "when_equals": [
+        "completed"
+      ],
+      "then_property": "metrics",
+      "min_items": 3
+    }
+  ]
+}
