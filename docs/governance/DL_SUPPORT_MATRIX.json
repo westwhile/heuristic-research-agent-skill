@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-23",
-  "phase": "phase6-l4-main-merged",
-  "evidence_ceiling": "synthetic_engineering",
+  "reviewed_at": "2026-08-24",
+  "phase": "phase6-r1-real-framework-observation-candidate",
+  "evidence_ceiling": "real_framework_hardware_engineering_when_exact_commit_cuda_gate_passes",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -23,6 +23,11 @@
       "name": "reference-dl-study-reporter",
       "version": "0.1.0",
       "status": "implemented_synthetic_mainline"
+    },
+    {
+      "name": "pytorch-gpu-fixture-runner",
+      "version": "0.1.0 / dl-run-observation/v1",
+      "status": "implemented_optional_runtime_exact_commit_cuda_gate_required"
     }
   ],
   "ci_lanes": {
@@ -68,11 +73,11 @@
     },
     {
       "execution": "pytorch",
-      "accelerator": "cpu_or_gpu",
-      "framework": "not_loaded",
-      "data": "not_executed",
-      "status": "unverified",
-      "hardware_observation": "not_observed"
+      "accelerator": "cuda_primary_device",
+      "framework": "caller_managed_lazy_import",
+      "data": "bounded_synthetic_fixture",
+      "status": "candidate_real_framework_hardware_engineering_observation",
+      "hardware_observation": "framework_version_cuda_backend_device_model_count_memory_compute_capability"
     },
     {
       "execution": "tensorflow",
@@ -104,11 +109,12 @@
       "canonical synthetic artifacts bind runner, manifest, fixture, seed, budget, checkpoint lineage, and selection plan",
       "failed and missing expected seeds remain explicit",
       "compute-matched reports compare per-seed samples, tokens, FLOP proxy, and related caps",
-      "checkpoint reports retain locator/hash/lineage only"
+      "checkpoint reports retain locator/hash/lineage only",
+      "R1 observations bind manifest, fixture, runner source bytes, runtime, framework, hardware, budget, failure, and limitations"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
-      "driver, CUDA, ROCm, MPS, compiler, or kernel determinism",
+      "GPU driver version, ROCm, MPS, compiler, or cross-kernel determinism",
       "framework version interoperability",
       "distributed or mixed-precision training",
       "real scheduler preemption and process restart",
@@ -121,6 +127,8 @@
     "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
     "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
     "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
+    "A passed R1 CUDA fixture proves only one bounded synthetic engineering execution on the observed host and primary device.",
+    "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
 }

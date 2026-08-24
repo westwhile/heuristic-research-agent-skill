@@ -248,6 +248,20 @@ ADAPTER_FIXTURE_MANIFEST = {
             "missing-max-tokens.json": ("RecordValidationError", "max_tokens"),
         },
     },
+    "dl-run-observation/v1": {
+        "valid": ["failed.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "metrics-not-array.json": ("RecordValidationError", "metrics"),
+            "missing-manifest-sha256.json": (
+                "RecordValidationError",
+                "manifest_sha256",
+            ),
+            "wrong-runner.json": ("RecordValidationError", "runner.name"),
+        },
+    },
     "ml-task/v1": {
         "valid": ["clustering.json", "full.json", "minimal.json", "regression.json"],
         "invalid": {
@@ -413,6 +427,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "dl-run-manifest/v1": (
         "55a7a42f595bf39697e7fff3ba1395225138e8c2a5221c8c594665ee2d11574a"
     ),
+    "dl-run-observation/v1": (
+        "8f3747c5c12c4f420c0c1c0d65d29c258183871e678d42a50214ad2e53d61ba2"
+    ),
     "evaluation-contract/v1": (
         "8d28c5756a2ec8f90341562bbfbdd605350c3bc52cb3a6b03bfd6eac4b02d1ab"
     ),
@@ -477,6 +494,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "dl-run-manifest-v1.schema.json": (
         "9495f56a62691e81d4ca92025221672744bb8089bbcf80e322a0c7202c5c4acf"
+    ),
+    "dl-run-observation-v1.schema.json": (
+        "9c791d59e998b6f411223054b93c36cd273381c8108231a2e561c4ef125db225"
     ),
     "evaluation-contract-v1.schema.json": (
         "ab8294815264af74b19d325c7e1bd9e70bf938d4a39192736aee6a5d3e65be27"
@@ -612,13 +632,14 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_one_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "claim-assessment/v1",
                 "dl-run-manifest/v1",
+                "dl-run-observation/v1",
                 "domain-task/v1",
                 "domain-task/v2",
                 "evaluation-contract/v1",

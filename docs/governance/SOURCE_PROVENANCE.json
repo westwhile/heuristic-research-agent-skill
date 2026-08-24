@@ -3,7 +3,7 @@
   "status": "active",
   "reviewed_at": "2026-08-23",
   "baseline_commit": "b9a3b8268575fe32399b83295595710944c6a772",
-  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21; modified paths remain covered by existing first-match rules.",
+  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21, and eleven Phase 6 R1 observation schema/source/test/fixture files; modified paths remain covered by existing first-match rules.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 740,
+      "independently_authored": 751,
       "generated": 118,
       "design_inspired": 13,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 873
+      "total": 884
     },
     "rules": [
       {
@@ -242,6 +242,20 @@
       "tracked_use": "Optional validation dependency reference only; not vendored.",
       "disposition": "Retain dependency declaration and upstream attribution record.",
       "notice_action": "No bundled upstream NOTICE required for a non-vendored dependency.",
+      "evidence_sufficient_for_reuse": true
+    },
+    {
+      "id": "pytorch",
+      "source_name": "PyTorch",
+      "source_url": "https://github.com/pytorch/pytorch",
+      "versions": [
+        "2.12.1+cu130 locally observed; caller-managed and not bundled"
+      ],
+      "visible_license": "Official package metadata: Apache-2.0 AND Apache-2.0 WITH LLVM-exception AND BSD-2-Clause AND BSD-3-Clause AND BSL-1.0 AND MIT; project README describes a BSD-style license",
+      "tracked_expression_reused": false,
+      "tracked_use": "Lazy optional runtime import and framework name/version observation only; no PyTorch or CUDA payload is vendored or declared as a base dependency.",
+      "disposition": "Keep caller-managed and non-vendored; use the official platform selector and re-audit metadata before any dependency declaration or redistribution.",
+      "notice_action": "No bundled upstream NOTICE is required while the dependency and its payloads are not redistributed; preserve installed-distribution notices in any future binary redistribution review.",
       "evidence_sufficient_for_reuse": true
     },
     {

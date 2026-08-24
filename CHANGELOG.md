@@ -13,10 +13,14 @@ Skill installation unless it explicitly says so.
 - Added a public O6 application-evidence snapshot and evidence-bound,
   character-counted draft fields without private account data.
 - Synchronized documentation with the published `v0.6.1` source Release.
+- Added a bounded, caller-managed, opt-in PyTorch/CUDA small-fixture runner and
+  the hash-bound `dl-run-observation/v1` Adapter contract.
 
 The trial intake is available, but no external attempt or adoption result is
 claimed by this change. The O6 material is preparation only; no OpenAI
-application has been filled or submitted.
+application has been filled or submitted. A successful PyTorch/CUDA fixture is
+real framework/hardware engineering evidence only; it is not real-data,
+scientific, predictive, production, adoption, or cross-GPU evidence.
 
 ## 0.6.1 — 2026-08-23
 

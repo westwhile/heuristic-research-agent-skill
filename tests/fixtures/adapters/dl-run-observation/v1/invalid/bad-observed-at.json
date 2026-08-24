@@ -1,0 +1,20 @@
+{
+  "schema": "dl-run-observation/v1",
+  "observation_id": "bad-observation",
+  "manifest_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+  "run_id": "bad-run",
+  "study_id": "bad-study",
+  "case_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+  "observed_at": "2026-08-24",
+  "evidence_scope": "real_framework_hardware_engineering",
+  "status": "failed",
+  "runner": {"name": "pytorch-gpu-fixture-runner", "version": "0.1.0", "source_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+  "fixture": {"fixture_sha256": "4444444444444444444444444444444444444444444444444444444444444444", "seed": 1, "samples": 1, "requested_steps": 1},
+  "execution": {"mode": "gpu_fixture", "os": "windows", "architecture": "AMD64", "python_version": "3.12.13", "framework": {"name": "pytorch", "version": "2.12.1", "backend": "cuda", "backend_version": "13.0", "determinism": "strict"}, "hardware": {"device_model": "GPU", "device_count": 1, "memory_bytes_per_device": 1, "compute_capability": "8.9"}},
+  "metrics": [],
+  "resources": {"duration_seconds": 0, "peak_memory_bytes": 0},
+  "budget_ledger": {"declared": {"max_samples": 1, "max_steps": 1, "cost_limit": 1, "cost_unit": "accelerator_seconds"}, "consumed": {"samples": 0, "steps": 0, "accelerator_seconds": 0, "accounting": "lower_bound"}},
+  "checkpointing": {"performed": false, "external_store_observed": false},
+  "failure": {"class": "runtime_error", "message": "failed"},
+  "limitations": ["Synthetic fixture only."]
+}

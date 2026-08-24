@@ -101,3 +101,20 @@ L4 本地通过不等于 Phase 6 完成。只有 L4 exact commit 的真实 `git 
 双解释器 Gate 与该提交的四项 CI 成功后，才形成平台工程验收；真实框架/GPU、
 真实数据与外部 checkpoint store 证据仍需独立授权和新层级，`v0.7.0` Gate
 继续关闭。
+
+## 增补 A4（2026-08-24，R1）：真实 PyTorch/CUDA small-fixture 观测
+
+R1 在不改变 L2/L3 合成 runner 字节和根 Adapter seam 的前提下，增加一个
+显式、可选的 PyTorch/CUDA 观测子模块。它是单一真实实现的深模块，不预先抽象
+通用 framework plug-in；只有出现第二个真实框架实现并通过同一 contract 后，
+才重新评估稳定 seam。
+
+1. **唯一 R1 执行入口**：`run_pytorch_gpu_fixture(manifest, fixture_payload) -> DLObservedRun`。调用方显式导入 `deep_learning.pytorch_observation`；`deep_learning.__all__` 仍只暴露 `DLRunManifest`。PyTorch 由调用方管理并在函数内部 lazy import，基础包依赖保持为空，不自动下载框架或 CUDA payload。
+2. **配置与来源绑定先于执行**：runner 只接受 `gpu_fixture`、CUDA、PyTorch、strict determinism、host execution、fresh/no-checkpoint、SGD/empty-scheduler 和小型有界 fixture；manifest runner pin 必须等于当前模块文件的原始字节 SHA-256，case、learning rate、样本、step 与预算逐项互证。严格 CUDA 路径要求显式 `CUBLAS_WORKSPACE_CONFIG`。
+3. **观测而不是声明**：运行前通过 PyTorch 读取框架版本、CUDA backend、device model/count/memory 和 compute capability，并与 manifest 的 OS、architecture、Python、框架和硬件声明逐项比较。模块不把 manifest 的可选 driver version 回填成观测；PyTorch 无可靠 driver probe，因此限制项明确记录“未由本模块复探”。
+4. **正式结果合同**：`dl-run-observation/v1` 是 Adapter 层 schema，不是 Core family。记录绑定 manifest、case/study/run、runner source、fixture、观测时间、运行时、硬件、metrics、资源、预算 ledger、failure 与 limitations。成功记录必须恰有 initial/final/delta loss；合法执行阶段异常返回失败 observation，且只保留稳定的非敏感错误类别，不复制本机路径或原始异常正文。
+5. **能力与失败上限**：fixture 最多 256 samples、128 input features、256 hidden units、32 outputs 和 10 steps，只在 `cuda:0` 执行。无框架、无 CUDA、声明与观测不一致或输入越界时 fail closed，不产生伪 observation；已绑定运行时后的 runtime/numerical/budget failure 必须保留。checkpoint、外部 store、恢复、分布式、mixed precision 和真实数据仍不执行。
+6. **验收分层**：默认 Windows/Ubuntu × Python 3.12/3.14 CI 只验证 schema、接口、lazy import、失败保存和无 PyTorch 基础依赖；真实 CUDA 用例必须通过 opt-in 环境变量在已安装且版本受控的 PyTorch 环境执行，并绑定 exact archive commit/tree 与 runner source SHA。单主机单 GPU 成功只构成 real-framework/hardware engineering observation，不构成真实数据、科研、预测、生产、外部采用或跨 GPU 可复现证据。
+
+R1 不打开 `gpu_training`、真实数据验收、driver/多 GPU 矩阵、外部 checkpoint
+store、scheduler recovery 或 `v0.7.0` Tag/Release Gate。
