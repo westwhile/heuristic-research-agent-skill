@@ -236,6 +236,19 @@ ADAPTER_FIXTURE_MANIFEST = {
             "payload-not-object.json": ("RecordValidationError", "domain_payload"),
         },
     },
+    "dl-controlled-interruption-recovery-observation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "missing-manifest-sha256.json": (
+                "RecordValidationError",
+                "manifest_sha256",
+            ),
+            "wrong-runner.json": ("RecordValidationError", "runner.name"),
+        },
+    },
     "dl-checkpoint-recovery-observation/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -447,6 +460,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "domain-task/v2": (
         "6247567e285b884f869d7ad4d0e9dbc8a2bc740b1c14cbe600fb7969690ba488"
     ),
+    "dl-controlled-interruption-recovery-observation/v1": (
+        "0e90a914fd2a3d7de5863a0f76e03c7f79501a639748a2060f84f9ec46eaa9b2"
+    ),
     "dl-checkpoint-recovery-observation/v1": (
         "f4f10c417ac0211c583162f054858fa744db5defb5d5c3376cc5fd09f91710b9"
     ),
@@ -520,6 +536,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "domain-task-v2.schema.json": (
         "a0d69dbc81f99262de4d1eb0b6d0e21b2e1270fcd57e83ded60c45bd0b8da775"
+    ),
+    "dl-controlled-interruption-recovery-observation-v1.schema.json": (
+        "ba436c1cdfffd17165cfce0504db617414b5ace9e4e5042ec52e99aba826d67f"
     ),
     "dl-checkpoint-recovery-observation-v1.schema.json": (
         "8671549b3686297276037dbcdc5045823072514a8e8fa20e3a8c11dacaab7687"
@@ -667,13 +686,14 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_three_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_four_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "claim-assessment/v1",
                 "dl-checkpoint-recovery-observation/v1",
+                "dl-controlled-interruption-recovery-observation/v1",
                 "dl-run-manifest/v1",
                 "dl-run-observation/v1",
                 "dl-same-host-reproducibility-report/v1",
