@@ -1,0 +1,49 @@
+{
+  "schema": "candidate-manifest/v1",
+  "candidate_id": "candidate-full",
+  "status": "staged_candidate",
+  "objective": "Exercise every candidate declaration while preserving bounded evidence semantics.",
+  "principals": {"author": "principal-author", "reviewer": "principal-reviewer"},
+  "baseline_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "patch_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "source_cases": [
+    {"case_id": "case-source-a", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    {"case_id": "case-source-b", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}
+  ],
+  "source_patterns": [
+    {"pattern_id": "pattern-source-a", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"}
+  ],
+  "evaluation_envelope": {
+    "model": "frozen-model",
+    "reasoning": "frozen-reasoning",
+    "tools_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "budget_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "data_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "evaluator_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+  },
+  "members": [
+    {"name": "members/baseline.bin", "role": "baseline", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size_bytes": 1, "depends_on": []},
+    {"name": "members/patch.bin", "role": "patch", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "size_bytes": 1, "depends_on": ["members/baseline.bin"]},
+    {"name": "members/tests.json", "role": "tests", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "size_bytes": 2, "depends_on": ["members/patch.bin"]},
+    {"name": "members/source-snapshot.json", "role": "source_snapshot", "sha256": "6666666666666666666666666666666666666666666666666666666666666666", "size_bytes": 2, "depends_on": []}
+  ],
+  "exclusions": [{"name": "private/input.bin", "reason": "Private input is outside the candidate closure."}],
+  "risks": ["The candidate may fail its bounded comparison.", "A source may later be invalidated."],
+  "rollback": "Keep the immutable baseline selected and archive the candidate record.",
+  "context": {
+    "authoritative_head": {"record_id": "head-a", "sha256": "4444444444444444444444444444444444444444444444444444444444444444"},
+    "unresolved_obligations": ["Obtain independent semantic review."],
+    "source_lifecycle": [
+      {"source_id": "case-source-a", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "status": "current", "rationale": "Pinned source is current."},
+      {"source_id": "case-source-b", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "status": "corrected", "rationale": "A correction must remain visible."},
+      {"source_id": "pattern-source-a", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "status": "current", "rationale": "Pinned source is current."}
+    ],
+    "materials": [
+      {"name": "safe-summary", "content_sha256": "5555555555555555555555555555555555555555555555555555555555555555", "content": "Bounded summary.", "retention": "minimal_safe"},
+      {"name": "compact-detail", "content_sha256": "7777777777777777777777777777777777777777777777777777777777777777", "content": "Compact detail.", "retention": "compact"},
+      {"name": "normal-detail", "content_sha256": "8888888888888888888888888888888888888888888888888888888888888888", "content": "Normal detail.", "retention": "normal_only"}
+    ]
+  },
+  "claims": {"installation_authorized": false, "activation_authorized": false, "publication_authorized": false, "semantic_review_completed": false},
+  "created_at": "2026-08-24T00:00:00Z"
+}

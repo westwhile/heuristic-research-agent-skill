@@ -349,10 +349,55 @@ FIXTURE_MANIFEST = {
             "whitespace-note.json": ("RecordValidationError", "note"),
         },
     },
+    "candidate-manifest/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-member-sha256.json": ("RecordValidationError", "sha256"),
+            "bad-status.json": ("RecordValidationError", "status"),
+            "missing-reviewer.json": ("RecordValidationError", "reviewer"),
+            "source-cases-too-few.json": ("RecordValidationError", "source_cases"),
+        },
+    },
+    "artifact-closure-receipt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-closed-at.json": ("RecordValidationError", "closed_at"),
+            "byte-not-closed.json": ("RecordValidationError", "byte_closed"),
+            "receipt-not-last.json": ("RecordValidationError", "receipt_last"),
+            "semantic-review-completed.json": (
+                "RecordValidationError",
+                "semantic_review_completed",
+            ),
+        },
+    },
+    "context-bundle/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-built-at.json": ("RecordValidationError", "built_at"),
+            "bad-mode.json": ("RecordValidationError", "mode"),
+            "minimum-safe-false.json": (
+                "RecordValidationError",
+                "minimum_safe_preserved",
+            ),
+            "publication-authorized.json": (
+                "RecordValidationError",
+                "publication_authorized",
+            ),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
 MINIMAL_FIXTURE_SHA256 = {
+    "artifact-closure-receipt/v1": (
+        "31023abcf8518679d1b9b2d933dfd374341ffe0af4da419693c84db09a2aea88"
+    ),
+    "candidate-manifest/v1": (
+        "4a251d80b2aec6cd9c4656896136f7801cfa86cf291659ff6254739a25889b7e"
+    ),
     "comparison-report/v1": (
         "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
     ),
@@ -404,6 +449,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "suite/v1": (
         "72e17ae19ab298e6c04f6886b8dcf2c1c6ea48306d4d35672c6fc853c7fe301b"
     ),
+    "context-bundle/v1": (
+        "912f081adada126661f0c0cd4baacc8ad5faf5cf308636aa7efa8b5d3a3e4f8e"
+    ),
 }
 
 # Golden pins (ADR-0004 decision 7): SHA-256 of each schema file's raw
@@ -411,6 +459,12 @@ MINIMAL_FIXTURE_SHA256 = {
 # (``*.json text eol=lf``); any byte-level edit of a frozen schema — even
 # pure reformatting — fails this pin.
 SCHEMA_TEXT_SHA256 = {
+    "artifact-closure-receipt-v1.schema.json": (
+        "42a96a1118c57451de8a40031d545a012be64704fa66de3d7d8cc91ba217c5c9"
+    ),
+    "candidate-manifest-v1.schema.json": (
+        "916a17a143bf2db627eecabab4679549bc4fcb04eb478a0af1acad6a2d426ceb"
+    ),
     "comparison-report-v1.schema.json": (
         "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
     ),
@@ -461,6 +515,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "suite-v1.schema.json": (
         "217368272ab7c555b4961d1681eb1047ff5ca070248f3559499c2b4ccacf938a"
+    ),
+    "context-bundle-v1.schema.json": (
+        "aa1f4039c2359d8e92ac80cfa3916d21c7b2359ad36eda7755a930c99b4a83d7"
     ),
 }
 
@@ -547,12 +604,15 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_seventeen_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
+                "artifact-closure-receipt/v1",
+                "candidate-manifest/v1",
                 "comparison-report/v1",
+                "context-bundle/v1",
                 "evaluation-case/v1",
                 "evaluation-run/v1",
                 "export-decision/v1",

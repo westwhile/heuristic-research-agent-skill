@@ -7,7 +7,6 @@ import tomllib
 import unittest
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -24,8 +23,8 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(report["counts"]["unknown"], 0)
         self.assertEqual(report["counts"]["third_party_reused"], 2)
-        self.assertEqual(report["counts"]["independently_authored"], 845)
-        self.assertEqual(report["counts"]["total"], 978)
+        self.assertEqual(report["counts"]["independently_authored"], 874)
+        self.assertEqual(report["counts"]["total"], 1007)
 
     def test_apache_license_metadata_and_rights_confirmation(self) -> None:
         manifest = json.loads(

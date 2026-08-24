@@ -1,0 +1,20 @@
+{
+  "schema": "context-bundle/v1",
+  "context_bundle_id": "context-fedcba9876543210",
+  "candidate": {"candidate_id": "candidate-full", "sha256": "6666666666666666666666666666666666666666666666666666666666666666"},
+  "built_at": "2026-08-24T00:00:02Z",
+  "mode": "compact",
+  "max_bytes": 16384,
+  "objective": "Exercise every bounded context field.",
+  "authoritative_head": {"record_id": "head-a", "sha256": "4444444444444444444444444444444444444444444444444444444444444444"},
+  "unresolved_obligations": ["Obtain independent semantic review."],
+  "invalidated_sources": [{"source_id": "case-source-b", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd", "status": "corrected", "rationale": "A correction must remain visible."}],
+  "included_materials": [
+    {"name": "compact-detail", "content_sha256": "7777777777777777777777777777777777777777777777777777777777777777", "content": "Compact detail.", "retention": "compact"},
+    {"name": "safe-summary", "content_sha256": "5555555555555555555555555555555555555555555555555555555555555555", "content": "Bounded summary.", "retention": "minimal_safe"}
+  ],
+  "omissions": [{"name": "normal-detail", "content_sha256": "8888888888888888888888888888888888888888888888888888888888888888", "retention": "normal_only", "reason": "excluded_by_mode"}],
+  "minimum_safe_preserved": true,
+  "claims": {"installation_authorized": false, "activation_authorized": false, "publication_authorized": false, "semantic_review_completed": false},
+  "limitations": ["Byte closure does not establish semantic review.", "Context transfer does not authorize execution.", "Source lifecycle declarations require independent verification."]
+}

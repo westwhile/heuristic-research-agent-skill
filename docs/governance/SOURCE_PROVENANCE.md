@@ -28,6 +28,10 @@ Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance
 files merged by PR #32, under Apache-2.0. This confirmation does not extend to
 excluded external payloads and does not waive obligations that accompany any
 third-party material added later.
+The same repository-native rule covers the twenty-nine Phase 7 P7A
+candidate/closure/context schema, source, test, fixture, and ADR files prepared
+under maintainer direction; no external payload or third-party expression is
+added by P7A.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -36,16 +40,16 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 6 R6A mainline inventory at merge commit
-`c99a5c59572d24f8c6980bb8496719e0f38485a0` contains 978 files. Its tree
-`8e3e1be5231ed99932d3ae04bec8af80430379f6` equals the exact PR #32 head tree
-that passed the dual-interpreter archive suite, clean-install/demo, local CUDA
-compatibility, and PR/main CI gates. R6A received and accepted zero external
-submissions; synthetic fixtures are not external-source or adoption evidence:
+The Phase 7 P7A implementation proposal contains 1007 files. Its final merge
+commit/tree and exact Gate evidence must be pinned by the required five-file
+status synchronization after the implementation PR merges. R6B remains frozen
+at `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
+external-source, semantic-review, adoption, installation, or publication
+evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 845 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 874 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
