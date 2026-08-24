@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase6-r3-same-host-reproducibility-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_and_reproducibility_engineering",
+  "phase": "phase6-r4-controlled-interruption-recovery-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_and_controlled_interruption_engineering",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -37,6 +37,11 @@
     {
       "name": "pytorch-same-host-reproducibility-runner",
       "version": "0.1.0 / dl-same-host-reproducibility-report/v1",
+      "status": "implemented_mainline_optional_runtime"
+    },
+    {
+      "name": "pytorch-gpu-controlled-interruption-recovery-runner",
+      "version": "0.1.0 / dl-controlled-interruption-recovery-observation/v1",
       "status": "implemented_mainline_optional_runtime"
     }
   ],
@@ -274,6 +279,86 @@
         ]
       },
       "scope": "Three preregistered bounded synthetic seeds, each repeated in two fresh processes on one real PyTorch/CUDA host, driver, and primary GPU; not real-data, scientific, predictive, production, adoption, or cross-driver/GPU/host evidence"
+    },
+    "last_commit_bound_phase6_r4_evidence": {
+      "pr_head_commit": "f710f8038c9b750c761af91ab8471f9164f238dd",
+      "main_merge_commit": "b2240e8fde7d88372df6b4562d9dcf24285deab6",
+      "shared_tree": "22326b9469c1b3b9cf15ace16cf5a413f68ca256",
+      "archive_sha256": "e8a87bc5c40cdd810d6a9c21268d443ea485ad7fd64554ff78f4305970e8944b",
+      "archive_suite": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "tests": 1010,
+          "result": "success",
+          "expected_skips": 5
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "tests": 1010,
+          "result": "success",
+          "expected_skips": 5
+        }
+      ],
+      "cuda_controlled_interruption_recovery": {
+        "fresh_processes": 3,
+        "roles": [
+          "interruptible_source",
+          "resume",
+          "uninterrupted_control"
+        ],
+        "interruption_kind": "parent_requested_owned_child_termination",
+        "checkpoint_confirmed_before_request": true,
+        "spawn_identity_verified": true,
+        "temporary_payload_verified": true,
+        "atomic_replacement_completed": true,
+        "authoritative_payload_verified": true,
+        "stable_gate_sha256": "4e7c334587b8021e3649b68d172739f369d503bac4bcac1924bb0f195bad4b9f",
+        "observation_sha256": "589c29c93d8729fa5b12ffba1cca3da90202fecbcd432bf8c1b957487d3c272e",
+        "framework": "pytorch-2.12.1+cu130",
+        "backend": "cuda-13.0",
+        "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "compute_capability": "8.9",
+        "checkpoint_bytes": 4655,
+        "cumulative_steps": 4,
+        "model_state_exact": true,
+        "optimizer_state_exact": true,
+        "scheduler_state_exact": true,
+        "final_loss_exact": true,
+        "double_charged": false,
+        "scheduler_preemption_observed": false,
+        "store": "caller_managed_temporary_directory"
+      },
+      "main_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32693240036",
+        "head_sha": "b2240e8fde7d88372df6b4562d9dcf24285deab6",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "scope": "One bounded synthetic fixture on one real PyTorch/CUDA host and primary GPU. The parent requested termination only after atomic checkpoint and exact child-identity confirmation; this is not involuntary scheduler preemption, real-data, scientific, predictive, production, adoption, or cross-driver/GPU/host evidence"
     }
   },
   "execution_matrix": [
@@ -290,7 +375,7 @@
       "accelerator": "cuda_primary_device",
       "framework": "caller_managed_lazy_import",
       "data": "bounded_synthetic_fixture",
-      "status": "verified_single_host_observation_checkpoint_recovery_and_same_host_reproducibility_engineering",
+      "status": "verified_single_host_observation_checkpoint_recovery_same_host_reproducibility_and_controlled_interruption_engineering",
       "hardware_observation": "framework_version_cuda_backend_driver_device_model_count_memory_compute_capability"
     },
     {
@@ -329,14 +414,16 @@
       "R2 restored model, optimizer, and StepLR state exactly across fresh source/resume processes against a fresh uninterrupted control without double-charging cumulative steps",
       "R2 checkpoint bytes stayed in a caller-managed temporary directory and only a path-free locator/hash receipt entered the observation",
       "R3 executed exactly three preregistered seeds twice each in fresh processes and retained failed-seed semantics even though all three recorded seeds reproduced",
-      "R3 observed driver 610.88 and exact repeat matches on one recorded host, one driver, and one primary CUDA device; timing and peak memory were observed but excluded from exact matching"
+      "R3 observed driver 610.88 and exact repeat matches on one recorded host, one driver, and one primary CUDA device; timing and peak memory were observed but excluded from exact matching",
+      "R4 verified temporary checkpoint payload integrity, atomic replacement, authoritative payload integrity, and a nonce/parent-PID/spawned-child-PID commit signal before requesting termination",
+      "R4 terminated only the exact owned Popen child, then matched fresh resume against a fresh uninterrupted control for model, optimizer, StepLR, final loss, and cumulative steps without double charging"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
       "cross-driver, cross-host, ROCm, MPS, compiler, or cross-kernel reproducibility",
       "framework version interoperability",
       "distributed or mixed-precision training",
-      "real scheduler preemption and process restart",
+      "involuntary scheduler preemption and scheduler-managed process restart",
       "external checkpoint-store durability or authorization",
       "wall-clock, monetary cost, energy, or production reliability"
     ]
@@ -346,8 +433,8 @@
     "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
     "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
     "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
-    "Passed R1-R3 CUDA gates prove only bounded synthetic engineering behavior on the recorded single host, driver, and primary device.",
-    "Exact local checkpoint recovery does not prove an external store, scheduler preemption, distributed recovery, or production durability.",
+    "Passed R1-R4 CUDA gates prove only bounded synthetic engineering behavior on the recorded single host, driver observations where recorded, and primary device.",
+    "Exact local checkpoint recovery and parent-requested termination do not prove an external store, involuntary scheduler preemption, distributed recovery, or production durability.",
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
