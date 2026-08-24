@@ -19,7 +19,7 @@ key, and only when the caller passes a :class:`Taxonomy` to validate
 against.
 """
 
-import re
+import unicodedata
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
@@ -36,7 +36,18 @@ TIERS = (
     "singleton",
 )
 
-_TOKEN = re.compile(r"[a-z0-9]+")
+_CJK_RANGES = (
+    (0x3400, 0x4DBF),  # CJK Unified Ideographs Extension A
+    (0x4E00, 0x9FFF),  # CJK Unified Ideographs
+    (0xF900, 0xFAFF),  # CJK Compatibility Ideographs
+    (0x20000, 0x2FA1F),  # Supplementary CJK ideographs
+    (0x3040, 0x309F),  # Hiragana
+    (0x30A0, 0x30FF),  # Katakana
+    (0x31F0, 0x31FF),  # Katakana phonetic extensions
+    (0x1100, 0x11FF),  # Hangul Jamo
+    (0x3130, 0x318F),  # Hangul compatibility Jamo
+    (0xAC00, 0xD7AF),  # Hangul syllables
+)
 
 
 @dataclass(frozen=True)
@@ -81,13 +92,61 @@ def _make_cluster(tier: str, members: list[dict[str, Any]], rationale: str) -> C
     )
 
 
+def _is_cjk(char: str) -> bool:
+    codepoint = ord(char)
+    return any(start <= codepoint <= end for start, end in _CJK_RANGES)
+
+
+def _is_term_char(char: str) -> bool:
+    return unicodedata.category(char)[0] in {"L", "M", "N"} or char == "_"
+
+
 def _token_set(text: str) -> frozenset[str]:
-    return frozenset(_TOKEN.findall(text.lower()))
+    """Tokenize Unicode terms and CJK 2--4 character n-grams.
+
+    NFKC plus case folding makes compatibility forms deterministic. Latin
+    and other non-CJK letters/numbers remain whole terms; underscores,
+    ticker dots, and a leading currency marker remain attached. CJK runs
+    use tagged 2--4 character n-grams so word-boundary-free text can match
+    without treating every all-CJK input as an empty set.
+    """
+
+    normalized = unicodedata.normalize("NFKC", text).casefold()
+    tokens: set[str] = set()
+    term: list[str] = []
+
+    def flush_term() -> None:
+        value = "".join(term).strip(".")
+        if value.strip("$"):
+            tokens.add(value)
+        term.clear()
+
+    index = 0
+    while index < len(normalized):
+        char = normalized[index]
+        if _is_cjk(char):
+            flush_term()
+            end = index + 1
+            while end < len(normalized) and _is_cjk(normalized[end]):
+                end += 1
+            run = normalized[index:end]
+            for width in range(2, min(4, len(run)) + 1):
+                for offset in range(len(run) - width + 1):
+                    tokens.add(f"cjk{width}:{run[offset:offset + width]}")
+            index = end
+            continue
+        if _is_term_char(char) or char in ".$":
+            term.append(char)
+        else:
+            flush_term()
+        index += 1
+    flush_term()
+    return frozenset(tokens)
 
 
 def _jaccard(left: frozenset[str], right: frozenset[str]) -> float:
-    if not left and not right:
-        return 1.0
+    if not left or not right:
+        return 0.0
     union = left | right
     if not union:
         return 0.0

@@ -160,6 +160,58 @@ class ClusterTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             cluster_cases([left], semantic_threshold=True)
 
+    def test_unrelated_cjk_and_tokenless_text_stay_singletons(self) -> None:
+        pairs = (
+            ("量化金融中的因子回测", "深度学习图像分类完全无关"),
+            ("🧪🧪", "🚀🚀"),
+        )
+        for index, (left_summary, right_summary) in enumerate(pairs):
+            with self.subTest(pair=index):
+                left = _make_case(
+                    f"case-{index}-a",
+                    sig=f"{index}-a".encode(),
+                    summary=left_summary,
+                )
+                right = _make_case(
+                    f"case-{index}-b",
+                    sig=f"{index}-b".encode(),
+                    summary=right_summary,
+                )
+                clusters = cluster_cases([left, right])
+                self.assertEqual(
+                    [cluster.tier for cluster in clusters],
+                    ["singleton", "singleton"],
+                )
+
+    def test_unicode_semantic_proposals_preserve_domain_tokens(self) -> None:
+        related_pairs = (
+            ("量化金融因子回测校验", "量化金融因子回测验证"),
+            ("時系列モデルを検証する", "時系列モデルを再検証する"),
+            ("$AAPL 量化金融因子回测校验", "$AAPL 量化金融因子回测验证"),
+            ("检验 x^2+y^2 模型残差", "验证 x^2+y^2 模型残差"),
+            (
+                "000001.SZ 量化因子暴露风险检查",
+                "000001.SZ 量化因子暴露风险验证",
+            ),
+        )
+        for index, (left_summary, right_summary) in enumerate(related_pairs):
+            with self.subTest(pair=index):
+                left = _make_case(
+                    f"case-u-{index}-a",
+                    sig=f"u-{index}-a".encode(),
+                    summary=left_summary,
+                )
+                right = _make_case(
+                    f"case-u-{index}-b",
+                    sig=f"u-{index}-b".encode(),
+                    summary=right_summary,
+                )
+                clusters = cluster_cases(
+                    [left, right], semantic_threshold=0.4
+                )
+                self.assertEqual(len(clusters), 1)
+                self.assertEqual(clusters[0].tier, "semantic_proposal")
+
     def test_duplicate_case_id_refused(self) -> None:
         case = _make_case("case-a")
         with self.assertRaisesRegex(ValueError, "duplicate case_id"):
