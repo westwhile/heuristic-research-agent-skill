@@ -28,10 +28,11 @@ Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance
 files merged by PR #32, under Apache-2.0. This confirmation does not extend to
 excluded external payloads and does not waive obligations that accompany any
 third-party material added later.
+
 The same repository-native rule covers the twenty-nine Phase 7 P7A
 candidate/closure/context schema, source, test, fixture, and ADR files prepared
-under maintainer direction; no external payload or third-party expression is
-added by P7A.
+under maintainer direction and merged by PR #34; no external payload or
+third-party expression is added by P7A.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -40,10 +41,12 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 7 P7A implementation proposal contains 1007 files. Its final merge
-commit/tree and exact Gate evidence must be pinned by the required five-file
-status synchronization after the implementation PR merges. R6B remains frozen
-at `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
+The Phase 7 P7A mainline inventory at merge commit
+`9305d17c8abaf857774a4fdcd736312f4553bce0` contains 1007 files. Its tree
+`7254d74546cb6134abaaf0dc5865f2c4f53ee84c` equals the exact PR #34 head tree
+that passed the dual-interpreter archive suite, clean-install/demo, local CUDA
+compatibility, and PR/main CI gates. R6B remains frozen at
+`TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
 external-source, semantic-review, adoption, installation, or publication
 evidence:
 
