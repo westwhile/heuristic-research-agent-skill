@@ -1,0 +1,502 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-controlled-interruption-recovery-observation/v1",
+  "title": "Deep-learning controlled child-process interruption recovery observation v1",
+  "description": "Hash-bound observation of a bounded PyTorch CUDA source child terminated by its parent only after atomic checkpoint confirmation, followed by fresh-process recovery and an uninterrupted control. This is controlled single-host synthetic engineering evidence, not scheduler preemption, real-data, production, or adoption evidence.",
+  "type": "object",
+  "required": [
+    "schema",
+    "observation_id",
+    "manifest_sha256",
+    "run_id",
+    "study_id",
+    "case_sha256",
+    "observed_at",
+    "evidence_scope",
+    "status",
+    "runner",
+    "fixture",
+    "execution",
+    "processes",
+    "interruption",
+    "checkpoint",
+    "equivalence",
+    "budget_ledger",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "dl-controlled-interruption-recovery-observation/v1"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "study_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case_sha256": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "observed_at": {
+      "type": "string",
+      "x-rfc3339-datetime": true
+    },
+    "evidence_scope": {
+      "const": "real_framework_hardware_controlled_child_process_interruption_recovery_engineering"
+    },
+    "status": {
+      "const": "completed"
+    },
+    "runner": {
+      "type": "object",
+      "required": [
+        "name",
+        "version",
+        "source_sha256",
+        "checkpoint_implementation"
+      ],
+      "properties": {
+        "name": {
+          "const": "pytorch-gpu-controlled-interruption-recovery-runner"
+        },
+        "version": {
+          "const": "0.1.0"
+        },
+        "source_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "checkpoint_implementation": {
+          "type": "object",
+          "required": [
+            "name",
+            "version",
+            "source_sha256"
+          ],
+          "properties": {
+            "name": {
+              "const": "pytorch-gpu-checkpoint-recovery-runner"
+            },
+            "version": {
+              "const": "0.1.0"
+            },
+            "source_sha256": {
+              "type": "string",
+              "minLength": 64,
+              "maxLength": 64,
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "fixture": {
+      "type": "object",
+      "required": [
+        "fixture_sha256",
+        "seed",
+        "samples",
+        "requested_steps",
+        "checkpoint_step"
+      ],
+      "properties": {
+        "fixture_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "samples": {
+          "type": "integer"
+        },
+        "requested_steps": {
+          "type": "integer"
+        },
+        "checkpoint_step": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "mode",
+        "os",
+        "architecture",
+        "python_version",
+        "framework",
+        "hardware"
+      ],
+      "properties": {
+        "mode": {
+          "const": "gpu_fixture"
+        },
+        "os": {
+          "enum": [
+            "windows",
+            "linux"
+          ]
+        },
+        "architecture": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "python_version": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?([+.-][0-9A-Za-z.-]+)?$"
+        },
+        "framework": {
+          "type": "object",
+          "required": [
+            "name",
+            "version",
+            "backend",
+            "backend_version",
+            "determinism"
+          ],
+          "properties": {
+            "name": {
+              "const": "pytorch"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "backend": {
+              "const": "cuda"
+            },
+            "backend_version": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^\\S+$"
+            },
+            "determinism": {
+              "const": "strict"
+            }
+          },
+          "additionalProperties": false
+        },
+        "hardware": {
+          "type": "object",
+          "required": [
+            "device_model",
+            "device_count",
+            "memory_bytes_per_device",
+            "compute_capability"
+          ],
+          "properties": {
+            "device_model": {
+              "type": "string",
+              "minLength": 1
+            },
+            "device_count": {
+              "type": "integer"
+            },
+            "memory_bytes_per_device": {
+              "type": "integer"
+            },
+            "compute_capability": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[0-9]+\\.[0-9]+$"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "processes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "role",
+          "completed_steps",
+          "duration_seconds",
+          "peak_memory_bytes"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "interruptible_source",
+              "resume",
+              "uninterrupted_control"
+            ]
+          },
+          "completed_steps": {
+            "type": "integer"
+          },
+          "duration_seconds": {
+            "type": "number"
+          },
+          "peak_memory_bytes": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "interruption": {
+      "type": "object",
+      "required": [
+        "kind",
+        "checkpoint_confirmed_before_request",
+        "spawn_identity_verified",
+        "termination_method",
+        "source_exit_observed",
+        "source_returncode_nonzero"
+      ],
+      "properties": {
+        "kind": {
+          "const": "parent_requested_owned_child_termination"
+        },
+        "checkpoint_confirmed_before_request": {
+          "const": true
+        },
+        "spawn_identity_verified": {
+          "const": true
+        },
+        "termination_method": {
+          "const": "popen_terminate"
+        },
+        "source_exit_observed": {
+          "const": true
+        },
+        "source_returncode_nonzero": {
+          "const": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": [
+        "locator",
+        "content_sha256",
+        "size_bytes",
+        "model_state_sha256",
+        "optimizer_state_sha256",
+        "scheduler_state_sha256",
+        "completed_steps",
+        "store_kind",
+        "repository_persisted",
+        "lifecycle"
+      ],
+      "properties": {
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^artifact://[^\\s]+$"
+        },
+        "content_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer"
+        },
+        "model_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "optimizer_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scheduler_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "completed_steps": {
+          "type": "integer"
+        },
+        "store_kind": {
+          "const": "caller_managed_local_directory"
+        },
+        "repository_persisted": {
+          "const": false
+        },
+        "lifecycle": {
+          "type": "object",
+          "required": [
+            "temporary_payload_verified",
+            "atomic_replacement_completed",
+            "authoritative_payload_verified"
+          ],
+          "properties": {
+            "temporary_payload_verified": {
+              "const": true
+            },
+            "atomic_replacement_completed": {
+              "const": true
+            },
+            "authoritative_payload_verified": {
+              "const": true
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "equivalence": {
+      "type": "object",
+      "required": [
+        "resumed_model_state_sha256",
+        "control_model_state_sha256",
+        "model_state_exact",
+        "resumed_optimizer_state_sha256",
+        "control_optimizer_state_sha256",
+        "optimizer_state_exact",
+        "resumed_scheduler_state_sha256",
+        "control_scheduler_state_sha256",
+        "scheduler_state_exact",
+        "resumed_final_loss",
+        "control_final_loss",
+        "loss_absolute_delta"
+      ],
+      "properties": {
+        "resumed_model_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "control_model_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "model_state_exact": {
+          "const": true
+        },
+        "resumed_optimizer_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "control_optimizer_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "optimizer_state_exact": {
+          "const": true
+        },
+        "resumed_scheduler_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "control_scheduler_state_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "scheduler_state_exact": {
+          "const": true
+        },
+        "resumed_final_loss": {
+          "type": "number"
+        },
+        "control_final_loss": {
+          "type": "number"
+        },
+        "loss_absolute_delta": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "budget_ledger": {
+      "type": "object",
+      "required": [
+        "declared_steps",
+        "source_steps",
+        "resume_segment_steps",
+        "resumed_cumulative_steps",
+        "control_steps",
+        "accounting",
+        "double_charged"
+      ],
+      "properties": {
+        "declared_steps": {
+          "type": "integer"
+        },
+        "source_steps": {
+          "type": "integer"
+        },
+        "resume_segment_steps": {
+          "type": "integer"
+        },
+        "resumed_cumulative_steps": {
+          "type": "integer"
+        },
+        "control_steps": {
+          "type": "integer"
+        },
+        "accounting": {
+          "const": "exact"
+        },
+        "double_charged": {
+          "const": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": false
+}
