@@ -1,0 +1,18 @@
+{
+  "schema": "artifact-closure-receipt/v1",
+  "closure_receipt_id": "closure-fedcba9876543210",
+  "candidate": {"candidate_id": "candidate-full", "sha256": "6666666666666666666666666666666666666666666666666666666666666666"},
+  "closed_at": "2026-08-24T00:00:01Z",
+  "closure_root_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+  "members": [
+    {"name": "members/baseline.bin", "role": "baseline", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "size_bytes": 1, "depends_on": []},
+    {"name": "members/patch.bin", "role": "patch", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "size_bytes": 1, "depends_on": ["members/baseline.bin"]},
+    {"name": "members/tests.json", "role": "tests", "sha256": "3333333333333333333333333333333333333333333333333333333333333333", "size_bytes": 2, "depends_on": ["members/patch.bin"]},
+    {"name": "members/source-snapshot.json", "role": "source_snapshot", "sha256": "6666666666666666666666666666666666666666666666666666666666666666", "size_bytes": 2, "depends_on": []}
+  ],
+  "topological_order": ["members/baseline.bin", "members/patch.bin", "members/source-snapshot.json", "members/tests.json"],
+  "exclusions": [{"name": "private/input.bin", "reason": "Private input is outside the candidate closure."}],
+  "receipt_last": true,
+  "byte_closed": true,
+  "semantic_review_completed": false
+}

@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate-manifest/v1",
+  "title": "Candidate Manifest v1",
+  "description": "An immutable, domain-neutral declaration of one staged artifact candidate. It binds its baseline, change, source records, evaluation envelope, byte members, review principals, risks, rollback, and context-retention inputs without authorizing installation, activation, publication, or semantic acceptance.",
+  "type": "object",
+  "required": [
+    "schema",
+    "candidate_id",
+    "status",
+    "objective",
+    "principals",
+    "baseline_sha256",
+    "patch_sha256",
+    "source_cases",
+    "source_patterns",
+    "evaluation_envelope",
+    "members",
+    "exclusions",
+    "risks",
+    "rollback",
+    "context",
+    "claims",
+    "created_at"
+  ],
+  "properties": {
+    "schema": {"const": "candidate-manifest/v1"},
+    "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "status": {"const": "staged_candidate"},
+    "objective": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "principals": {
+      "type": "object",
+      "required": ["author", "reviewer"],
+      "properties": {
+        "author": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+        "reviewer": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "baseline_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "patch_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "source_cases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "source_patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["pattern_id", "sha256"],
+        "properties": {
+          "pattern_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "evaluation_envelope": {
+      "type": "object",
+      "required": ["model", "reasoning", "tools_sha256", "budget_sha256", "data_sha256", "evaluator_sha256"],
+      "properties": {
+        "model": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"},
+        "reasoning": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"},
+        "tools_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "budget_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "data_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "evaluator_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "members": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "sha256", "size_bytes", "depends_on"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "role": {"type": "string", "enum": ["baseline", "patch", "tests", "source_snapshot", "evidence", "other"]},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer"},
+          "depends_on": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "reason"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "reason": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "risks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+    },
+    "rollback": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "context": {
+      "type": "object",
+      "required": ["authoritative_head", "unresolved_obligations", "source_lifecycle", "materials"],
+      "properties": {
+        "authoritative_head": {
+          "type": "object",
+          "required": ["record_id", "sha256"],
+          "properties": {
+            "record_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+            "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+          },
+          "additionalProperties": false
+        },
+        "unresolved_obligations": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "source_lifecycle": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["source_id", "sha256", "status", "rationale"],
+            "properties": {
+              "source_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "status": {"type": "string", "enum": ["current", "corrected", "retracted", "license_blocked"]},
+              "rationale": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "materials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "content_sha256", "content", "retention"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+              "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "content": {"type": "string", "maxLength": 32768},
+              "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["installation_authorized", "activation_authorized", "publication_authorized", "semantic_review_completed"],
+      "properties": {
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "publication_authorized": {"const": false},
+        "semantic_review_completed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "created_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true}
+  },
+  "additionalProperties": false
+}

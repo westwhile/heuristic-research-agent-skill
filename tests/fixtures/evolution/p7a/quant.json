@@ -1,0 +1,9 @@
+{
+  "fixture_id": "p7a-quant",
+  "objective": "Check a bounded time-alignment research candidate.",
+  "case_ids": ["case-quant-a", "case-quant-b"],
+  "pattern_id": "pattern-quant",
+  "safe_summary": "Re-check information availability before accepting any timestamp alignment.",
+  "compact_detail": "Preserve the declared observation and execution ordering.",
+  "normal_detail": "The fixture is synthetic engineering data and proves no market performance."
+}

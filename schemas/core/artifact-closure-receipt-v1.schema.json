@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artifact-closure-receipt/v1",
+  "title": "Artifact Closure Receipt v1",
+  "description": "A receipt generated only after every declared member byte has been verified against an immutable candidate manifest. It proves byte closure and dependency ordering, not semantic quality, review completion, installation, activation, or publication authorization.",
+  "type": "object",
+  "required": ["schema", "closure_receipt_id", "candidate", "closed_at", "closure_root_sha256", "members", "topological_order", "exclusions", "receipt_last", "byte_closed", "semantic_review_completed"],
+  "properties": {
+    "schema": {"const": "artifact-closure-receipt/v1"},
+    "closure_receipt_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^closure-[0-9a-f]{16}$"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "closed_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+    "closure_root_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "members": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "sha256", "size_bytes", "depends_on"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "role": {"type": "string", "enum": ["baseline", "patch", "tests", "source_snapshot", "evidence", "other"]},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer"},
+          "depends_on": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "topological_order": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true}
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "reason"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "reason": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "receipt_last": {"const": true},
+    "byte_closed": {"const": true},
+    "semantic_review_completed": {"const": false}
+  },
+  "additionalProperties": false
+}

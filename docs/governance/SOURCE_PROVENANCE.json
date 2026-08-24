@@ -3,7 +3,7 @@
   "status": "active",
   "reviewed_at": "2026-08-24",
   "baseline_commit": "b9a3b8268575fe32399b83295595710944c6a772",
-  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21, eleven Phase 6 R1 observation schema/source/test/fixture files merged to main by PR #23, eleven Phase 6 R2 checkpoint-recovery schema/source/script/test/fixture files merged to main by PR #25, eleven Phase 6 R3 same-host-reproducibility schema/source/script/test/fixture files merged to main by PR #26, eleven Phase 6 R4 controlled-interruption schema/source/script/test/fixture files merged to main by PR #28, twenty-three Phase 6 R5 portability-receipt/report schema/source/script/test/fixture files merged to main by PR #30, and thirty-eight Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance files merged to main by PR #32; modified paths remain covered by existing first-match rules.",
+  "inventory_scope": "All 844 files tracked at baseline_commit plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21, eleven Phase 6 R1 observation schema/source/test/fixture files merged to main by PR #23, eleven Phase 6 R2 checkpoint-recovery schema/source/script/test/fixture files merged to main by PR #25, eleven Phase 6 R3 same-host-reproducibility schema/source/script/test/fixture files merged to main by PR #26, eleven Phase 6 R4 controlled-interruption schema/source/script/test/fixture files merged to main by PR #28, twenty-three Phase 6 R5 portability-receipt/report schema/source/script/test/fixture files merged to main by PR #30, thirty-eight Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance files merged to main by PR #32, and twenty-nine repository-native Phase 7 P7A schema/source/test/fixture/ADR files in the implementation proposal; modified paths remain covered by existing first-match rules.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 845,
+      "independently_authored": 874,
       "generated": 118,
       "design_inspired": 13,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 978
+      "total": 1007
     },
     "rules": [
       {

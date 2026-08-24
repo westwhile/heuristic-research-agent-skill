@@ -1,0 +1,9 @@
+{
+  "fixture_id": "p7a-math",
+  "objective": "Check a bounded symbolic derivation candidate.",
+  "case_ids": ["case-math-a", "case-math-b"],
+  "pattern_id": "pattern-math",
+  "safe_summary": "Re-check every declared assumption before accepting the derivation.",
+  "compact_detail": "Preserve the dependency order between assumptions and conclusion.",
+  "normal_detail": "The fixture is synthetic engineering data and proves no mathematical result."
+}

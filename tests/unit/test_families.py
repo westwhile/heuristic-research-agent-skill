@@ -15,12 +15,13 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2: all seventeen schema
-        # families are registered and publishable — the seven research
+        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A: all twenty
+        # schema families are registered and publishable — the seven research
         # families, the two export families (ADR-0004), the four evaluation
         # record families (ADR-0006), and the four research memory families
         # (ADR-0007: the case package successor v2 alongside the frozen v1,
-        # research-pattern/v1, heuristic/v1, reuse-event/v1). A family whose
+        # research-pattern/v1, heuristic/v1, reuse-event/v1), plus the three
+        # candidate-closure/context records from ADR-0010. A family whose
         # schema lands before its graph semantics (none today) must stay
         # absent here until then.
         self.assertEqual(
@@ -43,6 +44,9 @@ class FamilyRegistryTest(unittest.TestCase):
                 "research-pattern/v1",
                 "heuristic/v1",
                 "reuse-event/v1",
+                "candidate-manifest/v1",
+                "artifact-closure-receipt/v1",
+                "context-bundle/v1",
             },
         )
 
@@ -125,6 +129,10 @@ class FamilyRegistryTest(unittest.TestCase):
             ("heuristic/v1", "regression_cases"),
             ("reuse-event/v1", "run"),
             ("reuse-event/v1", "pattern"),
+            ("candidate-manifest/v1", "source_cases"),
+            ("candidate-manifest/v1", "source_patterns"),
+            ("artifact-closure-receipt/v1", "candidate"),
+            ("context-bundle/v1", "candidate"),
         }
         for family, field in pinned:
             ref = next(

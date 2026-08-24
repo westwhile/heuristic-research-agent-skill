@@ -28,6 +28,12 @@ precedent); reuse-event/v1 is a fact-axis record with two pinned
 references. Every reference they declare is served by the generic graph
 machinery; no new composite validator and no new violation kind was
 introduced with them.
+The three Phase 7 P7A incubation families join additively: candidate
+manifests pin their source cases and patterns, while closure receipts and
+context bundles each pin one candidate manifest. Their byte-closure,
+principal-separation, lifecycle, and budget semantics remain inside the
+pure in-process evolution module; the graph continues to serve exact
+identity and hash-pin integrity.
 """
 
 from __future__ import annotations
@@ -51,6 +57,9 @@ CASE_V2 = "research-case-package/v2"
 PATTERN = "research-pattern/v1"
 HEURISTIC = "heuristic/v1"
 REUSE_EVENT = "reuse-event/v1"
+CANDIDATE_MANIFEST = "candidate-manifest/v1"
+ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
+CONTEXT_BUNDLE = "context-bundle/v1"
 
 
 @dataclass(frozen=True)
@@ -441,6 +450,58 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=PATTERN,
                     target_id_field="pattern_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Phase 7 P7A incubation records (ADR-0010): additive pinned
+        # references only. Candidate-specific semantic closure lives in the
+        # evolution module and does not extend the generic graph rules.
+        FamilyContract(
+            schema_id=CANDIDATE_MANIFEST,
+            identity_field="candidate_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="source_cases",
+                    shape="array_of_objects",
+                    target_family=CASE_V2,
+                    target_id_field="case_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="source_patterns",
+                    shape="array_of_objects",
+                    target_family=PATTERN,
+                    target_id_field="pattern_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=ARTIFACT_CLOSURE_RECEIPT,
+            identity_field="closure_receipt_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=CONTEXT_BUNDLE,
+            identity_field="context_bundle_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
                     pin_required=True,
                 ),
             ),

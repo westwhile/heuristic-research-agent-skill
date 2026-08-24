@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context-bundle/v1",
+  "title": "Context Bundle v1",
+  "description": "A deterministic, budget-checked context transfer derived from an immutable candidate manifest. Objective, authoritative head, unresolved obligations, and invalidated-source declarations are never omitted. The bundle is not an execution or publication authorization.",
+  "type": "object",
+  "required": ["schema", "context_bundle_id", "candidate", "built_at", "mode", "max_bytes", "objective", "authoritative_head", "unresolved_obligations", "invalidated_sources", "included_materials", "omissions", "minimum_safe_preserved", "claims", "limitations"],
+  "properties": {
+    "schema": {"const": "context-bundle/v1"},
+    "context_bundle_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^context-[0-9a-f]{16}$"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "built_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+    "mode": {"type": "string", "enum": ["normal", "compact", "minimal_safe"]},
+    "max_bytes": {"type": "integer"},
+    "objective": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "authoritative_head": {
+      "type": "object",
+      "required": ["record_id", "sha256"],
+      "properties": {
+        "record_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "unresolved_obligations": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+    },
+    "invalidated_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "sha256", "status", "rationale"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "status": {"type": "string", "enum": ["corrected", "retracted", "license_blocked"]},
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "included_materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "content_sha256", "content", "retention"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "content": {"type": "string", "maxLength": 32768},
+          "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "omissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "content_sha256", "retention", "reason"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]},
+          "reason": {"const": "excluded_by_mode"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "minimum_safe_preserved": {"const": true},
+    "claims": {
+      "type": "object",
+      "required": ["installation_authorized", "activation_authorized", "publication_authorized", "semantic_review_completed"],
+      "properties": {
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "publication_authorized": {"const": false},
+        "semantic_review_completed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}
