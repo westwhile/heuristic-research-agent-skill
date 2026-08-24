@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-external-trial-attestation/v1",
+  "title": "Deep-learning external trial participant attestation v1",
+  "description": "Pseudonymous participant attestation input for R6A. Raw identity, consent, host details, and the random nonces used to harden their hashes remain outside the repository.",
+  "type": "object",
+  "required": [
+    "schema",
+    "protocol_sha256",
+    "submitted_at",
+    "public_participant_id",
+    "private_identity_record_sha256",
+    "private_consent_record_sha256",
+    "declarations",
+    "consent"
+  ],
+  "properties": {
+    "schema": {"const": "dl-external-trial-attestation/v1"},
+    "protocol_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "submitted_at": {"type": "string", "x-rfc3339-datetime": true},
+    "public_participant_id": {"type": "string", "pattern": "^participant-[0-9a-f]{16}$"},
+    "private_identity_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "private_consent_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "declarations": {
+      "type": "object",
+      "required": ["participant_is_not_maintainer", "participant_controlled_execution", "maintainer_operated_execution", "receipt_generated_by_participant", "private_record_hashes_nonce_hardened"],
+      "properties": {
+        "participant_is_not_maintainer": {"const": true},
+        "participant_controlled_execution": {"const": true},
+        "maintainer_operated_execution": {"const": false},
+        "receipt_generated_by_participant": {"const": true},
+        "private_record_hashes_nonce_hardened": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "consent": {
+      "type": "object",
+      "required": ["protocol_version_accepted", "public_pseudonym_accepted", "public_technical_metadata_accepted"],
+      "properties": {
+        "protocol_version_accepted": {"const": true},
+        "public_pseudonym_accepted": {"const": true},
+        "public_technical_metadata_accepted": {"const": true}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

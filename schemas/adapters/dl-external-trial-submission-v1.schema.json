@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-external-trial-submission/v1",
+  "title": "Deep-learning external trial submission v1",
+  "description": "Public-safe, pseudonymous, receipt-bound R6A submission. Participant and host independence remain self-declared until a separate coordinator review; participation never establishes adoption or production reliability.",
+  "type": "object",
+  "required": [
+    "schema",
+    "submission_id",
+    "submitted_at",
+    "evidence_scope",
+    "status",
+    "protocol",
+    "source_receipt",
+    "participant",
+    "attestation",
+    "consent",
+    "privacy",
+    "claims",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "dl-external-trial-submission/v1"},
+    "submission_id": {"type": "string", "pattern": "^dl-external-submission-[0-9a-f]{16}$"},
+    "submitted_at": {"type": "string", "x-rfc3339-datetime": true},
+    "evidence_scope": {"const": "external_trial_submission_self_attestation_engineering_only"},
+    "status": {"const": "submitted_unreviewed"},
+    "protocol": {
+      "type": "object",
+      "required": ["protocol_id", "protocol_sha256"],
+      "properties": {
+        "protocol_id": {"const": "dl-external-trial-protocol/v1"},
+        "protocol_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "source_receipt": {
+      "type": "object",
+      "required": ["receipt_id", "receipt_sha256", "trial_plan_sha256", "repository", "environment_sha256"],
+      "properties": {
+        "receipt_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "receipt_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "trial_plan_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "repository": {
+          "type": "object",
+          "required": ["commit_oid", "tree_oid", "archive_sha256", "dirty"],
+          "properties": {
+            "commit_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+            "tree_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+            "archive_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+            "dirty": {"const": false}
+          },
+          "additionalProperties": false
+        },
+        "environment_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "participant": {
+      "type": "object",
+      "required": ["public_participant_id", "private_identity_record_sha256", "private_consent_record_sha256"],
+      "properties": {
+        "public_participant_id": {"type": "string", "pattern": "^participant-[0-9a-f]{16}$"},
+        "private_identity_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "private_consent_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "attestation": {
+      "type": "object",
+      "required": ["evidence_level", "participant_is_not_maintainer", "participant_controlled_execution", "maintainer_operated_execution", "receipt_generated_by_participant", "private_record_hashes_nonce_hardened"],
+      "properties": {
+        "evidence_level": {"const": "self_declared"},
+        "participant_is_not_maintainer": {"const": true},
+        "participant_controlled_execution": {"const": true},
+        "maintainer_operated_execution": {"const": false},
+        "receipt_generated_by_participant": {"const": true},
+        "private_record_hashes_nonce_hardened": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "consent": {
+      "type": "object",
+      "required": ["protocol_version_accepted", "public_pseudonym_accepted", "public_technical_metadata_accepted"],
+      "properties": {
+        "protocol_version_accepted": {"const": true},
+        "public_pseudonym_accepted": {"const": true},
+        "public_technical_metadata_accepted": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["local_paths_included", "credentials_included", "personal_identifiers_included", "raw_private_records_included", "automatic_upload_performed"],
+      "properties": {
+        "local_paths_included": {"const": false},
+        "credentials_included": {"const": false},
+        "personal_identifiers_included": {"const": false},
+        "raw_private_records_included": {"const": false},
+        "automatic_upload_performed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["independent_participant_verified", "independent_host_verified", "external_adoption_verified", "production_reliability_verified"],
+      "properties": {
+        "independent_participant_verified": {"const": false},
+        "independent_host_verified": {"const": false},
+        "external_adoption_verified": {"const": false},
+        "production_reliability_verified": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 12,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}

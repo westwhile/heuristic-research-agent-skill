@@ -360,6 +360,7 @@ _ADAPTER_COUPLED_TESTS = frozenset(
     {
         "tests/unit/test_adapters_types.py",
         "tests/unit/test_dl_manifest.py",
+        "tests/unit/test_dl_external_trial.py",
         "tests/unit/test_dl_portability_report.py",
         "tests/unit/test_dl_pytorch_observation.py",
         "tests/unit/test_dl_pytorch_interruption.py",

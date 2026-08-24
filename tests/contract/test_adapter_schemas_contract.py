@@ -275,6 +275,73 @@ ADAPTER_FIXTURE_MANIFEST = {
             "wrong-policy.json": ("RecordValidationError", "policy.policy_id"),
         },
     },
+    "dl-external-trial-attestation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-consent.json": (
+                "RecordValidationError",
+                "public_technical_metadata_accepted",
+            ),
+            "bad-participant-id.json": (
+                "RecordValidationError",
+                "public_participant_id",
+            ),
+            "bad-submitted-at.json": ("RecordValidationError", "submitted_at"),
+            "missing-protocol-sha256.json": (
+                "RecordValidationError",
+                "protocol_sha256",
+            ),
+        },
+    },
+    "dl-external-trial-cohort-review-plan/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-participant-id.json": (
+                "RecordValidationError",
+                "public_participant_id",
+            ),
+            "bad-reviewed-at.json": ("RecordValidationError", "reviewed_at"),
+            "host-nonce-false.json": (
+                "RecordValidationError",
+                "private_host_record_hash_nonce_hardened",
+            ),
+            "wrong-disposition.json": ("RecordValidationError", "disposition"),
+        },
+    },
+    "dl-external-trial-cohort-review/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-reviewed-at.json": ("RecordValidationError", "reviewed_at"),
+            "external-adoption-true.json": (
+                "RecordValidationError",
+                "external_adoption_verified",
+            ),
+            "missing-trial-plan-sha256.json": (
+                "RecordValidationError",
+                "trial_plan_sha256",
+            ),
+        },
+    },
+    "dl-external-trial-submission/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-submitted-at.json": ("RecordValidationError", "submitted_at"),
+            "external-adoption-true.json": (
+                "RecordValidationError",
+                "external_adoption_verified",
+            ),
+            "missing-receipt-sha256.json": (
+                "RecordValidationError",
+                "receipt_sha256",
+            ),
+        },
+    },
     "dl-portability-trial-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -495,6 +562,18 @@ MINIMAL_FIXTURE_SHA256 = {
     "dl-cross-environment-reproducibility-report/v1": (
         "a0f6c008eecc648ca9a0ff26bb315ae259713a862386d61a59ff631316a15873"
     ),
+    "dl-external-trial-attestation/v1": (
+        "9662b7752ecb8f80504cef7cfab16b914d91d1bef7b56624610363348bf1f7e0"
+    ),
+    "dl-external-trial-cohort-review-plan/v1": (
+        "7a7de619e8ce6055fbae593729387fc12449a4fd3b06ddefad074a5789a343fd"
+    ),
+    "dl-external-trial-cohort-review/v1": (
+        "63a2953d7e227508c815162066aa7bcd714f3b5bb808273add6639738a3c976e"
+    ),
+    "dl-external-trial-submission/v1": (
+        "c72fdab0cb7e603499126f8311effc2f637cf56ce2caa76ddc69482660782fe6"
+    ),
     "dl-portability-trial-receipt/v1": (
         "9934b2810cb072c9f658e270164f0a5e1e4609e9ce5910cd313169ec3e271bfd"
     ),
@@ -577,6 +656,18 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "dl-cross-environment-reproducibility-report-v1.schema.json": (
         "d847ada2034097341fb07a45b3e8b30571f54b2a4a5cbead9b97aab6a2110608"
+    ),
+    "dl-external-trial-attestation-v1.schema.json": (
+        "e726fc333470020b3c0ab7a30f6bad233c19bb8d54b9ee9e7b754ffb90a5b67d"
+    ),
+    "dl-external-trial-cohort-review-plan-v1.schema.json": (
+        "2db87b238474e5d98c58d4fc0415d10bf060b7fe6d25f6656d924b0096b5a1f2"
+    ),
+    "dl-external-trial-cohort-review-v1.schema.json": (
+        "dc9429dc6e5dc75a1f6fddd03f615fe5c1f2f5109db3f72dd08a0e366bd7f75a"
+    ),
+    "dl-external-trial-submission-v1.schema.json": (
+        "3673896378ead9b876556f31824a8769cf851a11b4330cbc723f3ff775b5e4c5"
     ),
     "dl-portability-trial-receipt-v1.schema.json": (
         "8612123e986d5d9de53b364ceaa2df3b08bb3e2368ee7df063fb0488d7b82336"
@@ -724,7 +815,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_six_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirty_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -733,6 +824,10 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "dl-checkpoint-recovery-observation/v1",
                 "dl-controlled-interruption-recovery-observation/v1",
                 "dl-cross-environment-reproducibility-report/v1",
+                "dl-external-trial-attestation/v1",
+                "dl-external-trial-cohort-review-plan/v1",
+                "dl-external-trial-cohort-review/v1",
+                "dl-external-trial-submission/v1",
                 "dl-portability-trial-receipt/v1",
                 "dl-run-manifest/v1",
                 "dl-run-observation/v1",

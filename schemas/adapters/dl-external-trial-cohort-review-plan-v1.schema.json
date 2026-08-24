@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-external-trial-cohort-review-plan/v1",
+  "title": "Deep-learning external trial cohort review plan v1",
+  "description": "Strict coordinator input that binds every R6A submission to nonce-hardened private identity, consent, and host record hashes without including the underlying private records.",
+  "type": "object",
+  "required": [
+    "schema",
+    "reviewed_at",
+    "protocol_sha256",
+    "minimum_independent_participants",
+    "minimum_distinct_environments",
+    "records"
+  ],
+  "properties": {
+    "schema": {"const": "dl-external-trial-cohort-review-plan/v1"},
+    "reviewed_at": {"type": "string", "x-rfc3339-datetime": true},
+    "protocol_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "minimum_independent_participants": {"type": "integer"},
+    "minimum_distinct_environments": {"type": "integer"},
+    "records": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["submission_sha256", "public_participant_id", "private_identity_record_sha256", "private_consent_record_sha256", "private_host_record_sha256", "private_host_record_hash_nonce_hardened", "disposition", "receipt_binding_review", "participant_independence_review", "host_independence_review", "consent_review"],
+        "properties": {
+          "submission_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "public_participant_id": {"type": "string", "pattern": "^participant-[0-9a-f]{16}$"},
+          "private_identity_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_consent_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_host_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_host_record_hash_nonce_hardened": {"const": true},
+          "disposition": {"enum": ["accepted", "rejected"]},
+          "receipt_binding_review": {"enum": ["verified", "unverified", "rejected"]},
+          "participant_independence_review": {"enum": ["verified", "unverified", "rejected"]},
+          "host_independence_review": {"enum": ["verified", "unverified", "rejected"]},
+          "consent_review": {"enum": ["verified", "unverified", "rejected"]}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

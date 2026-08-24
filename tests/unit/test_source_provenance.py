@@ -24,8 +24,8 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(report["counts"]["unknown"], 0)
         self.assertEqual(report["counts"]["third_party_reused"], 2)
-        self.assertEqual(report["counts"]["independently_authored"], 807)
-        self.assertEqual(report["counts"]["total"], 940)
+        self.assertEqual(report["counts"]["independently_authored"], 845)
+        self.assertEqual(report["counts"]["total"], 978)
 
     def test_apache_license_metadata_and_rights_confirmation(self) -> None:
         manifest = json.loads(
