@@ -596,6 +596,8 @@ R6A 已通过 Ready PR #32 的 exact head `ed7d7a430d019776c974b2ad38011d03358d5
 
 ## Phase 7：Skill Incubator、Candidate Builder 与公开受控进化循环
 
+当前实施状态（2026-08-24）：P7A 基础工程已通过 Ready PR #34 的 exact head `51dfc042174ac3159cb76518b3ffa3decdae3489` 验收，并以 merge commit `9305d17c8abaf857774a4fdcd736312f4553bce0` 进入 `main`；两者 tree 均为 `7254d74546cb6134abaaf0dc5865f2c4f53ee84c`。本批落地 immutable `candidate-manifest/v1`、receipt-last 的 `artifact-closure-receipt/v1`、三档显式 retention 的 `context-bundle/v1`、source lifecycle/principal separation 语义，以及两个纯 in-process interface。Math/Quant 合成 fixture 穿过同一 seam；Core deletion probe、mutation 与 fail-closed 测试通过，但这只证明领域中性基础合同，不证明两个真实领域消费者、独立 semantic review、fresh-session 或 Candidate 质量。archive SHA-256 为 `7ae8aa1cabf95052f71a4c2e66e8483197ab87c6dbc00f17b523be83a31d4023`，Python 3.12.13/3.14.5 各 1046/1046（各 6 个预期 archive skip），两项 clean-archive install/CLI Gate 通过；既有本机 CUDA compatibility Gate 的稳定投影 SHA-256 为 `c9a891777b3691955ec8471e9938eb24aa5a514534ba3a0b2cc8b8be0d8d4375`，未写 receipt。PR CI run `32740552726` 和 main push CI run `32740889832` 的四项 jobs 与两个 Windows governance 步骤成功。状态上限为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；byte closure 不等于 semantic review，R6B 仍为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`，Phase 7 任务 2—15、独立 review artifact、真实 Skill payload、fresh-session 与 private evaluation 均未实施，Phase 8、v13、安装/激活、Tag/Release Gate 继续关闭。
+
 ### 目标
 
 从 validated Pattern 生成可审计的 Heuristic/代码/子 Skill Candidate，但保持 Candidate 无中央正式库写权限、无安装根写权限、无 hidden 权限、无自晋级权限。

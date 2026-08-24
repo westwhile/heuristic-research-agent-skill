@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase6-r6a-external-trial-submission-attestation-protocol-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_and_external_trial_protocol_engineering_zero_accepted_external_submissions",
+  "phase": "phase7-p7a-artifact-closure-context-foundation-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_and_p7a_artifact_closure_context_foundation_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -63,6 +63,16 @@
       "name": "dl-external-trial-cohort-reviewer",
       "version": "0.1.0 / dl-external-trial-cohort-review-plan/v1 + dl-external-trial-cohort-review/v1",
       "status": "implemented_mainline_local_only"
+    },
+    {
+      "name": "close_candidate_bundle",
+      "version": "candidate-manifest/v1 + artifact-closure-receipt/v1",
+      "status": "implemented_mainline_in_process_engineering_only"
+    },
+    {
+      "name": "build_context_bundle",
+      "version": "candidate-manifest/v1 + context-bundle/v1",
+      "status": "implemented_mainline_in_process_engineering_only"
     }
   ],
   "ci_lanes": {
@@ -580,6 +590,134 @@
         ]
       },
       "scope": "R6A implements a local-only submission and coordinator-attestation protocol over R5 receipts. All participant, receipt, submission, and review fixtures are synthetic; no participant was invited and no external submission was received or accepted. This is protocol readiness, not independent-host, independent-participant, cross-environment portability, real-data, scientific, predictive, production, or adoption evidence."
+    },
+    "last_commit_bound_phase7_p7a_evidence": {
+      "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/34",
+      "pr_head_commit": "51dfc042174ac3159cb76518b3ffa3decdae3489",
+      "main_merge_commit": "9305d17c8abaf857774a4fdcd736312f4553bce0",
+      "shared_tree": "7254d74546cb6134abaaf0dc5865f2c4f53ee84c",
+      "archive_sha256": "7ae8aa1cabf95052f71a4c2e66e8483197ab87c6dbc00f17b523be83a31d4023",
+      "foundation": {
+        "schemas": [
+          "candidate-manifest/v1",
+          "artifact-closure-receipt/v1",
+          "context-bundle/v1"
+        ],
+        "interfaces": [
+          "close_candidate_bundle",
+          "build_context_bundle"
+        ],
+        "math_quant_fixture_seam": true,
+        "core_deletion_probe": "success",
+        "real_candidate_manifests": 0,
+        "real_closure_receipts": 0,
+        "real_context_bundles": 0,
+        "skill_payloads": 0,
+        "independent_semantic_reviews": 0,
+        "status": "p7a_foundation_ready_zero_real_candidates_zero_skill_payloads"
+      },
+      "archive_suite": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "tests": 1046,
+          "result": "success",
+          "expected_skips": 6
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "tests": 1046,
+          "result": "success",
+          "expected_skips": 6
+        }
+      ],
+      "archive_install": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "result": "success"
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "result": "success"
+        }
+      ],
+      "cuda_portability_compatibility": {
+        "local_trial_executions": 1,
+        "strict_cublas_workspace_config": ":4096:8",
+        "receipt_output_written": false,
+        "stable_trial_sha256": "c9a891777b3691955ec8471e9938eb24aa5a514534ba3a0b2cc8b8be0d8d4375",
+        "ephemeral_receipt_sha256": "f540875c7a50b1f9c7b4bc20fe0069bb894d9a17fc5e76e66622c6a091096382",
+        "framework": "pytorch-2.12.1+cu130",
+        "backend": "cuda-13.0",
+        "driver": "610.88",
+        "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "compute_capability": "8.9",
+        "successful_seeds": 3,
+        "exact_repeat_matches": 3,
+        "independent_hosts_verified": false,
+        "independent_participants_verified": false,
+        "external_adoption_verified": false
+      },
+      "pr_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32740552726",
+        "head_sha": "51dfc042174ac3159cb76518b3ffa3decdae3489",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "main_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32740889832",
+        "head_sha": "9305d17c8abaf857774a4fdcd736312f4553bce0",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "scope": "P7A establishes strict candidate-manifest, member-byte closure, source-lifecycle, principal-separation, and explicit-retention ContextBundle engineering contracts with Math/Quant synthetic seam fixtures. It issued no real candidate, closure receipt, ContextBundle, Skill payload, semantic review, installation, activation, or publication evidence; R6B remains frozen with zero external submissions."
     }
   },
   "execution_matrix": [
@@ -641,7 +779,9 @@
       "R5 emits schema-validated public-safe receipts without repository paths, personal identifiers, credential shapes, uploaded payloads, or automatic framework installation",
       "R5 locally compared two receipts from one recorded environment and honestly returned single_environment_only with independent-host, independent-participant, production, and adoption claims false",
       "R6A validates nonce-hardened pseudonymous submission and coordinator-review records with canonical hash bindings, duplicate rejection, and public-safety scans",
-      "R6A exact-archive and CUDA compatibility gates used only synthetic contract fixtures and one local ephemeral receipt; no participant invitation, external submission, upload, or framework installation occurred"
+      "R6A exact-archive and CUDA compatibility gates used only synthetic contract fixtures and one local ephemeral receipt; no participant invitation, external submission, upload, or framework installation occurred",
+      "P7A closes an exact manifest-declared byte set only after hash, size, exclusion, and acyclic dependency checks; receipt-last byte closure is not semantic review",
+      "P7A ContextBundle mode selection is explicit and fails rather than silently dropping the declared safe minimum under budget pressure; invalidated sources remain visible"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -652,7 +792,8 @@
       "distributed or mixed-precision training",
       "involuntary scheduler preemption and scheduler-managed process restart",
       "external checkpoint-store durability or authorization",
-      "wall-clock, monetary cost, energy, or production reliability"
+      "wall-clock, monetary cost, energy, or production reliability",
+      "any real candidate payload, independent semantic review, fresh-session forward test, private evaluation, Skill installation, activation, or publication"
     ]
   },
   "boundaries": [
@@ -665,6 +806,8 @@
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
+    "P7A is P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS; byte closure, synthetic Math/Quant fixtures, and ContextBundle construction do not establish semantic review, candidate quality, installation, activation, or publication.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A did not receive, inspect, modify, or supersede participant materials or hashes.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
