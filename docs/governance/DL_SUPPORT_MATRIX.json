@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase6-r4-controlled-interruption-recovery-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_and_controlled_interruption_engineering",
+  "phase": "phase6-r5-portable-cross-environment-trial-readiness-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_and_portability_trial_engineering_zero_external_receipts",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -43,6 +43,16 @@
       "name": "pytorch-gpu-controlled-interruption-recovery-runner",
       "version": "0.1.0 / dl-controlled-interruption-recovery-observation/v1",
       "status": "implemented_mainline_optional_runtime"
+    },
+    {
+      "name": "pytorch-portability-trial-runner",
+      "version": "0.1.0 / dl-portability-trial-receipt/v1",
+      "status": "implemented_mainline_optional_runtime"
+    },
+    {
+      "name": "dl-cross-environment-receipt-comparator",
+      "version": "0.1.0 / dl-cross-environment-reproducibility-report/v1",
+      "status": "implemented_mainline_local_only"
     }
   ],
   "ci_lanes": {
@@ -359,6 +369,91 @@
         ]
       },
       "scope": "One bounded synthetic fixture on one real PyTorch/CUDA host and primary GPU. The parent requested termination only after atomic checkpoint and exact child-identity confirmation; this is not involuntary scheduler preemption, real-data, scientific, predictive, production, adoption, or cross-driver/GPU/host evidence"
+    },
+    "last_commit_bound_phase6_r5_evidence": {
+      "pr_head_commit": "d29b52a755158cecc396e85c46487c68294cab3f",
+      "main_merge_commit": "434078538f9bf14611b4a263d77f93e8946091fa",
+      "shared_tree": "8831ab3519c539b77804519dcbcd4702063be1e7",
+      "archive_sha256": "6f4be64904c28b8c4e2af6d075f5291adeb3907a3319d8638b352d98cdddd902",
+      "archive_suite": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "tests": 1024,
+          "result": "success",
+          "expected_skips": 6
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "tests": 1024,
+          "result": "success",
+          "expected_skips": 6
+        }
+      ],
+      "archive_install": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "result": "success"
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "result": "success"
+        }
+      ],
+      "cuda_portability_trial": {
+        "local_trial_executions": 2,
+        "receipt_count": 2,
+        "environment_count": 1,
+        "external_receipt_count": 0,
+        "comparison_verdict": "single_environment_only",
+        "stable_trial_sha256": "2b4781c521e654545c80e151c32dc8f28297a75f3adef25e4d48958e4910b887",
+        "stable_comparison_sha256": "378b8c38404c743bf69115025c70698f294436bd25ef0714fa8016db0fd18ced",
+        "framework": "pytorch-2.12.1+cu130",
+        "backend": "cuda-13.0",
+        "driver": "610.88",
+        "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "compute_capability": "8.9",
+        "successful_seeds": 3,
+        "exact_repeat_matches": 3,
+        "controlled_interruption_recovery": "exact",
+        "scheduler_preemption_observed": false,
+        "independent_hosts_verified": false,
+        "independent_participants_verified": false,
+        "external_adoption_verified": false,
+        "status": "trial_ready_zero_external_receipts"
+      },
+      "main_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32707504247",
+        "head_sha": "434078538f9bf14611b4a263d77f93e8946091fa",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "scope": "Two local executions on one bounded synthetic PyTorch/CUDA environment produced public-safe receipts and a single_environment_only comparison. This is trial readiness with zero external receipts, not independent-host, independent-participant, cross-environment portability, real-data, scientific, predictive, production, or adoption evidence."
     }
   },
   "execution_matrix": [
@@ -375,7 +470,7 @@
       "accelerator": "cuda_primary_device",
       "framework": "caller_managed_lazy_import",
       "data": "bounded_synthetic_fixture",
-      "status": "verified_single_host_observation_checkpoint_recovery_same_host_reproducibility_and_controlled_interruption_engineering",
+      "status": "verified_single_host_observation_checkpoint_recovery_same_host_reproducibility_controlled_interruption_and_portability_trial_engineering",
       "hardware_observation": "framework_version_cuda_backend_driver_device_model_count_memory_compute_capability"
     },
     {
@@ -416,11 +511,15 @@
       "R3 executed exactly three preregistered seeds twice each in fresh processes and retained failed-seed semantics even though all three recorded seeds reproduced",
       "R3 observed driver 610.88 and exact repeat matches on one recorded host, one driver, and one primary CUDA device; timing and peak memory were observed but excluded from exact matching",
       "R4 verified temporary checkpoint payload integrity, atomic replacement, authoritative payload integrity, and a nonce/parent-PID/spawned-child-PID commit signal before requesting termination",
-      "R4 terminated only the exact owned Popen child, then matched fresh resume against a fresh uninterrupted control for model, optimizer, StepLR, final loss, and cumulative steps without double charging"
+      "R4 terminated only the exact owned Popen child, then matched fresh resume against a fresh uninterrupted control for model, optimizer, StepLR, final loss, and cumulative steps without double charging",
+      "R5 emits schema-validated public-safe receipts without repository paths, personal identifiers, credential shapes, uploaded payloads, or automatic framework installation",
+      "R5 locally compared two receipts from one recorded environment and honestly returned single_environment_only with independent-host, independent-participant, production, and adoption claims false"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
       "cross-driver, cross-host, ROCm, MPS, compiler, or cross-kernel reproducibility",
+      "any independent external host or participant receipt",
+      "cross-environment portability or external adoption",
       "framework version interoperability",
       "distributed or mixed-precision training",
       "involuntary scheduler preemption and scheduler-managed process restart",
@@ -433,9 +532,10 @@
     "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
     "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
     "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
-    "Passed R1-R4 CUDA gates prove only bounded synthetic engineering behavior on the recorded single host, driver observations where recorded, and primary device.",
+    "Passed R1-R5 CUDA gates prove only bounded synthetic engineering behavior on the recorded single host, driver observations where recorded, and primary device.",
     "Exact local checkpoint recovery and parent-requested termination do not prove an external store, involuntary scheduler preemption, distributed recovery, or production durability.",
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
+    "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
