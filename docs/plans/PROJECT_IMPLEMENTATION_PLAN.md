@@ -1,11 +1,11 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.15-phase6-r5-main-merged
+- 计划版本：v5.16-phase7-p7a-main-merged
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-24
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；最新 R6A 由 Ready PR #32 以 merge commit `c99a5c59572d24f8c6980bb8496719e0f38485a0` 进入 `main`，exact merge SHA 的 main push CI run `32718910641` 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤全绿。当前最高执行证据仍是单主机 bounded synthetic PyTorch/CUDA 工程行为；R6A 只达到 `PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS`，没有邀请参与者，也没有收到或接受外部 submission。真实数据、跨 driver/GPU/host 复现、外部 checkpoint store、非自愿 scheduler 抢占、完整 nested-CV 训练、自动晋级闭环、独立参与者、可安装 Skill、生产和外部采用仍未验收。未创建 `v0.7.0` Tag 或 Release，发布 Gate 未开启。
+- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；Phase 7 P7A 基础工程已由 Ready PR #34 以 merge commit `9305d17c8abaf857774a4fdcd736312f4553bce0` 合入，五文件状态同步已由 PR #35 以 merge commit `bbb7e8b196e6cde64c29c0079801344164fc2397` 进入 `main`。当前状态上限为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；byte closure 不等于 semantic review，R6B 仍冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`。最高执行证据仍是单主机 bounded synthetic PyTorch/CUDA 工程行为；真实数据、跨 driver/GPU/host 复现、外部 checkpoint store、非自愿 scheduler 抢占、完整 nested-CV 训练、自动晋级闭环、独立参与者、可安装 Skill、生产和外部采用仍未验收。未创建 `v0.7.0` Tag 或 Release，发布 Gate 未开启。
 
 ### 规划补充（仅计划，不代表已实施）
 

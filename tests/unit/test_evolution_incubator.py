@@ -258,6 +258,29 @@ class EvolutionIncubatorContractTest(unittest.TestCase):
                 manifest, mode="minimal_safe", max_bytes=1, built_at=NOW
             )
 
+    def test_context_builder_rejects_restricted_material_without_echo(self) -> None:
+        restricted_values = (
+            "sk-" + "A" * 24,
+            "researcher@example.com",
+            r"C:\Users\researcher\private.txt",
+        )
+        for restricted in restricted_values:
+            with self.subTest(restricted=restricted):
+                manifest, _ = _candidate("math")
+                material = manifest["context"]["materials"][0]
+                material["content"] = restricted
+                material["content_sha256"] = _sha(restricted)
+                with self.assertRaisesRegex(
+                    ContextBundleError, "restricted content"
+                ) as caught:
+                    build_context_bundle(
+                        manifest,
+                        mode="minimal_safe",
+                        max_bytes=20_000,
+                        built_at=NOW,
+                    )
+                self.assertNotIn(restricted, str(caught.exception))
+
     def test_manifest_semantic_mutations_fail_before_receipt_or_context(self) -> None:
         manifest, members = _candidate("math")
         bad_lifecycle = copy.deepcopy(manifest)
