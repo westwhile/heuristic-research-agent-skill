@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase6-r5-portable-cross-environment-trial-readiness-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_and_portability_trial_engineering_zero_external_receipts",
+  "phase": "phase6-r6a-external-trial-submission-attestation-protocol-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_and_external_trial_protocol_engineering_zero_accepted_external_submissions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -52,6 +52,16 @@
     {
       "name": "dl-cross-environment-receipt-comparator",
       "version": "0.1.0 / dl-cross-environment-reproducibility-report/v1",
+      "status": "implemented_mainline_local_only"
+    },
+    {
+      "name": "dl-external-trial-submission-builder",
+      "version": "0.1.0 / dl-external-trial-attestation/v1 + dl-external-trial-submission/v1",
+      "status": "implemented_mainline_local_only"
+    },
+    {
+      "name": "dl-external-trial-cohort-reviewer",
+      "version": "0.1.0 / dl-external-trial-cohort-review-plan/v1 + dl-external-trial-cohort-review/v1",
       "status": "implemented_mainline_local_only"
     }
   ],
@@ -454,6 +464,122 @@
         ]
       },
       "scope": "Two local executions on one bounded synthetic PyTorch/CUDA environment produced public-safe receipts and a single_environment_only comparison. This is trial readiness with zero external receipts, not independent-host, independent-participant, cross-environment portability, real-data, scientific, predictive, production, or adoption evidence."
+    },
+    "last_commit_bound_phase6_r6a_evidence": {
+      "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/32",
+      "pr_head_commit": "ed7d7a430d019776c974b2ad38011d03358d5701",
+      "main_merge_commit": "c99a5c59572d24f8c6980bb8496719e0f38485a0",
+      "shared_tree": "8e3e1be5231ed99932d3ae04bec8af80430379f6",
+      "archive_sha256": "4beeafd100d7a0cf069d3d2acc7368535381c8d674eec81dd09f0c458a7b0479",
+      "protocol": {
+        "id": "dl-external-trial-protocol/v1",
+        "archive_file_sha256": "ec598e013672c14ca42f3d5f71e801387fbc309dfcaea55875ff6e337c54f6db",
+        "status": "protocol_ready_zero_accepted_external_submissions",
+        "participant_invitations": 0,
+        "received_external_submissions": 0,
+        "accepted_external_submissions": 0
+      },
+      "archive_suite": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "tests": 1038,
+          "result": "success",
+          "expected_skips": 6
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "tests": 1038,
+          "result": "success",
+          "expected_skips": 6
+        }
+      ],
+      "archive_install": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "result": "success"
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "result": "success"
+        }
+      ],
+      "cuda_portability_compatibility": {
+        "local_trial_executions": 1,
+        "receipt_output_written": false,
+        "stable_trial_sha256": "b47d55cd0ac1633d82cb4fb194b6d1e5df8d133fb0b311dcc0ba23ce963099d4",
+        "ephemeral_receipt_sha256": "35840ee5a76d4de016794eef0852c29b8a0c10fbbefe1cffcf885b8d3061205a",
+        "framework": "pytorch-2.12.1+cu130",
+        "backend": "cuda-13.0",
+        "driver": "610.88",
+        "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "compute_capability": "8.9",
+        "successful_seeds": 3,
+        "exact_repeat_matches": 3,
+        "independent_hosts_verified": false,
+        "independent_participants_verified": false,
+        "external_adoption_verified": false
+      },
+      "pr_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32718644793",
+        "head_sha": "ed7d7a430d019776c974b2ad38011d03358d5701",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "main_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32718910641",
+        "head_sha": "c99a5c59572d24f8c6980bb8496719e0f38485a0",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "scope": "R6A implements a local-only submission and coordinator-attestation protocol over R5 receipts. All participant, receipt, submission, and review fixtures are synthetic; no participant was invited and no external submission was received or accepted. This is protocol readiness, not independent-host, independent-participant, cross-environment portability, real-data, scientific, predictive, production, or adoption evidence."
     }
   },
   "execution_matrix": [
@@ -513,7 +639,9 @@
       "R4 verified temporary checkpoint payload integrity, atomic replacement, authoritative payload integrity, and a nonce/parent-PID/spawned-child-PID commit signal before requesting termination",
       "R4 terminated only the exact owned Popen child, then matched fresh resume against a fresh uninterrupted control for model, optimizer, StepLR, final loss, and cumulative steps without double charging",
       "R5 emits schema-validated public-safe receipts without repository paths, personal identifiers, credential shapes, uploaded payloads, or automatic framework installation",
-      "R5 locally compared two receipts from one recorded environment and honestly returned single_environment_only with independent-host, independent-participant, production, and adoption claims false"
+      "R5 locally compared two receipts from one recorded environment and honestly returned single_environment_only with independent-host, independent-participant, production, and adoption claims false",
+      "R6A validates nonce-hardened pseudonymous submission and coordinator-review records with canonical hash bindings, duplicate rejection, and public-safety scans",
+      "R6A exact-archive and CUDA compatibility gates used only synthetic contract fixtures and one local ephemeral receipt; no participant invitation, external submission, upload, or framework installation occurred"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -532,10 +660,11 @@
     "A Windows or Ubuntu CI job does not prove a GPU or DL framework was present.",
     "Synthetic OOM, NaN, and interrupt injection is engineering evidence, not an observed outage.",
     "FLOP proxy parity is not wall-clock, monetary-cost, memory, or energy parity.",
-    "Passed R1-R5 CUDA gates prove only bounded synthetic engineering behavior on the recorded single host, driver observations where recorded, and primary device.",
+    "Passed R1-R5 CUDA gates and the R6A compatibility CUDA gate prove only bounded synthetic engineering behavior on the recorded single host, driver observations where recorded, and primary device.",
     "Exact local checkpoint recovery and parent-requested termination do not prove an external store, involuntary scheduler preemption, distributed recovery, or production durability.",
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
+    "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
