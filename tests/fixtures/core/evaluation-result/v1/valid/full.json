@@ -1,0 +1,7 @@
+{
+  "schema": "evaluation-result/v1",
+  "evaluation_result_id": "eres-full",
+  "attempt": {"evaluation_attempt_id": "ea-2", "sha256": "1111111111111111111111111111111111111111111111111111111111111111"},
+  "score_vector": [{"dimension": "quality", "value": 0.75, "unit": "ratio"}],
+  "generated_at": "2026-08-24T12:03:00Z"
+}

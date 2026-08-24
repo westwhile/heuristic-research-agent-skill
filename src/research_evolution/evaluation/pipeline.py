@@ -1,27 +1,22 @@
-"""Run-record assembly and Champion/Challenger comparison (E7).
+"""Attempt/result assembly and legacy Champion/Challenger comparison.
 
 This module wires the E3–E6 machinery into the record layer of E2:
 
-- :func:`evaluate_case` replays one frozen artifact against one case,
-  scores the output at the case contract's declared scorer level,
-  evaluates all six gates, and assembles the ``evaluation-run/v1``
-  payload. Publishing stays with the caller through the existing core
-  surface — this layer adds no new write path (ADR-0006 decision 3).
+- :func:`evaluate_case` replays one frozen artifact against one case and
+  always assembles ``evaluation-attempt/v1`` once replay begins. It adds
+  ``evaluation-result/v1`` only after scoring succeeds. Successful legacy
+  callers continue to receive the frozen ``evaluation-run/v1`` payload.
+  Publishing stays with the caller through the existing core surface.
 - :func:`compare` assembles a ``comparison-report/v1`` payload from two
   run payloads, pairing their score vectors by dimension.
 
-Two frozen-contract facts shape the assembly (and are documented rather
-than hidden):
+Two contract facts shape the assembly:
 
-- **Unpublishable verdicts**: ``evaluation-run/v1`` requires a non-empty
-  ``score_vector`` and an ``output.output_sha256``. A run whose replay
-  failed (verdict ``error``) has neither, and an unscored run
-  (``inconclusive``) has no vector — those verdicts exist in the schema
-  enum but cannot be assembled into schema-valid records. This is an E2
-  schema gap surfaced at wiring time: :func:`evaluate_case` returns the
-  full outcome with ``run_payload=None`` and an explicit
-  ``unpublishable_reason`` instead of fabricating scores or a sentinel
-  output hash. Only ``pass`` and ``fail`` runs are publishable records.
+- **Attempt always, result optional**: replay/scoring failure is published as
+  an attempt with zero or more real output references and a diagnostic. No
+  output hash or score is fabricated. A result exists only when a complete
+  output was scored. ``run_payload`` remains the compatibility projection
+  for legacy pass/fail consumers and is otherwise ``None``.
 - **Dual hash tracks**: ``candidate.sha256`` pins the raw artifact bytes;
   ``output.output_sha256`` binds the canonical re-serialization the
   scorer consumed (E3). For a non-canonical artifact the two visibly
@@ -77,10 +72,11 @@ from .statistics import (
 # Exactly the ``levels_covered`` item enum shared by both schemas.
 LEVELS = frozenset({"L0", "L1"})
 
-_UNPUBLISHABLE_REASON = (
-    "verdict {verdict} has no score vector/output to bind: "
-    "evaluation-run/v1 requires both, so only pass/fail runs are "
-    "publishable records (E2 schema gap surfaced at wiring time)"
+_LEGACY_UNPUBLISHABLE_REASON = (
+    "legacy evaluation-run/v1 cannot represent verdict {verdict} without "
+    "both a complete output and a non-empty score vector; the "
+    "evaluation-attempt/v1 record remains publishable and no values were "
+    "fabricated"
 )
 
 
@@ -112,8 +108,12 @@ def _record_sha256(payload: Mapping[str, Any], what: str) -> str:
 
 @dataclass(frozen=True)
 class PipelineOutcome:
-    """The complete outcome of one case evaluation; ``run_payload`` is
-    None when the verdict cannot be assembled into a valid record."""
+    """The complete outcome of one case evaluation.
+
+    ``attempt_payload`` always exists after replay starts;
+    ``result_payload`` exists only after scoring succeeds. ``run_payload``
+    is the backward-compatible pass/fail projection.
+    """
 
     run_id: str
     verdict: str
@@ -121,6 +121,8 @@ class PipelineOutcome:
     score_entries: tuple[ScoreEntry, ...] | None
     gate_results: tuple[GateResult, ...]
     scorer_id: dict[str, str]
+    attempt_payload: dict[str, Any]
+    result_payload: dict[str, Any] | None
     run_payload: dict[str, Any] | None
     unpublishable_reason: str | None
 
@@ -140,7 +142,7 @@ def evaluate_case(
     levels_covered: Sequence[str] = ("L0", "L1"),
     environment: Mapping[str, Any] | None = None,
 ) -> PipelineOutcome:
-    """Replay, score, gate, and assemble one ``evaluation-run/v1`` payload.
+    """Replay, score, gate, and assemble attempt/result record payloads.
 
     *scoring* declares the level and its inputs:
     ``{"level": "oracle", "oracle": {...}}``,
@@ -178,19 +180,46 @@ def evaluate_case(
     calibration_sha256 = scoring.get("calibration_sha256")
     scorer_id = scorer_identity(level, calibration_sha256=calibration_sha256)
 
+    environment_payload = (
+        dict(environment) if environment is not None else interpreter_environment()
+    )
+    envelope_echo: dict[str, Any] = {
+        "envelope_sha256": envelope.canonical_sha256,
+        "timeout_ms": envelope.timeout_ms,
+        "max_output_bytes": envelope.max_output_bytes,
+        "retry_attempts": envelope.retry_attempts,
+    }
+    if envelope.seed is not None:
+        envelope_echo["seed"] = envelope.seed
+    if envelope.notes is not None:
+        envelope_echo["notes"] = envelope.notes
+
     replay = run_replay(artifact, artifact_sha256, envelope)
     entries: tuple[ScoreEntry, ...] | None = None
+    scoring_error: str | None = None
     if replay.ok:
-        output = load_strict_json(replay.output_bytes or b"")
-        if level == "oracle":
-            entries = score_with_oracle(output, scoring["oracle"])
-        elif level == "deterministic_checker":
-            entries = score_with_checker(output, scoring["spec"])
-        elif level == "structured_rubric":
-            entries = package_rubric_scores(scoring["scores"])
-        else:
-            entries = package_judge_scores(scoring["scores"], calibration_sha256)
-        validate_score_vector(entries)
+        try:
+            output = load_strict_json(replay.output_bytes or b"")
+            if level == "oracle":
+                entries = score_with_oracle(output, scoring["oracle"])
+            elif level == "deterministic_checker":
+                entries = score_with_checker(output, scoring["spec"])
+            elif level == "structured_rubric":
+                entries = package_rubric_scores(scoring["scores"])
+            else:
+                entries = package_judge_scores(
+                    scoring["scores"], calibration_sha256
+                )
+            validate_score_vector(entries)
+        except (KeyError, TypeError, ValueError) as exc:
+            # Do not echo caller-controlled scorer configuration or output
+            # values into an append-only diagnostic. The structured class
+            # identifies the failure; any detailed trace belongs in a
+            # separately governed, hash-bound artifact.
+            scoring_error = (
+                f"{type(exc).__name__}: scoring configuration or output "
+                "could not be scored"
+            )
 
     gate_results = evaluate_gates(
         replay=replay,
@@ -199,21 +228,77 @@ def evaluate_case(
         scorer_id=scorer_id,
         config=gate_config,
     )
-    verdict = assemble_verdict(replay, gate_results, entries)
+    verdict = (
+        "error"
+        if scoring_error is not None
+        else assemble_verdict(replay, gate_results, entries)
+    )
+
+    complete_outputs: list[dict[str, str]] = []
+    diagnostics: list[dict[str, str]] = []
+    if replay.ok:
+        if replay.output_sha256 is None:
+            raise RuntimeError("successful replay omitted output_sha256")
+        complete_outputs.append({"sha256": replay.output_sha256})
+    if scoring_error is not None:
+        execution_status = "scorer_error"
+        diagnostics.append(
+            {
+                "detail": scoring_error,
+            }
+        )
+    elif replay.ok:
+        execution_status = "completed"
+    else:
+        execution_status = replay.error_class or "runner_error"
+        diagnostics.append(
+            {
+                "detail": replay.error_detail or "replay failed without detail",
+            }
+        )
+
+    attempt_payload: dict[str, Any] = {
+        "schema": "evaluation-attempt/v1",
+        "evaluation_attempt_id": f"{run_id}-attempt",
+        "case": {"evaluation_case_id": case_id, "sha256": case_sha},
+        "suite": {"suite_id": suite["suite_id"], "sha256": suite_sha},
+        "candidate": dict(candidate),
+        "envelope": envelope_echo,
+        "runner": runner_identity(),
+        "scorer": scorer_id,
+        "environment": environment_payload,
+        "execution": {
+            "status": execution_status,
+            "attempts": replay.attempts,
+            "complete_outputs": complete_outputs,
+            "partial_outputs": [],
+            "artifacts": [],
+            "diagnostics": diagnostics,
+        },
+        "gate_results": gate_results_payload(gate_results),
+        "verdict": verdict,
+        "levels_covered": list(levels_covered),
+        "generated_at": generated_at,
+    }
+    attempt_sha = _record_sha256(attempt_payload, "assembled attempt")
+
+    result_payload: dict[str, Any] | None = None
+    if replay.ok and scoring_error is None and entries is not None:
+        result_payload = {
+            "schema": "evaluation-result/v1",
+            "evaluation_result_id": f"{run_id}-result",
+            "attempt": {
+                "evaluation_attempt_id": f"{run_id}-attempt",
+                "sha256": attempt_sha,
+            },
+            "score_vector": score_vector_payload(entries),
+            "generated_at": generated_at,
+        }
+        _record_sha256(result_payload, "assembled result")
 
     run_payload: dict[str, Any] | None = None
     unpublishable_reason: str | None = None
     if verdict in ("pass", "fail"):
-        envelope_echo: dict[str, Any] = {
-            "envelope_sha256": envelope.canonical_sha256,
-            "timeout_ms": envelope.timeout_ms,
-            "max_output_bytes": envelope.max_output_bytes,
-            "retry_attempts": envelope.retry_attempts,
-        }
-        if envelope.seed is not None:
-            envelope_echo["seed"] = envelope.seed
-        if envelope.notes is not None:
-            envelope_echo["notes"] = envelope.notes
         run_payload = {
             "schema": "evaluation-run/v1",
             "evaluation_run_id": run_id,
@@ -222,11 +307,7 @@ def evaluate_case(
             "candidate": dict(candidate),
             "envelope": envelope_echo,
             "runner": runner_identity(),
-            "environment": (
-                dict(environment)
-                if environment is not None
-                else interpreter_environment()
-            ),
+            "environment": environment_payload,
             "output": {"output_sha256": replay.output_sha256},
             "scorer": scorer_id,
             "score_vector": score_vector_payload(entries or ()),
@@ -239,7 +320,7 @@ def evaluate_case(
         # payload this function declares schema-shaped must actually be.
         _record_sha256(run_payload, "assembled run")
     else:
-        unpublishable_reason = _UNPUBLISHABLE_REASON.format(verdict=verdict)
+        unpublishable_reason = _LEGACY_UNPUBLISHABLE_REASON.format(verdict=verdict)
 
     return PipelineOutcome(
         run_id=run_id,
@@ -248,6 +329,8 @@ def evaluate_case(
         score_entries=entries,
         gate_results=gate_results,
         scorer_id=scorer_id,
+        attempt_payload=attempt_payload,
+        result_payload=result_payload,
         run_payload=run_payload,
         unpublishable_reason=unpublishable_reason,
     )

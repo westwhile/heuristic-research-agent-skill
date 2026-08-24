@@ -239,6 +239,40 @@ FIXTURE_MANIFEST = {
             "empty-score-vector.json": ("RecordValidationError", "score_vector"),
         },
     },
+    "evaluation-attempt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-case-sha256.json": ("RecordValidationError", "sha256"),
+            "bad-status.json": ("RecordValidationError", "status"),
+            "completed-without-output.json": (
+                "RecordValidationError",
+                "complete_outputs",
+            ),
+            "error-without-diagnostic.json": ("RecordValidationError", "diagnostics"),
+            "scorer-error-without-output.json": (
+                "RecordValidationError",
+                "complete_outputs",
+            ),
+        },
+    },
+    "evaluation-result/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-generated-at.json": ("RecordValidationError", "generated_at"),
+            "carries-gate-results.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "carries-verdict.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "empty-score-vector.json": ("RecordValidationError", "score_vector"),
+            "missing-attempt-pin.json": ("RecordValidationError", "sha256"),
+        },
+    },
     "comparison-report/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -404,6 +438,12 @@ MINIMAL_FIXTURE_SHA256 = {
     "evaluation-case/v1": (
         "95e8a4bf98b88f746c0b9d653c7067bee5845e624681fe2a8da35be7b61b30f7"
     ),
+    "evaluation-attempt/v1": (
+        "6179fefaee14d5c650bfe49268b142528dd8d4b90c2ac09650ed85b5e15ef66c"
+    ),
+    "evaluation-result/v1": (
+        "b6a1bdc98169a257ee81698689093a19e03adec623cb4b4cdbf797f4e58aa08f"
+    ),
     "evaluation-run/v1": (
         "c73ef291b765868e9cb556cc5d63f3d3bb17a77f5de07aee270096954d24db7e"
     ),
@@ -470,6 +510,12 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "evaluation-case-v1.schema.json": (
         "1d79cfb8c6efb087e730fa1cb59dd322333911c8768357cb7f2bf81f6ead932a"
+    ),
+    "evaluation-attempt-v1.schema.json": (
+        "ae4af3cbbf88dee2bd9a24a5072eecf0477731bfba2694a5116fb873a13a7c67"
+    ),
+    "evaluation-result-v1.schema.json": (
+        "a4cdb9289a8cbaf7d1feaaadd8b7a8ab152e8e7c5dfe76608a4f8a3702b6843a"
     ),
     "evaluation-run-v1.schema.json": (
         "f0ae7997dcbeb1a53e654fbd74b3aa2a9171221d7cca6832c7294564f7901b36"
@@ -604,7 +650,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_two_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -613,7 +659,9 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "candidate-manifest/v1",
                 "comparison-report/v1",
                 "context-bundle/v1",
+                "evaluation-attempt/v1",
                 "evaluation-case/v1",
+                "evaluation-result/v1",
                 "evaluation-run/v1",
                 "export-decision/v1",
                 "export-receipt/v1",

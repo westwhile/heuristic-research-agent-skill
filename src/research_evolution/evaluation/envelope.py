@@ -2,15 +2,17 @@
 
 ADR-0006 decisions 3-4: timeout, output size cap, structured error
 classification, and the retry policy (count, conditions, determinism) are
-frozen in the envelope and bound into every ``evaluation-run/v1`` record
-as ``envelope.envelope_sha256`` (canonical SHA-256 of :meth:`to_dict`).
+frozen in the envelope and bound into every ``evaluation-attempt/v1``
+record and legacy ``evaluation-run/v1`` projection as
+``envelope.envelope_sha256`` (canonical SHA-256 of :meth:`to_dict`).
 The record's optional echo fields (``timeout_ms``/``max_output_bytes``/
 ``retry_attempts``/``seed``/``notes``) are a convenience subset of this
 contract; ``retry_on`` is bound through the hash alone.
 
-``ERROR_CLASSES`` is exactly the ``error_class`` enum of
-``evaluation-run/v1`` — the schema and this module must change together;
-a unit test pins that equality.
+``ERROR_CLASSES`` is the frozen replay-failure subset shared by the legacy
+``evaluation-run/v1.error_class`` enum and the new attempt status enum;
+``scorer_error`` belongs to the pipeline after replay and is not a runner
+error class. A unit test pins the legacy equality.
 """
 
 from __future__ import annotations
@@ -21,7 +23,8 @@ from typing import Any
 from research_evolution.core import canonical_sha256
 
 # Structured error classification (ADR-0006 decision 4). Mirrors the
-# ``error_class`` enum of schemas/core/evaluation-run-v1.schema.json.
+# ``error_class`` enum of schemas/core/evaluation-run-v1.schema.json and
+# replay-failure subset of evaluation-attempt-v1.schema.json.
 ERROR_CLASSES = frozenset(
     {"timeout", "output_limit", "parse_error", "runner_error"}
 )

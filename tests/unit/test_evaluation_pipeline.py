@@ -8,17 +8,20 @@ import tempfile
 import unittest
 from decimal import Decimal
 from pathlib import Path
+from unittest.mock import patch
 
 from research_evolution.core import (
     canonical_bytes,
     canonical_sha256,
     load_record,
     publish_record,
+    verify_record_graph,
 )
 from research_evolution.evaluation import (
     ComparePolicy,
     Envelope,
     GateConfig,
+    ReplayResult,
     compare,
     evaluate_case,
     interpreter_environment,
@@ -108,6 +111,27 @@ class EvaluateCaseTest(unittest.TestCase):
     def test_happy_path_payload_is_schema_valid(self) -> None:
         outcome = _outcome()
         self.assertEqual(outcome.verdict, "pass")
+        attempt = load_record(json.dumps(outcome.attempt_payload))
+        result = load_record(json.dumps(outcome.result_payload))
+        self.assertEqual(attempt.schema_id, "evaluation-attempt/v1")
+        self.assertEqual(result.schema_id, "evaluation-result/v1")
+        self.assertEqual(
+            outcome.result_payload["attempt"],
+            {
+                "evaluation_attempt_id": "er-1-attempt",
+                "sha256": attempt.sha256,
+            },
+        )
+        self.assertEqual(
+            set(outcome.result_payload),
+            {
+                "schema",
+                "evaluation_result_id",
+                "attempt",
+                "score_vector",
+                "generated_at",
+            },
+        )
         self.assertIsNotNone(outcome.run_payload)
         record = load_record(json.dumps(outcome.run_payload))
         self.assertEqual(record.schema_id, "evaluation-run/v1")
@@ -167,13 +191,91 @@ class EvaluateCaseTest(unittest.TestCase):
         record = load_record(json.dumps(outcome.run_payload))
         self.assertEqual(record.schema_id, "evaluation-run/v1")
 
-    def test_error_run_is_not_assembled_into_a_record(self) -> None:
-        # Documented E2 schema gap: an error verdict has no score vector or
-        # output to bind, so no record is fabricated.
+    def test_error_attempt_is_publishable_without_fabricated_result(self) -> None:
         outcome = _outcome(artifact_sha256="0" * 64)
         self.assertEqual(outcome.verdict, "error")
+        attempt = load_record(json.dumps(outcome.attempt_payload))
+        self.assertEqual(attempt.schema_id, "evaluation-attempt/v1")
+        self.assertEqual(outcome.attempt_payload["execution"]["status"], "runner_error")
+        self.assertEqual(
+            outcome.attempt_payload["execution"]["complete_outputs"],
+            [],
+        )
+        self.assertTrue(
+            outcome.attempt_payload["execution"]["diagnostics"][0]["detail"]
+        )
+        self.assertIsNone(outcome.result_payload)
         self.assertIsNone(outcome.run_payload)
-        self.assertIn("E2 schema gap", outcome.unpublishable_reason)
+        self.assertIn("legacy evaluation-run/v1", outcome.unpublishable_reason)
+
+    def test_scorer_error_preserves_completed_output_in_attempt(self) -> None:
+        case = _case(scorer_level="deterministic_checker")
+        outcome = _outcome(
+            case=case,
+            suite=_suite("s-1", case),
+            scoring={
+                "level": "deterministic_checker",
+                "spec": {"checker": "unknown", "params": {}},
+            },
+            gate_config=GateConfig(),
+        )
+        self.assertEqual(outcome.verdict, "error")
+        self.assertEqual(outcome.attempt_payload["execution"]["status"], "scorer_error")
+        self.assertEqual(
+            outcome.attempt_payload["execution"]["complete_outputs"],
+            [{"sha256": canonical_sha256({"answer": 42})}],
+        )
+        self.assertIsNone(outcome.result_payload)
+        self.assertIsNone(outcome.run_payload)
+
+    def test_every_replay_failure_class_becomes_an_attempt(self) -> None:
+        malformed = b"{"
+        oversized_envelope = Envelope(
+            timeout_ms=1000,
+            max_output_bytes=1,
+            seed=7,
+        )
+        real_cases = (
+            ("runner_error", _run_kwargs(artifact_sha256="0" * 64)),
+            (
+                "parse_error",
+                _run_kwargs(artifact=malformed, artifact_sha256=_sha(malformed)),
+            ),
+            (
+                "output_limit",
+                _run_kwargs(envelope=oversized_envelope),
+            ),
+        )
+        for expected, kwargs in real_cases:
+            with self.subTest(error_class=expected):
+                outcome = evaluate_case(**kwargs)
+                self.assertEqual(
+                    outcome.attempt_payload["execution"]["status"],
+                    expected,
+                )
+                self.assertTrue(
+                    outcome.attempt_payload["execution"]["diagnostics"][0][
+                        "detail"
+                    ]
+                )
+                self.assertIsNone(outcome.result_payload)
+
+        timeout = ReplayResult(
+            ok=False,
+            output_bytes=None,
+            output_sha256=None,
+            error_class="timeout",
+            error_detail="synthetic monotonic-clock timeout",
+            attempts=2,
+        )
+        with patch(
+            "research_evolution.evaluation.pipeline.run_replay",
+            return_value=timeout,
+        ):
+            outcome = _outcome()
+        self.assertEqual(outcome.attempt_payload["execution"]["status"], "timeout")
+        self.assertEqual(outcome.attempt_payload["execution"]["attempts"], 2)
+        self.assertIsNone(outcome.result_payload)
 
     def test_assembled_payload_is_validated_before_return(self) -> None:
         # R33-P3 regression: the assembler validates its own product; an
@@ -384,6 +486,49 @@ class StoreRoundTripTest(unittest.TestCase):
         record = load_record(render_json(report))
         self.assertEqual(record.schema_id, "comparison-report/v1")
         self.assertEqual(report["methods"]["statistics"], ["paired_bootstrap"])
+
+    def test_attempt_result_publication_and_graph_round_trip(self) -> None:
+        case = _case()
+        suite = _suite("s-attempt-result", case)
+        outcome = _outcome(case=case, suite=suite, run_id="er-attempt-result")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "store"
+            for payload in (
+                case,
+                suite,
+                outcome.attempt_payload,
+                outcome.result_payload,
+            ):
+                publish_record(canonical_bytes(payload), root=root)
+            report = verify_record_graph(root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(
+            report.families,
+            {
+                "evaluation-attempt/v1": 1,
+                "evaluation-case/v1": 1,
+                "evaluation-result/v1": 1,
+                "suite/v1": 1,
+            },
+        )
+
+    def test_result_attempt_pin_mismatch_fails_graph_verification(self) -> None:
+        case = _case()
+        suite = _suite("s-attempt-pin", case)
+        outcome = _outcome(case=case, suite=suite, run_id="er-attempt-pin")
+        result = dict(outcome.result_payload)
+        result["attempt"] = dict(result["attempt"])
+        result["attempt"]["sha256"] = "f" * 64
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "store"
+            for payload in (case, suite, outcome.attempt_payload, result):
+                publish_record(canonical_bytes(payload), root=root)
+            report = verify_record_graph(root)
+        self.assertFalse(report.ok)
+        self.assertEqual(
+            {violation.kind for violation in report.violations},
+            {"pin_mismatch"},
+        )
 
 
 if __name__ == "__main__":

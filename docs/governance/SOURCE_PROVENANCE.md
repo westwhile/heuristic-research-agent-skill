@@ -34,6 +34,10 @@ candidate/closure/context schema, source, test, fixture, and ADR files prepared
 under maintainer direction and merged by PR #34; no external payload or
 third-party expression is added by P7A.
 
+It also covers the nineteen CR4 attempt/result schema, fixture, and ADR files
+prepared under maintainer direction. CR4 adds no vendored dependency, external
+payload, copied evaluator implementation, or third-party expression.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -41,20 +45,19 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Correctness Reset CR2 mainline inventory at merge commit
-`42fb906be364d87ba5dce113413b2d0caaae2431` contains 1008 files. Its tree
-`b694a1f181f113256f5c7e196fdf63e2b3557694` contains the repository-native
-CR1 scanner merged by PR #36 and CR2 modifications to already covered paths
-merged by PR #37. The exact CR2 head tree passed the dual-interpreter archive
-suite, clean-install/demo, local CUDA compatibility, and PR/main CI gates.
-R6B remains frozen at
+The CR4 proposed tracked inventory contains 1027 files: the 1008-file CR2
+mainline inventory, the CR3 status synchronization (modified paths only), and
+nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
+files. `scripts/verify_source_provenance.py` derives this inventory from Git's
+tracked plus non-ignored proposed-file surface and reports full coverage with
+`unknown=0`. R6B remains frozen at
 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
 external-source, semantic-review, adoption, installation, or publication
 evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 874 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 894 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -65,11 +68,9 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
 tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The merged CR1 scanner is independently authored and CR2 added no tracked
-file. The current mainline counts are therefore 875 `independently_authored`,
-118 `generated`, 13 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`.
-Neither fix adds external payloads, vendored dependencies, or third-party
-expression.
+The resulting counts are 894 `independently_authored`, 118 `generated`, 13
+`design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
+external payloads, vendored dependencies, or third-party expression.
 
 ## External-source decisions
 

@@ -1,0 +1,1 @@
+{"schema":"evaluation-result/v1","evaluation_result_id":"eres-bad-time","attempt":{"evaluation_attempt_id":"ea-1","sha256":"1111111111111111111111111111111111111111111111111111111111111111"},"score_vector":[{"dimension":"exact","value":1}],"generated_at":"2026-08-24 12:02:00"}

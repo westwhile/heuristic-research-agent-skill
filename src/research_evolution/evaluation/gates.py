@@ -13,8 +13,8 @@ caller-supplied :class:`GateConfig`; every check is a deterministic pure
 function of those inputs. A failed gate must carry a reason; the schema
 makes ``reason`` optional, this layer makes it mandatory on failure.
 
-Verdict assembly (``evaluation-run/v1``): a replay failure is ``error``;
-any failed gate is ``fail``; a replayed but unscored run is
+Verdict assembly (attempt/result and legacy run projections): a replay
+failure is ``error``; any failed gate is ``fail``; a replayed but unscored run is
 ``inconclusive`` — a legitimate terminal, never forced into pass/fail;
 otherwise ``pass``.
 """
@@ -29,9 +29,8 @@ from typing import Any, Mapping
 from .runner import ReplayResult
 from .scorers import ScoreEntry
 
-# Exactly the ``gate_results[].gate`` enum of ``evaluation-run/v1`` (and
-# the ``gate_summary[].gate`` enum of ``comparison-report/v1``) — unit
-# tests pin both equalities. Order is the fixed reporting order.
+# Exactly the ``gate_results[].gate`` enum shared by attempt, result, legacy
+# run, and the report gate summary — tests pin the equality. Order is fixed.
 GATES = (
     "integrity",
     "critical_safety",
@@ -41,10 +40,10 @@ GATES = (
     "evaluator_integrity",
 )
 
-# Exactly the ``gate_results[].result`` enum of ``evaluation-run/v1``.
+# Exactly the shared ``gate_results[].result`` enum.
 GATE_RESULTS = frozenset({"pass", "fail", "not_applicable"})
 
-# Exactly the ``verdict`` enum of ``evaluation-run/v1``.
+# Exactly the attempt and legacy-run verdict vocabulary; result excludes error.
 VERDICTS = frozenset({"pass", "fail", "error", "inconclusive"})
 
 _RESOURCE_ERROR_CLASSES = frozenset({"timeout", "output_limit"})

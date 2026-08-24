@@ -6,7 +6,9 @@ the four-level scorer discipline and score-vector construction; E5 adds
 the three traced comparison statistics; E6 adds the six hard gates,
 verdict assembly, and the evaluator meta-tests; E7 adds the record
 assembly (`evaluate_case`/`compare`) and the three report forms. The
-surface freezes at the Phase 3 integration PR. This package is a public
+Correctness Reset CR4 additively exposes attempt-always/result-optional
+payloads through the existing ``PipelineOutcome`` interface while retaining
+the legacy pass/fail run projection. This package is a public
 face PARALLEL to ``research_evolution.core`` — it never extends the core
 export surface.
 """

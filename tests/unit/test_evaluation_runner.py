@@ -29,6 +29,12 @@ RUN_SCHEMA = (
     / "core"
     / "evaluation-run-v1.schema.json"
 )
+ATTEMPT_SCHEMA = (
+    Path(__file__).resolve().parents[2]
+    / "schemas"
+    / "core"
+    / "evaluation-attempt-v1.schema.json"
+)
 
 # Imports the offline runner must never make (ADR-0006 decision 4: no
 # network, no subprocess, no process-environment access).
@@ -62,6 +68,13 @@ class EnvelopeTest(unittest.TestCase):
         self.assertIsNone(envelope.seed)
         # retry_on is deduplicated and sorted: the same policy hashes the same
         self.assertEqual(envelope.retry_on, ("parse_error", "runner_error"))
+
+    def test_replay_error_classes_are_attempt_status_subset(self) -> None:
+        schema = json.loads(ATTEMPT_SCHEMA.read_text(encoding="utf-8"))
+        statuses = set(
+            schema["properties"]["execution"]["properties"]["status"]["enum"]
+        )
+        self.assertEqual(statuses - set(ERROR_CLASSES), {"completed", "scorer_error"})
 
     def test_to_dict_omits_unset_optional_fields(self) -> None:
         payload = _envelope().to_dict()
