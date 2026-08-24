@@ -8,6 +8,7 @@ import dataclasses
 import hashlib
 import os
 import platform
+import runpy
 import tempfile
 import unittest
 from pathlib import Path
@@ -43,6 +44,7 @@ SOURCE = (
     / "deep_learning"
     / "pytorch_recovery.py"
 )
+GATE_SCRIPT = REPO_ROOT / "scripts" / "verify_dl_checkpoint_recovery.py"
 
 
 def _fixture() -> dict:
@@ -260,6 +262,14 @@ class DLPytorchRecoveryRunnerTest(unittest.TestCase):
             for alias in node.names
         }
         self.assertNotIn("torch", imported)
+
+    def test_gate_distinguishes_git_object_ids_from_sha256(self) -> None:
+        namespace = runpy.run_path(str(GATE_SCRIPT))
+        validate = namespace["_hex_identifier"]
+        self.assertEqual(validate("a" * 40, "commit", 40), "a" * 40)
+        self.assertEqual(validate("b" * 64, "archive", 64), "b" * 64)
+        with self.assertRaisesRegex(ValueError, "40 lowercase hexadecimal"):
+            validate("c" * 64, "commit", 40)
 
     def test_mocked_three_process_receipt_is_exact_and_path_free(self) -> None:
         runtime = _runtime()

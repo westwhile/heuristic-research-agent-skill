@@ -1,8 +1,8 @@
 """Exact-archive gate for bounded real PyTorch/CUDA checkpoint recovery.
 
 Run this script from an exported commit with the PyTorch-enabled interpreter.
-The caller supplies the commit, tree, and archive SHA-256 that it independently
-resolved before extraction.  The script binds those identifiers to one
+The caller supplies the Git commit/tree object IDs and archive SHA-256 that it
+independently resolved before extraction.  The script binds those identifiers to one
 three-process source/resume/uninterrupted-control receipt and prints a stable
 projection hash that excludes timestamps and timing measurements.
 """
@@ -35,9 +35,11 @@ MANIFEST_FIXTURE = (
 )
 
 
-def _sha256(value: str, name: str) -> str:
-    if len(value) != 64 or any(char not in "0123456789abcdef" for char in value):
-        raise ValueError(f"{name} must be lowercase SHA-256")
+def _hex_identifier(value: str, name: str, length: int) -> str:
+    if len(value) != length or any(
+        char not in "0123456789abcdef" for char in value
+    ):
+        raise ValueError(f"{name} must be {length} lowercase hexadecimal characters")
     return value
 
 
@@ -169,9 +171,9 @@ def main() -> int:
     parser.add_argument("--tree", required=True)
     parser.add_argument("--archive-sha256", required=True)
     args = parser.parse_args()
-    commit = _sha256(args.commit, "commit")
-    tree = _sha256(args.tree, "tree")
-    archive_sha256 = _sha256(args.archive_sha256, "archive_sha256")
+    commit = _hex_identifier(args.commit, "commit", 40)
+    tree = _hex_identifier(args.tree, "tree", 40)
+    archive_sha256 = _hex_identifier(args.archive_sha256, "archive_sha256", 64)
 
     import torch
 
