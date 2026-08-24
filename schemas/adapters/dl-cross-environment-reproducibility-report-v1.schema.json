@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-cross-environment-reproducibility-report/v1",
+  "title": "Deep-learning cross-environment receipt comparison report v1",
+  "description": "Deterministic engineering comparison of at least two exact R5 portability receipts. The report never infers host or participant independence, external adoption, or production reliability.",
+  "type": "object",
+  "required": [
+    "schema",
+    "report_id",
+    "observed_at",
+    "evidence_scope",
+    "trial_plan_sha256",
+    "repository",
+    "policy",
+    "source_receipts",
+    "environment_variation",
+    "per_seed",
+    "controlled_interruption",
+    "summary",
+    "claims",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "dl-cross-environment-reproducibility-report/v1"},
+    "report_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+    "observed_at": {"type": "string", "x-rfc3339-datetime": true},
+    "evidence_scope": {"const": "cross_environment_receipt_comparison_engineering_only"},
+    "trial_plan_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "repository": {
+      "type": "object",
+      "required": ["commit_oid", "tree_oid", "archive_sha256", "dirty"],
+      "properties": {
+        "commit_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "tree_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "archive_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "dirty": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["policy_id", "expected_seeds", "final_loss_absolute_tolerance"],
+      "properties": {
+        "policy_id": {"const": "dl-cross-environment-comparison-policy/v1"},
+        "expected_seeds": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "integer"}},
+        "final_loss_absolute_tolerance": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "source_receipts": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["receipt_id", "receipt_sha256", "environment_sha256"],
+        "properties": {
+          "receipt_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "receipt_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "environment_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "environment_variation": {
+      "type": "array",
+      "items": {
+        "enum": ["os", "architecture", "python_version", "framework_version", "cuda_version", "driver_version", "device_model", "compute_capability"]
+      }
+    },
+    "per_seed": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["seed", "stable_state_exact", "final_loss_absolute_delta", "final_loss_within_tolerance"],
+        "properties": {
+          "seed": {"type": "integer"},
+          "stable_state_exact": {"type": "boolean"},
+          "final_loss_absolute_delta": {"type": "number"},
+          "final_loss_within_tolerance": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "controlled_interruption": {
+      "type": "object",
+      "required": ["model_state_exact", "optimizer_state_exact", "scheduler_state_exact", "final_loss_absolute_delta", "final_loss_within_tolerance"],
+      "properties": {
+        "model_state_exact": {"type": "boolean"},
+        "optimizer_state_exact": {"type": "boolean"},
+        "scheduler_state_exact": {"type": "boolean"},
+        "final_loss_absolute_delta": {"type": "number"},
+        "final_loss_within_tolerance": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "required": ["receipt_count", "environment_count", "within_environment_gates_passed", "verdict"],
+      "properties": {
+        "receipt_count": {"type": "integer"},
+        "environment_count": {"type": "integer"},
+        "within_environment_gates_passed": {"const": true},
+        "verdict": {"enum": ["single_environment_only", "exact_match", "numerically_close_not_exact", "mismatch"]}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["independent_hosts_verified", "independent_participants_verified", "external_adoption_verified", "production_reliability_verified"],
+      "properties": {
+        "independent_hosts_verified": {"const": false},
+        "independent_participants_verified": {"const": false},
+        "external_adoption_verified": {"const": false},
+        "production_reliability_verified": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 12,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}
