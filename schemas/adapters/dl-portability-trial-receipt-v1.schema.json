@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-portability-trial-receipt/v1",
+  "title": "Deep-learning portable CUDA trial receipt v1",
+  "description": "Public-safe, hash-bound receipt for a bounded R5 PyTorch/CUDA portability trial. The receipt establishes local engineering checks only and does not prove host or participant independence, external adoption, real-data validity, or production reliability.",
+  "type": "object",
+  "required": [
+    "schema",
+    "receipt_id",
+    "trial_plan_sha256",
+    "observed_at",
+    "evidence_scope",
+    "status",
+    "repository",
+    "runner",
+    "execution",
+    "same_host_reproducibility",
+    "controlled_interruption",
+    "privacy",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "dl-portability-trial-receipt/v1"},
+    "receipt_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+    "trial_plan_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "observed_at": {"type": "string", "x-rfc3339-datetime": true},
+    "evidence_scope": {"const": "real_framework_hardware_portability_trial_readiness_engineering"},
+    "status": {"const": "completed"},
+    "repository": {
+      "type": "object",
+      "required": ["commit_oid", "tree_oid", "archive_sha256", "dirty"],
+      "properties": {
+        "commit_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "tree_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "archive_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "dirty": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "required": ["name", "version", "source_sha256", "same_host_runner_sha256", "interruption_runner_sha256"],
+      "properties": {
+        "name": {"const": "pytorch-portability-trial-runner"},
+        "version": {"const": "0.1.0"},
+        "source_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "same_host_runner_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "interruption_runner_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "required": ["os", "architecture", "python_version", "framework_version", "cuda_version", "driver", "device"],
+      "properties": {
+        "os": {"enum": ["windows", "linux"]},
+        "architecture": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "python_version": {"type": "string", "minLength": 1, "pattern": "^[0-9]+\\.[0-9]+(\\.[0-9]+)?([+.-][0-9A-Za-z.-]+)?$"},
+        "framework_version": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "cuda_version": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "driver": {
+          "type": "object",
+          "required": ["status", "source", "version"],
+          "properties": {
+            "status": {"enum": ["observed", "unavailable"]},
+            "source": {"const": "nvidia-smi"},
+            "version": {"type": "string", "minLength": 1, "pattern": "^(unavailable|[0-9]+\\.[0-9]+(\\.[0-9]+)?)$"}
+          },
+          "additionalProperties": false
+        },
+        "device": {
+          "type": "object",
+          "required": ["model", "count", "memory_bytes", "compute_capability"],
+          "properties": {
+            "model": {"type": "string", "minLength": 1, "pattern": "\\S"},
+            "count": {"type": "integer"},
+            "memory_bytes": {"type": "integer"},
+            "compute_capability": {"type": "string", "minLength": 3, "pattern": "^[0-9]+\\.[0-9]+$"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "same_host_reproducibility": {
+      "type": "object",
+      "required": ["report_sha256", "plan_sha256", "expected_seeds", "successful_seeds", "failed_seeds", "exact_repeat_matches", "results"],
+      "properties": {
+        "report_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "plan_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "expected_seeds": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "integer"}},
+        "successful_seeds": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "integer"}},
+        "failed_seeds": {"type": "array", "maxItems": 0, "items": {"type": "integer"}},
+        "exact_repeat_matches": {"const": 3},
+        "results": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "object",
+            "required": ["seed", "stable_sha256", "final_loss"],
+            "properties": {
+              "seed": {"type": "integer"},
+              "stable_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "final_loss": {"type": "number"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "controlled_interruption": {
+      "type": "object",
+      "required": ["observation_sha256", "checkpoint_confirmed", "spawn_identity_verified", "model_state_sha256", "optimizer_state_sha256", "scheduler_state_sha256", "final_loss", "double_charged", "scheduler_preemption_observed"],
+      "properties": {
+        "observation_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "checkpoint_confirmed": {"const": true},
+        "spawn_identity_verified": {"const": true},
+        "model_state_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "optimizer_state_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "scheduler_state_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "final_loss": {"type": "number"},
+        "double_charged": {"const": false},
+        "scheduler_preemption_observed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["local_paths_included", "credentials_included", "personal_identifiers_included", "automatic_upload_performed"],
+      "properties": {
+        "local_paths_included": {"const": false},
+        "credentials_included": {"const": false},
+        "personal_identifiers_included": {"const": false},
+        "automatic_upload_performed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 12,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}

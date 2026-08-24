@@ -262,6 +262,32 @@ ADAPTER_FIXTURE_MANIFEST = {
             "wrong-runner.json": ("RecordValidationError", "runner.name"),
         },
     },
+    "dl-cross-environment-reproducibility-report/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "missing-trial-plan-sha256.json": (
+                "RecordValidationError",
+                "trial_plan_sha256",
+            ),
+            "wrong-policy.json": ("RecordValidationError", "policy.policy_id"),
+        },
+    },
+    "dl-portability-trial-receipt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "missing-trial-plan-sha256.json": (
+                "RecordValidationError",
+                "trial_plan_sha256",
+            ),
+            "wrong-runner.json": ("RecordValidationError", "runner.name"),
+        },
+    },
     "dl-run-manifest/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -466,6 +492,12 @@ MINIMAL_FIXTURE_SHA256 = {
     "dl-checkpoint-recovery-observation/v1": (
         "f4f10c417ac0211c583162f054858fa744db5defb5d5c3376cc5fd09f91710b9"
     ),
+    "dl-cross-environment-reproducibility-report/v1": (
+        "a0f6c008eecc648ca9a0ff26bb315ae259713a862386d61a59ff631316a15873"
+    ),
+    "dl-portability-trial-receipt/v1": (
+        "9934b2810cb072c9f658e270164f0a5e1e4609e9ce5910cd313169ec3e271bfd"
+    ),
     "dl-run-manifest/v1": (
         "55a7a42f595bf39697e7fff3ba1395225138e8c2a5221c8c594665ee2d11574a"
     ),
@@ -542,6 +574,12 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "dl-checkpoint-recovery-observation-v1.schema.json": (
         "8671549b3686297276037dbcdc5045823072514a8e8fa20e3a8c11dacaab7687"
+    ),
+    "dl-cross-environment-reproducibility-report-v1.schema.json": (
+        "d847ada2034097341fb07a45b3e8b30571f54b2a4a5cbead9b97aab6a2110608"
+    ),
+    "dl-portability-trial-receipt-v1.schema.json": (
+        "8612123e986d5d9de53b364ceaa2df3b08bb3e2368ee7df063fb0488d7b82336"
     ),
     "dl-run-manifest-v1.schema.json": (
         "9495f56a62691e81d4ca92025221672744bb8089bbcf80e322a0c7202c5c4acf"
@@ -686,7 +724,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_four_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_six_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -694,6 +732,8 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "claim-assessment/v1",
                 "dl-checkpoint-recovery-observation/v1",
                 "dl-controlled-interruption-recovery-observation/v1",
+                "dl-cross-environment-reproducibility-report/v1",
+                "dl-portability-trial-receipt/v1",
                 "dl-run-manifest/v1",
                 "dl-run-observation/v1",
                 "dl-same-host-reproducibility-report/v1",

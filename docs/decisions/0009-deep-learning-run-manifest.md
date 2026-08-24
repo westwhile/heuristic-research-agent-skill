@@ -118,3 +118,23 @@ R1 在不改变 L2/L3 合成 runner 字节和根 Adapter seam 的前提下，增
 
 R1 不打开 `gpu_training`、真实数据验收、driver/多 GPU 矩阵、外部 checkpoint
 store、scheduler recovery 或 `v0.7.0` Tag/Release Gate。
+
+## 增补 A5（2026-08-24，R5）：可移植 CUDA 试用回执与跨环境比较
+
+R5 在 R3/R4 已验证的公开 interface 之上增加一个可离线运行、公开安全的
+trial Module 和一个纯比较 Module。它准备不同环境的 exact-commit 回执，但在
+外部回执真正到达前只标记 `TRIAL_READY / ZERO_EXTERNAL_RECEIPTS`。
+
+1. **唯一 trial interface**：`run_pytorch_portability_trial(plan_payload, *, artifact_root) -> DLPortabilityTrialReceipt`。plan 只携带 clean commit/tree/archive SHA-256；三 seed、fixture、manifest、R3/R4 调用、环境探测和回执投影全部隐藏在 Module 内。PyTorch 继续由调用方管理并 lazy import，不安装框架、不上传数据。
+2. **固定执行包络**：同一调用先执行 seeds 7/11/13、每 seed 两个 fresh process 的 R3 Gate，再执行 checkpoint 确认后 exact-owned-child 受控终止的 R4 Gate。任一 seed、身份、恢复或累计预算 Gate 失败都不签发 completed receipt。
+3. **artifact seam**：`artifact_root` 必须是仓库外、已存在且为空的调用方目录。checkpoint payload 只留在该目录；正式 receipt 仅保留 locator-free 状态哈希、执行环境、commit/tree/archive、runner identity 和限制项。
+4. **公开安全合同**：`dl-portability-trial-receipt/v1` 拒绝本机绝对路径、常见凭据形态和邮箱；不包含用户名、主机名、GPU UUID/MAC/序列号、环境变量全集或原始异常。privacy flags 不能覆盖字符串级扫描结果。
+5. **唯一 comparison interface**：`build_cross_environment_report(receipts, comparison_policy) -> DLCrossEnvironmentReport`。它要求至少两份非重复、同 commit/tree/archive/plan 的 receipt，按环境事实和预注册 seed 比较 exact state hashes 与 final-loss delta；同环境多回执只能得到 `single_environment_only`。
+6. **不推断身份或采用**：`dl-cross-environment-reproducibility-report/v1` 将 independent hosts、independent participants、external adoption 和 production reliability 四项固定为 false。环境元数据不同只表示观察到不同配置，参与者独立性与公开同意仍由 O5 单独验收。
+7. **脚本边界**：`verify_dl_portability_trial.py` 和 `compare_dl_portability_receipts.py` 仅在本地运行，可选择把 canonical JSON 写到显式仓库外新路径；不访问网络、不邀请参与者、不代提交、不安装 PyTorch/Skill。
+8. **seam 延期**：R5 不引入 `CheckpointStore` port。当前仍只有 caller-managed local directory；只有真实远端 store 被选择并形成第二个 Adapter 后，才重新评估该 seam。
+
+R5 本机 CUDA Gate 仍只证明单一记录环境的 bounded synthetic engineering
+behavior。没有合格外部 receipt 时，不支持跨 host/GPU/driver、外部采用或 O5
+完成结论；真实数据、外部 checkpoint store、scheduler-managed involuntary
+preemption、分布式/混合精度、生产和 `v0.7.0` Tag/Release Gate 继续关闭。
