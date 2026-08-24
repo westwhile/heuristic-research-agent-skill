@@ -63,6 +63,12 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
 tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
+The CR1 implementation proposal adds one independently authored private Core
+scanner and otherwise modifies already covered repository-native paths. Its
+working-tree inventory is 1008 files: 875 `independently_authored`, 118
+`generated`, 13 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`.
+These proposal counts are not a claim that CR1 has merged to `main`.
+
 ## External-source decisions
 
 ### Canonical Apache-2.0 license text

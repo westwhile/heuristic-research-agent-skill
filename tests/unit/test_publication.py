@@ -188,6 +188,28 @@ def _tree_snapshot(root: Path) -> dict[str, str]:
     }
 
 
+def _restricted_p7a_payload(family: str, restricted: str) -> dict:
+    fixture = (
+        Path(__file__).resolve().parents[1]
+        / "fixtures"
+        / "core"
+        / family
+        / "v1"
+        / "valid"
+        / "minimal.json"
+    )
+    payload = json.loads(fixture.read_text(encoding="utf-8"))
+    if family == "candidate-manifest":
+        material = payload["context"]["materials"][0]
+    else:
+        material = payload["included_materials"][0]
+    material["content"] = restricted
+    material["content_sha256"] = hashlib.sha256(
+        restricted.encode("utf-8")
+    ).hexdigest()
+    return payload
+
+
 class PublishTest(unittest.TestCase):
     def setUp(self) -> None:
         self._tmp = tempfile.TemporaryDirectory()
@@ -249,6 +271,19 @@ class PublishTest(unittest.TestCase):
         self.assertIn("supersedes", str(caught.exception))
         self.assertEqual(before, _tree_snapshot(self.root))
         self.assertTrue(verify_record_graph(self.root).ok)
+
+    def test_restricted_p7a_records_are_rejected_before_store_creation(self) -> None:
+        restricted = "sk-" + "A" * 24
+        for family in ("candidate-manifest", "context-bundle"):
+            with self.subTest(family=family):
+                root = Path(self._tmp.name) / family
+                payload = _restricted_p7a_payload(family, restricted)
+                with self.assertRaisesRegex(
+                    PublicationError, "restricted content"
+                ) as caught:
+                    publish_record(json.dumps(payload), root=root)
+                self.assertNotIn(restricted, str(caught.exception))
+                self.assertFalse(root.exists())
 
     def test_revision_is_new_id_plus_supersedes(self) -> None:
         self._publish(_claim("c-1"))

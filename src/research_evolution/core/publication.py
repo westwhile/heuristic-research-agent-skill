@@ -16,6 +16,7 @@ from typing import Any
 
 from ._errors import PublicationError, StoreIntegrityError
 from ._graph import GraphViolation, check_record_graph
+from ._restricted import scan_value_for_restricted
 from ._store import (
     _find_reparse_component,
     absolutize_lexical,
@@ -227,6 +228,13 @@ def publish_record(
         None if schema_root is None else absolutize_lexical(schema_root, cwd)
     )
     record = load_record(source, schema_root=schema_root_path)
+    if record.schema_id in {"candidate-manifest/v1", "context-bundle/v1"}:
+        restricted = scan_value_for_restricted(record.data)
+        if restricted:
+            raise PublicationError(
+                f"{record.schema_id} contains restricted content: "
+                + "; ".join(restricted)
+            )
     record_id = identity_of(record)
     rel = record_relpath(record.schema_id, record.sha256)
     # Containment preflight, before any lock/write: every existing lexical

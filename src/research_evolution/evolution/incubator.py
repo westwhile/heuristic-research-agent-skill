@@ -22,6 +22,7 @@ from research_evolution.core import (
     canonical_sha256,
     load_record,
 )
+from research_evolution.core._restricted import scan_value_for_restricted
 
 _CANDIDATE_SCHEMA = "candidate-manifest/v1"
 _CLOSURE_SCHEMA = "artifact-closure-receipt/v1"
@@ -77,6 +78,11 @@ def _unique_rows(rows: list[dict[str, Any]], field: str, label: str) -> dict[str
 
 def _validate_candidate_semantics(record: Record) -> dict[str, Any]:
     payload = record.data
+    restricted = scan_value_for_restricted(payload, "candidate_manifest")
+    if restricted:
+        raise CandidateManifestError(
+            "restricted content refused: " + "; ".join(restricted)
+        )
     if payload["principals"]["author"] == payload["principals"]["reviewer"]:
         raise CandidateManifestError(
             "author and reviewer principals must be distinct"
