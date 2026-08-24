@@ -53,6 +53,8 @@ EVALUATION_CASE = "evaluation-case/v1"
 SUITE = "suite/v1"
 EVALUATION_RUN = "evaluation-run/v1"
 COMPARISON_REPORT = "comparison-report/v1"
+EVALUATION_ATTEMPT = "evaluation-attempt/v1"
+EVALUATION_RESULT = "evaluation-result/v1"
 CASE_V2 = "research-case-package/v2"
 PATTERN = "research-pattern/v1"
 HEURISTIC = "heuristic/v1"
@@ -336,6 +338,45 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=EVALUATION_RUN,
                     target_id_field="evaluation_run_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Correctness Reset CR4: an attempt is the always-publishable
+        # execution fact; a result exists only after scoring succeeds and
+        # pins exactly one attempt. The frozen evaluation-run/v1 family
+        # remains registered for backward compatibility.
+        FamilyContract(
+            schema_id=EVALUATION_ATTEMPT,
+            identity_field="evaluation_attempt_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="case",
+                    shape="object",
+                    target_family=EVALUATION_CASE,
+                    target_id_field="evaluation_case_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="suite",
+                    shape="object",
+                    target_family=SUITE,
+                    target_id_field="suite_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=EVALUATION_RESULT,
+            identity_field="evaluation_result_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="attempt",
+                    shape="object",
+                    target_family=EVALUATION_ATTEMPT,
+                    target_id_field="evaluation_attempt_id",
                     pin_required=True,
                 ),
             ),

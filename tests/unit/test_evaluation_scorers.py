@@ -44,6 +44,23 @@ class ScorerLevelPinTest(unittest.TestCase):
         )
         self.assertEqual(enum, set(SCORER_LEVELS))
 
+    def test_level_is_single_sourced_in_attempt_not_result(self) -> None:
+        attempt = json.loads(
+            (SCHEMAS / "evaluation-attempt-v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        enum = set(
+            attempt["properties"]["scorer"]["properties"]["level"]["enum"]
+        )
+        result = json.loads(
+            (SCHEMAS / "evaluation-result-v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        self.assertEqual(enum, set(SCORER_LEVELS))
+        self.assertNotIn("scorer", result["properties"])
+
 
 class ScoreEntryTest(unittest.TestCase):
     def test_valid_entry(self) -> None:

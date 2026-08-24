@@ -1,0 +1,1 @@
+{"schema":"evaluation-result/v1","evaluation_result_id":"eres-carries-gates","attempt":{"evaluation_attempt_id":"ea-1","sha256":"1111111111111111111111111111111111111111111111111111111111111111"},"score_vector":[{"dimension":"exact","value":1}],"gate_results":[{"gate":"integrity","result":"pass"}],"generated_at":"2026-08-24T12:02:00Z"}

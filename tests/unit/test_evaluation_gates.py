@@ -79,6 +79,29 @@ class GateEnumPinTest(unittest.TestCase):
         items = schema["properties"]["gate_summary"]["items"]["properties"]
         self.assertEqual(set(items["gate"]["enum"]), set(GATES))
 
+    def test_gates_and_verdicts_are_single_sourced_in_attempt_schema(self) -> None:
+        schema = json.loads(
+            (SCHEMAS / "evaluation-attempt-v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        items = schema["properties"]["gate_results"]["items"]["properties"]
+        self.assertEqual(set(items["gate"]["enum"]), set(GATES))
+        self.assertEqual(set(items["result"]["enum"]), set(GATE_RESULTS))
+        attempt_verdicts = json.loads(
+            (SCHEMAS / "evaluation-attempt-v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )["properties"]["verdict"]["enum"]
+        result_properties = json.loads(
+            (SCHEMAS / "evaluation-result-v1.schema.json").read_text(
+                encoding="utf-8"
+            )
+        )["properties"]
+        self.assertEqual(set(attempt_verdicts), set(VERDICTS))
+        self.assertNotIn("gate_results", result_properties)
+        self.assertNotIn("verdict", result_properties)
+
 
 class GateResultTest(unittest.TestCase):
     def test_fail_requires_reason(self) -> None:

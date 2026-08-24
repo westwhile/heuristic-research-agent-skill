@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evaluation-attempt/v1",
+  "title": "EvaluationAttempt v1",
+  "description": "One immutable evaluation attempt. Every replay or scoring execution that starts can be recorded, including timeout, output-limit, parse, runner, and scorer failures, without fabricating an output hash or score.",
+  "type": "object",
+  "required": [
+    "schema",
+    "evaluation_attempt_id",
+    "case",
+    "suite",
+    "candidate",
+    "envelope",
+    "runner",
+    "scorer",
+    "environment",
+    "execution",
+    "gate_results",
+    "verdict",
+    "levels_covered",
+    "generated_at"
+  ],
+  "properties": {
+    "schema": {"const": "evaluation-attempt/v1"},
+    "evaluation_attempt_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S+$"
+    },
+    "case": {
+      "type": "object",
+      "required": ["evaluation_case_id", "sha256"],
+      "properties": {
+        "evaluation_case_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "suite": {
+      "type": "object",
+      "required": ["suite_id", "sha256"],
+      "properties": {
+        "suite_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "envelope": {
+      "type": "object",
+      "required": ["envelope_sha256"],
+      "properties": {
+        "envelope_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "timeout_ms": {"type": "integer"},
+        "max_output_bytes": {"type": "integer"},
+        "retry_attempts": {"type": "integer"},
+        "seed": {"type": "integer"},
+        "notes": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "runner": {
+      "type": "object",
+      "required": ["tool", "version"],
+      "properties": {
+        "tool": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "version": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "model": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "scorer": {
+      "type": "object",
+      "required": ["level", "tool", "version"],
+      "properties": {
+        "level": {"enum": ["oracle", "deterministic_checker", "structured_rubric", "calibrated_judge"]},
+        "tool": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "version": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "calibration_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "environment": {"type": "object"},
+    "execution": {
+      "type": "object",
+      "required": ["status", "attempts", "complete_outputs", "partial_outputs", "artifacts", "diagnostics"],
+      "properties": {
+        "status": {
+          "enum": ["completed", "timeout", "output_limit", "parse_error", "runner_error", "scorer_error"]
+        },
+        "attempts": {"type": "integer"},
+        "complete_outputs": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["sha256"],
+            "properties": {
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "locator": {"type": "string", "x-safe-relative-path": true}
+            },
+            "additionalProperties": false
+          }
+        },
+        "partial_outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["sha256"],
+            "properties": {
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "locator": {"type": "string", "x-safe-relative-path": true}
+            },
+            "additionalProperties": false
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "sha256"],
+            "properties": {
+              "kind": {"enum": ["log", "trace"]},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "locator": {"type": "string", "x-safe-relative-path": true}
+            },
+            "additionalProperties": false
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["detail"],
+            "properties": {
+              "detail": {"type": "string", "minLength": 1, "pattern": "\\S"}
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "x-conditional-min-items": [
+        {"when_property": "status", "when_equals": ["completed", "scorer_error"], "then_property": "complete_outputs", "min_items": 1},
+        {"when_property": "status", "when_equals": ["timeout", "output_limit", "parse_error", "runner_error", "scorer_error"], "then_property": "diagnostics", "min_items": 1}
+      ],
+      "additionalProperties": false
+    },
+    "gate_results": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "result"],
+        "properties": {
+          "gate": {"enum": ["integrity", "critical_safety", "regression", "resource", "privacy", "evaluator_integrity"]},
+          "result": {"enum": ["pass", "fail", "not_applicable"]},
+          "reason": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "verdict": {"enum": ["pass", "fail", "error", "inconclusive"]},
+    "levels_covered": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"enum": ["L0", "L1"]}
+    },
+    "generated_at": {"type": "string", "x-rfc3339-datetime": true}
+  },
+  "additionalProperties": false
+}

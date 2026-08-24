@@ -1,7 +1,7 @@
 """Scorer levels and score-vector construction (ADR-0006 decisions 5-6).
 
-Four explicit scorer levels, recorded in every ``evaluation-run/v1``
-record and every report: ``oracle``, ``deterministic_checker``,
+Four explicit scorer levels, recorded in attempt/result records, legacy
+``evaluation-run/v1`` records, and reports: ``oracle``, ``deterministic_checker``,
 ``structured_rubric``, and ``calibrated_judge``. The first two score a
 replayed output here, deterministically and offline. The last two package
 scores produced by an external offline judgment process (a human or an
@@ -29,8 +29,9 @@ from decimal import Decimal
 from typing import Any, Mapping
 
 # Scorer levels: exactly the ``scorer.level`` enum of
-# ``evaluation-run/v1`` and the ``evaluation_contract.scorer_level`` enum
-# of ``evaluation-case/v1`` — a unit test pins both equalities.
+# ``evaluation-attempt/v1``, ``evaluation-result/v1``, legacy
+# ``evaluation-run/v1``, and the ``evaluation_contract.scorer_level``
+# enum of ``evaluation-case/v1`` — contract tests pin these equalities.
 SCORER_LEVELS = frozenset(
     {"oracle", "deterministic_checker", "structured_rubric", "calibrated_judge"}
 )

@@ -11,11 +11,12 @@ same deterministic attempt (retry exists because the envelope must carry
 the policy, not because replay is nondeterministic).
 
 Every failure is classified into exactly one of the four structured error
-classes of ``evaluation-run/v1`` (``timeout`` / ``output_limit`` /
-``parse_error`` / ``runner_error``). A failed run is data, not an
-exception: :func:`run_replay` returns a :class:`ReplayResult` for every
-classified failure and never raises for one. Anything outside the
-taxonomy is a bug in the runner itself and is allowed to propagate.
+replay classes of ``evaluation-attempt/v1`` (``timeout`` /
+``output_limit`` / ``parse_error`` / ``runner_error``). A failed run is
+data, not an exception: :func:`run_replay` returns a
+:class:`ReplayResult` for every classified failure and never raises for
+one. Anything outside the taxonomy is a bug in the runner itself and is
+allowed to propagate.
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ class ReplayResult:
 
 
 def runner_identity() -> dict[str, str]:
-    """The ``runner`` field value for an ``evaluation-run/v1`` record."""
+    """The runner identity bound into attempt, result, and legacy records."""
     return {"tool": RUNNER_TOOL, "version": RUNNER_VERSION}
 
 

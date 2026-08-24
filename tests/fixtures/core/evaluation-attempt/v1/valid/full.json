@@ -1,0 +1,33 @@
+{
+  "schema": "evaluation-attempt/v1",
+  "evaluation_attempt_id": "ea-full",
+  "case": {"evaluation_case_id": "ec-2", "sha256": "1111111111111111111111111111111111111111111111111111111111111111"},
+  "suite": {"suite_id": "suite-2", "sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+  "candidate": {"candidate_id": "candidate-2", "sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+  "envelope": {
+    "envelope_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "timeout_ms": 1000,
+    "max_output_bytes": 4096,
+    "retry_attempts": 0,
+    "seed": 7,
+    "notes": "Frozen synthetic fixture envelope."
+  },
+  "runner": {"tool": "fixture-runner", "version": "1.0.0", "model": "fixture-model"},
+  "scorer": {"level": "oracle", "tool": "fixture-scorer", "version": "1.0.0"},
+  "environment": {"interpreter": "fixture"},
+  "execution": {
+    "status": "completed",
+    "attempts": 1,
+    "complete_outputs": [{"sha256": "5555555555555555555555555555555555555555555555555555555555555555", "locator": "artifacts/output.json"}],
+    "partial_outputs": [],
+    "artifacts": [
+      {"kind": "log", "sha256": "6666666666666666666666666666666666666666666666666666666666666666", "locator": "artifacts/run.log"},
+      {"kind": "trace", "sha256": "7777777777777777777777777777777777777777777777777777777777777777", "locator": "artifacts/trace.json"}
+    ],
+    "diagnostics": []
+  },
+  "gate_results": [{"gate": "integrity", "result": "pass"}],
+  "verdict": "pass",
+  "levels_covered": ["L0", "L1"],
+  "generated_at": "2026-08-24T12:01:00Z"
+}
