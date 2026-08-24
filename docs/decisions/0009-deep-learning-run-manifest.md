@@ -138,3 +138,16 @@ R5 本机 CUDA Gate 仍只证明单一记录环境的 bounded synthetic engineer
 behavior。没有合格外部 receipt 时，不支持跨 host/GPU/driver、外部采用或 O5
 完成结论；真实数据、外部 checkpoint store、scheduler-managed involuntary
 preemption、分布式/混合精度、生产和 `v0.7.0` Tag/Release Gate 继续关闭。
+
+## 增补 A6（2026-08-24，R6A）：外部试验 submission 与 attestation 协议
+
+R6A 在 R5 receipt/comparison interface 之上增加两个公开安全的治理 Module，
+不邀请参与者、不接收当前 submission，也不改变 R5 四项恒 false claim。
+
+1. **唯一 participant submission interface**：`build_external_trial_submission(receipt, attestation_payload) -> DLExternalTrialSubmission`。输入必须是已验证的 R5 receipt 与 strict `dl-external-trial-attestation/v1`；输出 `dl-external-trial-submission/v1` 只保留伪匿名 participant ID、receipt/repository/environment pins、nonce-hardened 私有 identity/consent record hashes、显式 consent 与限制项。submission 始终是 `submitted_unreviewed / self_declared`，不能宣称 participant/host 已验证。
+2. **唯一 coordinator review interface**：`review_external_trial_cohort(submissions, review_payload) -> DLExternalTrialCohortReview`。strict `dl-external-trial-cohort-review-plan/v1` 必须逐份绑定 submission、participant、identity/consent/host 私有记录哈希和四类 review decision；重复 submission、receipt、participant、identity 或 consent binding fail-closed。重复 host record 或不足两个 distinct R5 environment 只能得到 `insufficient_verified_independence`。
+3. **三档证据不可互换**：`not_verified` 表示无可用记录；`self_declared` 只表示 participant 声明；`coordinator_verified` 只表示 coordinator 将公开哈希与仓库外私有记录及 review decision 对账，不是独立审计或密码学身份证明。只有至少两名 accepted participant、至少两个 distinct environment、distinct private host hashes 且全部 review verified，才得到 `eligible_for_separate_technical_comparison`。
+4. **技术比较继续独立**：cohort review 不读取完整 R5 receipt metrics、不执行 PyTorch，也不替代 `build_cross_environment_report`。即使队列 eligible，仍必须在后续 R6C 单独绑定 exact R5 report；R6A report 固定 `technical_comparison_completed=false`、`external_adoption_verified=false` 与 `production_reliability_verified=false`。
+5. **隐私硬化**：public participant ID 必须随机且不可从身份/主机派生。identity、consent 与 host 私有记录必须各自包含至少 128-bit 随机 nonce 后再 SHA-256；原始记录和 nonce 永不进入 Git、PR、Issue、receipt、submission 或 agent 上下文。所有正式 artifact 再执行路径、凭据形态和邮箱扫描；privacy flags 不能覆盖字符串级发现。
+6. **脚本边界**：prepare/review 脚本只读取显式本地输入并写入仓库外新路径，失败输出不回显输入或本机路径；不联网、不上传、不邀请、不代提交、不安装 PyTorch/Skill。任何公开 submission/review 仍需逐项 consent 与独立发布授权。
+7. **当前状态上限**：R6A merge 只允许 `PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS`。测试中的 participant、receipt、review plan 全是合成 contract fixture，不是外部采用或真实参与者证据；Phase 7、真实数据、生产、v13 与 `v0.7.0` Tag/Release Gate 继续关闭。

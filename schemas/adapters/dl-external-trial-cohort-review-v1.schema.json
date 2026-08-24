@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dl-external-trial-cohort-review/v1",
+  "title": "Deep-learning external trial cohort review v1",
+  "description": "Coordinator review over public-safe R6A submissions. Coordinator-verified means that hash-bound private review records were checked; it is not an independent audit, technical comparison, adoption, or production evidence.",
+  "type": "object",
+  "required": [
+    "schema",
+    "review_id",
+    "reviewed_at",
+    "evidence_scope",
+    "protocol",
+    "trial_plan_sha256",
+    "repository",
+    "policy",
+    "submissions",
+    "summary",
+    "claims",
+    "next_gate",
+    "privacy",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "dl-external-trial-cohort-review/v1"},
+    "review_id": {"type": "string", "pattern": "^dl-external-review-[0-9a-f]{16}$"},
+    "reviewed_at": {"type": "string", "x-rfc3339-datetime": true},
+    "evidence_scope": {"const": "external_trial_coordinator_record_review_engineering_only"},
+    "protocol": {
+      "type": "object",
+      "required": ["protocol_id", "protocol_sha256"],
+      "properties": {
+        "protocol_id": {"const": "dl-external-trial-protocol/v1"},
+        "protocol_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "trial_plan_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "repository": {
+      "type": "object",
+      "required": ["commit_oid", "tree_oid", "archive_sha256", "dirty"],
+      "properties": {
+        "commit_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "tree_oid": {"type": "string", "minLength": 40, "maxLength": 40, "pattern": "^[0-9a-f]{40}$"},
+        "archive_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "dirty": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "policy": {
+      "type": "object",
+      "required": ["minimum_independent_participants", "minimum_distinct_environments"],
+      "properties": {
+        "minimum_independent_participants": {"type": "integer"},
+        "minimum_distinct_environments": {"type": "integer"}
+      },
+      "additionalProperties": false
+    },
+    "submissions": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["submission_id", "submission_sha256", "receipt_sha256", "environment_sha256", "public_participant_id", "private_identity_record_sha256", "private_consent_record_sha256", "private_host_record_sha256", "private_host_record_hash_nonce_hardened", "disposition", "receipt_binding_review", "participant_independence_review", "host_independence_review", "consent_review"],
+        "properties": {
+          "submission_id": {"type": "string", "pattern": "^dl-external-submission-[0-9a-f]{16}$"},
+          "submission_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "receipt_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "environment_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "public_participant_id": {"type": "string", "pattern": "^participant-[0-9a-f]{16}$"},
+          "private_identity_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_consent_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_host_record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "private_host_record_hash_nonce_hardened": {"const": true},
+          "disposition": {"enum": ["accepted", "rejected"]},
+          "receipt_binding_review": {"enum": ["verified", "unverified", "rejected"]},
+          "participant_independence_review": {"enum": ["verified", "unverified", "rejected"]},
+          "host_independence_review": {"enum": ["verified", "unverified", "rejected"]},
+          "consent_review": {"enum": ["verified", "unverified", "rejected"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["submitted", "accepted_submissions", "rejected_submissions", "distinct_participants", "distinct_environments", "status"],
+      "properties": {
+        "submitted": {"type": "integer"},
+        "accepted_submissions": {"type": "integer"},
+        "rejected_submissions": {"type": "integer"},
+        "distinct_participants": {"type": "integer"},
+        "distinct_environments": {"type": "integer"},
+        "status": {"enum": ["eligible_for_separate_technical_comparison", "insufficient_verified_independence", "no_accepted_submissions"]}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["independent_participants_evidence", "independent_hosts_evidence", "external_adoption_verified", "production_reliability_verified"],
+      "properties": {
+        "independent_participants_evidence": {"enum": ["not_verified", "self_declared", "coordinator_verified"]},
+        "independent_hosts_evidence": {"enum": ["not_verified", "self_declared", "coordinator_verified"]},
+        "external_adoption_verified": {"const": false},
+        "production_reliability_verified": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "next_gate": {
+      "type": "object",
+      "required": ["r5_technical_comparison_required", "technical_comparison_completed", "external_adoption_evaluation_completed"],
+      "properties": {
+        "r5_technical_comparison_required": {"const": true},
+        "technical_comparison_completed": {"const": false},
+        "external_adoption_evaluation_completed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": ["local_paths_included", "credentials_included", "personal_identifiers_included", "raw_private_records_included", "automatic_upload_performed"],
+      "properties": {
+        "local_paths_included": {"const": false},
+        "credentials_included": {"const": false},
+        "personal_identifiers_included": {"const": false},
+        "raw_private_records_included": {"const": false},
+        "automatic_upload_performed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 12,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}
