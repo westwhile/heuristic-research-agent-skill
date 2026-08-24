@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-24",
-  "phase": "phase6-r1-real-framework-observation-candidate",
-  "evidence_ceiling": "real_framework_hardware_engineering_when_exact_commit_cuda_gate_passes",
+  "phase": "phase6-r1-real-framework-observation-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_engineering",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -27,7 +27,7 @@
     {
       "name": "pytorch-gpu-fixture-runner",
       "version": "0.1.0 / dl-run-observation/v1",
-      "status": "implemented_optional_runtime_exact_commit_cuda_gate_required"
+      "status": "implemented_mainline_optional_runtime"
     }
   ],
   "ci_lanes": {
@@ -60,6 +60,67 @@
         }
       ],
       "scope": "Phase 6 L1-L4 synthetic engineering behavior at the exact main merge commit; this is not real framework, GPU, dataset, scientific, adoption, or production evidence"
+    },
+    "last_commit_bound_phase6_r1_evidence": {
+      "pr_head_commit": "1b406861a5f70170b96bd00928c9634d92cadf98",
+      "main_merge_commit": "4c7b47e0ac1db26d76107dea836e8172b981e698",
+      "shared_tree": "26d187489df798bad0fdb3663b41509ed61125f4",
+      "archive_sha256": "72bfabfe061b20c2a5a32da92f44c42a0559ea9249242772592027c70ce5b2d1",
+      "archive_suite": [
+        {
+          "os": "windows",
+          "python": "3.12.13",
+          "tests": 981,
+          "result": "success",
+          "expected_skips": 2
+        },
+        {
+          "os": "windows",
+          "python": "3.14.5",
+          "tests": 981,
+          "result": "success",
+          "expected_skips": 2
+        }
+      ],
+      "cuda_observation": {
+        "independent_processes": 2,
+        "stable_observation_sha256": "326ac3e55c63fde9bc9a0c3c12533c2a8cd3ab827f291ad260794f7285fc0672",
+        "runner_source_sha256": "6aeb8d77701a71ff05b38fa3d4abccc62829401d30b1ff2192a63668139117d3",
+        "framework": "pytorch-2.12.1+cu130",
+        "backend": "cuda-13.0",
+        "device": "NVIDIA GeForce RTX 4060 Laptop GPU",
+        "compute_capability": "8.9",
+        "result": "completed_exact_accounting"
+      },
+      "main_ci": {
+        "run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32684239392",
+        "head_sha": "4c7b47e0ac1db26d76107dea836e8172b981e698",
+        "jobs": [
+          {
+            "os": "ubuntu-latest",
+            "python": "3.12",
+            "result": "success"
+          },
+          {
+            "os": "ubuntu-latest",
+            "python": "3.14",
+            "result": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.12",
+            "result": "success",
+            "powershell_governance": "success"
+          },
+          {
+            "os": "windows-latest",
+            "python": "3.14",
+            "result": "success",
+            "powershell_governance": "success"
+          }
+        ]
+      },
+      "scope": "One bounded synthetic fixture on one real PyTorch/CUDA host and primary GPU; not real-data, scientific, predictive, production, adoption, driver, checkpoint-store, or cross-GPU evidence"
     }
   },
   "execution_matrix": [
@@ -76,7 +137,7 @@
       "accelerator": "cuda_primary_device",
       "framework": "caller_managed_lazy_import",
       "data": "bounded_synthetic_fixture",
-      "status": "candidate_real_framework_hardware_engineering_observation",
+      "status": "verified_single_host_real_framework_hardware_engineering_observation",
       "hardware_observation": "framework_version_cuda_backend_device_model_count_memory_compute_capability"
     },
     {
@@ -110,7 +171,8 @@
       "failed and missing expected seeds remain explicit",
       "compute-matched reports compare per-seed samples, tokens, FLOP proxy, and related caps",
       "checkpoint reports retain locator/hash/lineage only",
-      "R1 observations bind manifest, fixture, runner source bytes, runtime, framework, hardware, budget, failure, and limitations"
+      "R1 observations bind manifest, fixture, runner source bytes, runtime, framework, hardware, budget, failure, and limitations",
+      "two independent processes reproduced the same R1 stable observation hash on the recorded single host and primary CUDA device"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
