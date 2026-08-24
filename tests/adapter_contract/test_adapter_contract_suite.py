@@ -362,6 +362,7 @@ _ADAPTER_COUPLED_TESTS = frozenset(
         "tests/unit/test_dl_manifest.py",
         "tests/unit/test_dl_pytorch_observation.py",
         "tests/unit/test_dl_pytorch_recovery.py",
+        "tests/unit/test_dl_pytorch_reproducibility.py",
         "tests/unit/test_dl_runner.py",
         "tests/unit/test_dl_runner_l3.py",
         "tests/unit/test_dl_selection.py",

@@ -275,6 +275,16 @@ ADAPTER_FIXTURE_MANIFEST = {
             "wrong-runner.json": ("RecordValidationError", "runner.name"),
         },
     },
+    "dl-same-host-reproducibility-report/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-evidence-scope.json": ("RecordValidationError", "evidence_scope"),
+            "bad-observed-at.json": ("RecordValidationError", "observed_at"),
+            "missing-plan-sha256.json": ("RecordValidationError", "plan_sha256"),
+            "wrong-runner.json": ("RecordValidationError", "runner.name"),
+        },
+    },
     "ml-task/v1": {
         "valid": ["clustering.json", "full.json", "minimal.json", "regression.json"],
         "invalid": {
@@ -446,6 +456,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "dl-run-observation/v1": (
         "8f3747c5c12c4f420c0c1c0d65d29c258183871e678d42a50214ad2e53d61ba2"
     ),
+    "dl-same-host-reproducibility-report/v1": (
+        "77d2c0508bb51fbd527896f56dd90a9314720a615008adf9e57317f675ee8eab"
+    ),
     "evaluation-contract/v1": (
         "8d28c5756a2ec8f90341562bbfbdd605350c3bc52cb3a6b03bfd6eac4b02d1ab"
     ),
@@ -516,6 +529,9 @@ ADAPTER_SCHEMA_TEXT_SHA256 = {
     ),
     "dl-run-observation-v1.schema.json": (
         "9c791d59e998b6f411223054b93c36cd273381c8108231a2e561c4ef125db225"
+    ),
+    "dl-same-host-reproducibility-report-v1.schema.json": (
+        "25e311b8c82e2333da7294a71dbbe4d0167c8a7241e832c5f3ff193c85fec266"
     ),
     "evaluation-contract-v1.schema.json": (
         "ab8294815264af74b19d325c7e1bd9e70bf938d4a39192736aee6a5d3e65be27"
@@ -651,7 +667,7 @@ class AdapterFixtureBehaviorTest(unittest.TestCase):
 
 
 class AdapterSchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_two_adapter_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_three_adapter_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -660,6 +676,7 @@ class AdapterSchemaIntegrityTest(unittest.TestCase):
                 "dl-checkpoint-recovery-observation/v1",
                 "dl-run-manifest/v1",
                 "dl-run-observation/v1",
+                "dl-same-host-reproducibility-report/v1",
                 "domain-task/v1",
                 "domain-task/v2",
                 "evaluation-contract/v1",
