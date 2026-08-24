@@ -139,6 +139,17 @@ required CI lanes 的权威清单；合同测试阻止它与 `pyproject.toml` �
 包元数据声明 Python `>=3.12`；3.12 与 3.14 是 required 验证 lanes，3.13 没有独立
 required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或生产科研支持。
 
+## Correctness Reset 能力矩阵
+
+| 能力 | 当前状态 | 证据上限 / 阻塞 |
+|---|---|---|
+| P7A Candidate/Context 受限内容入口 | CR1 已合入；builder 与 publication 写入前 fail-closed，且错误不回显命中值 | 关闭了可直接复现的入口缺陷；尚无完整 taint/classification、加密、retention 与 tombstone 合同 |
+| Unicode/CJK 词法相似度 | CR2 已合入；NFKC/casefold、Unicode term、CJK 2–4 gram，空词元明确 abstain | 只是确定性词法启发，不证明语义检索质量、负迁移安全或外部效度 |
+| 失败评测审计 | 未实现 `evaluation-attempt/v1` / `evaluation-result/v1` 拆分 | `evaluation-run/v1` 失败路径仍无法形成完整可发布记录 |
+| Suite 级统计 | 阻塞 | 现行比较仍不得用 metric dimension 冒充 case/seed observation；PromotionDecision Gate 保持关闭 |
+| 完整实验闭包 | P7A 只完成 candidate member byte closure | tools、budget、data、evaluator、generator、统计计划与 rollback target 尚未形成统一可解析闭包 |
+| 真实 Candidate Agent 执行 / Hidden Evaluator / Promotion | 未实现 | 现有证据仅支持合成工程合同；零真实 Skill payload、零自动晋级 |
+
 ## 参与、治理与安全
 
 - 从 [CONTRIBUTING.md](CONTRIBUTING.md) 开始准备环境、测试、来源说明和最小 PR；
@@ -195,5 +206,6 @@ framework/hardware engineering observation，不是数据验收、科研/预测�
 - Phase 6 R5 已通过 PR #30 的 merge commit `434078538f9bf14611b4a263d77f93e8946091fa` 合入 `main`；merge tree `8831ab3519c539b77804519dcbcd4702063be1e7` 与 exact head `d29b52a755158cecc396e85c46487c68294cab3f` 相同。真实 archive 双解释器各 1024/1024（各 6 个预期 skip），archive SHA-256 为 `6f4be64904c28b8c4e2af6d075f5291adeb3907a3319d8638b352d98cdddd902`，Python 3.12/3.14 clean-archive install/CLI Gate 均通过；同一 PyTorch 2.12.1+cu130 / CUDA 13.0 / driver 610.88 / RTX 4060 Laptop GPU 环境的两轮 portability trial 得到相同稳定投影 SHA-256 `2b4781c521e654545c80e151c32dc8f28297a75f3adef25e4d48958e4910b887`。两个公开安全 receipt 的比较结论刻意为 `environments=1 / single_environment_only`；main push CI run `32707504247` 四项 jobs、四项 clean-archive install/demo 与两个 Windows governance 步骤全绿。当前状态为 `TRIAL_READY / ZERO_EXTERNAL_RECEIPTS`，不构成独立主机、独立参与者、跨环境可移植性、真实数据、生产或外部采用证据；未创建新 Tag 或 Release。
 - Phase 6 R6A 已通过 Ready PR #32 的 exact head `ed7d7a430d019776c974b2ad38011d03358d5701` 验收并以 merge commit `c99a5c59572d24f8c6980bb8496719e0f38485a0` 合入 `main`；两者 tree 均为 `8e3e1be5231ed99932d3ae04bec8af80430379f6`。真实 archive SHA-256 为 `4beeafd100d7a0cf069d3d2acc7368535381c8d674eec81dd09f0c458a7b0479`，Python 3.12.13/3.14.5 各 1038/1038（各 6 个预期 skip），两项 clean-archive install/CLI Gate 通过；现有 PyTorch 2.12.1+cu130 / CUDA 13.0 环境的兼容性 Gate 得到稳定投影 SHA-256 `b47d55cd0ac1633d82cb4fb194b6d1e5df8d133fb0b311dcc0ba23ce963099d4`，未写出 receipt。PR CI run `32718644793` 与 exact merge SHA 的 main push CI run `32718910641` 均四项 jobs 全绿，两个 Windows governance 步骤全绿。R6A 只实现公开安全、nonce-hardened 的 participant submission 与 coordinator review 协议；本批没有邀请参与者、没有收到或接受外部 submission，当前状态固定为 `PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS`。合成 contract fixtures 不是外部参与、独立主机、技术比较、可移植性、真实数据、生产或采用证据；未创建新 Tag 或 Release。
 - Phase 7 P7A 已通过 Ready PR #34 的 exact head `51dfc042174ac3159cb76518b3ffa3decdae3489` 验收并以 merge commit `9305d17c8abaf857774a4fdcd736312f4553bce0` 合入 `main`；两者 tree 均为 `7254d74546cb6134abaaf0dc5865f2c4f53ee84c`。P7A 新增 `candidate-manifest/v1`、`artifact-closure-receipt/v1` 与 `context-bundle/v1` 三个严格 Core family，以及 `close_candidate_bundle` / `build_context_bundle` 两个纯 in-process interface；Math/Quant 合成 fixtures 穿过同一 seam 并覆盖 member mutation、DAG cycle、principal 重合、source invalidation、budget fail-closed 与 wrapper mutation。真实 archive SHA-256 为 `7ae8aa1cabf95052f71a4c2e66e8483197ab87c6dbc00f17b523be83a31d4023`，Python 3.12.13/3.14.5 各 1046/1046（各 6 个预期 archive skip），两项 clean-archive install/CLI Gate 通过；既有 PyTorch 2.12.1+cu130 / CUDA 13.0 compatibility Gate 在显式 strict CUBLAS 前置下获得稳定投影 SHA-256 `c9a891777b3691955ec8471e9938eb24aa5a514534ba3a0b2cc8b8be0d8d4375`，且 `receipt_output_written=false`。PR CI run `32740552726` 与 exact merge SHA 的 main push CI run `32740889832` 均四项 jobs 全绿，两个 Windows governance 步骤全绿。当前状态仅为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`：byte closure 不等于 semantic review，全部 installation/activation/publication/semantic-review claim 仍为 false；R6B 继续冻结在 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`，未实施 R6C、fresh-session、Phase 8、v13，未触碰 `skills/staging/`，未创建 Tag 或 Release。
+- Correctness Reset CR1/CR2 已分别通过 Ready PR #36/#37 合入：CR1 merge commit `7269dfe1fcc6fc218a5e898f90ff63c2bd4057b5` 关闭 P7A Candidate/Context 受限内容的 builder/publication 可复现入口，main CI run `32747362317` 四项 jobs 全绿；CR2 final head `ae18567262a12c9f9703d065dbf8658ac499073b` 以 merge commit `42fb906be364d87ba5dce113413b2d0caaae2431` 合入，tree `b694a1f181f113256f5c7e196fdf63e2b3557694`，main CI run `32748487238` 四项 jobs 与两项 Windows governance 全绿。CR2 exact archive Python 3.12.13/3.14.5 各 1052/1052（各 6 个预期 skip），两项 clean-install 与不写 receipt 的本机 CUDA compatibility Gate 通过。这两项修复不证明完整隐私治理、语义检索质量、负迁移安全、真实 Candidate Agent 执行或晋级有效性；未创建 Tag/Release。
 
 提交、推送、打 Tag 和创建 Release 均按治理文档中的 Gate 执行；不得仅因脚本退出码为零便宣称阶段完成。

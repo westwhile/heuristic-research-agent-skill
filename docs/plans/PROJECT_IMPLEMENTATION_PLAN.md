@@ -1,11 +1,11 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.16-phase7-p7a-main-merged
+- 计划版本：v5.17-correctness-reset-cr1-cr2-main-merged
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-24
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；Phase 7 P7A 基础工程已由 Ready PR #34 以 merge commit `9305d17c8abaf857774a4fdcd736312f4553bce0` 合入，五文件状态同步已由 PR #35 以 merge commit `bbb7e8b196e6cde64c29c0079801344164fc2397` 进入 `main`。当前状态上限为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；byte closure 不等于 semantic review，R6B 仍冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`。最高执行证据仍是单主机 bounded synthetic PyTorch/CUDA 工程行为；真实数据、跨 driver/GPU/host 复现、外部 checkpoint store、非自愿 scheduler 抢占、完整 nested-CV 训练、自动晋级闭环、独立参与者、可安装 Skill、生产和外部采用仍未验收。未创建 `v0.7.0` Tag 或 Release，发布 Gate 未开启。
+- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；Phase 7 P7A 基础工程已由 PR #34/#35 实施并同步。Correctness Reset CR1 由 PR #36 以 merge commit `7269dfe1fcc6fc218a5e898f90ff63c2bd4057b5` 关闭 Candidate/Context 受限内容入口；CR2 final head `ae18567262a12c9f9703d065dbf8658ac499073b` 由 PR #37 以 merge commit `42fb906be364d87ba5dce113413b2d0caaae2431` 关闭 CJK/空词元确定性错误高相似。两个 exact main CI 四项 jobs 及 Windows governance 全绿，当前 main tree 为 `b694a1f181f113256f5c7e196fdf63e2b3557694`。能力上限仍为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；失败评测 attempt/result 拆分、case/seed 级统计、完整实验闭包、真实 Agent 执行、hidden evaluator 与 PromotionDecision 仍未实现。R6B 仍冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`；未创建 `v0.7.0` Tag/Release，安装、激活与发布 Gate 未开启。
 
 ### 规划补充（仅计划，不代表已实施）
 
@@ -597,6 +597,8 @@ R6A 已通过 Ready PR #32 的 exact head `ed7d7a430d019776c974b2ad38011d03358d5
 ## Phase 7：Skill Incubator、Candidate Builder 与公开受控进化循环
 
 当前实施状态（2026-08-24）：P7A 基础工程已通过 Ready PR #34 的 exact head `51dfc042174ac3159cb76518b3ffa3decdae3489` 验收，并以 merge commit `9305d17c8abaf857774a4fdcd736312f4553bce0` 进入 `main`；两者 tree 均为 `7254d74546cb6134abaaf0dc5865f2c4f53ee84c`。本批落地 immutable `candidate-manifest/v1`、receipt-last 的 `artifact-closure-receipt/v1`、三档显式 retention 的 `context-bundle/v1`、source lifecycle/principal separation 语义，以及两个纯 in-process interface。Math/Quant 合成 fixture 穿过同一 seam；Core deletion probe、mutation 与 fail-closed 测试通过，但这只证明领域中性基础合同，不证明两个真实领域消费者、独立 semantic review、fresh-session 或 Candidate 质量。archive SHA-256 为 `7ae8aa1cabf95052f71a4c2e66e8483197ab87c6dbc00f17b523be83a31d4023`，Python 3.12.13/3.14.5 各 1046/1046（各 6 个预期 archive skip），两项 clean-archive install/CLI Gate 通过；既有本机 CUDA compatibility Gate 的稳定投影 SHA-256 为 `c9a891777b3691955ec8471e9938eb24aa5a514534ba3a0b2cc8b8be0d8d4375`，未写 receipt。PR CI run `32740552726` 和 main push CI run `32740889832` 的四项 jobs 与两个 Windows governance 步骤成功。状态上限为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；byte closure 不等于 semantic review，R6B 仍为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`，Phase 7 任务 2—15、独立 review artifact、真实 Skill payload、fresh-session 与 private evaluation 均未实施，Phase 8、v13、安装/激活、Tag/Release Gate 继续关闭。
+
+Correctness Reset CR1/CR2 实施状态（2026-08-24）：CR1 exact head `23c59f82758ce86b3f7c7bd1f58129d5c5db1dc7` 通过 PR #36 以 merge commit `7269dfe1fcc6fc218a5e898f90ff63c2bd4057b5` 合入，其 main CI run `32747362317` 四项 jobs 与两项 Windows governance 成功。CR2 因 CR1 merge graph 以普通 merge commit 更新为 exact head `ae18567262a12c9f9703d065dbf8658ac499073b`，无 force push，resulting tree 保持 `b694a1f181f113256f5c7e196fdf63e2b3557694`；该 head 通过 Python 3.12.13/3.14.5 真实 archive 各 1052/1052（各 6 个预期 skip）、两项 clean-install 与本机 CUDA compatibility Gate，后经 PR #37 以 merge commit `42fb906be364d87ba5dce113413b2d0caaae2431` 合入；PR CI run `32748241758` 和 main CI run `32748487238` 均四项 jobs 全绿，两项 Windows governance 成功。CR1 只关闭直接可复现的受限内容入口，CR2 只修正 Unicode/CJK 词法启发和空词元 abstain；不构成完整隐私治理、语义质量、负迁移、真实 Agent 执行、外部采用或晋级证据。
 
 ### 目标
 
