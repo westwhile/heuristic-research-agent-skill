@@ -2,7 +2,7 @@
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
 - Baseline commit: `b9a3b8268575fe32399b83295595710944c6a772`
-- Review date: 2026-08-23
+- Review date: 2026-08-24
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
 This record defines the source and redistribution boundary for the repository's
@@ -18,7 +18,7 @@ under the maintainer's direction, including the two O6 application-evidence
 files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three
 Phase 6 L3 runner/selection files, and nine Phase 6 L4 study/case/matrix/report
 files merged to `main` by PR #21, plus eleven Phase 6 R1 observation
-schema/source/test/fixture files,
+schema/source/test/fixture files merged by PR #23,
 under Apache-2.0. This confirmation
 does not extend to excluded external payloads and does not waive obligations
 that accompany any third-party material added later.
@@ -30,10 +30,10 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The Phase 6 R1 candidate inventory contains 884 files; the last fully merged
-L4 evidence anchor remains merge commit
-`6c63c0bad88f032fb1091cdc5c91242bf22b2087` until R1 passes its exact-commit
-archive and main-CI gates:
+The Phase 6 R1 mainline inventory at merge commit
+`4c7b47e0ac1db26d76107dea836e8172b981e698` contains 884 files. Its tree
+`26d187489df798bad0fdb3663b41509ed61125f4` equals the exact PR head tree that
+passed the archive and CUDA observation gates:
 
 | Source class | Count | Boundary |
 |---|---:|---|
