@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-static-validation-receipt/v1",
+  "title": "SkillStaticValidationReceipt v1",
+  "description": "One immutable P7B3 static-validation result for an exact Skill candidate bundle. Static pass is not semantic, fresh-session, private-evaluation, publication, installation, activation, or runtime evidence.",
+  "type": "object",
+  "required": [
+    "schema",
+    "skill_static_validation_receipt_id",
+    "candidate_bundle",
+    "validated_at",
+    "validator",
+    "registry_snapshot",
+    "platform_metadata",
+    "router_examples",
+    "payload_diff",
+    "checks",
+    "blockers",
+    "outcome",
+    "claims",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "skill-static-validation-receipt/v1"},
+    "skill_static_validation_receipt_id": {
+      "type": "string",
+      "pattern": "^skill-static-validation-[0-9a-f]{16}$"
+    },
+    "candidate_bundle": {
+      "type": "object",
+      "required": ["skill_candidate_bundle_id", "sha256"],
+      "properties": {
+        "skill_candidate_bundle_id": {
+          "type": "string",
+          "pattern": "^skill-candidate-[0-9a-f]{16}$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "validated_at": {"type": "string", "x-rfc3339-datetime": true},
+    "validator": {
+      "type": "object",
+      "required": ["principal", "tool", "version", "policy_id", "policy_sha256"],
+      "properties": {
+        "principal": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "tool": {"const": "in-process-skill-static-validator"},
+        "version": {"const": "1.0.0"},
+        "policy_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "policy_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "registry_snapshot": {
+      "type": "object",
+      "required": ["sha256", "skills_count"],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "skills_count": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "platform_metadata": {
+      "type": "object",
+      "required": ["required_path", "present"],
+      "properties": {
+        "required_path": {"const": "agents/openai.yaml"},
+        "present": {"type": "boolean"},
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "router_examples": {
+      "type": "object",
+      "required": ["sha256", "total", "select_candidate", "reject_candidate"],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "total": {"type": "integer", "minimum": 0},
+        "select_candidate": {"type": "integer", "minimum": 0},
+        "reject_candidate": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "payload_diff": {
+      "type": "object",
+      "required": ["baseline_snapshot_sha256", "added", "modified", "removed"],
+      "properties": {
+        "baseline_snapshot_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "added": {
+          "type": "array",
+          "items": {"type": "string", "x-safe-relative-path": true}
+        },
+        "modified": {
+          "type": "array",
+          "items": {"type": "string", "x-safe-relative-path": true}
+        },
+        "removed": {
+          "type": "array",
+          "items": {"type": "string", "x-safe-relative-path": true}
+        }
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["check", "result"],
+        "properties": {
+          "check": {
+            "enum": [
+              "bundle_integrity",
+              "payload_integrity",
+              "restricted_content",
+              "platform_metadata",
+              "trigger_contract",
+              "registry_collision",
+              "router_examples",
+              "payload_diff"
+            ]
+          },
+          "result": {"enum": ["pass", "fail"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "subject"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "subject": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "outcome": {"enum": ["static_pass", "static_fail"]},
+    "claims": {
+      "type": "object",
+      "required": [
+        "candidate_bundle_verified",
+        "payload_bytes_verified",
+        "restricted_content_checked",
+        "platform_metadata_validated",
+        "trigger_contract_statically_checked",
+        "trigger_collision_checked",
+        "router_examples_statically_checked",
+        "static_validation_completed",
+        "static_validation_passed",
+        "semantic_review_completed",
+        "fresh_session_validated",
+        "private_evaluation_completed",
+        "publication_authorized",
+        "installation_authorized",
+        "activation_authorized",
+        "runtime_loaded"
+      ],
+      "properties": {
+        "candidate_bundle_verified": {"const": true},
+        "payload_bytes_verified": {"type": "boolean"},
+        "restricted_content_checked": {"type": "boolean"},
+        "platform_metadata_validated": {"type": "boolean"},
+        "trigger_contract_statically_checked": {"type": "boolean"},
+        "trigger_collision_checked": {"type": "boolean"},
+        "router_examples_statically_checked": {"type": "boolean"},
+        "static_validation_completed": {"const": true},
+        "static_validation_passed": {"type": "boolean"},
+        "semantic_review_completed": {"const": false},
+        "fresh_session_validated": {"const": false},
+        "private_evaluation_completed": {"const": false},
+        "publication_authorized": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "runtime_loaded": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}

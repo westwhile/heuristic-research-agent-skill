@@ -15,8 +15,8 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A + CR4—CR6:
-        # all twenty-nine
+        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A—P7B3 + CR4—CR6:
+        # all thirty
         # schema families are registered and publishable — the seven research
         # families, the two export families (ADR-0004), the four evaluation
         # record families (ADR-0006), and the four research memory families
@@ -52,6 +52,7 @@ class FamilyRegistryTest(unittest.TestCase):
                 "artifact-closure-receipt/v1",
                 "candidate-eligibility-attestation/v1",
                 "skill-candidate-bundle/v1",
+                "skill-static-validation-receipt/v1",
                 "context-bundle/v1",
                 "context-bundle/v2",
                 "context-material-assessment/v1",

@@ -437,6 +437,25 @@ FIXTURE_MANIFEST = {
             ),
         },
     },
+    "skill-static-validation-receipt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "bad-id.json": (
+                "RecordValidationError",
+                "skill_static_validation_receipt_id",
+            ),
+            "bad-outcome.json": ("RecordValidationError", "outcome"),
+            "checks-too-few.json": ("RecordValidationError", "checks"),
+            "semantic-review-completed.json": (
+                "RecordValidationError",
+                "semantic_review_completed",
+            ),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -568,6 +587,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "skill-candidate-bundle/v1": (
         "617895811e04ad9259d25ed8ff27e65c27e78dcd4bfeb16891e4910bd72b87da"
     ),
+    "skill-static-validation-receipt/v1": (
+        "4891c18cca96a244991495744f89b5c9d726d9ed8b0974652d7987b58c6fb9e3"
+    ),
     "comparison-report/v1": (
         "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
     ),
@@ -661,6 +683,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "skill-candidate-bundle-v1.schema.json": (
         "32ffaba387b4cf405143f11f021eea76841bc0a862095f72e3de16a473877839"
+    ),
+    "skill-static-validation-receipt-v1.schema.json": (
+        "2ea0489d0c48153c1a18cd61bcb7d34bcef21732e10d9429924ff7adbd493e48"
     ),
     "comparison-report-v1.schema.json": (
         "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
@@ -819,7 +844,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_nine_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirty_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -851,6 +876,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-task/v1",
                 "reuse-event/v1",
                 "skill-candidate-bundle/v1",
+                "skill-static-validation-receipt/v1",
                 "suite-comparison/v1",
                 "suite/v1",
             ),

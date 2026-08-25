@@ -32,6 +32,11 @@ from .skill_candidate import (
     SkillCandidateBundleError,
     draft_skill_candidate_bundle,
 )
+from .skill_static_validation import (
+    SkillStaticValidationError,
+    SkillStaticValidationReceipt,
+    validate_skill_candidate,
+)
 
 __all__ = [
     "ArtifactClosureError",
@@ -50,10 +55,13 @@ __all__ = [
     "EvaluationEnvelopeClosureReceipt",
     "SkillCandidateBundle",
     "SkillCandidateBundleError",
+    "SkillStaticValidationError",
+    "SkillStaticValidationReceipt",
     "build_context_bundle",
     "assess_candidate_eligibility",
     "close_candidate_bundle",
     "close_evaluation_envelope",
     "draft_skill_candidate_bundle",
     "prepare_context",
+    "validate_skill_candidate",
 ]
