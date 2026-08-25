@@ -456,6 +456,19 @@ FIXTURE_MANIFEST = {
             ),
         },
     },
+    "skill-semantic-review-attestation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "duplicate-key.json": ("StrictJsonError", "duplicate"),
+            "missing-id.json": (
+                "RecordValidationError",
+                "skill_semantic_review_attestation_id",
+            ),
+            "non-string-schema.json": ("UnknownSchemaError", "string"),
+            "top-level-array.json": ("StrictJsonError", "top-level"),
+            "unknown-schema.json": ("UnknownSchemaError", "unsupported schema"),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -590,6 +603,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "skill-static-validation-receipt/v1": (
         "4891c18cca96a244991495744f89b5c9d726d9ed8b0974652d7987b58c6fb9e3"
     ),
+    "skill-semantic-review-attestation/v1": (
+        "e3b4949e297b0c230ea8116630f31a1820e1d1e0a76a5cf997a97b2417276378"
+    ),
     "comparison-report/v1": (
         "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
     ),
@@ -686,6 +702,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "skill-static-validation-receipt-v1.schema.json": (
         "2ea0489d0c48153c1a18cd61bcb7d34bcef21732e10d9429924ff7adbd493e48"
+    ),
+    "skill-semantic-review-attestation-v1.schema.json": (
+        "380c7b4a6b5e958ddb15b7d386cbb74c23d5d7e738bcdbefe1444f744dae5d3d"
     ),
     "comparison-report-v1.schema.json": (
         "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
@@ -844,7 +863,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_thirty_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirty_one_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -876,6 +895,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-task/v1",
                 "reuse-event/v1",
                 "skill-candidate-bundle/v1",
+                "skill-semantic-review-attestation/v1",
                 "skill-static-validation-receipt/v1",
                 "suite-comparison/v1",
                 "suite/v1",

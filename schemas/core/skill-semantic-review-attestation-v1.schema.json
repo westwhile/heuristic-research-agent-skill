@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-semantic-review-attestation/v1",
+  "title": "SkillSemanticReviewAttestation v1",
+  "description": "One immutable P7B4 protocol attestation bound to an exact Skill candidate and static-validation receipt. Protocol accept/reject fixtures do not prove a real independent semantic review.",
+  "type": "object",
+  "required": [
+    "schema",
+    "skill_semantic_review_attestation_id",
+    "candidate_bundle",
+    "static_validation_receipt",
+    "reviewed_at",
+    "protocol",
+    "drafter",
+    "reviewer",
+    "review_evidence",
+    "dimensions",
+    "checks",
+    "blockers",
+    "outcome",
+    "claims",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "skill-semantic-review-attestation/v1"},
+    "skill_semantic_review_attestation_id": {
+      "type": "string",
+      "pattern": "^skill-semantic-review-[0-9a-f]{16}$"
+    },
+    "candidate_bundle": {
+      "type": "object",
+      "required": ["skill_candidate_bundle_id", "sha256"],
+      "properties": {
+        "skill_candidate_bundle_id": {
+          "type": "string",
+          "pattern": "^skill-candidate-[0-9a-f]{16}$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "static_validation_receipt": {
+      "type": "object",
+      "required": ["skill_static_validation_receipt_id", "sha256"],
+      "properties": {
+        "skill_static_validation_receipt_id": {
+          "type": "string",
+          "pattern": "^skill-static-validation-[0-9a-f]{16}$"
+        },
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "reviewed_at": {"type": "string", "x-rfc3339-datetime": true},
+    "protocol": {
+      "type": "object",
+      "required": ["protocol_id", "version", "sha256"],
+      "properties": {
+        "protocol_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "version": {"const": "1.0.0"},
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "drafter": {
+      "type": "object",
+      "required": ["principal"],
+      "properties": {
+        "principal": {"type": "string", "minLength": 1, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "reviewer": {
+      "type": "object",
+      "required": [
+        "principal",
+        "kind",
+        "session_id",
+        "model_id",
+        "independence_group",
+        "shared_context_with_drafter"
+      ],
+      "properties": {
+        "principal": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "kind": {
+          "enum": ["synthetic_fixture", "human_declared", "model_assisted_declared"]
+        },
+        "session_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "model_id": {"type": "string", "minLength": 1, "pattern": "\\S"},
+        "independence_group": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "shared_context_with_drafter": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "review_evidence": {
+      "type": "object",
+      "required": ["name", "media_type", "sha256", "size_bytes"],
+      "properties": {
+        "name": {"type": "string", "x-safe-relative-path": true},
+        "media_type": {"enum": ["application/json", "text/markdown", "text/plain"]},
+        "sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "result", "rationale", "evidence_sha256"],
+        "properties": {
+          "dimension": {
+            "enum": [
+              "task_correctness",
+              "scope_and_contraindications",
+              "trigger_precision",
+              "failure_and_pause_boundaries",
+              "negative_transfer_risk",
+              "privacy_and_license",
+              "rollback_and_retirement"
+            ]
+          },
+          "result": {"enum": ["satisfied", "unsatisfied", "unverified"]},
+          "rationale": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "evidence_sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "required": ["check", "result"],
+        "properties": {
+          "check": {
+            "enum": [
+              "candidate_bundle_integrity",
+              "static_validation_integrity",
+              "static_validation_passed",
+              "reviewer_label_separation",
+              "review_evidence_integrity",
+              "restricted_content",
+              "required_dimensions",
+              "outcome_consistency"
+            ]
+          },
+          "result": {"enum": ["pass", "fail"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "subject"],
+        "properties": {
+          "code": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "subject": {"type": "string", "minLength": 1, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "outcome": {
+      "enum": ["protocol_accept", "protocol_reject", "protocol_inconclusive"]
+    },
+    "claims": {
+      "type": "object",
+      "required": [
+        "exact_candidate_bound",
+        "static_validation_receipt_verified",
+        "static_validation_passed",
+        "reviewer_label_distinct_from_drafter",
+        "reviewer_label_distinct_from_static_validator",
+        "shared_context_with_drafter_absent",
+        "review_evidence_bytes_verified",
+        "restricted_content_checked",
+        "required_dimensions_recorded",
+        "semantic_review_protocol_attested",
+        "synthetic_fixture",
+        "real_independent_semantic_review_completed",
+        "semantic_review_completed",
+        "fresh_session_validated",
+        "private_evaluation_completed",
+        "promotion_authorized",
+        "publication_authorized",
+        "installation_authorized",
+        "activation_authorized",
+        "runtime_loaded"
+      ],
+      "properties": {
+        "exact_candidate_bound": {"type": "boolean"},
+        "static_validation_receipt_verified": {"type": "boolean"},
+        "static_validation_passed": {"type": "boolean"},
+        "reviewer_label_distinct_from_drafter": {"type": "boolean"},
+        "reviewer_label_distinct_from_static_validator": {"type": "boolean"},
+        "shared_context_with_drafter_absent": {"type": "boolean"},
+        "review_evidence_bytes_verified": {"type": "boolean"},
+        "restricted_content_checked": {"type": "boolean"},
+        "required_dimensions_recorded": {"type": "boolean"},
+        "semantic_review_protocol_attested": {"const": true},
+        "synthetic_fixture": {"type": "boolean"},
+        "real_independent_semantic_review_completed": {"const": false},
+        "semantic_review_completed": {"const": false},
+        "fresh_session_validated": {"const": false},
+        "private_evaluation_completed": {"const": false},
+        "promotion_authorized": {"const": false},
+        "publication_authorized": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "runtime_loaded": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 4,
+      "items": {"type": "string", "minLength": 1, "pattern": "\\S"}
+    }
+  },
+  "additionalProperties": false
+}
