@@ -1,6 +1,6 @@
 # Core Interface（Phase 1D）
 
-> 2026-08-25 注记：本文档为 Phase 1D 冻结记录，正文保持原样；后续 family 扩展（评测四个历史 family、CR4 attempt/result 两个 family、CR5 suite-comparison successor、CR6 artifact/envelope-closure 两个 family、research memory 四个 family、P7A candidate/closure/context 三个 family）见 ADR-0006/0007/0010/0011/0012/0013 与 `schemas/core/README.md`。`comparison-report/v1` 保持历史可读，新的统计构造必须使用 `suite-comparison/v1`；P7A member closure 保持可读，完整 evaluation-envelope closure 使用 CR6 receipt。
+> 2026-08-25 注记：本文档为 Phase 1D 冻结记录，正文保持原样；后续 family 扩展（评测四个历史 family、CR4 attempt/result 两个 family、CR5 suite-comparison successor、CR6 artifact/envelope-closure 两个 family、research memory 四个 family、P7A candidate/closure/context 三个 family、CR8 context assessment/bundle successor 两个 family）见 ADR-0006/0007/0010/0011/0012/0013/0015 与 `schemas/core/README.md`。`comparison-report/v1` 保持历史可读，新的统计构造必须使用 `suite-comparison/v1`；P7A member closure 保持可读，完整 evaluation-envelope closure 使用 CR6 receipt；`context-bundle/v1` 保持历史可读，新增治理准备必须使用 CR8 v2 interface。
 
 - 版本：Phase 1D（`feat/core-privacy-cli-v1`）
 - 覆盖 schema：`research-task/v1`、`research-claim/v1`、`research-evidence/v1`、`research-run/v1`、`research-failure-observation/v1`、`research-failure-analysis/v1`、`research-case-package/v1`、`export-decision/v1`、`export-receipt/v1`（前三个 schema 文本相对 Phase 1A 零漂移，中间四个为 Phase 1C 新增，末两个为 Phase 1D 新增）

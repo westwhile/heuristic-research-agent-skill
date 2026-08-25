@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context-material-assessment/v1",
+  "title": "Context Material Assessment v1",
+  "description": "A plaintext-free, hash-bound governance assessment for one candidate context material. It records classification, taint, scanning, redaction, export disposition, retention, encryption and optional tombstone metadata without authorizing installation, activation, publication or semantic acceptance.",
+  "type": "object",
+  "required": ["schema", "context_material_assessment_id", "candidate", "material", "classification", "source_taint_labels", "residual_taint_labels", "disposition", "scanner", "redaction", "export", "lifecycle", "claims", "assessed_at"],
+  "properties": {
+    "schema": {"const": "context-material-assessment/v1"},
+    "context_material_assessment_id": {"type": "string", "minLength": 35, "maxLength": 35, "pattern": "^context-assessment-[0-9a-f]{16}$"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "material": {
+      "type": "object",
+      "required": ["name", "content_sha256", "size_bytes", "retention"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "size_bytes": {"type": "integer"},
+        "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]}
+      },
+      "additionalProperties": false
+    },
+    "classification": {"type": "string", "enum": ["public", "internal_safe", "confidential", "restricted"]},
+    "source_taint_labels": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["credentials", "pii", "private_path", "licensed_restricted", "hidden_evaluation", "other_sensitive"]}
+    },
+    "residual_taint_labels": {
+      "type": "array",
+      "items": {"type": "string", "enum": ["credentials", "pii", "private_path", "licensed_restricted", "hidden_evaluation", "other_sensitive"]}
+    },
+    "disposition": {"type": "string", "enum": ["include_original", "include_redacted", "protected_hash_only", "reject"]},
+    "scanner": {
+      "type": "object",
+      "required": ["tool", "version", "policy_sha256"],
+      "properties": {
+        "tool": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+        "policy_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "redaction": {
+      "type": "object",
+      "required": ["state"],
+      "properties": {
+        "state": {"type": "string", "enum": ["not_required", "applied", "rejected"]},
+        "output_classification": {"type": "string", "enum": ["public", "internal_safe"]},
+        "output_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "receipt_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "export": {
+      "type": "object",
+      "required": ["outcome", "policy_sha256", "decided_by"],
+      "properties": {
+        "outcome": {"type": "string", "enum": ["allow", "deny"]},
+        "policy_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "decided_by": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["retention_until", "encryption_required"],
+      "properties": {
+        "retention_until": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+        "encryption_required": {"type": "boolean"},
+        "tombstone_ref": {
+          "type": "object",
+          "required": ["tombstone_id", "sha256"],
+          "properties": {
+            "tombstone_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+            "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "protected_artifact": {
+      "type": "object",
+      "required": ["artifact_id", "record_sha256", "content_sha256", "size_bytes", "storage_class"],
+      "properties": {
+        "artifact_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "size_bytes": {"type": "integer"},
+        "storage_class": {"const": "external_encrypted"}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["sensitive_plaintext_persisted", "semantic_review_completed", "publication_authorized"],
+      "properties": {
+        "sensitive_plaintext_persisted": {"const": false},
+        "semantic_review_completed": {"const": false},
+        "publication_authorized": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "assessed_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true}
+  },
+  "additionalProperties": false
+}

@@ -16,7 +16,7 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
         # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A + CR4—CR6:
-        # all twenty-five
+        # all twenty-seven
         # schema families are registered and publishable — the seven research
         # families, the two export families (ADR-0004), the four evaluation
         # record families (ADR-0006), and the four research memory families
@@ -51,6 +51,8 @@ class FamilyRegistryTest(unittest.TestCase):
                 "candidate-manifest/v1",
                 "artifact-closure-receipt/v1",
                 "context-bundle/v1",
+                "context-bundle/v2",
+                "context-material-assessment/v1",
                 "artifact-record/v1",
                 "evaluation-envelope-closure-receipt/v1",
             },
@@ -59,12 +61,10 @@ class FamilyRegistryTest(unittest.TestCase):
     def test_identity_fields_are_unique_per_family(self) -> None:
         fields = [contract.identity_field for contract in FAMILIES.values()]
         duplicates = {field for field in fields if fields.count(field) > 1}
-        # The one sanctioned exception: research-case-package/v2 is the v1
-        # successor (ADR-0007 decision 2) and intentionally shares the same
-        # logical identity field name; both versions are never valid targets
-        # of the same reference (derived_from targets v2 only).
-        self.assertEqual(duplicates, {"case_id"})
-        self.assertEqual(len(set(fields)), len(fields) - 1)
+        # The sanctioned exceptions are versioned successors that share one
+        # logical identity field with their frozen predecessor.
+        self.assertEqual(duplicates, {"case_id", "context_bundle_id"})
+        self.assertEqual(len(set(fields)), len(fields) - 2)
 
     def test_reference_targets_are_registered(self) -> None:
         for contract in FAMILIES.values():
@@ -142,6 +142,9 @@ class FamilyRegistryTest(unittest.TestCase):
             ("candidate-manifest/v1", "source_patterns"),
             ("artifact-closure-receipt/v1", "candidate"),
             ("context-bundle/v1", "candidate"),
+            ("context-bundle/v2", "candidate"),
+            ("context-bundle/v2", "assessments"),
+            ("context-material-assessment/v1", "candidate"),
             ("evaluation-envelope-closure-receipt/v1", "candidate"),
             ("evaluation-envelope-closure-receipt/v1", "artifacts"),
         }

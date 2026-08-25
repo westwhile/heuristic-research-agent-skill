@@ -149,6 +149,7 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 | Suite 级统计 | CR5 已实现 additive `suite-comparison/v1`；按 `case × seed × frozen envelope` 配对并逐指标分析 | 完整网格、同 envelope/runner/scorer/environment、预注册 primary/guardrail、paired permutation/bootstrap、Holm 与效应量均 fail-closed；公开合成 benchmark 仅 12 对，低于默认 30，结论保持 `insufficient_pairs`，PromotionDecision Gate 仍关闭 |
 | 完整实验闭包 | CR6 已实现 `artifact-record/v1` 与 `evaluation-envelope-closure-receipt/v1` | candidate members 加 tools、budget、public data、evaluator、generator、统计计划、rollback target、authoritative head 共 8 类依赖形成 Core 可解析 pin 闭包；隐藏 evaluator 仅有协议 principal 的不披露 byte attestation，不等于真实身份认证、语义独立性或 hidden evaluation 已执行 |
 | 工程质量 Gate | CR7 已固定 Ruff 0.16.3、mypy 2.3.1 与 coverage.py 7.15.4；四个 required lanes 执行分层 lint、关键 seam 类型检查和完整测试分支覆盖率 Gate | 全仓只阻断高置信致命 lint；完整 Ruff/mypy 当前只覆盖 Core/Evaluation/Evolution，覆盖率 floor 为 80%；不代表全仓类型安全、100% 覆盖或语义正确性 |
+| Context material 治理 | CR8 新增 plaintext-free `context-material-assessment/v1`、`context-bundle/v2` 与单一 `prepare_context` interface；classification/taint、redaction/export、retention/encryption/tombstone descriptor、byte/token 双预算均 fail-closed | token 仅为 UTF-8 byte upper-bound preflight estimate；外部 protected artifact 与 principal 均为 hash-bound 协议声明，不证明 runtime usage、真实 storage、身份、semantic review 或 Skill 可发布性 |
 | 真实 Candidate Agent 执行 / Hidden Evaluator / Promotion | 未实现 | 现有证据仅支持合成工程合同；零真实 Skill payload、零自动晋级 |
 
 ## 参与、治理与安全

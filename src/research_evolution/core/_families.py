@@ -38,6 +38,10 @@ Correctness Reset CR6 adds an artifact record and an evaluation-envelope
 closure receipt. The receipt pins the existing candidate manifest and every
 artifact record; byte/attestation and required-role semantics stay in the
 pure in-process envelope-closure module.
+Correctness Reset CR8 keeps context-bundle/v1 frozen and adds a plaintext-free
+material assessment plus context-bundle/v2. The bundle pins its candidate and
+all assessments; privacy, taint, lifecycle, and preflight budget semantics stay
+inside the pure in-process context-governance module.
 """
 
 from __future__ import annotations
@@ -67,6 +71,8 @@ REUSE_EVENT = "reuse-event/v1"
 CANDIDATE_MANIFEST = "candidate-manifest/v1"
 ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
 CONTEXT_BUNDLE = "context-bundle/v1"
+CONTEXT_BUNDLE_V2 = "context-bundle/v2"
+CONTEXT_MATERIAL_ASSESSMENT = "context-material-assessment/v1"
 ARTIFACT_RECORD = "artifact-record/v1"
 EVALUATION_ENVELOPE_CLOSURE = "evaluation-envelope-closure-receipt/v1"
 
@@ -582,6 +588,44 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=CANDIDATE_MANIFEST,
                     target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # CR8 adds plaintext-free material assessments and a governed
+        # ContextBundle successor. Conditional privacy, taint and budget
+        # semantics remain inside the pure in-process evolution module.
+        FamilyContract(
+            schema_id=CONTEXT_MATERIAL_ASSESSMENT,
+            identity_field="context_material_assessment_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=CONTEXT_BUNDLE_V2,
+            identity_field="context_bundle_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="assessments",
+                    shape="array_of_objects",
+                    target_family=CONTEXT_MATERIAL_ASSESSMENT,
+                    target_id_field="context_material_assessment_id",
                     pin_required=True,
                 ),
             ),

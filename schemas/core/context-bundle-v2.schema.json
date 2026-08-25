@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context-bundle/v2",
+  "title": "Context Bundle v2",
+  "description": "A deterministic context transfer whose material assessments, plaintext disposition, byte budget and model-token estimate are hash-bound. Restricted plaintext is never embedded, runtime token usage is not claimed, and the bundle grants no installation, activation, publication or semantic authority.",
+  "type": "object",
+  "required": ["schema", "context_bundle_id", "candidate", "assessments", "built_at", "mode", "max_bytes", "token_budget", "objective", "authoritative_head", "unresolved_obligations", "invalidated_sources", "included_materials", "protected_materials", "omissions", "minimum_safe_preserved", "claims", "limitations"],
+  "properties": {
+    "schema": {"const": "context-bundle/v2"},
+    "context_bundle_id": {"type": "string", "minLength": 24, "maxLength": 24, "pattern": "^context-[0-9a-f]{16}$"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "assessments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["context_material_assessment_id", "sha256"],
+        "properties": {
+          "context_material_assessment_id": {"type": "string", "minLength": 35, "maxLength": 35, "pattern": "^context-assessment-[0-9a-f]{16}$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "built_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+    "mode": {"type": "string", "enum": ["normal", "compact", "minimal_safe"]},
+    "max_bytes": {"type": "integer"},
+    "token_budget": {
+      "type": "object",
+      "required": ["tokenizer_id", "tokenizer_revision", "estimation_method", "estimated_tokens", "max_tokens"],
+      "properties": {
+        "tokenizer_id": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"},
+        "tokenizer_revision": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"},
+        "estimation_method": {"const": "text_utf8_bytes_upper_bound/v1"},
+        "estimated_tokens": {"type": "integer"},
+        "max_tokens": {"type": "integer"}
+      },
+      "additionalProperties": false
+    },
+    "objective": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "authoritative_head": {
+      "type": "object",
+      "required": ["record_id", "sha256"],
+      "properties": {
+        "record_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "unresolved_obligations": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}},
+    "invalidated_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_id", "sha256", "status", "rationale"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "status": {"type": "string", "enum": ["corrected", "retracted", "license_blocked"]},
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "included_materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "content_sha256", "content", "retention", "classification", "assessment", "redaction_state"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "content": {"type": "string", "maxLength": 32768},
+          "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]},
+          "classification": {"type": "string", "enum": ["public", "internal_safe"]},
+          "assessment": {
+            "type": "object",
+            "required": ["context_material_assessment_id", "sha256"],
+            "properties": {
+              "context_material_assessment_id": {"type": "string", "minLength": 35, "maxLength": 35, "pattern": "^context-assessment-[0-9a-f]{16}$"},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          },
+          "redaction_state": {"type": "string", "enum": ["not_required", "applied"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "protected_materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "content_sha256", "size_bytes", "retention", "classification", "assessment", "protected_artifact", "encryption_required"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer"},
+          "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]},
+          "classification": {"type": "string", "enum": ["confidential", "restricted"]},
+          "assessment": {
+            "type": "object",
+            "required": ["context_material_assessment_id", "sha256"],
+            "properties": {
+              "context_material_assessment_id": {"type": "string", "minLength": 35, "maxLength": 35, "pattern": "^context-assessment-[0-9a-f]{16}$"},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          },
+          "protected_artifact": {
+            "type": "object",
+            "required": ["artifact_id", "record_sha256", "content_sha256", "size_bytes", "storage_class"],
+            "properties": {
+              "artifact_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+              "record_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "size_bytes": {"type": "integer"},
+              "storage_class": {"const": "external_encrypted"}
+            },
+            "additionalProperties": false
+          },
+          "encryption_required": {"const": true}
+        },
+        "additionalProperties": false
+      }
+    },
+    "omissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "content_sha256", "retention", "assessment", "reason"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "retention": {"type": "string", "enum": ["minimal_safe", "compact", "normal_only"]},
+          "assessment": {
+            "type": "object",
+            "required": ["context_material_assessment_id", "sha256"],
+            "properties": {
+              "context_material_assessment_id": {"type": "string", "minLength": 35, "maxLength": 35, "pattern": "^context-assessment-[0-9a-f]{16}$"},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          },
+          "reason": {"type": "string", "enum": ["excluded_by_mode", "denied_by_policy", "rejected_by_policy"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "minimum_safe_preserved": {"const": true},
+    "claims": {
+      "type": "object",
+      "required": ["restricted_plaintext_embedded", "runtime_token_count_verified", "installation_authorized", "activation_authorized", "publication_authorized", "semantic_review_completed"],
+      "properties": {
+        "restricted_plaintext_embedded": {"const": false},
+        "runtime_token_count_verified": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "publication_authorized": {"const": false},
+        "semantic_review_completed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "limitations": {"type": "array", "minItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}
