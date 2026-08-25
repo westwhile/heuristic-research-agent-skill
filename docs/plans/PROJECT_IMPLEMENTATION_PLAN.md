@@ -611,7 +611,7 @@ Correctness Reset CR1/CR2 实施状态（2026-08-24）：CR1 exact head `23c59f8
 ### 实施任务
 
 1. 定义 immutable candidate manifest；bundle 包含 baseline hash、patch、Heuristic/Pattern snapshot、tests、风险、rollback 和来源 Case/Pattern IDs；
-2. 为子 Skill 定义 promotion eligibility：至少跨两个独立问题可复用，具有清晰触发与排除条件、稳定输入/输出、失败/暂停边界、可移植资源和可测量增益；仅项目专用脚本、一次性答案或仍在快速变化的知识不得升为 Skill；
+2. （P7B1 已实施，ADR-0016）为子 Skill 定义 promotion eligibility：exact candidate/byte-closure/source Case pins，至少跨两个 lineage 可区分的问题可复用，具有清晰触发与排除条件、稳定输入/输出、失败/暂停边界、可移植资源和可测量增益；criterion evidence bytes 只保存 hash/大小，`ineligible` 与 `needs_more_evidence` 均为合法终态。仅项目专用脚本、一次性答案或仍在快速变化的知识不得进入 payload drafting；`eligible_for_payload_drafting` 不等于 semantic review、真实 Skill payload 或 Promotion；
 3. 使用官方 Skill 初始化器建立最小候选目录，`SKILL.md` 只保留必要工作流，详细 schema、示例和领域资料按 progressive disclosure 放入 `references/`、`scripts/` 或 `assets/`；
 4. `agents/openai.yaml` 等平台元数据与 Skill payload 分层校验；Skill description 同时描述正触发与重要排除场景，并加入 Router 负例；
 5. Candidate 只读公开/获授权 experience、Case Package 和 Pattern；来源证据保存在外部 candidate manifest，不把私有路径、原始记录或冗长 provenance 塞入可安装 payload；

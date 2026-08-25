@@ -393,6 +393,28 @@ FIXTURE_MANIFEST = {
             "source-cases-too-few.json": ("RecordValidationError", "source_cases"),
         },
     },
+    "candidate-eligibility-attestation/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "bad-id.json": (
+                "RecordValidationError",
+                "candidate_eligibility_attestation_id",
+            ),
+            "bad-outcome.json": ("RecordValidationError", "outcome"),
+            "publication-authorized.json": (
+                "RecordValidationError",
+                "publication_authorized",
+            ),
+            "source-cases-too-few.json": (
+                "RecordValidationError",
+                "source_cases",
+            ),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -518,6 +540,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "candidate-manifest/v1": (
         "4a251d80b2aec6cd9c4656896136f7801cfa86cf291659ff6254739a25889b7e"
     ),
+    "candidate-eligibility-attestation/v1": (
+        "e8b22653837f2f0ad41ea33b5384212d0e1c071403ea146901f8f6eeba4ef9f0"
+    ),
     "comparison-report/v1": (
         "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
     ),
@@ -605,6 +630,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "candidate-manifest-v1.schema.json": (
         "916a17a143bf2db627eecabab4679549bc4fcb04eb478a0af1acad6a2d426ceb"
+    ),
+    "candidate-eligibility-attestation-v1.schema.json": (
+        "29087f7ba8c9776dd4b2874fde5a328f9bafc7c8b8a91ed3ddee60d144af2756"
     ),
     "comparison-report-v1.schema.json": (
         "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
@@ -763,13 +791,14 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_seven_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_eight_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "artifact-closure-receipt/v1",
                 "artifact-record/v1",
+                "candidate-eligibility-attestation/v1",
                 "candidate-manifest/v1",
                 "comparison-report/v1",
                 "context-bundle/v1",

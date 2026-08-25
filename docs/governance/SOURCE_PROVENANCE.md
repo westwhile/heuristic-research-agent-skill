@@ -58,6 +58,11 @@ fixture, and ADR files. It adds no tokenizer package, redaction engine,
 protected artifact payload, external model output, vendored dependency, or
 third-party expression.
 
+P7B1 adds eleven repository-native candidate-eligibility schema, source, test,
+fixture, and ADR files. Its evidence payloads are synthetic test bytes; no
+external Skill payload, evaluator output, participant material, vendored
+dependency, or third-party expression is included.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -65,14 +70,16 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The CR8 proposed tracked inventory contains 1076 files: the 1008-file CR2
+The P7B1 proposed tracked inventory contains 1087 files: the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
 nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
 files, and eleven new repository-native CR5 suite-level comparison schema,
 source, test, fixture, and ADR files, plus nineteen new repository-native CR6
 artifact/envelope-closure schema, source, test, fixture, and ADR files, plus one
 repository-native CR7 quality-gate ADR file, plus eighteen repository-native
-CR8 context-governance schema, source, test, fixture, and ADR files.
+CR8 context-governance schema, source, test, fixture, and ADR files, plus eleven
+repository-native P7B1 candidate-eligibility schema, source, test, fixture, and
+ADR files.
 `scripts/verify_source_provenance.py` derives this inventory from Git's
 tracked plus non-ignored proposed-file surface and reports full coverage with
 `unknown=0`. R6B remains frozen at
@@ -82,7 +89,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 943 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 954 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -93,12 +100,12 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
 tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 943 `independently_authored`, 118 `generated`, 13
+The resulting counts are 954 `independently_authored`, 118 `generated`, 13
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
-references and independently authored repository changes; CR8 adds only
-independently authored governance contracts and synthetic fixtures.
+references and independently authored repository changes; CR8 and P7B1 add
+only independently authored governance contracts and synthetic fixtures.
 
 ## External-source decisions
 

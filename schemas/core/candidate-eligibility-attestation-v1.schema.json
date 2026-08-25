@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "candidate-eligibility-attestation/v1",
+  "title": "Candidate Eligibility Attestation v1",
+  "description": "A hash-bound P7B1 preflight attestation deciding only whether a byte-closed candidate may enter payload drafting. Source independence and criterion semantics remain protocol assertions; this record is not semantic review, fresh-session/private evaluation, promotion, publication, installation, or activation authority.",
+  "type": "object",
+  "required": ["schema", "candidate_eligibility_attestation_id", "candidate", "closure_receipt", "assessor", "candidate_kind", "source_cases", "distinct_independence_groups", "criteria", "outcome", "blockers", "claims", "assessed_at", "limitations"],
+  "properties": {
+    "schema": {"const": "candidate-eligibility-attestation/v1"},
+    "candidate_eligibility_attestation_id": {"type": "string", "minLength": 38, "maxLength": 38, "pattern": "^candidate-eligibility-[0-9a-f]{16}$"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "closure_receipt": {
+      "type": "object",
+      "required": ["closure_receipt_id", "sha256"],
+      "properties": {
+        "closure_receipt_id": {"type": "string", "minLength": 24, "maxLength": 24, "pattern": "^closure-[0-9a-f]{16}$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "assessor": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+    "candidate_kind": {"type": "string", "enum": ["reusable_skill_proposal", "project_specific_script", "one_off_answer", "rapidly_changing_knowledge"]},
+    "source_cases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256", "independence_group", "origin_run_id", "dataset_lineage_id", "task_template_id", "semantic_duplicate_group"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "independence_group": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "origin_run_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "dataset_lineage_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "task_template_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "semantic_duplicate_group": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "distinct_independence_groups": {"type": "integer"},
+    "criteria": {
+      "type": "array",
+      "minItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["criterion", "status", "evidence", "rationale"],
+        "properties": {
+          "criterion": {"type": "string", "enum": ["clear_positive_triggers", "clear_exclusions", "stable_input_contract", "stable_output_contract", "explicit_failure_pause_boundaries", "portable_resources", "measurable_gain_plan"]},
+          "status": {"type": "string", "enum": ["satisfied", "unsatisfied", "unverified"]},
+          "evidence": {
+            "type": "object",
+            "required": ["name", "sha256", "size_bytes"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+              "size_bytes": {"type": "integer"}
+            },
+            "additionalProperties": false
+          },
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "outcome": {"type": "string", "enum": ["eligible_for_payload_drafting", "needs_more_evidence", "ineligible"]},
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "subject"],
+        "properties": {
+          "code": {"type": "string", "enum": ["candidate_kind_not_reusable", "independence_group_collision", "origin_run_collision", "dataset_lineage_collision", "task_template_collision", "semantic_duplicate_collision", "criterion_unsatisfied", "criterion_unverified"]},
+          "subject": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "claims": {
+      "type": "object",
+      "required": ["byte_closure_verified", "eligibility_protocol_complete", "assessor_label_distinct_from_author", "source_independence_externally_verified", "semantic_review_completed", "fresh_session_validated", "private_evaluation_completed", "publication_authorized", "installation_authorized", "activation_authorized"],
+      "properties": {
+        "byte_closure_verified": {"const": true},
+        "eligibility_protocol_complete": {"const": true},
+        "assessor_label_distinct_from_author": {"const": true},
+        "source_independence_externally_verified": {"const": false},
+        "semantic_review_completed": {"const": false},
+        "fresh_session_validated": {"const": false},
+        "private_evaluation_completed": {"const": false},
+        "publication_authorized": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "assessed_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}

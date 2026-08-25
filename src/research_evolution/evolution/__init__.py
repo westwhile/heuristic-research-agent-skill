@@ -1,5 +1,10 @@
 """Heuristic registries and immutable candidate-bundle construction."""
 
+from .candidate_eligibility import (
+    CandidateEligibilityAttestation,
+    CandidateEligibilityError,
+    assess_candidate_eligibility,
+)
 from .context_governance import (
     ContextBundleV2,
     ContextMaterialAssessment,
@@ -27,6 +32,8 @@ __all__ = [
     "ArtifactClosureError",
     "ArtifactClosureReceipt",
     "ArtifactRecord",
+    "CandidateEligibilityAttestation",
+    "CandidateEligibilityError",
     "CandidateManifestError",
     "ContextBundle",
     "ContextBundleV2",
@@ -37,6 +44,7 @@ __all__ = [
     "EvaluationEnvelopeClosureError",
     "EvaluationEnvelopeClosureReceipt",
     "build_context_bundle",
+    "assess_candidate_eligibility",
     "close_candidate_bundle",
     "close_evaluation_envelope",
     "prepare_context",

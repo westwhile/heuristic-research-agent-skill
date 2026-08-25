@@ -42,6 +42,9 @@ Correctness Reset CR8 keeps context-bundle/v1 frozen and adds a plaintext-free
 material assessment plus context-bundle/v2. The bundle pins its candidate and
 all assessments; privacy, taint, lifecycle, and preflight budget semantics stay
 inside the pure in-process context-governance module.
+Phase 7 P7B1 adds one candidate-eligibility attestation that pins the candidate,
+its byte-closure receipt, and its source cases. Eligibility outcome, lineage,
+and evidence-byte semantics remain inside the pure in-process evolution module.
 """
 
 from __future__ import annotations
@@ -70,6 +73,7 @@ HEURISTIC = "heuristic/v1"
 REUSE_EVENT = "reuse-event/v1"
 CANDIDATE_MANIFEST = "candidate-manifest/v1"
 ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
+CANDIDATE_ELIGIBILITY_ATTESTATION = "candidate-eligibility-attestation/v1"
 CONTEXT_BUNDLE = "context-bundle/v1"
 CONTEXT_BUNDLE_V2 = "context-bundle/v2"
 CONTEXT_MATERIAL_ASSESSMENT = "context-material-assessment/v1"
@@ -574,6 +578,37 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=CANDIDATE_MANIFEST,
                     target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Phase 7 P7B1 preflight: the attestation pins the exact candidate,
+        # its byte-closure receipt, and every source case. Outcome and
+        # independence/criterion semantics stay in candidate_eligibility.py.
+        FamilyContract(
+            schema_id=CANDIDATE_ELIGIBILITY_ATTESTATION,
+            identity_field="candidate_eligibility_attestation_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="closure_receipt",
+                    shape="object",
+                    target_family=ARTIFACT_CLOSURE_RECEIPT,
+                    target_id_field="closure_receipt_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="source_cases",
+                    shape="array_of_objects",
+                    target_family=CASE_V2,
+                    target_id_field="case_id",
                     pin_required=True,
                 ),
             ),
