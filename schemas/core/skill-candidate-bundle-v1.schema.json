@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-candidate-bundle/v1",
+  "title": "Skill Candidate Bundle v1",
+  "description": "An immutable P7B2 record that byte-closes one structurally drafted candidate Skill payload together with every P7B1 criterion-evidence member. It is not semantic or fresh-session review, private evaluation, promotion, publication, installation, activation, or runtime-load authority.",
+  "type": "object",
+  "required": ["schema", "skill_candidate_bundle_id", "status", "candidate", "closure_receipt", "eligibility_attestation", "source_cases", "drafter", "skill", "trigger_contract", "payload_members", "eligibility_evidence_members", "lifecycle", "closure", "claims", "drafted_at", "limitations"],
+  "properties": {
+    "schema": {"const": "skill-candidate-bundle/v1"},
+    "skill_candidate_bundle_id": {"type": "string", "minLength": 32, "maxLength": 32, "pattern": "^skill-candidate-[0-9a-f]{16}$"},
+    "status": {"const": "drafted_candidate"},
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "closure_receipt": {
+      "type": "object",
+      "required": ["closure_receipt_id", "sha256"],
+      "properties": {
+        "closure_receipt_id": {"type": "string", "minLength": 24, "maxLength": 24, "pattern": "^closure-[0-9a-f]{16}$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "eligibility_attestation": {
+      "type": "object",
+      "required": ["candidate_eligibility_attestation_id", "sha256"],
+      "properties": {
+        "candidate_eligibility_attestation_id": {"type": "string", "minLength": 38, "maxLength": 38, "pattern": "^candidate-eligibility-[0-9a-f]{16}$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "source_cases": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "sha256", "independence_group", "origin_run_id", "dataset_lineage_id", "task_template_id", "semantic_duplicate_group"],
+        "properties": {
+          "case_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "independence_group": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "origin_run_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "dataset_lineage_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "task_template_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+          "semantic_duplicate_group": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "drafter": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+    "skill": {
+      "type": "object",
+      "required": ["name", "description", "entrypoint"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "description": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+        "entrypoint": {"const": "SKILL.md"}
+      },
+      "additionalProperties": false
+    },
+    "trigger_contract": {
+      "type": "object",
+      "required": ["positive_triggers", "exclusions"],
+      "properties": {
+        "positive_triggers": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"}},
+        "exclusions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"}}
+      },
+      "additionalProperties": false
+    },
+    "payload_members": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "media_type", "sha256", "size_bytes", "depends_on"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "role": {"enum": ["skill_instructions", "agent_metadata", "script", "reference", "asset"]},
+          "media_type": {"enum": ["application/json", "application/yaml", "text/markdown", "text/plain", "text/x-python", "text/yaml"]},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "depends_on": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true}}
+        },
+        "additionalProperties": false
+      }
+    },
+    "eligibility_evidence_members": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": ["name", "criterion", "sha256", "size_bytes"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "criterion": {"enum": ["clear_positive_triggers", "clear_exclusions", "stable_input_contract", "stable_output_contract", "explicit_failure_pause_boundaries", "portable_resources", "measurable_gain_plan"]},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": ["rollback_plan", "retirement_plan"],
+      "properties": {
+        "rollback_plan": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "retirement_plan": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "closure": {
+      "type": "object",
+      "required": ["topological_order", "closure_root_sha256", "receipt_last", "payload_byte_closed", "eligibility_evidence_byte_closed"],
+      "properties": {
+        "topological_order": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true}},
+        "closure_root_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "receipt_last": {"const": true},
+        "payload_byte_closed": {"const": true},
+        "eligibility_evidence_byte_closed": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["semantic_review_completed", "fresh_session_validated", "private_evaluation_completed", "promotion_authorized", "publication_authorized", "installation_authorized", "activation_authorized", "runtime_loaded"],
+      "properties": {
+        "semantic_review_completed": {"const": false},
+        "fresh_session_validated": {"const": false},
+        "private_evaluation_completed": {"const": false},
+        "promotion_authorized": {"const": false},
+        "publication_authorized": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "runtime_loaded": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "drafted_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}

@@ -27,6 +27,7 @@ BASE_SCHEMA = {
     "properties": {
         "schema": {"const": "x-probe/v1"},
         "probe_id": {"type": "string", "minLength": 1},
+        "count": {"type": "integer"},
         "tags": {"type": "array", "items": {"type": "string"}},
         "locator": {"type": "string", "x-safe-relative-path": True},
         "meta": {"type": "object"},
@@ -86,6 +87,8 @@ MUTATIONS = {
     "pattern-not-string": _set(("properties", "probe_id", "pattern"), 64),
     "pattern-uncompilable": _set(("properties", "probe_id", "pattern"), "["),
     "type-unknown": _set(("type",), "str"),
+    "minimum-string": _set(("properties", "count", "minimum"), "0"),
+    "minimum-bool": _set(("properties", "count", "minimum"), False),
     # Combination constraints:
     "minLength-on-array": _set(("properties", "tags", "minLength"), 1),
     "pattern-on-object": _set(("pattern",), "^x$"),
@@ -95,6 +98,7 @@ MUTATIONS = {
     ),
     "safe-path-on-array": _set(("properties", "tags", "x-safe-relative-path"), True),
     "rfc3339-not-true": _set(("properties", "probe_id", "x-rfc3339-datetime"), "yes"),
+    "minimum-on-string": _set(("properties", "probe_id", "minimum"), 0),
     "at-least-one-of-not-list": _set(("x-at-least-one-of",), "probe_id"),
     "at-least-one-of-undeclared": _set(("x-at-least-one-of",), ["missing"]),
     "at-least-one-of-on-string": _set(
@@ -249,6 +253,20 @@ class BoundaryKeywordIntegerSemanticsTest(unittest.TestCase):
                 document,
                 '{"schema": "x-probe/v1", "probe_id": "strict", "tags": ["only"]}',
             )
+
+    def test_minimum_is_exactly_enforced_for_integer_values(self) -> None:
+        document = copy.deepcopy(BASE_SCHEMA)
+        document["properties"]["count"]["minimum"] = 0
+        with self.assertRaises(RecordValidationError):
+            _load_with(
+                document,
+                '{"schema": "x-probe/v1", "probe_id": "p1", "count": -1}',
+            )
+        record = _load_with(
+            document,
+            '{"schema": "x-probe/v1", "probe_id": "p1", "count": 0}',
+        )
+        self.assertEqual(record.data["count"], 0)
 
 
 class ExtensionKeywordBehaviorTest(unittest.TestCase):
