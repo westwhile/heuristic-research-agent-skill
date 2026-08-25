@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-24",
-  "phase": "correctness-reset-cr1-cr2-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_restricted_content_ingress_and_unicode_cjk_lexical_similarity_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
+  "reviewed_at": "2026-08-25",
+  "phase": "phase7-p7b1-eligibility-precheck-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_and_p7b1_eligibility_precheck_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -73,6 +73,16 @@
       "name": "build_context_bundle",
       "version": "candidate-manifest/v1 + context-bundle/v1",
       "status": "implemented_mainline_in_process_engineering_only"
+    },
+    {
+      "name": "prepare_context",
+      "version": "context-material-assessment/v1 + context-bundle/v2",
+      "status": "implemented_mainline_in_process_engineering_only"
+    },
+    {
+      "name": "assess_candidate_eligibility",
+      "version": "candidate-eligibility-attestation/v1",
+      "status": "implemented_mainline_in_process_preflight_only"
     }
   ],
   "ci_lanes": {
@@ -753,6 +763,116 @@
         "windows_governance_jobs": "success",
         "scope": "Closes deterministic all-CJK and tokenless false similarity with Unicode terms, CJK 2-4 grams, and empty abstention; it does not establish semantic retrieval quality, negative-transfer safety, or promotion validity."
       }
+    },
+    "last_commit_bound_correctness_reset_cr4_cr8_and_p7b1_evidence": {
+      "cr4": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/39",
+        "pr_head_commit": "81f943aff4d58a1d721fdb22ede9cc6969bac854",
+        "main_merge_commit": "4742070277093cc2e6e2ff5a8b656af9d3b87633",
+        "shared_tree": "372ef33291b3525f685896f689ad14d7c83c1091",
+        "archive_tests_per_interpreter": 1059,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_compatibility_gate": "success_without_receipt_output",
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32753725237",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32754051307",
+        "main_ci_head_sha": "4742070277093cc2e6e2ff5a8b656af9d3b87633",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Separates mandatory evaluation attempts from optional score-bearing results so error, timeout, and inconclusive attempts remain publishable without fabricated output or scores."
+      },
+      "cr5": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/40",
+        "pr_head_commit": "67b405391e4d9cb2bcc9701a2ddbefc00a96d31d",
+        "main_merge_commit": "894200d6754c1188a41fdf866b136ffcc101caf7",
+        "shared_tree": "2d0dce0e9087ea38e5148af5de917ee1f383c2de",
+        "archive_tests_per_interpreter": 1059,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_compatibility_gate": "success_without_receipt_output",
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32801307437",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32801488956",
+        "main_ci_head_sha": "894200d6754c1188a41fdf866b136ffcc101caf7",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Freezes case-by-seed-by-envelope observations as the comparison unit and keeps metric dimensions separate; it does not establish promotion validity from real candidates or hidden suites."
+      },
+      "cr6": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/41",
+        "pr_head_commit": "b8b60ae7f1ef8ca67f2301b55d7d781f62bac3dc",
+        "main_merge_commit": "edad2490ce5208bc37e4986b684738f631311913",
+        "shared_tree": "73b33de6249059496670c78c3d64c2a05940e910",
+        "archive_tests_per_interpreter": 1067,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_compatibility_gate": "success_without_receipt_output",
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32802819388",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32802990719",
+        "main_ci_head_sha": "edad2490ce5208bc37e4986b684738f631311913",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Binds the declared evaluation envelope to byte-closed members or resolvable Core artifact pins; hidden dependencies remain attestation-only and no real evaluator or data payload was disclosed."
+      },
+      "cr7": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/42",
+        "pr_head_commit": "e66a20d23d44d24c8f6d66cefb1aee4c18510533",
+        "main_merge_commit": "e2ce77500cf15708d673c1816d076f0d62bf0d86",
+        "shared_tree": "7d9c650d394eff2b20532ab84ca1a0b56af832c9",
+        "archive_sha256": "8faff8c8aac831eac01b5ec32dbf8a9e37448e6a5e76e4d9f97b6a37833247fb",
+        "archive_tests_per_interpreter": 1069,
+        "expected_archive_skips_per_interpreter": 6,
+        "branch_coverage_percent": 82,
+        "mypy_checked_source_files": 27,
+        "cuda_stable_projection_sha256": "70845f93745aff1c8d8c374fed4ade4bd0822ef8cfb2018f394a04c1f48da102",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32806576350",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32806792565",
+        "main_ci_head_sha": "e2ce77500cf15708d673c1816d076f0d62bf0d86",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds fixed Ruff, mypy, and branch-coverage quality gates; these are engineering correctness controls rather than evidence of research validity or external adoption."
+      },
+      "cr8": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/43",
+        "pr_head_commit": "c83f958c68aa6561685a9d335408fd8f0a31f02b",
+        "main_merge_commit": "663fec2b7193260eef265ed675b8d90a1905ef8e",
+        "shared_tree": "6beb0617bb55139fab284ff95d920462de3f7fe7",
+        "archive_sha256": "d41244a8d786fecf9b536965e9245139e79056c4549f5ec78ac581e34e884daa",
+        "archive_tests_per_interpreter": 1075,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_stable_projection_sha256": "b01b009116e72fbe339812263286ef5caa1002979075ca3aac8b6fc870641a42",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32813392042",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32813635071",
+        "main_ci_head_sha": "663fec2b7193260eef265ed675b8d90a1905ef8e",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds plaintext-free context-material assessment and ContextBundle v2 governance for classification, taint, lifecycle, export, and byte/token preflight; external storage, identity, and semantic review remain declarations."
+      },
+      "p7b1": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/44",
+        "pr_head_commit": "4fb6a81cf3e13e2ff21c6e45eb477d4254bd35d6",
+        "main_merge_commit": "552e7f21c7794305fd5340737e3392674fdf1997",
+        "shared_tree": "674223017d2881514a758f3c1b590fc4bad6977a",
+        "archive_sha256": "607f209fb2a8e7bbce3006468addcbe5366c318c940005328c645231b6d48fd8",
+        "archive_tests_per_interpreter": 1082,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "cuda_stable_projection_sha256": "b4ff5bf8cf34828fd61a012d7553e2e95f2052a9da46db93e2ec3277798aeebd",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32815318758",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32815585173",
+        "main_ci_head_sha": "552e7f21c7794305fd5340737e3392674fdf1997",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Issues a plaintext-free eligibility preflight with exact candidate, closure, source-case, lineage, criterion, and evidence-byte bindings. eligible_for_payload_drafting is not a Skill payload, semantic review, private evaluation, or promotion decision."
+      }
     }
   },
   "execution_matrix": [
@@ -818,7 +938,13 @@
       "P7A closes an exact manifest-declared byte set only after hash, size, exclusion, and acyclic dependency checks; receipt-last byte closure is not semantic review",
       "P7A ContextBundle mode selection is explicit and fails rather than silently dropping the declared safe minimum under budget pressure; invalidated sources remain visible",
       "CR1 refuses directly detectable restricted candidate/context content before publication without echoing matched values",
-      "CR2 uses deterministic Unicode lexical terms and CJK 2-4 grams, and tokenless comparisons abstain instead of returning perfect similarity"
+      "CR2 uses deterministic Unicode lexical terms and CJK 2-4 grams, and tokenless comparisons abstain instead of returning perfect similarity",
+      "CR4 publishes every execution attempt, including error, timeout, and inconclusive terminal states, while score-bearing results remain optional and separately pinned",
+      "CR5 compares paired observations at case-by-seed-by-frozen-envelope granularity and never treats metric dimensions as independent samples",
+      "CR6 closes public evaluation-envelope dependencies through exact member bytes or resolvable Core artifact pins while keeping hidden dependencies attestation-only",
+      "CR7 enforces fixed Ruff, mypy, and branch-coverage gates across the supported Python matrix",
+      "CR8 prepares governed ContextBundle v2 records through classification, taint, redaction/export, lifecycle, and byte/token preflight without retaining restricted plaintext",
+      "P7B1 computes only fail-closed candidate eligibility preflight outcomes and binds criterion evidence bytes without claiming a real Skill payload or promotion"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -843,10 +969,12 @@
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
-    "P7A is P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS; byte closure, synthetic Math/Quant fixtures, and ContextBundle construction do not establish semantic review, candidate quality, installation, activation, or publication.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A and the Correctness Reset did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7B1 is P7B1_ELIGIBILITY_PRECHECK_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS; byte closure, ContextBundle governance, synthetic Math/Quant fixtures, and eligibility attestations do not establish semantic review, candidate quality, installation, activation, promotion, or publication.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
+    "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
+    "P7B1 eligibility evidence descriptors are hash-bound bytes rather than Core-resolvable artifacts and must enter the later candidate bundle closure before payload drafting can advance.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
