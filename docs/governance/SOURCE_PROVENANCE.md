@@ -53,15 +53,16 @@ previously classified source, test, workflow, package-metadata, and governance
 paths. Ruff, mypy, and coverage.py are pinned non-runtime development
 dependencies; their source and binaries are not tracked or vendored.
 
-CR8 adds eighteen repository-native context-governance schema, source, test,
+CR8 added eighteen repository-native context-governance schema, source, test,
 fixture, and ADR files. It adds no tokenizer package, redaction engine,
 protected artifact payload, external model output, vendored dependency, or
-third-party expression.
+third-party expression; PR #43 merged this inventory to main.
 
-P7B1 adds eleven repository-native candidate-eligibility schema, source, test,
+P7B1 added eleven repository-native candidate-eligibility schema, source, test,
 fixture, and ADR files. Its evidence payloads are synthetic test bytes; no
 external Skill payload, evaluator output, participant material, vendored
-dependency, or third-party expression is included.
+dependency, or third-party expression is included; PR #44 merged this inventory
+to main.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -70,7 +71,7 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7B1 proposed tracked inventory contains 1087 files: the 1008-file CR2
+The P7B1 mainline tracked inventory contains 1087 files: the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
 nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
 files, and eleven new repository-native CR5 suite-level comparison schema,
@@ -81,7 +82,7 @@ CR8 context-governance schema, source, test, fixture, and ADR files, plus eleven
 repository-native P7B1 candidate-eligibility schema, source, test, fixture, and
 ADR files.
 `scripts/verify_source_provenance.py` derives this inventory from Git's
-tracked plus non-ignored proposed-file surface and reports full coverage with
+tracked-file surface and reports full coverage with
 `unknown=0`. R6B remains frozen at
 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
 external-source, semantic-review, adoption, installation, or publication
@@ -97,8 +98,8 @@ evidence:
 
 The machine-readable rules are ordered and use first-match precedence, so the
 generated and design-inspired exceptions take priority over repository-wide
-authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
-tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
+authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
+proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
 The resulting counts are 954 `independently_authored`, 118 `generated`, 13
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
