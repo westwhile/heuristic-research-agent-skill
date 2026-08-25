@@ -3,12 +3,14 @@
 Phase 3 surface, built layer by layer (ADR-0006 decision 12): E3 added
 the replay envelope and the deterministic offline replay runner; E4 adds
 the four-level scorer discipline and score-vector construction; E5 adds
-the three traced comparison statistics; E6 adds the six hard gates,
-verdict assembly, and the evaluator meta-tests; E7 adds the record
-assembly (`evaluate_case`/`compare`) and the three report forms. The
+the three traced historical comparison statistics; E6 adds the six hard
+gates, verdict assembly, and the evaluator meta-tests; E7 adds the record
+assembly (`evaluate_case`/historical `compare`) and the three report forms. The
 Correctness Reset CR4 additively exposes attempt-always/result-optional
 payloads through the existing ``PipelineOutcome`` interface while retaining
-the legacy pass/fail run projection. This package is a public
+the legacy pass/fail run projection. CR5 retires the invalid per-run comparison
+constructor and exposes ``compare_suite`` over complete case/seed/frozen-
+envelope pairs, with every metric analyzed separately. This package is a public
 face PARALLEL to ``research_evolution.core`` — it never extends the core
 export surface.
 """
@@ -55,12 +57,20 @@ from .scorers import (
     validate_score_vector,
 )
 from .statistics import (
+    SUITE_STATISTICAL_METHODS,
     STATISTICAL_METHODS,
     StatisticResult,
     mcnemar_exact,
     paired_bootstrap,
+    paired_permutation,
     rare_event_upper_bound,
     small_sample_limitation,
+)
+from .suite_comparison import (
+    OBSERVATION_UNIT,
+    MetricPolicy,
+    SuiteComparePolicy,
+    compare_suite,
 )
 
 __all__ = [
@@ -71,8 +81,12 @@ __all__ = [
     "MUTATION_CLASSES",
     "SCORER_LEVELS",
     "STATISTICAL_METHODS",
+    "SUITE_STATISTICAL_METHODS",
     "VERDICTS",
     "ComparePolicy",
+    "MetricPolicy",
+    "OBSERVATION_UNIT",
+    "SuiteComparePolicy",
     "Envelope",
     "GateConfig",
     "GateResult",
@@ -83,6 +97,7 @@ __all__ = [
     "StatisticResult",
     "assemble_verdict",
     "compare",
+    "compare_suite",
     "evaluate_case",
     "evaluate_gates",
     "gate_results_payload",
@@ -96,6 +111,7 @@ __all__ = [
     "package_judge_scores",
     "package_rubric_scores",
     "paired_bootstrap",
+    "paired_permutation",
     "rare_event_upper_bound",
     "render_html",
     "render_json",

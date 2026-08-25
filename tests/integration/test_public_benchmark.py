@@ -33,11 +33,12 @@ from research_evolution.core import (
     verify_record_graph,
 )
 from research_evolution.evaluation import (
-    ComparePolicy,
     Envelope,
     GateConfig,
+    MetricPolicy,
+    SuiteComparePolicy,
     assemble_verdict,
-    compare,
+    compare_suite,
     evaluate_case,
     evaluate_gates,
     known_pair_check,
@@ -163,32 +164,51 @@ def _state() -> dict:
                 outcomes[(domain, cand, cid)] = outcome
     reports: dict = {}
     for domain in DOMAINS:
-        # Quant score vectors carry the non-binary ``absolute_error``
-        # dimension, so McNemar (binary-only) does not apply there.
-        methods = (
-            ("paired_bootstrap", "paired_exact_mcnemar")
+        metrics = (
+            (MetricPolicy("exact_match:answer", "higher", "primary", 0.0),)
             if domain == "math"
-            else ("paired_bootstrap",)
-        )
-        policy = ComparePolicy(seed=20260816, methods=methods)
-        for cid in _case_ids(domain):
-            wrong = cid in WRONG_BY_DESIGN[domain]
-            reports[(domain, cid)] = compare(
-                champion=outcomes[(domain, "champion", cid)].run_payload,
-                challenger=outcomes[(domain, "challenger", cid)].run_payload,
-                policy=policy,
-                report_id=f"public-{cid.lower()}",
-                title=f"Champion vs Challenger on {cid} (synthetic public benchmark)",
-                conclusion=(
-                    "Challenger regresses by design on this synthetic case."
-                    if wrong
-                    else "No designed difference; both candidates answer correctly."
+            else (
+                MetricPolicy("within_tolerance:value", "higher", "primary", 0.0),
+                MetricPolicy(
+                    "absolute_error:value",
+                    "lower",
+                    "guardrail",
+                    0.0,
+                    noninferiority_margin=0.1,
                 ),
-                limitations=(
-                    "Synthetic public benchmark; L0/L1 coverage only — no L2–L4 claim.",
-                ),
-                generated_at=GENERATED_AT,
             )
+        )
+        reports[domain] = compare_suite(
+            suite=suites[domain],
+            champion_candidate={
+                "candidate_id": candidate_docs["champion"]["candidate_id"],
+                "sha256": canonical_sha256(candidate_docs["champion"]),
+            },
+            challenger_candidate={
+                "candidate_id": candidate_docs["challenger"]["candidate_id"],
+                "sha256": canonical_sha256(candidate_docs["challenger"]),
+            },
+            champion_runs=[
+                outcomes[(domain, "champion", cid)].run_payload
+                for cid in _case_ids(domain)
+            ],
+            challenger_runs=[
+                outcomes[(domain, "challenger", cid)].run_payload
+                for cid in _case_ids(domain)
+            ],
+            policy=SuiteComparePolicy(
+                seed=20260816,
+                expected_seeds=(20260816,),
+                metrics=metrics,
+            ),
+            comparison_id=f"public-{domain}-suite",
+            title=f"Champion vs Challenger on the {domain} synthetic public suite",
+            conclusion="Suite-level synthetic engineering comparison only.",
+            limitations=(
+                "Synthetic public benchmark; L0/L1 coverage only — no L2–L4 claim.",
+            ),
+            generated_at=GENERATED_AT,
+        )
     _STATE = {
         "registry": registry,
         "ledger": ledger,
@@ -400,133 +420,105 @@ class PublicationGraphTest(unittest.TestCase):
                         self.assertFalse(receipt.already_present)
                         published += 1
             for domain in DOMAINS:
-                for cid in _case_ids(domain):
-                    receipt = publish_record(
-                        render_json(state["reports"][(domain, cid)]), root=root
-                    )
-                    self.assertFalse(receipt.already_present)
-                    published += 1
-            self.assertEqual(published, 98)
+                receipt = publish_record(render_json(state["reports"][domain]), root=root)
+                self.assertFalse(receipt.already_present)
+                published += 1
+            self.assertEqual(published, 76)
             report = verify_record_graph(root)
             self.assertTrue(report.ok, [v.to_dict() for v in report.violations])
-            self.assertEqual(report.records_total, 98)
+            self.assertEqual(report.records_total, 76)
             self.assertEqual(
                 report.families,
                 {
-                    "comparison-report/v1": 24,
                     "evaluation-case/v1": 24,
                     "evaluation-run/v1": 48,
+                    "suite-comparison/v1": 2,
                     "suite/v1": 2,
                 },
             )
 
 
 class ComparisonReportTest(unittest.TestCase):
-    """Per-case comparison reports: schema, forms, hashes, discipline."""
+    """Suite-level comparison reports: schema, forms, hashes, discipline."""
 
     def test_reports_are_schema_valid_and_hash_bound(self) -> None:
         state = _state()
         for domain in DOMAINS:
-            for cid in _case_ids(domain):
-                with self.subTest(domain=domain, case=cid):
-                    report = state["reports"][(domain, cid)]
-                    record = load_record(render_json(report))
-                    self.assertEqual(record.schema_id, "comparison-report/v1")
-                    champion_sha = load_record(
-                        canonical_bytes(
-                            state["outcomes"][(domain, "champion", cid)].run_payload
-                        )
-                    ).sha256
-                    challenger_sha = load_record(
-                        canonical_bytes(
-                            state["outcomes"][(domain, "challenger", cid)].run_payload
-                        )
-                    ).sha256
-                    self.assertEqual(report["champion"]["sha256"], champion_sha)
-                    self.assertEqual(report["challenger"]["sha256"], challenger_sha)
-                    self.assertEqual(report["levels_covered"], ["L0", "L1"])
-                    self.assertEqual(report["methods"]["seed"], 20260816)
+            with self.subTest(domain=domain):
+                report = state["reports"][domain]
+                record = load_record(render_json(report))
+                self.assertEqual(record.schema_id, "suite-comparison/v1")
+                self.assertEqual(len(report["champion_runs"]), 12)
+                self.assertEqual(len(report["challenger_runs"]), 12)
+                self.assertEqual(report["levels_covered"], ["L0", "L1"])
+                self.assertEqual(report["methods"]["seed"], 20260816)
+                self.assertTrue(all(metric["n_pairs"] == 12 for metric in report["metrics"]))
 
     def test_small_sample_limitation_present_in_every_report(self) -> None:
         reports = _state()["reports"]
         for domain in DOMAINS:
-            expected_n = 1 if domain == "math" else 2
-            sentence = small_sample_limitation(expected_n)
+            sentence = small_sample_limitation(12)
             self.assertIsNotNone(sentence)
-            for cid in _case_ids(domain):
-                with self.subTest(domain=domain, case=cid):
-                    self.assertIn(sentence, reports[(domain, cid)]["limitations"])
+            self.assertIn(sentence, reports[domain]["limitations"])
 
     def test_gate_summary_folding(self) -> None:
         reports = _state()["reports"]
         for domain in DOMAINS:
-            for cid in _case_ids(domain):
-                with self.subTest(domain=domain, case=cid):
-                    summary = reports[(domain, cid)]["gate_summary"]
-                    if cid in WRONG_BY_DESIGN[domain]:
-                        regression = [
-                            item for item in summary if item["gate"] == "regression"
-                        ]
-                        self.assertEqual(regression[0]["result"], "fail")
-                        self.assertTrue(regression[0]["reason"])
-                    else:
-                        self.assertEqual(len(summary), 6)
-                        self.assertTrue(
-                            all(item["result"] == "pass" for item in summary)
-                        )
+            summary = reports[domain]["gate_summary"]
+            regression = [item for item in summary if item["gate"] == "regression"]
+            self.assertEqual(regression[0]["result"], "fail")
+            self.assertTrue(regression[0]["reason"])
 
     def test_three_forms_render_from_the_same_payload(self) -> None:
         state = _state()
         for domain in DOMAINS:
-            for cid in _case_ids(domain):
-                with self.subTest(domain=domain, case=cid):
-                    report = state["reports"][(domain, cid)]
-                    self.assertEqual(render_json(report), canonical_bytes(report))
-                    markdown = render_markdown(report)
-                    self.assertIn(report["report_id"], markdown)
-                    self.assertIn("L0/L1 only", markdown)
-                    html = render_html(report)
-                    self.assertIn(report["report_id"], html)
-                    self.assertIn("<table", html)
+            with self.subTest(domain=domain):
+                report = state["reports"][domain]
+                self.assertEqual(render_json(report), canonical_bytes(report))
+                markdown = render_markdown(report)
+                self.assertIn(report["suite_comparison_id"], markdown)
+                self.assertIn("case_seed_frozen_envelope", markdown)
+                html = render_html(report)
+                self.assertIn(report["suite_comparison_id"], html)
+                self.assertIn("<table", html)
 
-    def test_compare_is_deterministic_and_rejects_bad_pairings(self) -> None:
+    def test_compare_suite_is_deterministic_and_rejects_incomplete_pairings(self) -> None:
         state = _state()
-        policy = ComparePolicy(
-            seed=20260816, methods=("paired_bootstrap", "paired_exact_mcnemar")
+        policy = SuiteComparePolicy(
+            seed=20260816,
+            expected_seeds=(20260816,),
+            metrics=(MetricPolicy("exact_match:answer", "higher", "primary", 0.0),),
         )
         kwargs = dict(
-            champion=state["outcomes"][("math", "champion", "M-02")].run_payload,
-            challenger=state["outcomes"][("math", "challenger", "M-02")].run_payload,
+            suite=state["suites"]["math"],
+            champion_candidate={
+                "candidate_id": state["candidates"]["champion"]["candidate_id"],
+                "sha256": canonical_sha256(state["candidates"]["champion"]),
+            },
+            challenger_candidate={
+                "candidate_id": state["candidates"]["challenger"]["candidate_id"],
+                "sha256": canonical_sha256(state["candidates"]["challenger"]),
+            },
+            champion_runs=[
+                state["outcomes"][("math", "champion", cid)].run_payload
+                for cid in _case_ids("math")
+            ],
+            challenger_runs=[
+                state["outcomes"][("math", "challenger", cid)].run_payload
+                for cid in _case_ids("math")
+            ],
             policy=policy,
-            report_id="public-m-02",
-            title="Champion vs Challenger on M-02 (synthetic public benchmark)",
-            conclusion="Challenger regresses by design on this synthetic case.",
+            comparison_id="public-math-suite",
+            title="Champion vs Challenger on the math synthetic public suite",
+            conclusion="Suite-level synthetic engineering comparison only.",
             limitations=(
                 "Synthetic public benchmark; L0/L1 coverage only — no L2–L4 claim.",
             ),
             generated_at=GENERATED_AT,
         )
-        self.assertEqual(compare(**kwargs), state["reports"][("math", "M-02")])
+        self.assertEqual(compare_suite(**kwargs), state["reports"]["math"])
         with self.assertRaises(ValueError):
-            compare(
-                **{
-                    **kwargs,
-                    "challenger": kwargs["champion"],
-                    "report_id": "self-compare",
-                }
-            )
-        # McNemar is binary-only: a quant pair whose challenger missed the
-        # tolerance carries a non-binary absolute_error value.
-        with self.assertRaises(ValueError):
-            compare(
-                champion=state["outcomes"][("quant", "champion", "Q-03")].run_payload,
-                challenger=state["outcomes"][("quant", "challenger", "Q-03")].run_payload,
-                policy=policy,
-                report_id="mcnemar-not-binary",
-                title="n/a",
-                conclusion="n/a",
-                generated_at=GENERATED_AT,
-            )
+            compare_suite(**{**kwargs, "challenger_runs": kwargs["challenger_runs"][:-1]})
 
 
 class PublicMetaTest(unittest.TestCase):

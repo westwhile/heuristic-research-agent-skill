@@ -7,8 +7,10 @@ This module wires the E3–E6 machinery into the record layer of E2:
   ``evaluation-result/v1`` only after scoring succeeds. Successful legacy
   callers continue to receive the frozen ``evaluation-run/v1`` payload.
   Publishing stays with the caller through the existing core surface.
-- :func:`compare` assembles a ``comparison-report/v1`` payload from two
-  run payloads, pairing their score vectors by dimension.
+- :func:`compare` is a fail-closed compatibility sentinel. CR5 retired
+  construction of ``comparison-report/v1`` because metric dimensions are
+  not paired observations; suite-level comparison lives in the separate
+  :mod:`.suite_comparison` deep module.
 
 Two contract facts shape the assembly:
 
@@ -36,7 +38,6 @@ from typing import Any, Mapping, Sequence
 
 from research_evolution.core import (
     canonical_bytes,
-    canonical_sha256,
     load_record,
     load_strict_json,
 )
@@ -61,14 +62,6 @@ from .scorers import (
     scorer_identity,
     validate_score_vector,
 )
-from .statistics import (
-    StatisticResult,
-    mcnemar_exact,
-    paired_bootstrap,
-    rare_event_upper_bound,
-    small_sample_limitation,
-)
-
 # Exactly the ``levels_covered`` item enum shared by both schemas.
 LEVELS = frozenset({"L0", "L1"})
 
@@ -359,121 +352,16 @@ def compare(
     limitations: Sequence[str] = (),
     generated_at: str,
 ) -> dict[str, Any]:
-    """Assemble a ``comparison-report/v1`` payload from two run payloads.
+    """Reject the retired per-run inferential comparison interface.
 
-    Score vectors are paired by shared dimension (sorted); statistics are
-    computed over those paired values and fully traced. A run is never
-    compared with itself: identical run ids are refused at entry.
+    ``comparison-report/v1`` remains loadable as an immutable historical
+    family, but treating metric dimensions as paired observations is not
+    statistically valid. New comparisons must use ``compare_suite``.
     """
-    champion_sha = _record_sha256(champion, "champion run")
-    challenger_sha = _record_sha256(challenger, "challenger run")
-    champion_id = champion["evaluation_run_id"]
-    challenger_id = challenger["evaluation_run_id"]
-    if champion_id == challenger_id:
-        raise ValueError(
-            f"champion and challenger are the same run {champion_id!r}: "
-            "a self-comparison proves nothing"
-        )
-
-    def vector(run: Mapping[str, Any]) -> dict[str, float]:
-        return {entry["dimension"]: entry["value"] for entry in run["score_vector"]}
-
-    champion_vector = vector(champion)
-    challenger_vector = vector(challenger)
-    shared = sorted(set(champion_vector) & set(challenger_vector))
-    if not shared:
-        raise ValueError("the two score vectors share no dimension")
-
-    champion_values = [champion_vector[dimension] for dimension in shared]
-    challenger_values = [challenger_vector[dimension] for dimension in shared]
-    score_deltas = [
-        {
-            "dimension": dimension,
-            "champion_value": champion_vector[dimension],
-            "challenger_value": challenger_vector[dimension],
-        }
-        for dimension in shared
-    ]
-
-    results: list[StatisticResult] = []
-    for method in policy.methods:
-        if method == "paired_bootstrap":
-            results.append(
-                paired_bootstrap(
-                    champion_values,
-                    challenger_values,
-                    seed=policy.seed,
-                    resamples=policy.resamples,
-                    confidence=policy.confidence,
-                )
-            )
-        elif method == "paired_exact_mcnemar":
-            if not all(
-                value in (0.0, 1.0)
-                for value in champion_values + challenger_values
-            ):
-                raise ValueError(
-                    "paired_exact_mcnemar applies only to binary (0/1) "
-                    "score dimensions"
-                )
-            champion_only = sum(
-                1 for a, b in zip(champion_values, challenger_values)
-                if a == 1.0 and b == 0.0
-            )
-            challenger_only = sum(
-                1 for a, b in zip(champion_values, challenger_values)
-                if a == 0.0 and b == 1.0
-            )
-            results.append(mcnemar_exact(champion_only, challenger_only))
-        elif method == "rare_event_upper_bound":
-            if policy.rare_event is None:
-                raise ValueError(
-                    "rare_event_upper_bound requires policy.rare_event "
-                    "(events, trials)"
-                )
-            events, trials = policy.rare_event
-            results.append(
-                rare_event_upper_bound(events, trials, confidence=policy.confidence)
-            )
-        else:
-            raise ValueError(f"unknown statistical method: {method!r}")
-
-    methods_payload: dict[str, Any] = {
-        "statistics": [result.method for result in results],
-        "parameters_sha256": canonical_sha256(
-            {"methods": [result.trace_payload() for result in results]}
-        ),
-        "seed": policy.seed,
-    }
-
-    gate_summary = _fold_gate_summary(champion, challenger)
-    levels = sorted(
-        set(champion["levels_covered"]) & set(challenger["levels_covered"])
+    raise ValueError(
+        "comparison-report/v1 construction is retired: metric dimensions are not "
+        "observations; use compare_suite() with case/seed/envelope pairs"
     )
-    if not levels:
-        raise ValueError("the two runs share no coverage level")
-
-    if not isinstance(conclusion, str) or not conclusion.strip():
-        raise ValueError("conclusion must be a non-blank string")
-    all_limitations = list(limitations)
-    caution = small_sample_limitation(len(shared))
-    if caution is not None and caution not in all_limitations:
-        all_limitations.append(caution)
-
-    return {
-        "schema": "comparison-report/v1",
-        "report_id": report_id,
-        "title": title,
-        "champion": {"evaluation_run_id": champion_id, "sha256": champion_sha},
-        "challenger": {"evaluation_run_id": challenger_id, "sha256": challenger_sha},
-        "methods": methods_payload,
-        "score_deltas": score_deltas,
-        "gate_summary": gate_summary,
-        "levels_covered": levels,
-        "conclusion": conclusion,
-        "limitations": all_limitations,
-        "generated_at": generated_at,
-    }
 
 
 def _fold_gate_summary(

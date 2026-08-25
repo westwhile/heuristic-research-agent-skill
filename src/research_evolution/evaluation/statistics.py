@@ -43,6 +43,7 @@ from research_evolution.core import canonical_sha256
 STATISTICAL_METHODS = frozenset(
     {"paired_exact_mcnemar", "paired_bootstrap", "rare_event_upper_bound"}
 )
+SUITE_STATISTICAL_METHODS = frozenset({"paired_permutation", "paired_bootstrap"})
 
 # Below this many paired cases the acceptance gate forbids significance
 # claims about overall accuracy (plan Phase 3 gate: "20–30 cases").
@@ -71,7 +72,7 @@ class StatisticResult:
     estimates: dict[str, float]
 
     def __post_init__(self) -> None:
-        if self.method not in STATISTICAL_METHODS:
+        if self.method not in STATISTICAL_METHODS | SUITE_STATISTICAL_METHODS:
             raise ValueError(f"unknown statistical method: {self.method!r}")
 
     def trace_payload(self) -> dict[str, Any]:
@@ -184,6 +185,112 @@ def paired_bootstrap(
             "mean_difference": sum(differences) / n,
             "ci_low": means[low_rank],
             "ci_high": means[high_rank],
+        },
+    )
+
+
+def paired_permutation(
+    champion: Sequence[float],
+    challenger: Sequence[float],
+    *,
+    seed: int,
+    resamples: int = 10000,
+    exact_limit: int = 20,
+) -> StatisticResult:
+    """Two-sided paired sign-flip permutation test over observations.
+
+    The observation is one aligned pair supplied by the caller. Up to
+    ``exact_limit`` pairs every sign assignment is enumerated; larger samples
+    use a seeded Monte Carlo estimate with the standard plus-one correction.
+    The matched-pairs rank-biserial effect size is reported alongside the
+    p-value. Metric dimensions must be analyzed in separate calls.
+    """
+
+    if len(champion) != len(challenger):
+        raise ValueError("paired inputs must have equal length")
+    if not champion:
+        raise ValueError("paired inputs must not be empty")
+    seed = _require_int("seed", seed)
+    resamples = _require_int("resamples", resamples)
+    exact_limit = _require_int("exact_limit", exact_limit)
+    if resamples <= 0:
+        raise ValueError(f"resamples must be positive, got {resamples}")
+    if exact_limit < 0:
+        raise ValueError(f"exact_limit must be non-negative, got {exact_limit}")
+
+    differences: list[float] = []
+    for index, (champ, chall) in enumerate(zip(champion, challenger)):
+        for name, value in (
+            (f"champion[{index}]", champ),
+            (f"challenger[{index}]", chall),
+        ):
+            if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+                raise ValueError(f"{name} must be a number, got {value!r}")
+            if not math.isfinite(float(value)):
+                raise ValueError(f"{name} must be finite, got {value!r}")
+        differences.append(float(chall) - float(champ))
+
+    n = len(differences)
+    observed = abs(sum(differences) / n)
+    tolerance = 1e-15
+    if n <= exact_limit:
+        total = 1 << n
+        extreme = 0
+        for mask in range(total):
+            permuted = sum(
+                value if mask & (1 << index) else -value
+                for index, value in enumerate(differences)
+            ) / n
+            if abs(permuted) + tolerance >= observed:
+                extreme += 1
+        p_value = extreme / total
+        mode = "exact"
+        draws = total
+    else:
+        rng = random.Random(seed)
+        extreme = 0
+        for _ in range(resamples):
+            permuted = sum(
+                value if rng.getrandbits(1) else -value for value in differences
+            ) / n
+            if abs(permuted) + tolerance >= observed:
+                extreme += 1
+        p_value = (extreme + 1) / (resamples + 1)
+        mode = "monte_carlo"
+        draws = resamples
+
+    nonzero = [(abs(value), value) for value in differences if value != 0.0]
+    if not nonzero:
+        rank_biserial = 0.0
+    else:
+        ordered = sorted(nonzero, key=lambda item: item[0])
+        signed_rank_sum = 0.0
+        total_rank_sum = 0.0
+        index = 0
+        while index < len(ordered):
+            end = index + 1
+            while end < len(ordered) and ordered[end][0] == ordered[index][0]:
+                end += 1
+            average_rank = ((index + 1) + end) / 2.0
+            for _, value in ordered[index:end]:
+                signed_rank_sum += average_rank if value > 0 else -average_rank
+                total_rank_sum += average_rank
+            index = end
+        rank_biserial = signed_rank_sum / total_rank_sum
+
+    return StatisticResult(
+        method="paired_permutation",
+        parameters={
+            "n_pairs": n,
+            "seed": seed,
+            "mode": mode,
+            "draws": draws,
+            "exact_limit": exact_limit,
+        },
+        estimates={
+            "mean_difference": sum(differences) / n,
+            "p_value": p_value,
+            "rank_biserial": rank_biserial,
         },
     )
 

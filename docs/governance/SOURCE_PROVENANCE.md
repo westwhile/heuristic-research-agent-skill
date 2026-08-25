@@ -2,7 +2,7 @@
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
 - Baseline commit: `b9a3b8268575fe32399b83295595710944c6a772`
-- Review date: 2026-08-24
+- Review date: 2026-08-25
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
 This record defines the source and redistribution boundary for the repository's
@@ -38,6 +38,11 @@ It also covers the nineteen CR4 attempt/result schema, fixture, and ADR files
 prepared under maintainer direction. CR4 adds no vendored dependency, external
 payload, copied evaluator implementation, or third-party expression.
 
+It also covers the eleven CR5 suite-level comparison schema, source, test,
+fixture, and ADR files prepared under maintainer direction. CR5 adds no
+vendored statistics package, benchmark payload, copied evaluator
+implementation, or third-party expression.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -45,10 +50,11 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The CR4 proposed tracked inventory contains 1027 files: the 1008-file CR2
-mainline inventory, the CR3 status synchronization (modified paths only), and
+The CR5 proposed tracked inventory contains 1038 files: the 1008-file CR2
+mainline inventory, the CR3 status synchronization (modified paths only),
 nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
-files. `scripts/verify_source_provenance.py` derives this inventory from Git's
+files, and eleven new repository-native CR5 suite-level comparison schema,
+source, test, fixture, and ADR files. `scripts/verify_source_provenance.py` derives this inventory from Git's
 tracked plus non-ignored proposed-file surface and reports full coverage with
 `unknown=0`. R6B remains frozen at
 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`; P7A synthetic fixtures are not
@@ -57,7 +63,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 894 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 905 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -68,9 +74,10 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
 tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 894 `independently_authored`, 118 `generated`, 13
+The resulting counts are 905 `independently_authored`, 118 `generated`, 13
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
-external payloads, vendored dependencies, or third-party expression.
+external payloads, vendored dependencies, or third-party expression; CR5 has
+the same boundary.
 
 ## External-source decisions
 

@@ -13,6 +13,7 @@ from research_evolution.evaluation.statistics import (
     StatisticResult,
     mcnemar_exact,
     paired_bootstrap,
+    paired_permutation,
     rare_event_upper_bound,
     small_sample_limitation,
 )
@@ -108,6 +109,48 @@ class PairedBootstrapTest(unittest.TestCase):
             paired_bootstrap([1], [0], seed=1, resamples=0)
         with self.assertRaises(ValueError):
             paired_bootstrap([1], [0], seed=1, confidence=1.0)
+
+
+class PairedPermutationTest(unittest.TestCase):
+    def test_exact_known_value_and_effect_size(self) -> None:
+        result = paired_permutation([0.0, 0.0], [1.0, 1.0], seed=42)
+        self.assertEqual(result.estimates["mean_difference"], 1.0)
+        self.assertEqual(result.estimates["p_value"], 0.5)
+        self.assertEqual(result.estimates["rank_biserial"], 1.0)
+        self.assertEqual(result.parameters["mode"], "exact")
+        self.assertEqual(result.parameters["n_pairs"], 2)
+
+    def test_metrics_are_separate_calls(self) -> None:
+        accuracy = paired_permutation([0.0, 0.0], [1.0, 1.0], seed=7)
+        latency = paired_permutation([100.0, 110.0], [99.0, 109.0], seed=7)
+        self.assertEqual(accuracy.parameters["n_pairs"], 2)
+        self.assertEqual(latency.parameters["n_pairs"], 2)
+        self.assertNotEqual(
+            accuracy.estimates["mean_difference"],
+            latency.estimates["mean_difference"],
+        )
+
+    def test_validation_and_seeded_monte_carlo(self) -> None:
+        with self.assertRaises(ValueError):
+            paired_permutation([], [], seed=1)
+        with self.assertRaises(ValueError):
+            paired_permutation([0.0], [1.0, 2.0], seed=1)
+        first = paired_permutation(
+            [0.0, 0.0],
+            [1.0, -0.5],
+            seed=9,
+            resamples=100,
+            exact_limit=0,
+        )
+        second = paired_permutation(
+            [0.0, 0.0],
+            [1.0, -0.5],
+            seed=9,
+            resamples=100,
+            exact_limit=0,
+        )
+        self.assertEqual(first, second)
+        self.assertEqual(first.parameters["mode"], "monte_carlo")
 
 
 class RareEventUpperBoundTest(unittest.TestCase):

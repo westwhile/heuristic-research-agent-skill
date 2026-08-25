@@ -422,6 +422,28 @@ FIXTURE_MANIFEST = {
             ),
         },
     },
+    "suite-comparison/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "bad-inference-status.json": (
+                "RecordValidationError",
+                "inference_status",
+            ),
+            "bad-observation-unit.json": (
+                "RecordValidationError",
+                "observation_unit",
+            ),
+            "champion-run-missing-pin.json": (
+                "RecordValidationError",
+                "sha256",
+            ),
+            "empty-metrics.json": ("RecordValidationError", "metrics"),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
@@ -491,6 +513,9 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "context-bundle/v1": (
         "912f081adada126661f0c0cd4baacc8ad5faf5cf308636aa7efa8b5d3a3e4f8e"
+    ),
+    "suite-comparison/v1": (
+        "bea90285ac9e9cfa7cecb2be836450beb26fa9d5396d0bea7a68962a3e370302"
     ),
 }
 
@@ -564,6 +589,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "context-bundle-v1.schema.json": (
         "aa1f4039c2359d8e92ac80cfa3916d21c7b2359ad36eda7755a930c99b4a83d7"
+    ),
+    "suite-comparison-v1.schema.json": (
+        "b5b656b76041e4529945e5dcb1c558f8cfae0299481e32838d7ea6ed1f7feab8"
     ),
 }
 
@@ -650,7 +678,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_two_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_three_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -676,6 +704,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-run/v1",
                 "research-task/v1",
                 "reuse-event/v1",
+                "suite-comparison/v1",
                 "suite/v1",
             ),
         )

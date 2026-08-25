@@ -43,6 +43,7 @@ class FamilyRegistryTest(unittest.TestCase):
                 "evaluation-attempt/v1",
                 "evaluation-result/v1",
                 "comparison-report/v1",
+                "suite-comparison/v1",
                 "research-case-package/v2",
                 "research-pattern/v1",
                 "heuristic/v1",

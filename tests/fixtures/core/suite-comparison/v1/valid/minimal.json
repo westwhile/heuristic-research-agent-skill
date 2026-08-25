@@ -1,0 +1,20 @@
+{
+  "schema": "suite-comparison/v1",
+  "suite_comparison_id": "suite-comparison-1",
+  "title": "Frozen suite candidate comparison",
+  "suite": {"suite_id": "suite-1", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "champion": {"candidate_id": "champion", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+  "challenger": {"candidate_id": "challenger", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "champion_runs": [{"evaluation_run_id": "run-champion-1", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}],
+  "challenger_runs": [{"evaluation_run_id": "run-challenger-1", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"}],
+  "observation_unit": "case_seed_frozen_envelope",
+  "expected_seeds": [7],
+  "pairs": [{"case": {"evaluation_case_id": "case-1", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}, "seed": 7, "envelope_sha256": "1212121212121212121212121212121212121212121212121212121212121212", "champion_evaluation_run_id": "run-champion-1", "challenger_evaluation_run_id": "run-challenger-1"}],
+  "methods": {"statistics": ["paired_permutation", "paired_bootstrap"], "parameters_sha256": "1313131313131313131313131313131313131313131313131313131313131313", "seed": 11, "resamples": 2000, "confidence": 0.95, "familywise_error_rate": 0.05, "minimum_pairs": 30, "multiple_comparison_adjustment": "holm"},
+  "metrics": [{"dimension": "correctness", "direction": "higher", "role": "primary", "n_pairs": 1, "mean_difference": 0.0, "ci_low": 0.0, "ci_high": 0.0, "p_value": 1.0, "adjusted_p_value": 1.0, "rank_biserial": 0.0, "rope": 0.01, "inference_status": "insufficient_pairs"}],
+  "gate_summary": [{"gate": "integrity", "result": "pass"}],
+  "levels_covered": ["L0"],
+  "conclusion": "Descriptive engineering comparison only.",
+  "limitations": ["One synthetic paired observation; no significance claim."],
+  "generated_at": "2026-08-25T00:00:00Z"
+}
