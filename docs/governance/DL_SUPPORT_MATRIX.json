@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-25",
-  "phase": "phase7-p7b1-eligibility-precheck-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_and_p7b1_eligibility_precheck_engineering_zero_accepted_external_submissions_zero_real_candidates_zero_skill_payloads",
+  "phase": "phase7-p7b2-skill-candidate-bundle-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_precheck_and_p7b2_structural_drafting_engineering_zero_accepted_external_submissions_zero_real_skill_payloads_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -83,6 +83,11 @@
       "name": "assess_candidate_eligibility",
       "version": "candidate-eligibility-attestation/v1",
       "status": "implemented_mainline_in_process_preflight_only"
+    },
+    {
+      "name": "draft_skill_candidate_bundle",
+      "version": "skill-candidate-bundle/v1",
+      "status": "implemented_mainline_in_process_structural_drafting_only"
     }
   ],
   "ci_lanes": {
@@ -872,6 +877,27 @@
         "four_matrix_jobs": "success",
         "windows_governance_jobs": "success",
         "scope": "Issues a plaintext-free eligibility preflight with exact candidate, closure, source-case, lineage, criterion, and evidence-byte bindings. eligible_for_payload_drafting is not a Skill payload, semantic review, private evaluation, or promotion decision."
+      },
+      "p7b2": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/46",
+        "pr_head_commit": "ed591777bea73b8d6ee0ccd9c539682fa183a26d",
+        "main_merge_commit": "3954d8c5ccf9037c7864279747a7695e287e15a0",
+        "shared_tree": "053101206ad33ead4d2188c60271031754d818c4",
+        "archive_sha256": "6318ef6287d241527f9dbf8a3f59900a33e7cc6eee25088762d3b82fe8fcd4af",
+        "archive_tests_per_interpreter": 1093,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "branch_coverage_percent": 82,
+        "mypy_source_files": 30,
+        "cuda_stable_projection_sha256": "d7c539bfe83773e8b5011d1df04784ad79d888f7499147574393af379998859e",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32833911915",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32834269268",
+        "main_ci_head_sha": "3954d8c5ccf9037c7864279747a7695e287e15a0",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds a byte-closed synthetic Skill candidate drafting contract with strict UTF-8, restricted-content, minimal frontmatter/layout, DAG, exact eligibility-evidence, and non-negative-size gates. It does not create a real Skill payload or authorize semantic review, private evaluation, promotion, installation, activation, or publication."
       }
     }
   },
@@ -944,7 +970,8 @@
       "CR6 closes public evaluation-envelope dependencies through exact member bytes or resolvable Core artifact pins while keeping hidden dependencies attestation-only",
       "CR7 enforces fixed Ruff, mypy, and branch-coverage gates across the supported Python matrix",
       "CR8 prepares governed ContextBundle v2 records through classification, taint, redaction/export, lifecycle, and byte/token preflight without retaining restricted plaintext",
-      "P7B1 computes only fail-closed candidate eligibility preflight outcomes and binds criterion evidence bytes without claiming a real Skill payload or promotion"
+      "P7B1 computes only fail-closed candidate eligibility preflight outcomes and binds criterion evidence bytes without claiming a real Skill payload or promotion",
+      "P7B2 byte-closes synthetic candidate payload and eligibility-evidence members through one in-process seam while keeping every publication, installation, activation, runtime, semantic-review, private-evaluation, and promotion claim false"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -956,7 +983,7 @@
       "involuntary scheduler preemption and scheduler-managed process restart",
       "external checkpoint-store durability or authorization",
       "wall-clock, monetary cost, energy, or production reliability",
-      "any real candidate payload, independent semantic review, fresh-session forward test, private evaluation, Skill installation, activation, or publication"
+      "any non-synthetic real Skill candidate payload, independent semantic review, fresh-session forward test, private evaluation, Skill installation, activation, or publication"
     ]
   },
   "boundaries": [
@@ -969,12 +996,12 @@
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
-    "P7B1 is P7B1_ELIGIBILITY_PRECHECK_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS; byte closure, ContextBundle governance, synthetic Math/Quant fixtures, and eligibility attestations do not establish semantic review, candidate quality, installation, activation, promotion, or publication.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1 did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7B2 is P7B2_STRUCTURAL_DRAFTING_READY / ZERO_REAL_SKILL_PAYLOADS / ZERO_PROMOTIONS; byte closure, ContextBundle governance, synthetic Math/Quant fixtures, eligibility attestations, and synthetic candidate payload members do not establish semantic review, candidate quality, installation, activation, promotion, or publication.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, P7B1, and P7B2 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
-    "P7B1 eligibility evidence descriptors are hash-bound bytes rather than Core-resolvable artifacts and must enter the later candidate bundle closure before payload drafting can advance.",
+    "P7B2 closes the exact P7B1 eligibility-evidence bytes with a synthetic candidate payload, but structural byte closure is not semantic review, fresh-session execution, private evaluation, or promotion authority.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
