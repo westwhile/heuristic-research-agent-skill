@@ -33,8 +33,9 @@ never disagree about which calibration artifact backs them.
 from __future__ import annotations
 
 import platform
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from research_evolution.core import (
     canonical_bytes,
@@ -62,6 +63,7 @@ from .scorers import (
     scorer_identity,
     validate_score_vector,
 )
+
 # Exactly the ``levels_covered`` item enum shared by both schemas.
 LEVELS = frozenset({"L0", "L1"})
 
@@ -96,7 +98,9 @@ def _record_sha256(payload: Mapping[str, Any], what: str) -> str:
     try:
         return load_record(canonical_bytes(payload)).sha256
     except Exception as exc:
-        raise ValueError(f"{what} payload is not a valid core record: {exc}")
+        raise ValueError(
+            f"{what} payload is not a valid core record: {exc}"
+        ) from exc
 
 
 @dataclass(frozen=True)

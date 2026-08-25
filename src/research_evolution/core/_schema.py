@@ -526,7 +526,7 @@ def _json_equal(left: Any, right: Any) -> bool:
     if isinstance(left, list) and isinstance(right, list):
         return len(left) == len(right) and all(
             _json_equal(item_left, item_right)
-            for item_left, item_right in zip(left, right)
+            for item_left, item_right in zip(left, right, strict=True)
         )
     if isinstance(left, dict) and isinstance(right, dict):
         if set(left) != set(right):

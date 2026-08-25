@@ -15,12 +15,18 @@ Skill installation unless it explicitly says so.
 - Synchronized documentation with the published `v0.6.1` source Release.
 - Added a bounded, caller-managed, opt-in PyTorch/CUDA small-fixture runner and
   the hash-bound `dl-run-observation/v1` Adapter contract.
+- Added the Correctness Reset attempt/result audit split, suite-level paired
+  statistics, complete evaluation-envelope artifact closure, and ratcheted
+  Ruff/mypy/branch-coverage engineering gates.
 
 The trial intake is available, but no external attempt or adoption result is
 claimed by this change. The O6 material is preparation only; no OpenAI
 application has been filled or submitted. A successful PyTorch/CUDA fixture is
 real framework/hardware engineering evidence only; it is not real-data,
 scientific, predictive, production, adoption, or cross-GPU evidence.
+The Correctness Reset remains engineering-only: it does not execute a real
+Candidate Agent, provide an independent hidden evaluator, create a
+PromotionDecision, or install a Skill.
 
 ## 0.6.1 — 2026-08-23
 

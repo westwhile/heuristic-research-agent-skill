@@ -369,13 +369,17 @@ def check_record_graph(
                             supersedes_edges[rid] = target
                             children.setdefault(target, []).append(rid)
                             if contract.supersedes.scope == "anchor":
+                                anchor_field = contract.supersedes.anchor_field
+                                if anchor_field is None:
+                                    raise RuntimeError(
+                                        f"{family} has anchor-scoped lineage without "
+                                        "an anchor field"
+                                    )
                                 own_anchor = _anchor_id(
-                                    records, family, rid,
-                                    contract.supersedes.anchor_field,
+                                    records, family, rid, anchor_field,
                                 )
                                 target_anchor = _anchor_id(
-                                    records, family, target,
-                                    contract.supersedes.anchor_field,
+                                    records, family, target, anchor_field,
                                 )
                                 if own_anchor != target_anchor:
                                     violations.append(
@@ -383,7 +387,7 @@ def check_record_graph(
                                             "lineage_scope_mismatch",
                                             f"{family} {rid!r} supersedes "
                                             f"{target!r} but their "
-                                            f"{contract.supersedes.anchor_field} "
+                                            f"{anchor_field} "
                                             f"anchors differ ({own_anchor!r} vs "
                                             f"{target_anchor!r})",
                                         )

@@ -566,7 +566,7 @@ def create_record_file(root: Path, record: Record) -> None:
                 raise StoreIntegrityError(
                     f"record file {rel!r} is a symlink or junction; the store "
                     f"is corrupt"
-                )
+                ) from None
             try:
                 same_bytes = final.read_bytes() == data
             except OSError as exc:
@@ -578,7 +578,7 @@ def create_record_file(root: Path, record: Record) -> None:
             raise StoreIntegrityError(
                 f"record file {rel!r} exists with bytes that do not match its "
                 f"content-derived name; the store is corrupt"
-            )
+            ) from None
         except OSError as exc:
             raise StoreIntegrityError(
                 f"cannot link record file {rel!r} into the store: {exc}"

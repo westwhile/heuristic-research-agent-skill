@@ -18,7 +18,8 @@ class CIWorkflowContractTest(unittest.TestCase):
         cls.workflow = WORKFLOW.read_text(encoding="utf-8")
         cls.support = json.loads(SUPPORT_MATRIX.read_text(encoding="utf-8"))
         with (REPO_ROOT / "pyproject.toml").open("rb") as handle:
-            cls.project = tomllib.load(handle)["project"]
+            cls.pyproject = tomllib.load(handle)
+        cls.project = cls.pyproject["project"]
 
     def test_triggers_on_pull_requests_and_main_pushes(self) -> None:
         self.assertRegex(self.workflow, r"(?m)^  pull_request:$")
@@ -63,13 +64,47 @@ class CIWorkflowContractTest(unittest.TestCase):
         self.assertEqual(self.support["package_version"], self.project["version"])
         self.assertEqual(self.support["requires_python"], self.project["requires-python"])
 
-    def test_runs_full_standard_library_suite_with_explicit_import_path(self) -> None:
-        self.assertIn("PYTHONPATH: src", self.workflow)
-        self.assertIn('PYTHONDONTWRITEBYTECODE: "1"', self.workflow)
+    def test_installs_pinned_non_runtime_quality_dependencies(self) -> None:
+        expected = ["coverage==7.15.4", "mypy==2.3.1", "ruff==0.16.3"]
+        self.assertEqual(
+            self.project["optional-dependencies"]["quality"],
+            expected,
+        )
         self.assertIn(
-            'python -B -m unittest discover -s tests -p "test_*.py" -v',
+            'python -m pip install --disable-pip-version-check ".[quality]"',
             self.workflow,
         )
+
+    def test_runs_ratcheted_ruff_and_mypy_gates(self) -> None:
+        quality = self.support["quality_gates"]
+        for command in quality["ruff"]["commands"]:
+            self.assertIn("ruff check --no-cache", command)
+            self.assertIn(command, self.workflow)
+        self.assertEqual(
+            quality["ruff"]["strict_paths"],
+            [
+                "src/research_evolution/core",
+                "src/research_evolution/evaluation",
+                "src/research_evolution/evolution",
+            ],
+        )
+        self.assertIn(quality["mypy"]["command"], self.workflow)
+        self.assertIn(
+            '--cache-dir="${{ runner.temp }}/mypy-cache"',
+            quality["mypy"]["command"],
+        )
+        self.assertEqual(self.pyproject["tool"]["mypy"]["python_version"], "3.12")
+        self.assertTrue(self.pyproject["tool"]["mypy"]["check_untyped_defs"])
+        self.assertTrue(self.pyproject["tool"]["mypy"]["no_incremental"])
+
+    def test_runs_full_suite_with_branch_coverage_floor(self) -> None:
+        self.assertIn("PYTHONPATH: src", self.workflow)
+        self.assertIn('PYTHONDONTWRITEBYTECODE: "1"', self.workflow)
+        quality = self.support["quality_gates"]["coverage"]
+        self.assertIn("COVERAGE_FILE: ${{ runner.temp }}/.coverage", self.workflow)
+        self.assertIn(quality["run_command"], self.workflow)
+        self.assertIn(quality["report_command"], self.workflow)
+        self.assertEqual(quality["branch_floor_percent"], 80)
 
     def test_checks_changed_bytes_and_clean_archive_install(self) -> None:
         self.assertIn(

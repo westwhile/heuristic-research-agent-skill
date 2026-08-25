@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from research_evolution.core import canonical_sha256
 
@@ -305,12 +306,17 @@ def compare_suite(
         metric_payloads.append(item)
 
     adjusted = _holm_adjust(raw_p_values)
-    for item, metric, adjusted_p in zip(metric_payloads, policy.metrics, adjusted):
+    for item, metric, adjusted_p in zip(
+        metric_payloads, policy.metrics, adjusted, strict=True
+    ):
         item["adjusted_p_value"] = adjusted_p
         if item["n_pairs"] < policy.minimum_pairs:
             continue
         if metric.role == "guardrail":
-            margin = float(metric.noninferiority_margin)
+            margin_value = metric.noninferiority_margin
+            if margin_value is None:
+                raise ValueError("guardrail metric is missing noninferiority_margin")
+            margin = float(margin_value)
             if item["ci_low"] >= -margin:
                 item["inference_status"] = "noninferior"
             elif item["ci_high"] < -margin:

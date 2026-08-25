@@ -268,12 +268,20 @@ def publish_record(
                 raise StoreIntegrityError(
                     f"store is not clean; refusing to publish: {summary}"
                 )
+            if manifest_hash is None:
+                raise StoreIntegrityError(
+                    "store reconciliation did not return a manifest hash"
+                )
             entries = entries if entries is not None else []
         else:
             entries, manifest_hash = [], None
         index = {(entry["family"], entry["id"]): entry for entry in entries}
         existing = index.get((record.schema_id, record_id))
         if existing is not None:
+            if manifest_hash is None:
+                raise StoreIntegrityError(
+                    "an existing record requires a reconciled manifest hash"
+                )
             if existing["sha256"] != record.sha256:
                 raise PublicationError(
                     f"{record.schema_id} id {record_id!r} is already published "

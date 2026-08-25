@@ -22,9 +22,9 @@ pipeline — must never be "detected".
 from __future__ import annotations
 
 import dataclasses
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from . import gates as _gates
 from .envelope import Envelope

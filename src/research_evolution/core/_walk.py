@@ -9,7 +9,8 @@ an over-budget document always fails with :class:`StrictJsonError`.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from ._errors import StrictJsonError
 from ._limits import MAX_WALK_DEPTH

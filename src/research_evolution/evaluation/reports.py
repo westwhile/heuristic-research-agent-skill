@@ -17,7 +17,8 @@ renderers surface both verbatim from the payload.
 from __future__ import annotations
 
 import html
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 from research_evolution.core import canonical_bytes
 
