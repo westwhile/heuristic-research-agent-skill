@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "artifact-record/v1",
+  "title": "Artifact Record v1",
+  "description": "A domain-neutral, content-addressed artifact description for complete evaluation-envelope closure. Hidden evaluator content carries a non-disclosing byte attestation and no locator; the record does not establish semantic quality or real-world identity.",
+  "type": "object",
+  "required": ["schema", "artifact_id", "role", "media_type", "content_sha256", "size_bytes", "storage_class", "redaction_state", "created_at"],
+  "properties": {
+    "schema": {"const": "artifact-record/v1"},
+    "artifact_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "role": {"enum": ["authoritative_head_snapshot", "budget_configuration", "evaluator_configuration", "generator_configuration", "public_data_manifest", "rollback_target", "statistical_plan", "tool_configuration"]},
+    "media_type": {"type": "string", "minLength": 3, "maxLength": 128, "pattern": "^[A-Za-z0-9.+-]+/[A-Za-z0-9.+-]+$"},
+    "content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+    "size_bytes": {"type": "integer"},
+    "storage_class": {"enum": ["bundle_member", "core_store", "hidden_evaluator"]},
+    "locator": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+    "redaction_state": {"enum": ["not_required", "redacted", "restricted"]},
+    "attestation": {
+      "type": "object",
+      "required": ["attestor", "independence_group", "observed_content_sha256", "observed_size_bytes", "bytes_observed", "content_disclosed", "semantic_review_completed", "limitations"],
+      "properties": {
+        "attestor": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "independence_group": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "observed_content_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "observed_size_bytes": {"type": "integer"},
+        "bytes_observed": {"const": true},
+        "content_disclosed": {"const": false},
+        "semantic_review_completed": {"const": false},
+        "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+      },
+      "additionalProperties": false
+    },
+    "created_at": {"type": "string", "minLength": 20, "maxLength": 35, "x-rfc3339-datetime": true}
+  },
+  "additionalProperties": false
+}
