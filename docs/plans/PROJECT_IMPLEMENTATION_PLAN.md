@@ -1,11 +1,11 @@
 # 通用科研 Agent Heuristic Learning 与 Evaluator 详细实施计划
 
-- 计划版本：v5.19-phase7-p7b1-candidate-eligibility
+- 计划版本：v5.20-phase7-p7b2-skill-candidate-bundle
 - 初次制定日期：2026-08-18
 - 状态同步日期：2026-08-25
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；R6B 继续冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`。Phase 7 P7A 基础工程及状态同步由 PR #34/#35 完成；Correctness Reset CR1/CR2 与五文件状态同步由 PR #36—#38 完成。CR4—CR8 已由 PR #39—#43 依次合入：attempt/result 失败留档、suite-level 正确观测单位、完整 evaluation-envelope closure、固定 Ruff/mypy/80% branch coverage ratchet、ContextBundle v2 隐私/taint/lifecycle/token preflight。P7B1 eligibility 前置证明已由 PR #44 的 merge commit `552e7f21c7794305fd5340737e3392674fdf1997` 合入，精确 main CI run `32815585173` 四项 jobs 与两个 Windows governance 全绿。当前上限为 `P7B1_ELIGIBILITY_PRECHECK_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；criterion evidence descriptor 尚不是 Core 可解析 Artifact，真实 Agent 执行、Skill payload、独立 semantic/fresh-session/private evaluation 与 PromotionDecision 均未实现。未创建 `v0.7.0` Tag/Release，安装、激活与发布 Gate 未开启。
+- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；R6B 继续冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`。Phase 7 P7A 基础工程及状态同步由 PR #34/#35 完成；Correctness Reset CR1/CR2 与五文件状态同步由 PR #36—#38 完成。CR4—CR8 已由 PR #39—#43 依次合入：attempt/result 失败留档、suite-level 正确观测单位、完整 evaluation-envelope closure、固定 Ruff/mypy/80% branch coverage ratchet、ContextBundle v2 隐私/taint/lifecycle/token preflight。P7B1 eligibility 前置证明已由 PR #44 合入；P7B2 `skill-candidate-bundle/v1` 与纯 in-process 草拟 seam 已由 PR #46 的 merge commit `3954d8c5ccf9037c7864279747a7695e287e15a0` 合入，精确 main CI run `32834269268` 四项 jobs 与两个 Windows governance 全绿。当前上限为 `P7B2_STRUCTURAL_DRAFTING_READY / ZERO_REAL_SKILL_PAYLOADS / ZERO_PROMOTIONS`；Math/Quant 合成 fixtures 仅证明结构和字节闭包，真实 Agent 执行、真实 Skill payload、独立 semantic/fresh-session/private evaluation 与 PromotionDecision 均未实现。未创建 `v0.7.0` Tag/Release，安装、激活与发布 Gate 未开启。
 
 ### 规划补充（仅计划，不代表已实施）
 
@@ -606,6 +606,8 @@ Correctness Reset CR1/CR2 实施状态（2026-08-24）：CR1 exact head `23c59f8
 
 CR4—CR8 与 P7B1 实施终态（2026-08-25）：CR4/CR5/CR6/CR7/CR8/P7B1 分别由 Ready PR #39/#40/#41/#42/#43/#44 以 merge commit `4742070277093cc2e6e2ff5a8b656af9d3b87633`、`894200d6754c1188a41fdf866b136ffcc101caf7`、`edad2490ce5208bc37e4986b684738f631311913`、`e2ce77500cf15708d673c1816d076f0d62bf0d86`、`663fec2b7193260eef265ed675b8d90a1905ef8e`、`552e7f21c7794305fd5340737e3392674fdf1997` 合入。对应 exact main CI runs `32754051307`、`32801488956`、`32802990719`、`32806792565`、`32813635071`、`32815585173` 均四项 jobs 与两个 Windows governance 成功。CR8 exact archive 为 1075/1075 × 2、SHA-256 `d41244a8d786fecf9b536965e9245139e79056c4549f5ec78ac581e34e884daa`；P7B1 为 1082/1082 × 2、SHA-256 `607f209fb2a8e7bbce3006468addcbe5366c318c940005328c645231b6d48fd8`；两者各 6 个预期 archive skip、两项 clean-install 与不写 receipt 的本机 CUDA compatibility Gate 通过。全部结果仍是 synthetic engineering；没有真实 Candidate、Skill payload、semantic/fresh-session/private evaluation、PromotionDecision、安装、激活、Tag 或 Release。
 
+P7B2 实施终态（2026-08-25）：Ready PR #46 的 exact head `ed591777bea73b8d6ee0ccd9c539682fa183a26d` 以 merge commit `3954d8c5ccf9037c7864279747a7695e287e15a0` 合入，两者 tree 均为 `053101206ad33ead4d2188c60271031754d818c4`。exact archive 为 Python 3.12.13/3.14.5 各 1093/1093（各 6 个预期 skip），SHA-256 `6318ef6287d241527f9dbf8a3f59900a33e7cc6eee25088762d3b82fe8fcd4af`；两项 clean-install 通过，本机 CUDA compatibility Gate 在显式 strict CUBLAS 前置下获得稳定投影 `d7c539bfe83773e8b5011d1df04784ad79d888f7499147574393af379998859e` 且未写 receipt。PR CI run `32833911915` 与 exact merge SHA 的 main run `32834269268` 均四项 jobs 与两个 Windows governance 成功。P7B2 落地 `skill-candidate-bundle/v1`、单一 `draft_skill_candidate_bundle` seam、payload/evidence 共同字节闭包、strict UTF-8/受限内容拒绝、最小 frontmatter/布局/DAG 与 non-negative size 约束。这仍只是 synthetic engineering；零真实 Skill payload、零 semantic/fresh-session/private evaluation、零 PromotionDecision/安装/激活/发布。
+
 ### 目标
 
 从 validated Pattern 生成可审计的 Heuristic/代码/子 Skill Candidate，但保持 Candidate 无中央正式库写权限、无安装根写权限、无 hidden 权限、无自晋级权限。
@@ -614,7 +616,7 @@ CR4—CR8 与 P7B1 实施终态（2026-08-25）：CR4/CR5/CR6/CR7/CR8/P7B1 分�
 
 1. 定义 immutable candidate manifest；bundle 包含 baseline hash、patch、Heuristic/Pattern snapshot、tests、风险、rollback 和来源 Case/Pattern IDs；
 2. （P7B1 已实施，ADR-0016）为子 Skill 定义 promotion eligibility：exact candidate/byte-closure/source Case pins，至少跨两个 lineage 可区分的问题可复用，具有清晰触发与排除条件、稳定输入/输出、失败/暂停边界、可移植资源和可测量增益；criterion evidence bytes 只保存 hash/大小，`ineligible` 与 `needs_more_evidence` 均为合法终态。仅项目专用脚本、一次性答案或仍在快速变化的知识不得进入 payload drafting；`eligible_for_payload_drafting` 不等于 semantic review、真实 Skill payload 或 Promotion；
-3. 使用官方 Skill 初始化器建立最小候选目录，`SKILL.md` 只保留必要工作流，详细 schema、示例和领域资料按 progressive disclosure 放入 `references/`、`scripts/` 或 `assets/`；
+3. （P7B2 部分实施，ADR-0017）以纯 in-process 合同草拟最小候选 payload；`SKILL.md` 只允许 `name`/`description` frontmatter，其他成员按 progressive disclosure 限于 `agents/`、`references/`、`scripts/` 或 `assets/`。本批未调用官方初始化器、未写候选目录、未生成真实 Skill payload；
 4. `agents/openai.yaml` 等平台元数据与 Skill payload 分层校验；Skill description 同时描述正触发与重要排除场景，并加入 Router 负例；
 5. Candidate 只读公开/获授权 experience、Case Package 和 Pattern；来源证据保存在外部 candidate manifest，不把私有路径、原始记录或冗长 provenance 塞入可安装 payload；
 6. patch 与 regression case 原子生成；固定模型、reasoning、工具、预算、迭代次数、并发和成本；

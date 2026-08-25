@@ -64,12 +64,12 @@ external Skill payload, evaluator output, participant material, vendored
 dependency, or third-party expression is included; PR #44 merged this inventory
 to main.
 
-The current P7B2 feature branch proposes eleven skill-candidate schema, source,
-test, synthetic fixture, and ADR files. Their structural contract is informed by
+P7B2 added eleven skill-candidate schema, source, test, synthetic fixture, and
+ADR files. Their structural contract is informed by
 the Codex `skill-creator` guidance current on 2026-08-25, but independently
 implemented: no guidance text, template, example, or external Skill payload is
-copied. These files are conservatively classified as `design_inspired` until the
-feature is either merged or withdrawn.
+copied. These files are conservatively classified as `design_inspired`; PR #46
+merged this inventory to main.
 
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
@@ -78,7 +78,7 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The current P7B2 feature working tree contains 1098 proposed tracked files: the
+The P7B2 mainline tracked inventory contains 1098 files: the
 1087-file P7B1 mainline inventory plus eleven P7B2 skill-candidate schema,
 source, test, synthetic fixture, and ADR files. The P7B1 inventory consists of
 the 1008-file CR2
