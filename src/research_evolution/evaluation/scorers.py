@@ -24,9 +24,10 @@ from __future__ import annotations
 
 import math
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any, Mapping
+from typing import Any
 
 # Scorer levels: exactly the ``scorer.level`` enum of
 # ``evaluation-attempt/v1``, ``evaluation-result/v1``, legacy
@@ -131,7 +132,7 @@ def _json_equal(left: Any, right: Any) -> bool:
     if isinstance(left, list) and isinstance(right, list):
         return len(left) == len(right) and all(
             _json_equal(left_item, right_item)
-            for left_item, right_item in zip(left, right)
+            for left_item, right_item in zip(left, right, strict=True)
         )
     return type(left) is type(right) and left == right
 

@@ -57,8 +57,8 @@ from .scorers import (
     validate_score_vector,
 )
 from .statistics import (
-    SUITE_STATISTICAL_METHODS,
     STATISTICAL_METHODS,
+    SUITE_STATISTICAL_METHODS,
     StatisticResult,
     mcnemar_exact,
     paired_bootstrap,

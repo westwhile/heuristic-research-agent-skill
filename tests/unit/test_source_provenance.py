@@ -23,8 +23,8 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(report["counts"]["unknown"], 0)
         self.assertEqual(report["counts"]["third_party_reused"], 2)
-        self.assertEqual(report["counts"]["independently_authored"], 924)
-        self.assertEqual(report["counts"]["total"], 1057)
+        self.assertEqual(report["counts"]["independently_authored"], 925)
+        self.assertEqual(report["counts"]["total"], 1058)
 
     def test_apache_license_metadata_and_rights_confirmation(self) -> None:
         manifest = json.loads(
@@ -56,6 +56,19 @@ class SourceProvenanceTests(unittest.TestCase):
         )
         self.assertFalse(pytorch_reference["tracked_expression_reused"])
         self.assertIn("not bundled", pytorch_reference["versions"][0])
+
+        sources = {source["id"]: source for source in manifest["external_sources"]}
+        expected_quality_sources = {
+            "ruff": ("0.16.3", "MIT"),
+            "mypy": ("2.3.1", "MIT"),
+            "coverage-py": ("7.15.4", "Apache-2.0"),
+        }
+        for source_id, (version, license_id) in expected_quality_sources.items():
+            source = sources[source_id]
+            self.assertEqual(source["versions"], [version])
+            self.assertEqual(source["visible_license"], license_id)
+            self.assertFalse(source["tracked_expression_reused"])
+            self.assertIn("non-vendored", source["notice_action"])
 
     def test_v13_external_expression_remains_excluded(self) -> None:
         manifest = json.loads(

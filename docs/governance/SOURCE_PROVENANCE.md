@@ -48,6 +48,11 @@ test, fixture, and ADR files prepared under maintainer direction. CR6 adds no
 vendored artifact store, hidden evaluator payload, copied attestation system,
 or third-party expression.
 
+CR7 adds one repository-native quality-gate ADR and otherwise modifies only
+previously classified source, test, workflow, package-metadata, and governance
+paths. Ruff, mypy, and coverage.py are pinned non-runtime development
+dependencies; their source and binaries are not tracked or vendored.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -55,12 +60,13 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The CR6 proposed tracked inventory contains 1057 files: the 1008-file CR2
+The CR7 proposed tracked inventory contains 1058 files: the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
 nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
 files, and eleven new repository-native CR5 suite-level comparison schema,
 source, test, fixture, and ADR files, plus nineteen new repository-native CR6
-artifact/envelope-closure schema, source, test, fixture, and ADR files.
+artifact/envelope-closure schema, source, test, fixture, and ADR files, plus one
+repository-native CR7 quality-gate ADR file.
 `scripts/verify_source_provenance.py` derives this inventory from Git's
 tracked plus non-ignored proposed-file surface and reports full coverage with
 `unknown=0`. R6B remains frozen at
@@ -70,7 +76,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 924 | Repository-native material covered by the maintainer confirmation |
+| `independently_authored` | 925 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -81,10 +87,11 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any proposed
 tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 924 `independently_authored`, 118 `generated`, 13
+The resulting counts are 925 `independently_authored`, 118 `generated`, 13
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
-the same boundary, as does CR6.
+the same boundary, as does CR6. CR7 adds only non-vendored development-tool
+references and independently authored repository changes.
 
 ## External-source decisions
 
@@ -127,12 +134,14 @@ artifact, license decision, and separate implementation authorization.
 
 ### Referenced dependencies and services
 
-Hatchling and PyYAML are non-vendored MIT-licensed dependencies. PyTorch is a
-caller-managed, non-vendored optional runtime: the project source describes its
-license as BSD-style, while current official package metadata records the
-complete installed distribution's composite SPDX expression. No PyTorch wheel,
-CUDA payload, source, LICENSE, NOTICE, model, or fixture is redistributed by
-this repository. The CI workflow
+Hatchling and PyYAML are non-vendored MIT-licensed dependencies. Ruff 0.16.3
+and mypy 2.3.1 are non-vendored MIT-licensed development dependencies;
+coverage.py 7.15.4 is a non-vendored Apache-2.0 development dependency. PyTorch
+is a caller-managed, non-vendored optional runtime: the project source
+describes its license as BSD-style, while current official package metadata
+records the complete installed distribution's composite SPDX expression. No
+PyTorch wheel, CUDA payload, source, LICENSE, NOTICE, model, or fixture is
+redistributed by this repository. The CI workflow
 references commit-pinned MIT-licensed `actions/checkout` and
 `actions/setup-python`; their source is not vendored. JSON Schema Draft 2020-12
 is referenced by dialect URI and vocabulary only. These references do not add

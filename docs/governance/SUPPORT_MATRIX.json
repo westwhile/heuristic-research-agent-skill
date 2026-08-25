@@ -36,10 +36,41 @@
     ],
     "rejection_exit_code": 1
   },
+  "quality_gates": {
+    "tooling": [
+      "coverage==7.15.4",
+      "mypy==2.3.1",
+      "ruff==0.16.3"
+    ],
+    "ruff": {
+      "commands": [
+        "python -B -m ruff check src tests scripts --select E9,F63,F7,F82",
+        "python -B -m ruff check src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution"
+      ],
+      "strict_paths": [
+        "src/research_evolution/core",
+        "src/research_evolution/evaluation",
+        "src/research_evolution/evolution"
+      ],
+      "ratchet": "The full repository blocks high-confidence syntax and Pyflakes fatal rules; the Core, Evaluation, and Evolution seams additionally enforce the configured E/F/I/UP/B rule set."
+    },
+    "mypy": {
+      "command": "python -B -m mypy --check-untyped-defs --no-incremental src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution",
+      "target_python": "3.12",
+      "scope": "Core, Evaluation, and Evolution seams only; adapters, experience, CLI, tests, and scripts are not yet type-gated."
+    },
+    "coverage": {
+      "run_command": "python -B -m coverage run --branch --source=research_evolution -m unittest discover -s tests -p \"test_*.py\" -v",
+      "report_command": "python -B -m coverage report --fail-under=80 --skip-covered",
+      "branch_floor_percent": 80,
+      "scope": "The full standard-library unittest suite measures source and branch coverage for research_evolution; the floor is an engineering regression gate, not proof of semantic correctness."
+    }
+  },
   "boundaries": [
     "A required job verifies only the exact commit named by its CI run.",
     "Python 3.13 is inside package metadata but has no separate required lane.",
     "macOS and PyPI installation are not claimed by this matrix.",
-    "The synthetic demo is engineering evidence, not research or adoption evidence."
+    "The synthetic demo is engineering evidence, not research or adoption evidence.",
+    "Ruff, mypy, and coverage are non-runtime quality gates with explicit ratcheted scopes; passing them is not proof of complete typing, complete coverage, research validity, Agent execution, or promotion safety."
   ]
 }

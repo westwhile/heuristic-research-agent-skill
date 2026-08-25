@@ -31,10 +31,11 @@ from __future__ import annotations
 
 import math
 import random
+from collections.abc import Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from math import comb
-from typing import Any, Sequence
+from typing import Any
 
 from research_evolution.core import canonical_sha256
 
@@ -145,7 +146,9 @@ def paired_bootstrap(
     if n == 0:
         raise ValueError("paired inputs must not be empty")
     differences = []
-    for index, (champ, chall) in enumerate(zip(champion, challenger)):
+    for index, (champ, chall) in enumerate(
+        zip(champion, challenger, strict=True)
+    ):
         for name, value in ((f"champion[{index}]", champ), (f"challenger[{index}]", chall)):
             # Decimal is a number: a run record reloaded from a store
             # carries Decimal score values (the strict parser's frozen
@@ -219,7 +222,9 @@ def paired_permutation(
         raise ValueError(f"exact_limit must be non-negative, got {exact_limit}")
 
     differences: list[float] = []
-    for index, (champ, chall) in enumerate(zip(champion, challenger)):
+    for index, (champ, chall) in enumerate(
+        zip(champion, challenger, strict=True)
+    ):
         for name, value in (
             (f"champion[{index}]", champ),
             (f"challenger[{index}]", chall),

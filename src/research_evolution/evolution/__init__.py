@@ -1,5 +1,11 @@
 """Heuristic registries and immutable candidate-bundle construction."""
 
+from .envelope_closure import (
+    ArtifactRecord,
+    EvaluationEnvelopeClosureError,
+    EvaluationEnvelopeClosureReceipt,
+    close_evaluation_envelope,
+)
 from .incubator import (
     ArtifactClosureError,
     ArtifactClosureReceipt,
@@ -8,12 +14,6 @@ from .incubator import (
     ContextBundleError,
     build_context_bundle,
     close_candidate_bundle,
-)
-from .envelope_closure import (
-    ArtifactRecord,
-    EvaluationEnvelopeClosureError,
-    EvaluationEnvelopeClosureReceipt,
-    close_evaluation_envelope,
 )
 
 __all__ = [

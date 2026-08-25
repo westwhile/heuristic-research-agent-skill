@@ -170,7 +170,7 @@ def _validate_candidate_semantics(record: Record) -> dict[str, Any]:
 
 def _topological_order(members: dict[str, dict[str, Any]]) -> list[str]:
     indegree = {name: len(row["depends_on"]) for name, row in members.items()}
-    children = {name: [] for name in members}
+    children: dict[str, list[str]] = {name: [] for name in members}
     for name, row in members.items():
         for dependency in row["depends_on"]:
             children[dependency].append(name)
