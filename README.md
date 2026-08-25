@@ -168,8 +168,8 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 
 ```powershell
 python -m pip install --disable-pip-version-check ".[quality]"
-python -B -m ruff check src tests scripts --select E9,F63,F7,F82
-python -B -m ruff check src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
+python -B -m ruff check --no-cache src tests scripts --select E9,F63,F7,F82
+python -B -m ruff check --no-cache src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
 python -B -m mypy --check-untyped-defs --no-incremental src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
 $env:PYTHONPATH = "src"
 $env:PYTHONDONTWRITEBYTECODE = "1"

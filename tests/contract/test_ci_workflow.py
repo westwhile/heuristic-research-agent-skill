@@ -78,6 +78,7 @@ class CIWorkflowContractTest(unittest.TestCase):
     def test_runs_ratcheted_ruff_and_mypy_gates(self) -> None:
         quality = self.support["quality_gates"]
         for command in quality["ruff"]["commands"]:
+            self.assertIn("ruff check --no-cache", command)
             self.assertIn(command, self.workflow)
         self.assertEqual(
             quality["ruff"]["strict_paths"],
