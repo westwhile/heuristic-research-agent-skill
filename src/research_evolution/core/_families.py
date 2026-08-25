@@ -48,6 +48,9 @@ and evidence-byte semantics remain inside the pure in-process evolution module.
 Phase 7 P7B2 adds one Skill candidate bundle that pins the P7B1 attestation and
 its transitive candidate/closure/case identities. Payload/evidence byte closure
 and Skill-layout semantics remain inside the pure in-process evolution module.
+Phase 7 P7B3 adds one static-validation receipt that pins the exact Skill
+candidate bundle. Payload, metadata, trigger, registry-snapshot, router-example,
+and diff semantics remain inside the pure in-process evolution module.
 """
 
 from __future__ import annotations
@@ -78,6 +81,7 @@ CANDIDATE_MANIFEST = "candidate-manifest/v1"
 ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
 CANDIDATE_ELIGIBILITY_ATTESTATION = "candidate-eligibility-attestation/v1"
 SKILL_CANDIDATE_BUNDLE = "skill-candidate-bundle/v1"
+SKILL_STATIC_VALIDATION_RECEIPT = "skill-static-validation-receipt/v1"
 CONTEXT_BUNDLE = "context-bundle/v1"
 CONTEXT_BUNDLE_V2 = "context-bundle/v2"
 CONTEXT_MATERIAL_ASSESSMENT = "context-material-assessment/v1"
@@ -648,6 +652,20 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="array_of_objects",
                     target_family=CASE_V2,
                     target_id_field="case_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=SKILL_STATIC_VALIDATION_RECEIPT,
+            identity_field="skill_static_validation_receipt_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate_bundle",
+                    shape="object",
+                    target_family=SKILL_CANDIDATE_BUNDLE,
+                    target_id_field="skill_candidate_bundle_id",
                     pin_required=True,
                 ),
             ),
