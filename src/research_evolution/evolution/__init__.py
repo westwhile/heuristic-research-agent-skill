@@ -32,6 +32,11 @@ from .skill_candidate import (
     SkillCandidateBundleError,
     draft_skill_candidate_bundle,
 )
+from .skill_semantic_review import (
+    SkillSemanticReviewAttestation,
+    SkillSemanticReviewError,
+    attest_skill_semantic_review_protocol,
+)
 from .skill_static_validation import (
     SkillStaticValidationError,
     SkillStaticValidationReceipt,
@@ -55,10 +60,13 @@ __all__ = [
     "EvaluationEnvelopeClosureReceipt",
     "SkillCandidateBundle",
     "SkillCandidateBundleError",
+    "SkillSemanticReviewAttestation",
+    "SkillSemanticReviewError",
     "SkillStaticValidationError",
     "SkillStaticValidationReceipt",
     "build_context_bundle",
     "assess_candidate_eligibility",
+    "attest_skill_semantic_review_protocol",
     "close_candidate_bundle",
     "close_evaluation_envelope",
     "draft_skill_candidate_bundle",

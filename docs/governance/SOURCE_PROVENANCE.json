@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 954,
+      "independently_authored": 965,
       "generated": 118,
       "design_inspired": 35,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 1109
+      "total": 1120
     },
     "rules": [
       {

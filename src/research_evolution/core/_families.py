@@ -51,6 +51,11 @@ and Skill-layout semantics remain inside the pure in-process evolution module.
 Phase 7 P7B3 adds one static-validation receipt that pins the exact Skill
 candidate bundle. Payload, metadata, trigger, registry-snapshot, router-example,
 and diff semantics remain inside the pure in-process evolution module.
+Phase 7 P7B4 adds one semantic-review protocol attestation that pins both the
+exact Skill candidate bundle and its P7B3 static-validation receipt. Review
+evidence binding, declared reviewer-label separation, required dimensions, and
+protocol outcomes remain inside the pure in-process evolution module; the
+family deliberately cannot claim a real independent semantic review.
 """
 
 from __future__ import annotations
@@ -82,6 +87,7 @@ ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
 CANDIDATE_ELIGIBILITY_ATTESTATION = "candidate-eligibility-attestation/v1"
 SKILL_CANDIDATE_BUNDLE = "skill-candidate-bundle/v1"
 SKILL_STATIC_VALIDATION_RECEIPT = "skill-static-validation-receipt/v1"
+SKILL_SEMANTIC_REVIEW_ATTESTATION = "skill-semantic-review-attestation/v1"
 CONTEXT_BUNDLE = "context-bundle/v1"
 CONTEXT_BUNDLE_V2 = "context-bundle/v2"
 CONTEXT_MATERIAL_ASSESSMENT = "context-material-assessment/v1"
@@ -666,6 +672,27 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=SKILL_CANDIDATE_BUNDLE,
                     target_id_field="skill_candidate_bundle_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=SKILL_SEMANTIC_REVIEW_ATTESTATION,
+            identity_field="skill_semantic_review_attestation_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate_bundle",
+                    shape="object",
+                    target_family=SKILL_CANDIDATE_BUNDLE,
+                    target_id_field="skill_candidate_bundle_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="static_validation_receipt",
+                    shape="object",
+                    target_family=SKILL_STATIC_VALIDATION_RECEIPT,
+                    target_id_field="skill_static_validation_receipt_id",
                     pin_required=True,
                 ),
             ),
