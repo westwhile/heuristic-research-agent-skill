@@ -16,8 +16,12 @@ from research_evolution.evolution import (
     CandidateManifestError,
     ContextBundle,
     ContextBundleError,
+    ContextBundleV2,
+    ContextMaterialAssessment,
+    ContextPreparationError,
     build_context_bundle,
     close_candidate_bundle,
+    prepare_context,
 )
 
 FIXTURE_ROOT = Path(__file__).parents[1] / "fixtures" / "evolution" / "p7a"
@@ -153,7 +157,310 @@ def _candidate(name: str) -> tuple[dict[str, Any], dict[str, bytes]]:
     return manifest, members
 
 
+def _context_policies(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        row["name"]: {
+            "classification": "public",
+            "taint_labels": [],
+            "disposition": "include_original",
+            "scanner": {
+                "tool": "fixture-scanner",
+                "version": "1.0.0",
+                "policy_sha256": _sha("fixture-scanner-policy"),
+            },
+            "redaction": {"state": "not_required"},
+            "export": {
+                "outcome": "allow",
+                "policy_sha256": _sha("fixture-export-policy"),
+                "decided_by": "fixture-reviewer",
+            },
+            "retention_until": "2027-08-24T00:00:00Z",
+            "encryption_required": False,
+        }
+        for row in manifest["context"]["materials"]
+    }
+
+
 class EvolutionIncubatorContractTest(unittest.TestCase):
+    def test_context_v2_prepares_assessments_and_budgeted_bundle_through_one_interface(
+        self,
+    ) -> None:
+        manifest, _ = _candidate("math")
+        preparation = prepare_context(
+            manifest,
+            material_policies=_context_policies(manifest),
+            mode="normal",
+            max_bytes=30_000,
+            tokenizer_id="fixture-tokenizer",
+            tokenizer_revision="2026-08-24",
+            max_tokens=10_000,
+            built_at=NOW,
+        )
+        self.assertEqual(len(preparation.assessments), 3)
+        self.assertEqual(preparation.bundle.payload["schema"], "context-bundle/v2")
+        self.assertEqual(len(preparation.bundle.payload["included_materials"]), 3)
+        self.assertLessEqual(
+            preparation.bundle.payload["token_budget"]["estimated_tokens"],
+            preparation.bundle.payload["token_budget"]["max_tokens"],
+        )
+        self.assertEqual(
+            preparation.bundle.payload["token_budget"]["estimation_method"],
+            "text_utf8_bytes_upper_bound/v1",
+        )
+        self.assertFalse(
+            preparation.bundle.payload["claims"]["runtime_token_count_verified"]
+        )
+
+    def test_context_v2_requires_exact_policy_set_and_both_budgets(self) -> None:
+        manifest, _ = _candidate("math")
+        policies = _context_policies(manifest)
+        policies.pop("normal-detail")
+        with self.assertRaisesRegex(ContextPreparationError, "exactly match"):
+            prepare_context(
+                manifest,
+                material_policies=policies,
+                mode="normal",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+        with self.assertRaisesRegex(ContextPreparationError, "cannot fit max_tokens"):
+            prepare_context(
+                manifest,
+                material_policies=_context_policies(manifest),
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=1,
+                built_at=NOW,
+            )
+
+    def test_context_v2_refuses_tainted_original_and_never_echoes_restricted_text(
+        self,
+    ) -> None:
+        manifest, _ = _candidate("math")
+        policies = _context_policies(manifest)
+        policies["safe-summary"]["taint_labels"] = ["pii"]
+        with self.assertRaisesRegex(ContextPreparationError, "untainted"):
+            prepare_context(
+                manifest,
+                material_policies=policies,
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+
+        restricted = "researcher@example.com"
+        manifest, _ = _candidate("math")
+        manifest["context"]["materials"][0]["content"] = restricted
+        manifest["context"]["materials"][0]["content_sha256"] = _sha(restricted)
+        with self.assertRaisesRegex(ContextPreparationError, "restricted content") as caught:
+            prepare_context(
+                manifest,
+                material_policies=_context_policies(manifest),
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+        self.assertNotIn(restricted, str(caught.exception))
+
+        manifest, _ = _candidate("math")
+        preparation = prepare_context(
+            manifest,
+            material_policies=_context_policies(manifest),
+            mode="minimal_safe",
+            max_bytes=30_000,
+            tokenizer_id="fixture-tokenizer",
+            tokenizer_revision="2026-08-24",
+            max_tokens=10_000,
+            built_at=NOW,
+        )
+        changed = preparation.assessments[0].payload
+        changed["scanner"]["tool"] = restricted
+        changed["context_material_assessment_id"] = "context-assessment-" + canonical_sha256(
+            {
+                key: value
+                for key, value in changed.items()
+                if key != "context_material_assessment_id"
+            }
+        )[:16]
+        with self.assertRaisesRegex(ContextPreparationError, "restricted content") as caught:
+            ContextMaterialAssessment.from_payload(changed)
+        self.assertNotIn(restricted, str(caught.exception))
+
+        changed_bundle = preparation.bundle.payload
+        changed_bundle["token_budget"]["tokenizer_id"] = restricted
+        changed_bundle["context_bundle_id"] = "context-" + canonical_sha256(
+            {
+                key: value
+                for key, value in changed_bundle.items()
+                if key != "context_bundle_id"
+            }
+        )[:16]
+        with self.assertRaisesRegex(ContextPreparationError, "restricted content") as caught:
+            ContextBundleV2.from_payload(changed_bundle)
+        self.assertNotIn(restricted, str(caught.exception))
+
+        manifest, _ = _candidate("math")
+        policies = _context_policies(manifest)
+        policies["safe-summary"]["export"]["decided_by"] = restricted
+        with self.assertRaisesRegex(ContextPreparationError, "restricted content") as caught:
+            prepare_context(
+                manifest,
+                material_policies=policies,
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+        self.assertNotIn(restricted, str(caught.exception))
+
+    def test_context_v2_redaction_binds_safe_output_and_receipt(self) -> None:
+        manifest, _ = _candidate("math")
+        policies = _context_policies(manifest)
+        redacted = "Redacted public summary."
+        policies["safe-summary"].update(
+            {
+                "classification": "confidential",
+                "taint_labels": ["pii"],
+                "disposition": "include_redacted",
+                "redacted_content": redacted,
+                "redaction": {
+                    "state": "applied",
+                    "output_classification": "public",
+                    "output_sha256": _sha(redacted),
+                    "receipt_sha256": _sha("redaction-receipt"),
+                },
+            }
+        )
+        preparation = prepare_context(
+            manifest,
+            material_policies=policies,
+            mode="minimal_safe",
+            max_bytes=30_000,
+            tokenizer_id="fixture-tokenizer",
+            tokenizer_revision="2026-08-24",
+            max_tokens=10_000,
+            built_at=NOW,
+        )
+        material = preparation.bundle.payload["included_materials"][0]
+        self.assertEqual(material["content"], redacted)
+        self.assertEqual(material["redaction_state"], "applied")
+        self.assertEqual(material["classification"], "public")
+
+        policies["safe-summary"]["redaction"]["output_sha256"] = "0" * 64
+        with self.assertRaisesRegex(ContextPreparationError, "does not match"):
+            prepare_context(
+                manifest,
+                material_policies=policies,
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+
+    def test_context_v2_protects_restricted_material_without_plaintext(self) -> None:
+        manifest, _ = _candidate("math")
+        policies = _context_policies(manifest)
+        source = manifest["context"]["materials"][0]
+        policies["safe-summary"] = {
+            "classification": "restricted",
+            "taint_labels": ["licensed_restricted"],
+            "disposition": "protected_hash_only",
+            "scanner": {
+                "tool": "fixture-scanner",
+                "version": "1.0.0",
+                "policy_sha256": _sha("fixture-scanner-policy"),
+            },
+            "redaction": {"state": "rejected"},
+            "export": {
+                "outcome": "deny",
+                "policy_sha256": _sha("fixture-export-policy"),
+                "decided_by": "fixture-reviewer",
+            },
+            "retention_until": "2027-08-24T00:00:00Z",
+            "encryption_required": True,
+            "protected_artifact": {
+                "artifact_id": "protected-safe-summary",
+                "record_sha256": _sha("protected-record"),
+                "content_sha256": source["content_sha256"],
+                "size_bytes": len(source["content"].encode("utf-8")),
+                "storage_class": "external_encrypted",
+            },
+        }
+        preparation = prepare_context(
+            manifest,
+            material_policies=policies,
+            mode="minimal_safe",
+            max_bytes=30_000,
+            tokenizer_id="fixture-tokenizer",
+            tokenizer_revision="2026-08-24",
+            max_tokens=10_000,
+            built_at=NOW,
+        )
+        self.assertEqual(preparation.bundle.payload["included_materials"], [])
+        protected = preparation.bundle.payload["protected_materials"][0]
+        self.assertNotIn("content", protected)
+        self.assertTrue(protected["encryption_required"])
+        self.assertEqual(protected["content_sha256"], source["content_sha256"])
+
+    def test_context_v2_lifecycle_and_wrapper_mutations_fail_closed(self) -> None:
+        manifest, _ = _candidate("quant")
+        policies = _context_policies(manifest)
+        policies["safe-summary"]["retention_until"] = NOW
+        with self.assertRaisesRegex(ContextPreparationError, "after assessed_at"):
+            prepare_context(
+                manifest,
+                material_policies=policies,
+                mode="minimal_safe",
+                max_bytes=30_000,
+                tokenizer_id="fixture-tokenizer",
+                tokenizer_revision="2026-08-24",
+                max_tokens=10_000,
+                built_at=NOW,
+            )
+
+        policies = _context_policies(manifest)
+        preparation = prepare_context(
+            manifest,
+            material_policies=policies,
+            mode="compact",
+            max_bytes=30_000,
+            tokenizer_id="fixture-tokenizer",
+            tokenizer_revision="2026-08-24",
+            max_tokens=10_000,
+            built_at=NOW,
+        )
+        changed_assessment = preparation.assessments[0].payload
+        changed_assessment["classification"] = "internal_safe"
+        with self.assertRaisesRegex(ContextPreparationError, "does not bind"):
+            ContextMaterialAssessment.from_payload(changed_assessment)
+
+        changed_bundle = preparation.bundle.payload
+        changed_bundle["included_materials"][0]["content"] += " mutation"
+        changed_bundle["context_bundle_id"] = "context-" + canonical_sha256(
+            {
+                key: value
+                for key, value in changed_bundle.items()
+                if key != "context_bundle_id"
+            }
+        )[:16]
+        with self.assertRaisesRegex(ContextPreparationError, "does not match"):
+            ContextBundleV2.from_payload(changed_bundle)
+
     def test_math_and_quant_fixtures_use_the_same_two_interfaces(self) -> None:
         for name in ("math", "quant"):
             with self.subTest(fixture=name):

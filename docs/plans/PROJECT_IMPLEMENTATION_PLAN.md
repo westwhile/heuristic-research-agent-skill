@@ -420,6 +420,7 @@ $SKILL_LIBRARY_ROOT/
 22. （CR5 已实施，ADR-0012）不改 `comparison-report/v1` 的冻结字节，退役其按 metric dimension 取样的构造入口；新增 `suite-comparison/v1`，强制完整 `case × seed × frozen envelope` 配对网格、candidate-only 对照、逐指标预注册分析、paired permutation/bootstrap、Holm 调整、效应量、ROPE/guardrail 非劣效与最小样本 Gate。此项只关闭统计观测单位缺口，不生成 PromotionDecision。
 23. （CR6 已实施，ADR-0013）不改 P7A 三个 v1 family；新增 `artifact-record/v1` 和 `evaluation-envelope-closure-receipt/v1`，以纯 in-process closure 绑定 candidate member bytes 与 authoritative head、tools、budget、public data、evaluator、generator、统计计划和 rollback target。公开依赖必须提供精确 bytes；仅 evaluator configuration 可使用无 locator/无明文输入的 hidden attestation。此项不证明 attestor 真实身份、hidden evaluator 已运行或语义评审完成。
 24. （CR7 已实施，ADR-0014）在四个 required lanes 安装固定版本非运行时质量工具：全仓阻断 E9/F63/F7/F82，Core/Evaluation/Evolution 执行完整 E/F/I/UP/B 与 mypy，完整 unittest 同时执行 branch coverage 且 floor 为 80%。scope 是显式 ratchet；未覆盖目录和 E501 HTML 模板例外必须公开，不得升级为全仓静态类型或完整覆盖声明。
+25. （CR8 已实施，ADR-0015）保持 `context-bundle/v1` 字节冻结，新增 plaintext-free `context-material-assessment/v1` 与 `context-bundle/v2`；单一 `prepare_context` interface 强制 material/policy 一一对应、classification/taint 与 redaction/export disposition、retention/encryption/tombstone descriptor，以及 canonical byte 和 UTF-8 byte upper-bound token preflight 双预算。restricted plaintext 在 builder/wrapper 两条路径均 fail-closed；token estimate、principal 与外部 protected artifact descriptor 都只是协议声明，不证明 runtime usage、真实存储/加密、身份或 semantic review。
 
 ### 交付物
 

@@ -422,6 +422,26 @@ FIXTURE_MANIFEST = {
             ),
         },
     },
+    "context-material-assessment/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-candidate-sha256.json": ("RecordValidationError", "sha256"),
+            "bad-id.json": ("RecordValidationError", "context_material_assessment_id"),
+            "missing-classification.json": ("RecordValidationError", "classification"),
+            "unknown-taint.json": ("RecordValidationError", "source_taint_labels"),
+        },
+    },
+    "context-bundle/v2": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-assessment-sha256.json": ("RecordValidationError", "sha256"),
+            "bad-id.json": ("RecordValidationError", "context_bundle_id"),
+            "bad-token-method.json": ("RecordValidationError", "estimation_method"),
+            "restricted-inline.json": ("RecordValidationError", "classification"),
+        },
+    },
     "suite-comparison/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -561,6 +581,12 @@ MINIMAL_FIXTURE_SHA256 = {
     "context-bundle/v1": (
         "912f081adada126661f0c0cd4baacc8ad5faf5cf308636aa7efa8b5d3a3e4f8e"
     ),
+    "context-bundle/v2": (
+        "97ad32a7f784c9bca716a1f248c1edd6d3992f6228019e9cd7ac140969099764"
+    ),
+    "context-material-assessment/v1": (
+        "9d88af279e7ac3a30055ec9ace31180efad45700912c36a936e7fb88a8d4a484"
+    ),
     "suite-comparison/v1": (
         "bea90285ac9e9cfa7cecb2be836450beb26fa9d5396d0bea7a68962a3e370302"
     ),
@@ -642,6 +668,12 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "context-bundle-v1.schema.json": (
         "aa1f4039c2359d8e92ac80cfa3916d21c7b2359ad36eda7755a930c99b4a83d7"
+    ),
+    "context-bundle-v2.schema.json": (
+        "bf5b51dc47ccc134c38e663fd4b03e5010e7dbca39c3f5dfd83aa2124bed94ef"
+    ),
+    "context-material-assessment-v1.schema.json": (
+        "1416a26af2ab0e3ef59b63033ed4b3b8904e3b1db9d023895bfb48cbfd3df673"
     ),
     "suite-comparison-v1.schema.json": (
         "b5b656b76041e4529945e5dcb1c558f8cfae0299481e32838d7ea6ed1f7feab8"
@@ -731,7 +763,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_five_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_seven_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -741,6 +773,8 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "candidate-manifest/v1",
                 "comparison-report/v1",
                 "context-bundle/v1",
+                "context-bundle/v2",
+                "context-material-assessment/v1",
                 "evaluation-attempt/v1",
                 "evaluation-case/v1",
                 "evaluation-envelope-closure-receipt/v1",
