@@ -150,6 +150,7 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 | 完整实验闭包 | CR6 已实现 `artifact-record/v1` 与 `evaluation-envelope-closure-receipt/v1` | candidate members 加 tools、budget、public data、evaluator、generator、统计计划、rollback target、authoritative head 共 8 类依赖形成 Core 可解析 pin 闭包；隐藏 evaluator 仅有协议 principal 的不披露 byte attestation，不等于真实身份认证、语义独立性或 hidden evaluation 已执行 |
 | 工程质量 Gate | CR7 已固定 Ruff 0.16.3、mypy 2.3.1 与 coverage.py 7.15.4；四个 required lanes 执行分层 lint、关键 seam 类型检查和完整测试分支覆盖率 Gate | 全仓只阻断高置信致命 lint；完整 Ruff/mypy 当前只覆盖 Core/Evaluation/Evolution，覆盖率 floor 为 80%；不代表全仓类型安全、100% 覆盖或语义正确性 |
 | Context material 治理 | CR8 新增 plaintext-free `context-material-assessment/v1`、`context-bundle/v2` 与单一 `prepare_context` interface；classification/taint、redaction/export、retention/encryption/tombstone descriptor、byte/token 双预算均 fail-closed | token 仅为 UTF-8 byte upper-bound preflight estimate；外部 protected artifact 与 principal 均为 hash-bound 协议声明，不证明 runtime usage、真实 storage、身份、semantic review 或 Skill 可发布性 |
+| Candidate eligibility 前置证明 | P7B1 新增 `candidate-eligibility-attestation/v1` 与单一 `assess_candidate_eligibility` interface；exact closure、可复用 kind、来源 lineage、七项固定 criterion 与逐项 evidence bytes 均 fail-closed | `eligible_for_payload_drafting` 只打开后续草拟 Gate；lineage/principal/criterion 仍是协议声明，零真实 Skill payload、零 semantic/fresh-session/private review、零 PromotionDecision |
 | 真实 Candidate Agent 执行 / Hidden Evaluator / Promotion | 未实现 | 现有证据仅支持合成工程合同；零真实 Skill payload、零自动晋级 |
 
 ## 参与、治理与安全
