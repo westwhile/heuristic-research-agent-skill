@@ -146,7 +146,7 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 | P7A Candidate/Context 受限内容入口 | CR1 已合入；builder 与 publication 写入前 fail-closed，且错误不回显命中值 | 关闭了可直接复现的入口缺陷；尚无完整 taint/classification、加密、retention 与 tombstone 合同 |
 | Unicode/CJK 词法相似度 | CR2 已合入；NFKC/casefold、Unicode term、CJK 2–4 gram，空词元明确 abstain | 只是确定性词法启发，不证明语义检索质量、负迁移安全或外部效度 |
 | 失败评测审计 | CR4 已实现 `evaluation-attempt/v1` / `evaluation-result/v1` 拆分；attempt 必有、result 可无，旧 run 成功兼容面保留 | 关闭 L0/L1 离线 replay 失败留档缺口；不证明真实 Agent 执行、suite 统计或晋级有效性 |
-| Suite 级统计 | 阻塞 | 现行比较仍不得用 metric dimension 冒充 case/seed observation；PromotionDecision Gate 保持关闭 |
+| Suite 级统计 | CR5 已实现 additive `suite-comparison/v1`；按 `case × seed × frozen envelope` 配对并逐指标分析 | 完整网格、同 envelope/runner/scorer/environment、预注册 primary/guardrail、paired permutation/bootstrap、Holm 与效应量均 fail-closed；公开合成 benchmark 仅 12 对，低于默认 30，结论保持 `insufficient_pairs`，PromotionDecision Gate 仍关闭 |
 | 完整实验闭包 | P7A 只完成 candidate member byte closure | tools、budget、data、evaluator、generator、统计计划与 rollback target 尚未形成统一可解析闭包 |
 | 真实 Candidate Agent 执行 / Hidden Evaluator / Promotion | 未实现 | 现有证据仅支持合成工程合同；零真实 Skill payload、零自动晋级 |
 

@@ -53,6 +53,7 @@ EVALUATION_CASE = "evaluation-case/v1"
 SUITE = "suite/v1"
 EVALUATION_RUN = "evaluation-run/v1"
 COMPARISON_REPORT = "comparison-report/v1"
+SUITE_COMPARISON = "suite-comparison/v1"
 EVALUATION_ATTEMPT = "evaluation-attempt/v1"
 EVALUATION_RESULT = "evaluation-result/v1"
 CASE_V2 = "research-case-package/v2"
@@ -336,6 +337,38 @@ FAMILIES: dict[str, FamilyContract] = {
                 ReferenceContract(
                     field="challenger",
                     shape="object",
+                    target_family=EVALUATION_RUN,
+                    target_id_field="evaluation_run_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Correctness Reset CR5 successor: observations are case/seed/frozen-
+        # envelope pairs and every referenced run remains hash-pinned. The
+        # historical comparison-report/v1 family stays readable but its
+        # unsafe construction entry point is retired.
+        FamilyContract(
+            schema_id=SUITE_COMPARISON,
+            identity_field="suite_comparison_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="suite",
+                    shape="object",
+                    target_family=SUITE,
+                    target_id_field="suite_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="champion_runs",
+                    shape="array_of_objects",
+                    target_family=EVALUATION_RUN,
+                    target_id_field="evaluation_run_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="challenger_runs",
+                    shape="array_of_objects",
                     target_family=EVALUATION_RUN,
                     target_id_field="evaluation_run_id",
                     pin_required=True,

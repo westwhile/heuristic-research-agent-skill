@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "suite-comparison/v1",
+  "title": "SuiteComparison v1",
+  "description": "A candidate-only comparison whose observations are complete case x seed x frozen-envelope pairs. Metrics are analyzed separately with pre-registered direction, role, ROPE, non-inferiority margin, effect size, and Holm-adjusted paired inference.",
+  "type": "object",
+  "required": ["schema", "suite_comparison_id", "title", "suite", "champion", "challenger", "champion_runs", "challenger_runs", "observation_unit", "expected_seeds", "pairs", "methods", "metrics", "gate_summary", "levels_covered", "conclusion", "limitations", "generated_at"],
+  "properties": {
+    "schema": {"const": "suite-comparison/v1"},
+    "suite_comparison_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+    "title": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "suite": {
+      "type": "object",
+      "required": ["suite_id", "sha256"],
+      "properties": {
+        "suite_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "champion": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "challenger": {
+      "type": "object",
+      "required": ["candidate_id", "sha256"],
+      "properties": {
+        "candidate_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "champion_runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["evaluation_run_id", "sha256"],
+        "properties": {
+          "evaluation_run_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "challenger_runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["evaluation_run_id", "sha256"],
+        "properties": {
+          "evaluation_run_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "observation_unit": {"const": "case_seed_frozen_envelope"},
+    "expected_seeds": {"type": "array", "minItems": 1, "items": {"type": "integer"}},
+    "pairs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["case", "seed", "envelope_sha256", "champion_evaluation_run_id", "challenger_evaluation_run_id"],
+        "properties": {
+          "case": {
+            "type": "object",
+            "required": ["evaluation_case_id", "sha256"],
+            "properties": {
+              "evaluation_case_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+              "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+            },
+            "additionalProperties": false
+          },
+          "seed": {"type": "integer"},
+          "envelope_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "champion_evaluation_run_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "challenger_evaluation_run_id": {"type": "string", "minLength": 1, "pattern": "^\\S+$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "methods": {
+      "type": "object",
+      "required": ["statistics", "parameters_sha256", "seed", "resamples", "confidence", "familywise_error_rate", "minimum_pairs", "multiple_comparison_adjustment"],
+      "properties": {
+        "statistics": {"const": ["paired_permutation", "paired_bootstrap"]},
+        "parameters_sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+        "seed": {"type": "integer"},
+        "resamples": {"type": "integer"},
+        "confidence": {"type": "number"},
+        "familywise_error_rate": {"type": "number"},
+        "minimum_pairs": {"type": "integer"},
+        "multiple_comparison_adjustment": {"const": "holm"}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["dimension", "direction", "role", "n_pairs", "mean_difference", "ci_low", "ci_high", "p_value", "adjusted_p_value", "rank_biserial", "rope", "inference_status"],
+        "properties": {
+          "dimension": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
+          "direction": {"enum": ["higher", "lower"]},
+          "role": {"enum": ["primary", "guardrail"]},
+          "unit": {"type": "string", "minLength": 1, "pattern": "\\S"},
+          "n_pairs": {"type": "integer"},
+          "mean_difference": {"type": "number"},
+          "ci_low": {"type": "number"},
+          "ci_high": {"type": "number"},
+          "p_value": {"type": "number"},
+          "adjusted_p_value": {"type": "number"},
+          "rank_biserial": {"type": "number"},
+          "rope": {"type": "number"},
+          "noninferiority_margin": {"type": "number"},
+          "inference_status": {"enum": ["insufficient_pairs", "improvement_supported", "regression_supported", "noninferior", "inconclusive"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "gate_summary": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gate", "result"],
+        "properties": {
+          "gate": {"enum": ["integrity", "critical_safety", "regression", "resource", "privacy", "evaluator_integrity"]},
+          "result": {"enum": ["pass", "fail"]},
+          "reason": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "levels_covered": {"type": "array", "minItems": 1, "items": {"enum": ["L0", "L1"]}},
+    "conclusion": {"type": "string", "minLength": 1, "pattern": "\\S"},
+    "limitations": {"type": "array", "items": {"type": "string", "minLength": 1, "pattern": "\\S"}},
+    "generated_at": {"type": "string", "x-rfc3339-datetime": true}
+  },
+  "additionalProperties": false
+}

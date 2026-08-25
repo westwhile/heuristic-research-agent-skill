@@ -33,6 +33,8 @@ def _md_escape(value: Any) -> str:
 
 def render_markdown(report: Mapping[str, Any]) -> str:
     """Render the report payload as a Markdown document."""
+    if report.get("schema") == "suite-comparison/v1":
+        return _render_suite_markdown(report)
     lines = [
         f"# {_md_escape(report['title'])}",
         "",
@@ -71,6 +73,8 @@ def render_markdown(report: Mapping[str, Any]) -> str:
 
 def render_html(report: Mapping[str, Any]) -> str:
     """Render the report payload as a self-contained HTML document."""
+    if report.get("schema") == "suite-comparison/v1":
+        return _render_suite_html(report)
     esc = html.escape
 
     def rows(items: Any, cells: Any) -> str:
@@ -121,4 +125,89 @@ code {{ background: #f2f2f2; padding: 0 0.25rem; }}</style>
 </ul>
 </body>
 </html>
+"""
+
+
+def _render_suite_markdown(report: Mapping[str, Any]) -> str:
+    lines = [
+        f"# {_md_escape(report['title'])}",
+        "",
+        f"- Suite comparison: `{report['suite_comparison_id']}`",
+        f"- Suite: `{report['suite']['suite_id']}` (sha256 `{report['suite']['sha256']}`)",
+        f"- Observation unit: `{report['observation_unit']}`",
+        f"- Expected seeds: {', '.join(str(seed) for seed in report['expected_seeds'])}",
+        f"- Champion: `{report['champion']['candidate_id']}` "
+        f"(sha256 `{report['champion']['sha256']}`)",
+        f"- Challenger: `{report['challenger']['candidate_id']}` "
+        f"(sha256 `{report['challenger']['sha256']}`)",
+        f"- Statistics: {', '.join(report['methods']['statistics'])}; "
+        f"Holm adjustment; parameters sha256 "
+        f"`{report['methods']['parameters_sha256']}`",
+        "",
+        "## Metric analyses",
+        "",
+        "| Dimension | Role | Direction | n_pairs | Mean difference | CI | p | "
+        "Holm p | rank_biserial | Status |",
+        "| --- | --- | --- | ---: | ---: | --- | ---: | ---: | ---: | --- |",
+    ]
+    for metric in report["metrics"]:
+        lines.append(
+            f"| {_md_escape(metric['dimension'])} | {metric['role']} | "
+            f"{metric['direction']} | {metric['n_pairs']} | {metric['mean_difference']} | "
+            f"[{metric['ci_low']}, {metric['ci_high']}] | {metric['p_value']} | "
+            f"{metric['adjusted_p_value']} | {metric['rank_biserial']} | "
+            f"{metric['inference_status']} |"
+        )
+    lines += ["", "## Conclusion", "", _md_escape(report["conclusion"]), ""]
+    if report["limitations"]:
+        lines += ["## Limitations", ""]
+        lines += [f"- {_md_escape(item)}" for item in report["limitations"]]
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _render_suite_html(report: Mapping[str, Any]) -> str:
+    esc = html.escape
+    metric_rows = "\n".join(
+        "<tr>"
+        + "".join(
+            f"<td>{esc(str(value))}</td>"
+            for value in (
+                metric["dimension"],
+                metric["role"],
+                metric["direction"],
+                metric["n_pairs"],
+                metric["mean_difference"],
+                f"[{metric['ci_low']}, {metric['ci_high']}]",
+                metric["p_value"],
+                metric["adjusted_p_value"],
+                metric["rank_biserial"],
+                metric["inference_status"],
+            )
+        )
+        + "</tr>"
+        for metric in report["metrics"]
+    )
+    limitations = "".join(
+        f"<li>{esc(str(item))}</li>" for item in report["limitations"]
+    )
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>{esc(str(report['title']))}</title>
+<style>body {{ font-family: system-ui, sans-serif; margin: 2rem; }}
+table {{ border-collapse: collapse; }} td, th {{ border: 1px solid #999; padding: 0.25rem; }}
+code {{ background: #f2f2f2; padding: 0 0.25rem; }}</style></head>
+<body>
+<h1>{esc(str(report['title']))}</h1>
+<ul>
+<li>Suite comparison: <code>{esc(str(report['suite_comparison_id']))}</code></li>
+<li>Observation unit: <code>{esc(str(report['observation_unit']))}</code></li>
+<li>Statistics: {esc(', '.join(report['methods']['statistics']))}; Holm adjustment; parameters sha256 <code>{esc(str(report['methods']['parameters_sha256']))}</code></li>
+</ul>
+<h2>Metric analyses</h2>
+<table><tr><th>Dimension</th><th>Role</th><th>Direction</th><th>n_pairs</th><th>Mean difference</th><th>CI</th><th>p</th><th>Holm p</th><th>rank_biserial</th><th>Status</th></tr>
+{metric_rows}</table>
+<h2>Conclusion</h2><p>{esc(str(report['conclusion']))}</p>
+<h2>Limitations</h2><ul>{limitations}</ul>
+</body></html>
 """

@@ -1,0 +1,20 @@
+{
+  "schema": "suite-comparison/v1",
+  "suite_comparison_id": "suite-comparison-2",
+  "title": "Frozen suite comparison with guardrail",
+  "suite": {"suite_id": "suite-2", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+  "champion": {"candidate_id": "champion", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
+  "challenger": {"candidate_id": "challenger", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+  "champion_runs": [{"evaluation_run_id": "run-champion-1", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}, {"evaluation_run_id": "run-champion-2", "sha256": "1414141414141414141414141414141414141414141414141414141414141414"}],
+  "challenger_runs": [{"evaluation_run_id": "run-challenger-1", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"}, {"evaluation_run_id": "run-challenger-2", "sha256": "1515151515151515151515151515151515151515151515151515151515151515"}],
+  "observation_unit": "case_seed_frozen_envelope",
+  "expected_seeds": [7, 11],
+  "pairs": [{"case": {"evaluation_case_id": "case-1", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}, "seed": 7, "envelope_sha256": "1212121212121212121212121212121212121212121212121212121212121212", "champion_evaluation_run_id": "run-champion-1", "challenger_evaluation_run_id": "run-challenger-1"}, {"case": {"evaluation_case_id": "case-1", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}, "seed": 11, "envelope_sha256": "1616161616161616161616161616161616161616161616161616161616161616", "champion_evaluation_run_id": "run-champion-2", "challenger_evaluation_run_id": "run-challenger-2"}],
+  "methods": {"statistics": ["paired_permutation", "paired_bootstrap"], "parameters_sha256": "1313131313131313131313131313131313131313131313131313131313131313", "seed": 11, "resamples": 10000, "confidence": 0.95, "familywise_error_rate": 0.05, "minimum_pairs": 30, "multiple_comparison_adjustment": "holm"},
+  "metrics": [{"dimension": "correctness", "direction": "higher", "role": "primary", "unit": "ratio", "n_pairs": 2, "mean_difference": 0.1, "ci_low": 0.0, "ci_high": 0.2, "p_value": 0.5, "adjusted_p_value": 1.0, "rank_biserial": 0.5, "rope": 0.01, "inference_status": "insufficient_pairs"}, {"dimension": "latency", "direction": "lower", "role": "guardrail", "unit": "ms", "n_pairs": 2, "mean_difference": 1.0, "ci_low": 0.5, "ci_high": 1.5, "p_value": 0.5, "adjusted_p_value": 1.0, "rank_biserial": 1.0, "rope": 1.0, "noninferiority_margin": 5.0, "inference_status": "insufficient_pairs"}],
+  "gate_summary": [{"gate": "integrity", "result": "pass"}, {"gate": "regression", "result": "fail", "reason": "Synthetic guardrail failure."}],
+  "levels_covered": ["L0", "L1"],
+  "conclusion": "No promotion decision is made.",
+  "limitations": ["Synthetic paired observations only."],
+  "generated_at": "2026-08-25T01:00:00Z"
+}

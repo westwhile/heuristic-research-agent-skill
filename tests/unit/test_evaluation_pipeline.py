@@ -29,7 +29,6 @@ from research_evolution.evaluation import (
     render_json,
     render_markdown,
 )
-from research_evolution.evaluation.statistics import small_sample_limitation
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "core"
 
@@ -325,74 +324,22 @@ def _compare_kwargs(**overrides):
 
 
 class CompareTest(unittest.TestCase):
-    def test_report_payload_is_schema_valid(self) -> None:
-        report = compare(**_compare_kwargs())
-        record = load_record(json.dumps(report))
-        self.assertEqual(record.schema_id, "comparison-report/v1")
-        self.assertEqual(report["champion"]["evaluation_run_id"], "er-champion")
-        self.assertEqual(len(report["champion"]["sha256"]), 64)
-
-    def test_self_comparison_refused(self) -> None:
-        # R28 ledger: champion == challenger is rejected at entry.
-        champion, _ = _two_runs()
-        with self.assertRaises(ValueError):
-            compare(**_compare_kwargs(challenger=champion))
-
-    def test_statistics_are_traced_and_reproducible(self) -> None:
-        report = compare(**_compare_kwargs())
-        self.assertEqual(
-            report["methods"]["statistics"],
-            ["paired_bootstrap", "paired_exact_mcnemar"],
-        )
-        self.assertEqual(report["methods"]["seed"], 11)
-        rerun = compare(**_compare_kwargs())
-        self.assertEqual(report, rerun)
-
-    def test_mcnemar_requires_binary_dimensions(self) -> None:
-        champion, challenger = _two_runs()
-        champion["score_vector"] = [{"dimension": "absolute_error:x", "value": 0.4}]
-        challenger["score_vector"] = [{"dimension": "absolute_error:x", "value": 0.25}]
-        with self.assertRaises(ValueError):
-            compare(**_compare_kwargs(champion=champion, challenger=challenger))
-
-    def test_rare_event_requires_policy_parameters(self) -> None:
-        with self.assertRaises(ValueError):
-            compare(**_compare_kwargs(policy=ComparePolicy(seed=1, methods=("rare_event_upper_bound",))))
-
-    def test_small_sample_limitation_is_appended(self) -> None:
-        # R31 ledger: the gate wording is single-sourced into the report.
-        report = compare(**_compare_kwargs())
-        self.assertIn(small_sample_limitation(1), report["limitations"])
-
-    def test_gate_summary_folds_not_applicable_away(self) -> None:
-        # R32 ledger: gate_summary holds only decidable gates.
-        report = compare(**_compare_kwargs())
-        self.assertTrue(report["gate_summary"])
-        self.assertTrue(
-            all(entry["result"] in ("pass", "fail") for entry in report["gate_summary"])
-        )
-        regression = [g for g in report["gate_summary"] if g["gate"] == "regression"]
-        self.assertEqual(regression[0]["result"], "fail")  # challenger failed it
-        listed = {g["gate"] for g in report["gate_summary"]}
-        self.assertNotIn("privacy", listed)  # unconfigured on both runs
-
-    def test_levels_covered_is_the_intersection(self) -> None:
-        champion, challenger = _two_runs()
-        challenger["levels_covered"] = ["L0"]
-        report = compare(**_compare_kwargs(champion=champion, challenger=challenger))
-        self.assertEqual(report["levels_covered"], ["L0"])
-
-    def test_shared_dimension_required(self) -> None:
-        champion, challenger = _two_runs()
-        champion["score_vector"] = [{"dimension": "a", "value": 1.0}]
-        challenger["score_vector"] = [{"dimension": "b", "value": 1.0}]
-        with self.assertRaises(ValueError):
-            compare(**_compare_kwargs(champion=champion, challenger=challenger))
+    def test_historical_constructor_is_retired(self) -> None:
+        with self.assertRaisesRegex(ValueError, "metric dimensions are not observations"):
+            compare(**_compare_kwargs())
 
 
 class ReportFormsTest(unittest.TestCase):
+    @staticmethod
+    def _historical_report() -> dict:
+        return json.loads(
+            (FIXTURES / "comparison-report" / "v1" / "valid" / "full.json").read_text(
+                encoding="utf-8"
+            )
+        )
+
     def test_three_forms_carry_the_same_content(self) -> None:
-        report = compare(**_compare_kwargs())
+        report = self._historical_report()
         as_json = render_json(report)
         as_markdown = render_markdown(report)
         as_html = render_html(report)
@@ -408,24 +355,25 @@ class ReportFormsTest(unittest.TestCase):
         ):
             self.assertIn(str(key_value), as_markdown)
             self.assertIn(str(key_value), as_html)
-        self.assertIn("exact_match:answer", as_markdown)
-        self.assertIn("exact_match:answer", as_html)
+        for delta in report["score_deltas"]:
+            self.assertIn(delta["dimension"], as_markdown)
+            self.assertIn(delta["dimension"], as_html)
         self.assertIn("L0", as_html)
 
     def test_html_escapes_injection(self) -> None:
-        report = compare(
-            **_compare_kwargs(conclusion='<script>alert("x")</script>')
-        )
+        report = self._historical_report()
+        report["conclusion"] = '<script>alert("x")</script>'
         as_html = render_html(report)
         self.assertNotIn("<script>", as_html)
         self.assertIn("&lt;script&gt;", as_html)
 
     def test_markdown_escapes_pipes(self) -> None:
-        report = compare(**_compare_kwargs(conclusion="a | b"))
+        report = self._historical_report()
+        report["conclusion"] = "a | b"
         self.assertIn("a \\| b", render_markdown(report))
 
     def test_rendering_is_deterministic(self) -> None:
-        report = compare(**_compare_kwargs())
+        report = self._historical_report()
         self.assertEqual(render_markdown(report), render_markdown(report))
         self.assertEqual(render_html(report), render_html(report))
         self.assertEqual(render_json(report), render_json(report))
@@ -438,9 +386,9 @@ class ReportFormsTest(unittest.TestCase):
 class StoreRoundTripTest(unittest.TestCase):
     """R34 regression: a run reloaded from a store carries Decimal score
     values (the strict parser's frozen numeric model). The publish ->
-    load -> compare design workflow must work end to end."""
+    load path must preserve decimals while legacy comparison fails closed."""
 
-    def test_publish_load_compare_round_trip(self) -> None:
+    def test_publish_load_legacy_compare_fails_closed(self) -> None:
         case = _case(scorer_level="structured_rubric")
         suite = _suite("s-rt", case)
 
@@ -474,18 +422,16 @@ class StoreRoundTripTest(unittest.TestCase):
                 for entry in reloaded["champion"]["score_vector"]
             )
         )
-        report = compare(
-            champion=reloaded["champion"],
-            challenger=reloaded["challenger"],
-            policy=ComparePolicy(seed=11, methods=("paired_bootstrap",), resamples=200),
-            report_id="rt-1",
-            title="store round-trip regression",
-            conclusion="store-reloaded runs compare cleanly",
-            generated_at=GENERATED_AT,
-        )
-        record = load_record(render_json(report))
-        self.assertEqual(record.schema_id, "comparison-report/v1")
-        self.assertEqual(report["methods"]["statistics"], ["paired_bootstrap"])
+        with self.assertRaisesRegex(ValueError, "metric dimensions are not observations"):
+            compare(
+                champion=reloaded["champion"],
+                challenger=reloaded["challenger"],
+                policy=ComparePolicy(seed=11),
+                report_id="rt-1",
+                title="store round-trip regression",
+                conclusion="legacy constructor must remain closed",
+                generated_at=GENERATED_AT,
+            )
 
     def test_attempt_result_publication_and_graph_round_trip(self) -> None:
         case = _case()

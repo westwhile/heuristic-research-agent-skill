@@ -5,7 +5,7 @@
 - 状态同步日期：2026-08-24
 - 仓库：`westwhile/heuristic-research-agent-skill`
 - 本地工作树：`$PROJECT_ROOT`（由操作者在本机配置，不写入公开绝对路径）
-- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；Phase 7 P7A 基础工程已由 PR #34/#35 实施并同步。Correctness Reset CR1/CR2 分别由 PR #36/#37 合入并关闭 Candidate/Context 受限内容入口与 CJK/空词元确定性错误高相似；五文件状态同步 PR #38 的 merge commit `46d58439ac1bdc61342e8efec261553d8199c2b7` 及 main CI run `32749901642` 已四项 jobs 与 Windows governance 全绿。CR4 新增 immutable `evaluation-attempt/v1` / `evaluation-result/v1`，公开 pipeline 采用 attempt 必有、result 可无并保留旧 run 成功兼容面。能力上限仍为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；case/seed 级统计、完整实验闭包、真实 Agent 执行、hidden evaluator 与 PromotionDecision 仍未实现。R6B 仍冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`；未创建 `v0.7.0` Tag/Release，安装、激活与发布 Gate 未开启。
+- 当前状态：Phase 0—5 已逐层验收发布；Apache-2.0 OSS-R0 治理、`0.6.1` 包元数据与 annotated `v0.6.1` source Release 已完成。O5 公开试用入口已合入但仍等待维护者选择参与者，当前无外部结果；O6 仅准备公开证据草案，私密字段和最终提交未启动。Phase 6 L1–L4 与 R1—R6A 已依次合入；Phase 7 P7A 基础工程已由 PR #34/#35 实施并同步。Correctness Reset CR1/CR2 分别由 PR #36/#37 合入并关闭 Candidate/Context 受限内容入口与 CJK/空词元确定性错误高相似；五文件状态同步 PR #38 的 merge commit `46d58439ac1bdc61342e8efec261553d8199c2b7` 及 main CI run `32749901642` 已四项 jobs 与 Windows governance 全绿。CR4 新增 immutable `evaluation-attempt/v1` / `evaluation-result/v1`，公开 pipeline 采用 attempt 必有、result 可无并保留旧 run 成功兼容面。CR5 以 additive `suite-comparison/v1` 按完整 `case × seed × frozen envelope` 网格逐指标比较，并让旧的不安全构造入口 fail-closed；公开合成 benchmark 只有 12 对观测，保持 `insufficient_pairs`。能力上限仍为 `P7A_FOUNDATION_READY / ZERO_REAL_CANDIDATES / ZERO_SKILL_PAYLOADS`；完整实验闭包、真实 Agent 执行、hidden evaluator 与 PromotionDecision 仍未实现。R6B 仍冻结为 `TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS`；未创建 `v0.7.0` Tag/Release，安装、激活与发布 Gate 未开启。
 
 ### 规划补充（仅计划，不代表已实施）
 
@@ -417,6 +417,7 @@ $SKILL_LIBRARY_ROOT/
 19. 建立中央库的 sibling layout：正式 `skills/`、`research-patterns/`、`skill-incubator/` 和 `catalogs/` 分离；Phase 4 只写隔离暂存区，不安装 Skill；
 20. 为 Math、Quant 各建立至少 3 个合格 Case Package、2 个候选 Pattern，并记录至少 1 个“未找到适用模式”的正确 abstain 案例；
 21. （CR4 已实施，ADR-0011）不改 `evaluation-run/v1` 的冻结字节，改以 additive `evaluation-attempt/v1` / `evaluation-result/v1` 拆分执行事实与评分结果：replay 开始后 attempt 必有，只有完整 output 获得非空 score vector 时 result 才存在；旧 run 继续作为 pass/fail 兼容 projection。此项只关闭失败留档缺口，不关闭 suite-level 统计与 PromotionDecision Gate。
+22. （CR5 已实施，ADR-0012）不改 `comparison-report/v1` 的冻结字节，退役其按 metric dimension 取样的构造入口；新增 `suite-comparison/v1`，强制完整 `case × seed × frozen envelope` 配对网格、candidate-only 对照、逐指标预注册分析、paired permutation/bootstrap、Holm 调整、效应量、ROPE/guardrail 非劣效与最小样本 Gate。此项只关闭统计观测单位缺口，不生成 PromotionDecision。
 
 ### 交付物
 
