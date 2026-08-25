@@ -24,8 +24,9 @@ lanes，但 Ruff 配置从未进入 CI，类型检查与覆盖率也没有可执
    两条 Ruff 命令均使用 `--no-cache`，避免在 exact archive 树中制造未跟踪
    `.ruff_cache` 并污染后续 provenance/test Gate。
 3. mypy 以 Python 3.12 为最低语言合同，对相同三个关键 seam 执行
-   `check_untyped_defs` 且关闭增量缓存。其他目录尚未被类型 Gate 覆盖，不得表述为
-   全仓类型安全。
+   `check_untyped_defs` 且关闭增量读取；mypy 2.3.1 仍会写 AST cache，因此 CI 将
+   `cache-dir` 定向到 `runner.temp`，不污染 exact archive 树。其他目录尚未被类型
+   Gate 覆盖，不得表述为全仓类型安全。
 4. 原完整 unittest 步骤改由 coverage.py 驱动，仍执行同一 discovery 命令并开启
    branch coverage；`research_evolution` 的最低总覆盖率固定为 80%。覆盖率是回归
    门槛，不是语义正确性证明。

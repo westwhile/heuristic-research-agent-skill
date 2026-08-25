@@ -89,6 +89,10 @@ class CIWorkflowContractTest(unittest.TestCase):
             ],
         )
         self.assertIn(quality["mypy"]["command"], self.workflow)
+        self.assertIn(
+            '--cache-dir="${{ runner.temp }}/mypy-cache"',
+            quality["mypy"]["command"],
+        )
         self.assertEqual(self.pyproject["tool"]["mypy"]["python_version"], "3.12")
         self.assertTrue(self.pyproject["tool"]["mypy"]["check_untyped_defs"])
         self.assertTrue(self.pyproject["tool"]["mypy"]["no_incremental"])

@@ -170,13 +170,15 @@ required lane。本矩阵不宣称 macOS、PyPI 安装、Skill 安装/激活或�
 python -m pip install --disable-pip-version-check ".[quality]"
 python -B -m ruff check --no-cache src tests scripts --select E9,F63,F7,F82
 python -B -m ruff check --no-cache src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
-python -B -m mypy --check-untyped-defs --no-incremental src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
+$mypyCache = Join-Path $env:TEMP ("heuristic-research-mypy-" + [guid]::NewGuid().ToString("N"))
+python -B -m mypy --check-untyped-defs --no-incremental --cache-dir="$mypyCache" src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution
 $env:PYTHONPATH = "src"
 $env:PYTHONDONTWRITEBYTECODE = "1"
 $env:COVERAGE_FILE = Join-Path $env:TEMP "heuristic-research-coverage"
 python -B -m coverage run --branch --source=research_evolution -m unittest discover -s tests -p "test_*.py" -v
 python -B -m coverage report --fail-under=80 --skip-covered
 Remove-Item -LiteralPath $env:COVERAGE_FILE -Force -ErrorAction SilentlyContinue
+Remove-Item -LiteralPath $mypyCache -Recurse -Force -ErrorAction SilentlyContinue
 ```
 
 Ruff/mypy 的严格路径和 80% floor 是显式 ratchet，精确 scope 见

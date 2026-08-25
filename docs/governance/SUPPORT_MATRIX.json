@@ -55,7 +55,7 @@
       "ratchet": "The full repository blocks high-confidence syntax and Pyflakes fatal rules; the Core, Evaluation, and Evolution seams additionally enforce the configured E/F/I/UP/B rule set."
     },
     "mypy": {
-      "command": "python -B -m mypy --check-untyped-defs --no-incremental src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution",
+      "command": "python -B -m mypy --check-untyped-defs --no-incremental --cache-dir=\"${{ runner.temp }}/mypy-cache\" src/research_evolution/core src/research_evolution/evaluation src/research_evolution/evolution",
       "target_python": "3.12",
       "scope": "Core, Evaluation, and Evolution seams only; adapters, experience, CLI, tests, and scripts are not yet type-gated."
     },
