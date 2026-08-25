@@ -64,6 +64,13 @@ external Skill payload, evaluator output, participant material, vendored
 dependency, or third-party expression is included; PR #44 merged this inventory
 to main.
 
+The current P7B2 feature branch proposes eleven skill-candidate schema, source,
+test, synthetic fixture, and ADR files. Their structural contract is informed by
+the Codex `skill-creator` guidance current on 2026-08-25, but independently
+implemented: no guidance text, template, example, or external Skill payload is
+copied. These files are conservatively classified as `design_inspired` until the
+feature is either merged or withdrawn.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -71,7 +78,10 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7B1 mainline tracked inventory contains 1087 files: the 1008-file CR2
+The current P7B2 feature working tree contains 1098 proposed tracked files: the
+1087-file P7B1 mainline inventory plus eleven P7B2 skill-candidate schema,
+source, test, synthetic fixture, and ADR files. The P7B1 inventory consists of
+the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
 nineteen new repository-native CR4 attempt/result schema, fixture, and ADR
 files, and eleven new repository-native CR5 suite-level comparison schema,
@@ -92,7 +102,7 @@ evidence:
 |---|---:|---|
 | `independently_authored` | 954 | Repository-native material covered by the maintainer confirmation |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
-| `design_inspired` | 13 | Independently implemented v8 compatibility code/tests and synthetic fixtures |
+| `design_inspired` | 24 | Independently implemented v8 compatibility and P7B2 Skill-layout contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
 | `unknown` | 0 | No unresolved tracked file |
 
@@ -101,12 +111,14 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 954 `independently_authored`, 118 `generated`, 13
+The resulting counts are 954 `independently_authored`, 118 `generated`, 24
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
 references and independently authored repository changes; CR8 and P7B1 add
-only independently authored governance contracts and synthetic fixtures.
+only independently authored governance contracts and synthetic fixtures. P7B2
+adds design-inspired but independently expressed structural contracts and
+synthetic fixtures, without a real Skill payload.
 
 ## External-source decisions
 
@@ -129,6 +141,15 @@ procedures. The attribution is also repeated in `NOTICE`.
 `CITATION.cff` contains independently authored project metadata conforming to
 the public CFF 1.2.0 schema. No CFF specification text or example payload is
 vendored; the schema and repository are recorded as a non-vendored reference.
+
+### Codex skill-creator guidance
+
+P7B2 uses the current Codex `skill-creator` guidance only as abstract design
+input for the root `SKILL.md`, minimal frontmatter, allowed progressive-
+disclosure directories, and separation of auxiliary project documentation from
+an installable payload. The repository does not copy the guidance, its examples,
+or any external Skill payload. The P7B2 code, schema, tests, fixtures, and ADR are
+therefore recorded as `design_inspired`, not `third_party_reused`.
 
 ### math-research-solve v8 / 1.0.0–1.0.1
 

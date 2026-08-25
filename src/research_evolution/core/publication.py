@@ -228,7 +228,11 @@ def publish_record(
         None if schema_root is None else absolutize_lexical(schema_root, cwd)
     )
     record = load_record(source, schema_root=schema_root_path)
-    if record.schema_id in {"candidate-manifest/v1", "context-bundle/v1"}:
+    if record.schema_id in {
+        "candidate-manifest/v1",
+        "context-bundle/v1",
+        "skill-candidate-bundle/v1",
+    }:
         restricted = scan_value_for_restricted(record.data)
         if restricted:
             raise PublicationError(

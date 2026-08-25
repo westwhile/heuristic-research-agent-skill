@@ -20,9 +20,10 @@ Extension keywords (all enforced, none silently ignored):
   array property to hold at least N items whenever a discriminator property
   equals one of the listed values (used for evidence-backed claim rules).
 
-The standard ``pattern`` keyword keeps stock JSON Schema Draft 2020-12
-semantics (unanchored :func:`re.search`). Fields needing exact length combine
-``pattern`` with ``minLength``/``maxLength``. Boundary keywords
+The standard ``pattern`` and ``minimum`` keywords keep stock JSON Schema Draft
+2020-12 semantics (unanchored :func:`re.search` and exact numeric comparison).
+Fields needing exact length combine ``pattern`` with
+``minLength``/``maxLength``. Boundary keywords
 (``minLength``/``maxLength``/``minItems``/``maxItems`` and rule
 ``min_items``) follow the Draft 2020-12 ``integer`` definition: any number
 with a zero fractional part is accepted (``1.0`` is a legal bound) and
@@ -58,6 +59,7 @@ _SUPPORTED_KEYWORDS = _META_KEYWORDS | frozenset(
         "minLength",
         "maxLength",
         "pattern",
+        "minimum",
         "x-safe-relative-path",
         "x-rfc3339-datetime",
         "x-at-least-one-of",
@@ -202,6 +204,10 @@ def _check_schema_node(node: Any, path: str, filename: str) -> None:
             raise SchemaDefinitionError(
                 f"{filename}: {keyword} at {path} requires type string"
             )
+        if keyword == "minimum" and declared_type not in {"integer", "number"}:
+            raise SchemaDefinitionError(
+                f"{filename}: minimum at {path} requires type integer or number"
+            )
     for keyword in _NON_NEGATIVE_INT:
         if keyword in node:
             bound = _as_mathematical_integer(node[keyword])
@@ -214,6 +220,16 @@ def _check_schema_node(node: Any, path: str, filename: str) -> None:
         if keyword in node and node[keyword] is not True:
             raise SchemaDefinitionError(
                 f"{filename}: {keyword} at {path} must be exactly true"
+            )
+    if "minimum" in node:
+        minimum = node["minimum"]
+        if (
+            isinstance(minimum, bool)
+            or not isinstance(minimum, (int, float, Decimal))
+            or not _as_decimal(minimum).is_finite()
+        ):
+            raise SchemaDefinitionError(
+                f"{filename}: minimum at {path} must be a finite number"
             )
     if "minItems" in node and "maxItems" in node and node["minItems"] > node["maxItems"]:
         raise SchemaDefinitionError(f"{filename}: minItems > maxItems at {path}")
@@ -363,6 +379,8 @@ def _validate_node(
         _json_equal(value, option) for option in schema["enum"]
     ):
         violations.append(f"{path}: must be one of {schema['enum']!r}")
+    if "minimum" in schema and _as_decimal(value) < _as_decimal(schema["minimum"]):
+        violations.append(f"{path}: must be >= {schema['minimum']!r}")
     if declared_type == "object":
         for key in schema.get("required", []):
             if key not in value:

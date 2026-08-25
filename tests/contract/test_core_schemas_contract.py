@@ -415,6 +415,28 @@ FIXTURE_MANIFEST = {
             ),
         },
     },
+    "skill-candidate-bundle/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "bad-id.json": (
+                "RecordValidationError",
+                "skill_candidate_bundle_id",
+            ),
+            "bad-status.json": ("RecordValidationError", "status"),
+            "evidence-too-few.json": (
+                "RecordValidationError",
+                "eligibility_evidence_members",
+            ),
+            "publication-authorized.json": (
+                "RecordValidationError",
+                "publication_authorized",
+            ),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -543,6 +565,9 @@ MINIMAL_FIXTURE_SHA256 = {
     "candidate-eligibility-attestation/v1": (
         "e8b22653837f2f0ad41ea33b5384212d0e1c071403ea146901f8f6eeba4ef9f0"
     ),
+    "skill-candidate-bundle/v1": (
+        "617895811e04ad9259d25ed8ff27e65c27e78dcd4bfeb16891e4910bd72b87da"
+    ),
     "comparison-report/v1": (
         "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
     ),
@@ -633,6 +658,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "candidate-eligibility-attestation-v1.schema.json": (
         "29087f7ba8c9776dd4b2874fde5a328f9bafc7c8b8a91ed3ddee60d144af2756"
+    ),
+    "skill-candidate-bundle-v1.schema.json": (
+        "32ffaba387b4cf405143f11f021eea76841bc0a862095f72e3de16a473877839"
     ),
     "comparison-report-v1.schema.json": (
         "a89e6839f477413fc6f14d4a9d286e84c80d747526109cb7c3a5418b93c83479"
@@ -791,7 +819,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_eight_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_nine_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -822,6 +850,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "research-run/v1",
                 "research-task/v1",
                 "reuse-event/v1",
+                "skill-candidate-bundle/v1",
                 "suite-comparison/v1",
                 "suite/v1",
             ),

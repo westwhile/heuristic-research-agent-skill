@@ -27,6 +27,11 @@ from .incubator import (
     build_context_bundle,
     close_candidate_bundle,
 )
+from .skill_candidate import (
+    SkillCandidateBundle,
+    SkillCandidateBundleError,
+    draft_skill_candidate_bundle,
+)
 
 __all__ = [
     "ArtifactClosureError",
@@ -43,9 +48,12 @@ __all__ = [
     "ContextPreparationError",
     "EvaluationEnvelopeClosureError",
     "EvaluationEnvelopeClosureReceipt",
+    "SkillCandidateBundle",
+    "SkillCandidateBundleError",
     "build_context_bundle",
     "assess_candidate_eligibility",
     "close_candidate_bundle",
     "close_evaluation_envelope",
+    "draft_skill_candidate_bundle",
     "prepare_context",
 ]
