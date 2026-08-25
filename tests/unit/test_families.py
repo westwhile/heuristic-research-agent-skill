@@ -15,8 +15,8 @@ _SHAPES = {"object", "array_of_objects", "array_of_scalars"}
 
 class FamilyRegistryTest(unittest.TestCase):
     def test_membership_is_explicit(self) -> None:
-        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A + CR4: all
-        # twenty-two
+        # Phase 1D D3 + Phase 3 E2 + Phase 4 M2 + Phase 7 P7A + CR4—CR6:
+        # all twenty-five
         # schema families are registered and publishable — the seven research
         # families, the two export families (ADR-0004), the four evaluation
         # record families (ADR-0006), and the four research memory families
@@ -51,6 +51,8 @@ class FamilyRegistryTest(unittest.TestCase):
                 "candidate-manifest/v1",
                 "artifact-closure-receipt/v1",
                 "context-bundle/v1",
+                "artifact-record/v1",
+                "evaluation-envelope-closure-receipt/v1",
             },
         )
 
@@ -140,6 +142,8 @@ class FamilyRegistryTest(unittest.TestCase):
             ("candidate-manifest/v1", "source_patterns"),
             ("artifact-closure-receipt/v1", "candidate"),
             ("context-bundle/v1", "candidate"),
+            ("evaluation-envelope-closure-receipt/v1", "candidate"),
+            ("evaluation-envelope-closure-receipt/v1", "artifacts"),
         }
         for family, field in pinned:
             ref = next(

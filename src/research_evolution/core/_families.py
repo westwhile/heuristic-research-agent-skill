@@ -34,6 +34,10 @@ context bundles each pin one candidate manifest. Their byte-closure,
 principal-separation, lifecycle, and budget semantics remain inside the
 pure in-process evolution module; the graph continues to serve exact
 identity and hash-pin integrity.
+Correctness Reset CR6 adds an artifact record and an evaluation-envelope
+closure receipt. The receipt pins the existing candidate manifest and every
+artifact record; byte/attestation and required-role semantics stay in the
+pure in-process envelope-closure module.
 """
 
 from __future__ import annotations
@@ -63,6 +67,8 @@ REUSE_EVENT = "reuse-event/v1"
 CANDIDATE_MANIFEST = "candidate-manifest/v1"
 ARTIFACT_CLOSURE_RECEIPT = "artifact-closure-receipt/v1"
 CONTEXT_BUNDLE = "context-bundle/v1"
+ARTIFACT_RECORD = "artifact-record/v1"
+EVALUATION_ENVELOPE_CLOSURE = "evaluation-envelope-closure-receipt/v1"
 
 
 @dataclass(frozen=True)
@@ -576,6 +582,37 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="object",
                     target_family=CANDIDATE_MANIFEST,
                     target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Correctness Reset CR6: artifact records are independent immutable
+        # byte descriptors. The envelope receipt closes the existing P7A
+        # candidate and pins every descriptor; the deep module validates
+        # public bytes and hidden-evaluator attestations before construction.
+        FamilyContract(
+            schema_id=ARTIFACT_RECORD,
+            identity_field="artifact_id",
+            supersedes=None,
+            references=(),
+        ),
+        FamilyContract(
+            schema_id=EVALUATION_ENVELOPE_CLOSURE,
+            identity_field="envelope_closure_receipt_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="candidate",
+                    shape="object",
+                    target_family=CANDIDATE_MANIFEST,
+                    target_id_field="candidate_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="artifacts",
+                    shape="array_of_objects",
+                    target_family=ARTIFACT_RECORD,
+                    target_id_field="artifact_id",
                     pin_required=True,
                 ),
             ),

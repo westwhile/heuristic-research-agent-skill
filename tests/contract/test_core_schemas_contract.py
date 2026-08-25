@@ -444,10 +444,54 @@ FIXTURE_MANIFEST = {
             "empty-metrics.json": ("RecordValidationError", "metrics"),
         },
     },
+    "artifact-record/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "bad-created-at.json": ("RecordValidationError", "created_at"),
+            "bad-role.json": ("RecordValidationError", "role"),
+            "hidden-content-disclosed.json": (
+                "RecordValidationError",
+                "content_disclosed",
+            ),
+            "missing-content-sha256.json": (
+                "RecordValidationError",
+                "content_sha256",
+            ),
+        },
+    },
+    "evaluation-envelope-closure-receipt/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": (
+                "RecordValidationError",
+                "additional property",
+            ),
+            "artifact-missing-pin.json": (
+                "RecordValidationError",
+                "sha256",
+            ),
+            "bad-closed-at.json": ("RecordValidationError", "closed_at"),
+            "envelope-not-closed.json": (
+                "RecordValidationError",
+                "evaluation_envelope_closed",
+            ),
+            "hidden-bytes-disclosed.json": (
+                "RecordValidationError",
+                "hidden_bytes_disclosed",
+            ),
+        },
+    },
 }
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
 MINIMAL_FIXTURE_SHA256 = {
+    "artifact-record/v1": (
+        "b54a0cff2110d9a1e6b7f6eb8f18a6b2a9715e8e02db1289834d78e5157feb3c"
+    ),
     "artifact-closure-receipt/v1": (
         "31023abcf8518679d1b9b2d933dfd374341ffe0af4da419693c84db09a2aea88"
     ),
@@ -465,6 +509,9 @@ MINIMAL_FIXTURE_SHA256 = {
     ),
     "evaluation-result/v1": (
         "b6a1bdc98169a257ee81698689093a19e03adec623cb4b4cdbf797f4e58aa08f"
+    ),
+    "evaluation-envelope-closure-receipt/v1": (
+        "8172f2d98dccd6f3afb93fc162c245d63dfbaad623dc7dc0f719446d04066f83"
     ),
     "evaluation-run/v1": (
         "c73ef291b765868e9cb556cc5d63f3d3bb17a77f5de07aee270096954d24db7e"
@@ -524,6 +571,9 @@ MINIMAL_FIXTURE_SHA256 = {
 # (``*.json text eol=lf``); any byte-level edit of a frozen schema — even
 # pure reformatting — fails this pin.
 SCHEMA_TEXT_SHA256 = {
+    "artifact-record-v1.schema.json": (
+        "1acb72c52221a79bfa5ae514619a22b4bb46cbfcd2774496415c9d6f3d2a8f8f"
+    ),
     "artifact-closure-receipt-v1.schema.json": (
         "42a96a1118c57451de8a40031d545a012be64704fa66de3d7d8cc91ba217c5c9"
     ),
@@ -541,6 +591,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "evaluation-result-v1.schema.json": (
         "a4cdb9289a8cbaf7d1feaaadd8b7a8ab152e8e7c5dfe76608a4f8a3702b6843a"
+    ),
+    "evaluation-envelope-closure-receipt-v1.schema.json": (
+        "43346178e8ce1061f946a758756aa3529e283d80c45d3333c9c29f7fd810dd7d"
     ),
     "evaluation-run-v1.schema.json": (
         "f0ae7997dcbeb1a53e654fbd74b3aa2a9171221d7cca6832c7294564f7901b36"
@@ -678,17 +731,19 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_twenty_three_schemas(self) -> None:
+    def test_registry_loads_exactly_the_twenty_five_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
             (
                 "artifact-closure-receipt/v1",
+                "artifact-record/v1",
                 "candidate-manifest/v1",
                 "comparison-report/v1",
                 "context-bundle/v1",
                 "evaluation-attempt/v1",
                 "evaluation-case/v1",
+                "evaluation-envelope-closure-receipt/v1",
                 "evaluation-result/v1",
                 "evaluation-run/v1",
                 "export-decision/v1",
