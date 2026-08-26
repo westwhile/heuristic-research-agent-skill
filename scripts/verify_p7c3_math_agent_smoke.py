@@ -463,6 +463,10 @@ def _case_plan(
             {
                 "task": "Classify whether an unbounded production operation is in scope.",
                 "scope": "unbounded or production mathematical operation",
+                "response_contract": {
+                    "answer": "not_applicable",
+                    "route": "reject_candidate",
+                },
             }
         )
         answer = "not_applicable"
@@ -561,6 +565,9 @@ def _safe_trial_summary(outcome: Any) -> dict[str, Any]:
             else None,
             "run_sha256": canonical_sha256(pipeline.run_payload)
             if pipeline.run_payload is not None
+            else None,
+            "score_vector": [dict(entry) for entry in pipeline.result_payload["score_vector"]]
+            if pipeline.result_payload is not None
             else None,
             "output_sha256": observation.replay.output_sha256,
             "launcher_process_started": observation.launcher_process_started,

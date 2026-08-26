@@ -93,6 +93,9 @@ explicit-load × baseline/Candidate
 
 explicit case 要求 Candidate 读取 `SKILL.md` 并回报 exact digest；baseline 必须报告未加载。
 declared exclusion 两臂都必须报告未加载，即使 Candidate bytes 在候选工作区可用。
+由于该 negative-control 使用 deterministic exact-match scorer，公开 `case-input.json` 必须同时
+给出固定 `response_contract`（`answer=not_applicable`、`route=reject_candidate`）；不得要求
+Agent 猜测未声明的自由文本标签。
 
 这只验证 bounded runtime behavior；不测统计改善、隐式 Router、真实科研质量或外部采用。
 
@@ -108,6 +111,8 @@ declared exclusion 两臂都必须报告未加载，即使 Candidate bytes 在�
   `agent_turn_completed`；
 - wrapper 参数绑定失败仍保留 attempt 与 stderr hash，但计为零个真实 Agent session、零个完成
   turn，不得升级为 real-Agent smoke；
+- 清洗 evidence 可保留已验证 score vector 的 dimension/value/unit，用于定位 answer、route 或
+  runtime oracle 失败；不得保留回答文本或从 hash 反推回答；
 - 四次 Gate 只有在四个 session 均启动、四个 turn 均完成、session hash 互异且两项 runtime
   oracle 均通过时才可 PASS；
 - ephemeral session 与 independent fresh-session acceptance 是不同事实，后者保持 false。

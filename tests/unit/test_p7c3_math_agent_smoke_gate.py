@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 from typing import Any
@@ -26,6 +27,33 @@ def _load_script() -> Any:
 
 
 class P7C3MathAgentSmokeGateTest(unittest.TestCase):
+    def test_declared_exclusion_exposes_exact_public_response_contract(self) -> None:
+        module = _load_script()
+        generated_at = "2026-08-26T00:00:00Z"
+        manifest, bundle, payload, static, semantic, closure = module._build_candidate_chain(
+            model="fixture-model",
+            reasoning="fixture-reasoning",
+            generated_at=generated_at,
+        )
+
+        plan = module._case_plan(
+            case_kind="declared-exclusion",
+            generated_at=generated_at,
+            manifest=manifest,
+            bundle=bundle,
+            payload=payload,
+            static=static,
+            semantic=semantic,
+            envelope_closure=closure,
+            runner=("deterministic-agent-forward", "0.1.0"),
+        )
+
+        case_input = json.loads(plan.forward_test_plan.case_input)
+        self.assertEqual(
+            case_input["response_contract"],
+            {"answer": "not_applicable", "route": "reject_candidate"},
+        )
+
     def test_repository_authored_chain_runs_both_public_cases_without_model(self) -> None:
         module = _load_script()
         generated_at = "2026-08-26T00:00:00Z"
@@ -88,6 +116,58 @@ class P7C3MathAgentSmokeGateTest(unittest.TestCase):
                     self.assertIn("agent_turn_completed", summary["arms"][arm])
                     self.assertIn("stderr_sha256", summary["arms"][arm])
                 self.assertTrue(summary["workspace_cleaned"])
+
+    def test_safe_evidence_identifies_failed_score_dimension_without_raw_output(
+        self,
+    ) -> None:
+        module = _load_script()
+        generated_at = "2026-08-26T00:00:00Z"
+        manifest, bundle, payload, static, semantic, closure = module._build_candidate_chain(
+            model="fixture-model",
+            reasoning="fixture-reasoning",
+            generated_at=generated_at,
+        )
+        plan = module._case_plan(
+            case_kind="declared-exclusion",
+            generated_at=generated_at,
+            manifest=manifest,
+            bundle=bundle,
+            payload=payload,
+            static=static,
+            semantic=semantic,
+            envelope_closure=closure,
+            runner=("deterministic-agent-forward", "0.1.0"),
+        )
+        failed_output = canonical_bytes(
+            {
+                "answer": "semantically-related-but-not-the-frozen-label",
+                "route": "reject_candidate",
+                "skill_runtime": {
+                    "loaded": False,
+                    "name": None,
+                    "skill_md_sha256": None,
+                },
+            }
+        )
+        outcome = run_agent_skill_forward_trial(
+            plan,
+            DeterministicAgentForwardAdapter(
+                {"baseline": failed_output, "candidate": failed_output},
+                model="fixture-model",
+                reasoning_effort="fixture-reasoning",
+            ),
+        )
+
+        baseline = module._safe_trial_summary(outcome)["arms"]["baseline"]
+        self.assertEqual(
+            baseline["score_vector"],
+            [
+                {"dimension": "exact_match:answer", "value": 0.0},
+                {"dimension": "exact_match:route", "value": 1.0},
+                {"dimension": "exact_match:skill_runtime", "value": 1.0},
+            ],
+        )
+        self.assertNotIn("output", baseline)
 
     def test_hex_and_time_validation_fail_closed(self) -> None:
         module = _load_script()
