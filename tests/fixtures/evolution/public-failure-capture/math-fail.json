@@ -1,0 +1,14 @@
+{
+  "domain": "math",
+  "case_input": {"task": "Return the exact value of 37 squared.", "scope": "public integer arithmetic"},
+  "oracle": {"answer": 1369},
+  "baseline_output": {"answer": 1368},
+  "signature_summary": "Verify an exact integer result before finalizing.",
+  "lineage": {
+    "independence_group": "math-square-37",
+    "origin_run_id": "p7d1a-math-fail-run",
+    "dataset_lineage_id": "public-authored-math-square-37",
+    "task_template_id": "exact-integer-square",
+    "semantic_duplicate_group": "square-37"
+  }
+}

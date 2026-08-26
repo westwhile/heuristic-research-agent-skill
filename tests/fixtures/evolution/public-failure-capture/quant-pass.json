@@ -1,0 +1,14 @@
+{
+  "domain": "quant",
+  "case_input": {"task": "Return whether a feature timestamp after the trade timestamp is allowed.", "scope": "synthetic PIT rule"},
+  "oracle": {"answer": "not_allowed"},
+  "baseline_output": {"answer": "not_allowed"},
+  "signature_summary": "Reject a feature that is unavailable at the execution timestamp.",
+  "lineage": {
+    "independence_group": "quant-pit-rule-1",
+    "origin_run_id": "p7d1a-quant-pass-run",
+    "dataset_lineage_id": "synthetic-quant-pit-rule-1",
+    "task_template_id": "point-in-time-availability",
+    "semantic_duplicate_group": "pit-after-trade"
+  }
+}
