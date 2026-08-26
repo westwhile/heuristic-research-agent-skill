@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-08-26",
-  "phase": "phase7-p7c2-public-forward-suite-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_and_p7c2_synthetic_public_forward_suite_engineering_zero_accepted_external_submissions_zero_real_independent_reviews_zero_real_agent_executions_zero_hidden_evaluations_zero_promotions",
+  "phase": "phase7-p7c3-single-operator-real-agent-math-smoke-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_and_p7c3_single_operator_real_agent_math_smoke_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -108,6 +108,11 @@
       "name": "run_skill_forward_suite",
       "version": "evaluation-attempt/v1 + evaluation-result/v1 + evaluation-run/v1 + suite-comparison/v1",
       "status": "implemented_mainline_complete_synthetic_case_seed_grid_only"
+    },
+    {
+      "name": "run_agent_skill_forward_trial",
+      "version": "evaluation-attempt/v1 + evaluation-result/v1 + evaluation-run/v1",
+      "status": "implemented_mainline_single_operator_public_math_smoke_only"
     }
   ],
   "ci_lanes": {
@@ -789,7 +794,7 @@
         "scope": "Closes deterministic all-CJK and tokenless false similarity with Unicode terms, CJK 2-4 grams, and empty abstention; it does not establish semantic retrieval quality, negative-transfer safety, or promotion validity."
       }
     },
-    "last_commit_bound_correctness_reset_cr4_cr8_and_phase7_p7b1_p7c2_evidence": {
+    "last_commit_bound_correctness_reset_cr4_cr8_and_phase7_p7b1_p7c3_evidence": {
       "cr4": {
         "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/39",
         "pr_head_commit": "81f943aff4d58a1d721fdb22ede9cc6969bac854",
@@ -1002,6 +1007,39 @@
         "four_matrix_jobs": "success",
         "windows_governance_jobs": "success",
         "scope": "Adds one fail-closed public synthetic suite orchestrator over the existing P7C1 interface and adapters. It preflights the complete case-by-seed grid, preregisters primary and guardrail metrics, freezes a worst-case retry budget, preserves all failed attempts, and assembles the existing suite comparison only for a complete result/run grid. It is not real Agent execution, hidden evaluation, Candidate materialization, fresh-session independence, publication, installation, activation, or promotion."
+      },
+      "p7c3": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/55",
+        "pr_head_commit": "59eb2e231e1b4fc9bbc2d33c37fc0897909cc4b2",
+        "main_merge_commit": "247c4d21423f3393e36ddc20a3f941f19c509745",
+        "shared_tree": "282f9f1b5b0168d95fcffdd854d5433cabc35717",
+        "archive_sha256": "e79a9381484fbab7d4469c9b1fe8e644eff4985211c0e6a1783db4680b8e12db",
+        "archive_tests_per_interpreter": 1139,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "branch_coverage_percent": 81,
+        "mypy_source_files": 36,
+        "cuda_stable_projection_sha256": "73d43ab090633f90243f90650c7990a1cd7073af77c55cec10a3244a0052cf3f",
+        "cuda_receipt_output_written": false,
+        "agent_smoke_model": "gpt-5.6-sol",
+        "agent_smoke_reasoning_effort": "xhigh",
+        "agent_smoke_launcher_processes": 4,
+        "agent_smoke_sessions_started": 4,
+        "agent_smoke_completed_turns": 4,
+        "agent_smoke_distinct_ephemeral_session_hashes": 4,
+        "agent_smoke_canonical_sha256": "444e5ea7ff0bcd2ae2782e3d63a81b081a64163b22e3da19057c8bc1cd23b7d9",
+        "agent_smoke_evidence_file_sha256": "1aee5329917f926cc81c00ef1e53d17eaa9885485d1bad38e6ef5a5e5b6dc088",
+        "agent_smoke_result": "success",
+        "raw_session_transcript_output_persisted": false,
+        "candidate_installed": false,
+        "candidate_activated": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32969508625",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32969940539",
+        "main_ci_head_sha": "247c4d21423f3393e36ddc20a3f941f19c509745",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Runs four fresh ephemeral Codex sessions over two public Math cases from one exact archive, with Candidate bytes projected only into repository-external temporary workspaces and runtime-load oracles checked for explicit-load and declared-exclusion behavior. This single-operator provider-unseeded smoke is not independent fresh-session acceptance, statistical Candidate improvement, hidden evaluation, installation, activation, publication, or promotion."
       }
     }
   },
@@ -1079,7 +1117,8 @@
       "P7B3 rebinds exact synthetic candidate bytes and records static metadata, trigger, exact collision, declared Router-example, and descriptor-diff outcomes without executing an Agent or Router",
       "P7B4 binds exact Candidate, P7B3 receipt, synthetic review evidence bytes, reviewer declarations, and seven semantic dimensions while fixing every real-independent-review and later-lifecycle claim to false",
       "P7C1 runs deterministic synthetic baseline/candidate observations through one seam, binds the exact Skill-only axis plus frozen public evaluation artifacts, and records failures through mandatory attempts without claiming a real Agent, secure sandbox, fresh session, or promotion",
-      "P7C2 preflights and executes a complete synthetic case-by-seed grid through the existing P7C1 seam, preserves every failed attempt, and creates an existing suite comparison only when every cell has result/run records"
+      "P7C2 preflights and executes a complete synthetic case-by-seed grid through the existing P7C1 seam, preserves every failed attempt, and creates an existing suite comparison only when every cell has result/run records",
+      "P7C3 recorded four distinct ephemeral Codex sessions and completed turns across explicit-load and declared-exclusion public Math cases, verified Candidate runtime name/digest oracles without exposing them to prompts, and cleaned all temporary workspaces"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -1091,7 +1130,7 @@
       "involuntary scheduler preemption and scheduler-managed process restart",
       "external checkpoint-store durability or authorization",
       "wall-clock, monetary cost, energy, or production reliability",
-      "any non-synthetic real Skill candidate payload, real Codex or model execution, real independent semantic review, real fresh-session forward test, private evaluation, Skill installation, activation, or publication"
+      "any non-synthetic real Skill candidate payload, real independent semantic review, independent fresh-session forward acceptance, private evaluation, Skill installation, activation, or publication"
     ]
   },
   "boundaries": [
@@ -1108,11 +1147,12 @@
     "P7B4 is P7B4_SEMANTIC_REVIEW_PROTOCOL_READY / ZERO_REAL_INDEPENDENT_REVIEWS / ZERO_REAL_SKILL_EXECUTIONS / ZERO_PROMOTIONS; synthetic protocol_accept/protocol_reject fixtures and distinct reviewer/session strings do not establish real reviewer identity, context isolation, Candidate quality, or later lifecycle authority.",
     "P7C1 is P7C1_EXECUTION_SEAM_READY / ZERO_REAL_AGENT_EXECUTIONS / ZERO_REAL_INDEPENDENT_REVIEWS / ZERO_PROMOTIONS; deterministic synthetic adapter observations do not establish real Codex/model behavior, a secure sandbox, fresh-session independence, Candidate improvement, or later lifecycle authority.",
     "P7C2 is P7C2_PUBLIC_FORWARD_SUITE_READY / ZERO_REAL_AGENT_EXECUTIONS / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; a complete synthetic case-by-seed grid and public suite comparison do not establish real Candidate execution, independent fresh-session behavior, hidden-suite independence, Candidate improvement, or lifecycle authority.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7C2 did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7C3 is P7C3_REAL_AGENT_SMOKE_RECORDED / ZERO_INDEPENDENT_FORWARD_ACCEPTANCES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; four successful ephemeral Codex turns on two public Math cases from one operator do not establish independent acceptance, statistical improvement, hidden-suite independence, research validity, external adoption, or lifecycle authority.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7C3 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
-    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam and P7C2 adds complete public synthetic suite orchestration, but none proves real semantic review, real Agent execution, fresh-session independence, hidden evaluation, or promotion authority.",
+    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam, P7C2 adds complete public synthetic suite orchestration, and P7C3 adds one bounded real-Agent public Math smoke, but none proves real independent semantic review, independent fresh-session acceptance, hidden evaluation, Candidate improvement, or promotion authority.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
