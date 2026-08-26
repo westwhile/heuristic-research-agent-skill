@@ -32,6 +32,14 @@ from .skill_candidate import (
     SkillCandidateBundleError,
     draft_skill_candidate_bundle,
 )
+from .skill_forward_suite import (
+    ForwardSuiteCase,
+    ForwardSuiteCellOutcome,
+    SkillForwardSuiteError,
+    SkillForwardSuiteOutcome,
+    SkillForwardSuitePlan,
+    run_skill_forward_suite,
+)
 from .skill_forward_test import (
     ConstrainedLocalProcessAdapter,
     DeterministicInProcessAdapter,
@@ -87,7 +95,13 @@ __all__ = [
     "DeterministicInProcessAdapter",
     "draft_skill_candidate_bundle",
     "ForwardTestRequest",
+    "ForwardSuiteCase",
+    "ForwardSuiteCellOutcome",
     "prepare_context",
+    "run_skill_forward_suite",
     "run_skill_forward_test",
+    "SkillForwardSuiteError",
+    "SkillForwardSuiteOutcome",
+    "SkillForwardSuitePlan",
     "validate_skill_candidate",
 ]
