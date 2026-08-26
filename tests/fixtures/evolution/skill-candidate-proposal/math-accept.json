@@ -1,0 +1,27 @@
+{
+  "description": "Guide bounded public mathematics recovery after deterministic proof-check failures.",
+  "positive_triggers": ["A public mathematics response failed a deterministic proof or answer check."],
+  "exclusions": ["The task requires private data, hidden evaluation, or unsupervised installation."],
+  "skill_md": "---\nname: public-math-recovery\ndescription: Guide bounded public mathematics recovery after deterministic proof-check failures.\n---\n\n# Public mathematics recovery\n\nRead the frozen public cases and shared Pattern. Reconstruct the failed obligation, check the proposed derivation deterministically, and stop if the evidence does not close.\n",
+  "agent_metadata_yaml": "interface:\n  display_name: \"Public Math Recovery\"\n  short_description: \"Recover bounded public math failures\"\n  default_prompt: \"Use $public-math-recovery to inspect this public math failure.\"\npolicy:\n  allow_implicit_invocation: false\n",
+  "criterion_evidence": {
+    "clear_exclusions": "The payload excludes private, hidden, installation, and activation work.",
+    "clear_positive_triggers": "The trigger is a deterministic public mathematics failure.",
+    "explicit_failure_pause_boundaries": "The procedure stops when deterministic evidence does not close.",
+    "measurable_gain_plan": "The frozen public forward plan compares exact deterministic case outcomes.",
+    "portable_resources": "The payload contains only UTF-8 Markdown and YAML.",
+    "stable_input_contract": "Inputs are hash-pinned public cases and one shared Pattern.",
+    "stable_output_contract": "Output is a bounded derivation with an explicit deterministic check."
+  },
+  "criterion_rationales": {
+    "clear_exclusions": "The exclusions are explicit in the trigger contract.",
+    "clear_positive_triggers": "The positive trigger names the observed failure class.",
+    "explicit_failure_pause_boundaries": "The instructions contain a mandatory evidence stop.",
+    "measurable_gain_plan": "A frozen case-level forward test is already declared.",
+    "portable_resources": "No binary, dependency, or machine-local resource is proposed.",
+    "stable_input_contract": "Every source input is canonical and hash-pinned.",
+    "stable_output_contract": "The required response and checker boundary are stated."
+  },
+  "rollback_plan": "Retain the immutable no-Skill baseline and discard this Candidate if any later gate fails.",
+  "retirement_plan": "Retire only through a separately reviewed successor after fresh-session evidence."
+}

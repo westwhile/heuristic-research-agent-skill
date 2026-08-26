@@ -1,0 +1,10 @@
+{
+  "description": "Incomplete mathematics proposal fixture.",
+  "positive_triggers": ["A public mathematics response failed."],
+  "exclusions": ["Private tasks."],
+  "skill_md": "---\nname: public-math-recovery\ndescription: Incomplete mathematics proposal fixture.\n---\n",
+  "agent_metadata_yaml": "interface:\n  display_name: \"Incomplete\"\n  short_description: \"Incomplete public math proposal\"\n  default_prompt: \"Use $public-math-recovery for this task.\"\npolicy:\n  allow_implicit_invocation: false\n",
+  "criterion_evidence": {},
+  "criterion_rationales": {},
+  "rollback_plan": "Retain the baseline."
+}
