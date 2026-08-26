@@ -92,12 +92,15 @@ class AgentExecutionObservation:
     """Sanitized process facts plus the existing replay observation."""
 
     replay: ReplayResult
-    process_started: bool
+    launcher_process_started: bool
+    agent_session_started: bool
+    agent_turn_completed: bool
     session_id: str | None
     runtime_loaded: bool
     observed_skill_name: str | None
     observed_skill_sha256: str | None
     transcript_sha256: str | None
+    stderr_sha256: str | None
     usage: dict[str, int]
 
 
@@ -246,7 +249,17 @@ class DeterministicAgentForwardAdapter:
                 1,
             )
             return AgentExecutionObservation(
-                replay, False, None, False, None, None, None, {}
+                replay=replay,
+                launcher_process_started=False,
+                agent_session_started=False,
+                agent_turn_completed=False,
+                session_id=None,
+                runtime_loaded=False,
+                observed_skill_name=None,
+                observed_skill_sha256=None,
+                transcript_sha256=None,
+                stderr_sha256=None,
+                usage={},
             )
         output = self._outputs[request.arm]
         if len(output) > envelope.max_output_bytes:
@@ -280,17 +293,18 @@ class DeterministicAgentForwardAdapter:
                     1,
                 )
         loaded, name, digest = _runtime_fields(replay.output_bytes)
-        transcript = canonical_bytes(
-            {"arm": request.arm, "output_sha256": replay.output_sha256}
-        )
+        transcript = canonical_bytes({"arm": request.arm, "output_sha256": replay.output_sha256})
         return AgentExecutionObservation(
             replay=replay,
-            process_started=False,
+            launcher_process_started=False,
+            agent_session_started=True,
+            agent_turn_completed=True,
             session_id=f"simulated-{request.trial_id}-{request.arm}",
             runtime_loaded=loaded,
             observed_skill_name=name,
             observed_skill_sha256=digest,
             transcript_sha256=hashlib.sha256(transcript).hexdigest(),
+            stderr_sha256=None,
             usage={},
         )
 
@@ -310,11 +324,39 @@ def _filtered_codex_environment() -> dict[str, str]:
         "USERPROFILE",
         "WINDIR",
     }
-    return {
-        key: value
-        for key, value in os.environ.items()
-        if key.upper() in allowed and value
-    }
+    return {key: value for key, value in os.environ.items() if key.upper() in allowed and value}
+
+
+def _trace_facts(trace: bytes) -> tuple[str | None, bool, dict[str, int]]:
+    """Extract only session/turn/usage facts from bounded Codex JSONL."""
+
+    session_id: str | None = None
+    turn_completed = False
+    usage: dict[str, int] = {}
+    for raw_line in trace.splitlines():
+        try:
+            event = json.loads(raw_line)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        thread_id = event.get("thread_id")
+        if event.get("type") == "thread.started" and isinstance(thread_id, str):
+            stripped = thread_id.strip()
+            session_id = stripped or None
+        if event.get("type") == "turn.completed":
+            turn_completed = True
+            raw_usage = event.get("usage")
+            if isinstance(raw_usage, dict):
+                usage = {
+                    key: value
+                    for key, value in raw_usage.items()
+                    if isinstance(key, str)
+                    and isinstance(value, int)
+                    and not isinstance(value, bool)
+                    and value >= 0
+                }
+    if session_id is None:
+        return None, False, {}
+    return session_id, turn_completed, usage
 
 
 class CodexCliAgentAdapter:
@@ -397,15 +439,15 @@ class CodexCliAgentAdapter:
             str(request.final_output_path),
             "--cd",
             str(request.workspace),
-            "-c",
+            "--config",
             'approval_policy="never"',
-            "-c",
+            "--config",
             'web_search="disabled"',
-            "-c",
+            "--config",
             f'model_reasoning_effort="{reasoning}"',
-            "-c",
+            "--config",
             'shell_environment_policy.inherit="core"',
-            "-c",
+            "--config",
             "shell_environment_policy.ignore_default_excludes=false",
             "-",
         ]
@@ -425,6 +467,8 @@ class CodexCliAgentAdapter:
             )
         except subprocess.TimeoutExpired as exc:
             trace = exc.stdout if isinstance(exc.stdout, bytes) else b""
+            stderr = exc.stderr if isinstance(exc.stderr, bytes) else b""
+            session_id, turn_completed, usage = _trace_facts(trace)
             return AgentExecutionObservation(
                 replay=ReplayResult(
                     False,
@@ -434,13 +478,16 @@ class CodexCliAgentAdapter:
                     "Codex CLI exceeded the frozen timeout",
                     1,
                 ),
-                process_started=True,
-                session_id=None,
+                launcher_process_started=True,
+                agent_session_started=session_id is not None,
+                agent_turn_completed=turn_completed,
+                session_id=session_id,
                 runtime_loaded=False,
                 observed_skill_name=None,
                 observed_skill_sha256=None,
                 transcript_sha256=hashlib.sha256(trace).hexdigest() if trace else None,
-                usage={},
+                stderr_sha256=hashlib.sha256(stderr).hexdigest() if stderr else None,
+                usage=usage,
             )
         except OSError:
             return AgentExecutionObservation(
@@ -452,17 +499,22 @@ class CodexCliAgentAdapter:
                     "Codex CLI process could not be started",
                     1,
                 ),
-                process_started=False,
+                launcher_process_started=False,
+                agent_session_started=False,
+                agent_turn_completed=False,
                 session_id=None,
                 runtime_loaded=False,
                 observed_skill_name=None,
                 observed_skill_sha256=None,
                 transcript_sha256=None,
+                stderr_sha256=None,
                 usage={},
             )
 
         trace = completed.stdout
+        stderr = completed.stderr if isinstance(completed.stderr, bytes) else b""
         trace_sha = hashlib.sha256(trace).hexdigest()
+        stderr_sha = hashlib.sha256(stderr).hexdigest()
         if len(trace) > self._trace_max_bytes:
             replay = ReplayResult(
                 False,
@@ -473,30 +525,19 @@ class CodexCliAgentAdapter:
                 1,
             )
             return AgentExecutionObservation(
-                replay, True, None, False, None, None, trace_sha, {}
+                replay=replay,
+                launcher_process_started=True,
+                agent_session_started=False,
+                agent_turn_completed=False,
+                session_id=None,
+                runtime_loaded=False,
+                observed_skill_name=None,
+                observed_skill_sha256=None,
+                transcript_sha256=trace_sha,
+                stderr_sha256=stderr_sha,
+                usage={},
             )
-        session_id: str | None = None
-        usage: dict[str, int] = {}
-        for raw_line in trace.splitlines():
-            try:
-                event = json.loads(raw_line)
-            except (UnicodeDecodeError, json.JSONDecodeError):
-                continue
-            if event.get("type") == "thread.started" and isinstance(
-                event.get("thread_id"), str
-            ):
-                session_id = event["thread_id"]
-            if event.get("type") == "turn.completed" and isinstance(
-                event.get("usage"), dict
-            ):
-                usage = {
-                    key: value
-                    for key, value in event["usage"].items()
-                    if isinstance(key, str)
-                    and isinstance(value, int)
-                    and not isinstance(value, bool)
-                    and value >= 0
-                }
+        session_id, turn_completed, usage = _trace_facts(trace)
         if completed.returncode != 0:
             replay = ReplayResult(
                 False,
@@ -550,12 +591,15 @@ class CodexCliAgentAdapter:
         loaded, name, digest = _runtime_fields(replay.output_bytes)
         return AgentExecutionObservation(
             replay=replay,
-            process_started=True,
+            launcher_process_started=True,
+            agent_session_started=session_id is not None,
+            agent_turn_completed=turn_completed,
             session_id=session_id,
             runtime_loaded=loaded,
             observed_skill_name=name,
             observed_skill_sha256=digest,
             transcript_sha256=trace_sha,
+            stderr_sha256=stderr_sha,
             usage=usage,
         )
 
@@ -705,12 +749,15 @@ def _normalize_observation(value: Any) -> AgentExecutionObservation:
                 "Agent executor returned an invalid observation",
                 1,
             ),
-            process_started=False,
+            launcher_process_started=False,
+            agent_session_started=False,
+            agent_turn_completed=False,
             session_id=None,
             runtime_loaded=False,
             observed_skill_name=None,
             observed_skill_sha256=None,
             transcript_sha256=None,
+            stderr_sha256=None,
             usage={},
         )
     replay = value.replay
@@ -718,13 +765,25 @@ def _normalize_observation(value: Any) -> AgentExecutionObservation:
         raise AgentForwardTrialError("Agent observation replay has the wrong type")
     if value.session_id is not None and not value.session_id.strip():
         raise AgentForwardTrialError("Agent session id must be non-empty when present")
-    if value.transcript_sha256 is not None and _HEX_64.fullmatch(
-        value.transcript_sha256
-    ) is None:
+    for name in (
+        "launcher_process_started",
+        "agent_session_started",
+        "agent_turn_completed",
+    ):
+        if not isinstance(getattr(value, name), bool):
+            raise AgentForwardTrialError(f"Agent {name} fact must be boolean")
+    if value.agent_session_started != (value.session_id is not None):
+        raise AgentForwardTrialError("Agent session fact and session id disagree")
+    if value.agent_turn_completed and not value.agent_session_started:
+        raise AgentForwardTrialError("Agent turn completion requires a started session")
+    if value.transcript_sha256 is not None and _HEX_64.fullmatch(value.transcript_sha256) is None:
         raise AgentForwardTrialError("Agent transcript hash is invalid")
-    if value.observed_skill_sha256 is not None and _HEX_64.fullmatch(
-        value.observed_skill_sha256
-    ) is None:
+    if value.stderr_sha256 is not None and _HEX_64.fullmatch(value.stderr_sha256) is None:
+        raise AgentForwardTrialError("Agent stderr hash is invalid")
+    if (
+        value.observed_skill_sha256 is not None
+        and _HEX_64.fullmatch(value.observed_skill_sha256) is None
+    ):
         raise AgentForwardTrialError("observed Skill hash is invalid")
     if any(
         not isinstance(key, str)
@@ -754,12 +813,15 @@ def _execute_once(
                 f"Agent executor raised {type(exc).__name__}; message suppressed",
                 1,
             ),
-            process_started=False,
+            launcher_process_started=False,
+            agent_session_started=False,
+            agent_turn_completed=False,
             session_id=None,
             runtime_loaded=False,
             observed_skill_name=None,
             observed_skill_sha256=None,
             transcript_sha256=None,
+            stderr_sha256=None,
             usage={},
         )
     return _normalize_observation(value)
@@ -780,9 +842,7 @@ def _runtime_expectation(
     }
 
 
-def _matches_runtime(
-    observation: AgentExecutionObservation, expected: Mapping[str, Any]
-) -> bool:
+def _matches_runtime(observation: AgentExecutionObservation, expected: Mapping[str, Any]) -> bool:
     return (
         observation.runtime_loaded is expected["loaded"]
         and observation.observed_skill_name == expected["name"]
@@ -814,8 +874,8 @@ def run_agent_skill_forward_trial(
 
     policy = _validate_execution_policy(executor, plan.reasoning_effort)
     try:
-        manifest, bundle, static, semantic, closure, identity, base_axes = (
-            _preflight_with_identity(plan.forward_test_plan, executor.identity)
+        manifest, bundle, static, semantic, closure, identity, base_axes = _preflight_with_identity(
+            plan.forward_test_plan, executor.identity
         )
     except SkillForwardTestError as exc:
         raise AgentForwardTrialError(str(exc)) from exc
@@ -869,9 +929,7 @@ def run_agent_skill_forward_trial(
                 candidate_bundle_sha256=bundle.sha256,
                 axes_sha256=axes_sha,
             )
-            observations[arm] = _execute_once(
-                executor, request, plan.forward_test_plan.envelope
-            )
+            observations[arm] = _execute_once(executor, request, plan.forward_test_plan.envelope)
     finally:
         workspace_cleaned = _safe_cleanup(temp_root)
 
@@ -911,7 +969,9 @@ def run_agent_skill_forward_trial(
             "candidate_activated": False,
             "runtime_loaded": observation.runtime_loaded,
             "runtime_expectation_verified": runtime_matches[arm],
-            "fresh_process_observed": observation.process_started,
+            "launcher_process_started": observation.launcher_process_started,
+            "agent_session_started": observation.agent_session_started,
+            "agent_turn_completed": observation.agent_turn_completed,
             "ephemeral_session": policy["ephemeral"],
             "sandbox": policy["sandbox"],
             "approval_policy": policy["approval_policy"],
@@ -919,14 +979,21 @@ def run_agent_skill_forward_trial(
             "workspace_cleaned": workspace_cleaned,
             "fresh_session_validated": False,
             "independent_review_claimed": False,
-            "real_agent_execution_claimed": executor.evidence_class
-            == _REAL_EVIDENCE_CLASS,
+            "real_agent_session_claimed": (
+                executor.evidence_class == _REAL_EVIDENCE_CLASS
+                and observation.agent_session_started
+            ),
+            "real_agent_turn_completed_claimed": (
+                executor.evidence_class == _REAL_EVIDENCE_CLASS and observation.agent_turn_completed
+            ),
             "usage": observation.usage,
         }
         if session_sha is not None:
             environment["session_id_sha256"] = session_sha
         if observation.transcript_sha256 is not None:
             environment["transcript_sha256"] = observation.transcript_sha256
+        if observation.stderr_sha256 is not None:
+            environment["stderr_sha256"] = observation.stderr_sha256
         if observation.observed_skill_sha256 is not None:
             environment["observed_skill_sha256"] = observation.observed_skill_sha256
         candidate_ref = (
@@ -963,17 +1030,26 @@ def run_agent_skill_forward_trial(
             blockers.append(f"{arm}_result_missing")
         elif outcomes[arm].verdict != "pass":
             blockers.append(f"{arm}_verdict_{outcomes[arm].verdict}")
+    real_executor = executor.evidence_class == _REAL_EVIDENCE_CLASS
+    if real_executor:
+        for arm in _ARMS:
+            observation = observations[arm]
+            if not observation.agent_session_started:
+                blockers.append(f"{arm}_agent_session_missing")
+            elif not observation.agent_turn_completed:
+                blockers.append(f"{arm}_agent_turn_incomplete")
     session_ids = [observations[arm].session_id for arm in _ARMS]
-    real_observed = executor.evidence_class == _REAL_EVIDENCE_CLASS and all(
-        observations[arm].process_started for arm in _ARMS
+    real_sessions_observed = real_executor and all(
+        observations[arm].agent_session_started for arm in _ARMS
     )
-    fresh_process_pair = (
-        real_observed
-        and all(session_ids)
-        and len(set(session_ids)) == len(session_ids)
+    real_turns_completed = real_executor and all(
+        observations[arm].agent_turn_completed for arm in _ARMS
     )
-    if real_observed and not fresh_process_pair:
-        blockers.append("fresh_process_session_ids_not_distinct")
+    distinct_session_pair = (
+        real_sessions_observed and all(session_ids) and len(set(session_ids)) == len(session_ids)
+    )
+    if real_sessions_observed and not distinct_session_pair:
+        blockers.append("agent_session_ids_not_distinct")
     status = "smoke_completed"
     if blockers:
         status = (
@@ -986,8 +1062,9 @@ def run_agent_skill_forward_trial(
         "workspace_cleanup_verified": workspace_cleaned,
         "runtime_expectation_verified": all(runtime_matches.values()),
         "candidate_runtime_loaded": observations["candidate"].runtime_loaded,
-        "real_agent_execution_observed": real_observed,
-        "distinct_ephemeral_processes_observed": bool(fresh_process_pair),
+        "real_agent_session_observed": real_sessions_observed,
+        "real_agent_turn_completed": real_turns_completed,
+        "distinct_ephemeral_sessions_observed": bool(distinct_session_pair),
         "real_independent_semantic_review_completed": False,
         "fresh_session_validated": False,
         "hidden_evaluation_completed": False,

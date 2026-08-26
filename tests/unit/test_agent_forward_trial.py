@@ -13,8 +13,9 @@ from typing import Any
 from unittest.mock import patch
 
 from research_evolution.core import canonical_bytes
-from research_evolution.evaluation import Envelope, GateConfig
+from research_evolution.evaluation import Envelope, GateConfig, ReplayResult
 from research_evolution.evolution import (
+    AgentExecutionObservation,
     AgentForwardExecutionRequest,
     AgentForwardTrialError,
     AgentForwardTrialPlan,
@@ -81,9 +82,7 @@ def _trial_plan(
 def _outputs(plan: AgentForwardTrialPlan, *, candidate_loaded: bool) -> dict[str, bytes]:
     bundle = plan.forward_test_plan.candidate_bundle
     skill_name = bundle.payload["skill"]["name"]
-    digest = hashlib.sha256(
-        plan.forward_test_plan.candidate_payload["SKILL.md"]
-    ).hexdigest()
+    digest = hashlib.sha256(plan.forward_test_plan.candidate_payload["SKILL.md"]).hexdigest()
     return {
         "baseline": canonical_bytes(
             {
@@ -130,7 +129,8 @@ class AgentForwardTrialTest(unittest.TestCase):
             snapshots["candidate"],
         )
         self.assertTrue(all(not request.workspace.exists() for request in adapter.requests))
-        self.assertFalse(outcome.claims["real_agent_execution_observed"])
+        self.assertFalse(outcome.claims["real_agent_session_observed"])
+        self.assertFalse(outcome.claims["real_agent_turn_completed"])
         self.assertTrue(outcome.claims["runtime_expectation_verified"])
         self.assertTrue(outcome.claims["candidate_runtime_loaded"])
         self.assertFalse(outcome.claims["fresh_session_validated"])
@@ -150,9 +150,7 @@ class AgentForwardTrialTest(unittest.TestCase):
         self.assertFalse(outcome.claims["candidate_runtime_loaded"])
         self.assertTrue(outcome.claims["runtime_expectation_verified"])
         self.assertTrue(
-            outcome.candidate.attempt_payload["environment"][
-                "candidate_payload_materialized"
-            ]
+            outcome.candidate.attempt_payload["environment"]["candidate_payload_materialized"]
         )
 
     def test_runtime_mismatch_is_scored_and_rejected_without_hiding_output(self) -> None:
@@ -170,9 +168,7 @@ class AgentForwardTrialTest(unittest.TestCase):
         self.assertEqual(outcome.candidate.verdict, "fail")
         self.assertIsNotNone(outcome.candidate.result_payload)
         self.assertFalse(
-            outcome.candidate.attempt_payload["environment"][
-                "runtime_expectation_verified"
-            ]
+            outcome.candidate.attempt_payload["environment"]["runtime_expectation_verified"]
         )
 
     def test_failed_agent_attempt_remains_and_result_is_optional(self) -> None:
@@ -197,9 +193,7 @@ class AgentForwardTrialTest(unittest.TestCase):
 
     def test_seed_retry_restricted_prompt_and_axis_drift_fail_before_execution(self) -> None:
         cases: list[tuple[AgentForwardTrialPlan, str]] = []
-        seeded = _trial_plan(
-            envelope=Envelope(timeout_ms=2_000, max_output_bytes=1 << 20, seed=7)
-        )
+        seeded = _trial_plan(envelope=Envelope(timeout_ms=2_000, max_output_bytes=1 << 20, seed=7))
         cases.append((seeded, "provider seed"))
         retried = _trial_plan(
             envelope=Envelope(
@@ -318,9 +312,12 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
                 "CODEX_API_KEY": "not-forwarded",
                 "SECRET_THING": "not-forwarded",
             }
-            with patch.dict(os.environ, secret_env, clear=False), patch(
-                "research_evolution.evolution.agent_forward_trial.subprocess.run",
-                side_effect=fake_run,
+            with (
+                patch.dict(os.environ, secret_env, clear=False),
+                patch(
+                    "research_evolution.evolution.agent_forward_trial.subprocess.run",
+                    side_effect=fake_run,
+                ),
             ):
                 observed = adapter.execute(
                     request,
@@ -332,17 +329,92 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
         self.assertIn("--ignore-user-config", command)
         self.assertIn("--ignore-rules", command)
         self.assertIn("read-only", command)
+        self.assertEqual(command.count("--config"), 5)
+        self.assertNotIn("-c", command)
         self.assertIn('approval_policy="never"', command)
         self.assertIn('web_search="disabled"', command)
         self.assertNotIn("danger-full-access", command)
         self.assertNotIn("--dangerously-bypass-approvals-and-sandbox", command)
         forwarded = {key.upper() for key in captured["kwargs"]["env"]}
         self.assertTrue(forwarded.isdisjoint(secret_env))
+        self.assertTrue(observed.launcher_process_started)
+        self.assertTrue(observed.agent_session_started)
+        self.assertTrue(observed.agent_turn_completed)
         self.assertEqual(observed.session_id, "fresh-session-1")
         self.assertTrue(observed.runtime_loaded)
         self.assertEqual(observed.observed_skill_sha256, "a" * 64)
         self.assertEqual(observed.usage, {"input_tokens": 12, "output_tokens": 8})
+        self.assertEqual(
+            observed.stderr_sha256,
+            hashlib.sha256(b"private stderr").hexdigest(),
+        )
         self.assertNotIn("private stderr", str(observed))
+
+    def test_launcher_failure_is_not_claimed_as_real_agent_execution(self) -> None:
+        plan = _trial_plan(
+            expected_loaded=True,
+            adapter_tool="codex-cli-agent-forward",
+            adapter_version="0.146.0",
+        )
+        failure = b"Cannot bind parameter because CodexArgs is specified more than once"
+
+        class LauncherFailureAdapter:
+            evidence_class = "real_codex_cli"
+            identity = {
+                "tool": "codex-cli-agent-forward",
+                "version": "0.146.0",
+                "model": "fixture-model",
+            }
+            execution_policy = {
+                "reasoning_effort": "fixture-reasoning",
+                "sandbox": "read-only",
+                "approval_policy": "never",
+                "ephemeral": True,
+                "web_search": "disabled",
+                "trace_max_bytes": 4 << 20,
+            }
+
+            def execute(
+                self,
+                request: AgentForwardExecutionRequest,
+                envelope: Envelope,
+            ) -> AgentExecutionObservation:
+                del request, envelope
+                return AgentExecutionObservation(
+                    replay=ReplayResult(
+                        False,
+                        None,
+                        None,
+                        "runner_error",
+                        "Codex CLI exited with code 1",
+                        1,
+                    ),
+                    launcher_process_started=True,
+                    agent_session_started=False,
+                    agent_turn_completed=False,
+                    session_id=None,
+                    runtime_loaded=False,
+                    observed_skill_name=None,
+                    observed_skill_sha256=None,
+                    transcript_sha256=None,
+                    stderr_sha256=hashlib.sha256(failure).hexdigest(),
+                    usage={},
+                )
+
+        outcome = run_agent_skill_forward_trial(plan, LauncherFailureAdapter())
+
+        self.assertEqual(outcome.status, "smoke_inconclusive")
+        self.assertFalse(outcome.claims["real_agent_session_observed"])
+        self.assertFalse(outcome.claims["real_agent_turn_completed"])
+        self.assertFalse(outcome.claims["distinct_ephemeral_sessions_observed"])
+        for arm in ("baseline", "candidate"):
+            observation = outcome.observations[arm]
+            self.assertTrue(observation.launcher_process_started)
+            self.assertFalse(observation.agent_session_started)
+            self.assertFalse(observation.agent_turn_completed)
+            self.assertEqual(observation.stderr_sha256, hashlib.sha256(failure).hexdigest())
+            self.assertNotIn(failure.decode("ascii"), str(observation))
+            self.assertIn(f"{arm}_agent_session_missing", outcome.blockers)
 
 
 if __name__ == "__main__":

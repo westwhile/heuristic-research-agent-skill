@@ -94,9 +94,7 @@ def _candidate_manifest(
     members = {
         "members/baseline.bin": b"baseline:no-candidate-skill",
         "members/patch.bin": b"patch:add-p7c3-math-forward-probe",
-        "members/tests.json": canonical_bytes(
-            {"cases": ["explicit-load", "declared-exclusion"]}
-        ),
+        "members/tests.json": canonical_bytes({"cases": ["explicit-load", "declared-exclusion"]}),
     }
     source_cases = [
         {"case_id": "p7c3-source-math-a", "sha256": _sha("case:p7c3-source-math-a")},
@@ -218,9 +216,7 @@ def _candidate_manifest(
     return manifest, members
 
 
-def _artifact(
-    role: str, content: bytes, *, generated_at: str
-) -> dict[str, Any]:
+def _artifact(role: str, content: bytes, *, generated_at: str) -> dict[str, Any]:
     return {
         "schema": "artifact-record/v1",
         "artifact_id": f"artifact-p7c3-{role}",
@@ -270,8 +266,7 @@ def _build_candidate_chain(
         for criterion in _CRITERIA
     ]
     eligibility_evidence = {
-        row["evidence_name"]: f"p7c3-math:{row['criterion']}".encode()
-        for row in criteria
+        row["evidence_name"]: f"p7c3-math:{row['criterion']}".encode() for row in criteria
     }
     eligibility = assess_candidate_eligibility(
         manifest,
@@ -365,9 +360,7 @@ def _build_candidate_chain(
         ],
         "baseline_payload_members": [],
     }
-    static = validate_skill_candidate(
-        bundle, payload, static_contract, validated_at=generated_at
-    )
+    static = validate_skill_candidate(bundle, payload, static_contract, validated_at=generated_at)
     review_evidence = canonical_bytes(
         {
             "domain": "math",
@@ -426,8 +419,7 @@ def _build_candidate_chain(
         for role in _REQUIRED_ARTIFACT_ROLES
     ]
     artifact_bytes = {
-        artifact["artifact_id"]: artifact_contents[artifact["role"]]
-        for artifact in artifacts
+        artifact["artifact_id"]: artifact_contents[artifact["role"]] for artifact in artifacts
     }
     envelope_closure = close_evaluation_envelope(
         manifest,
@@ -505,9 +497,7 @@ def _case_plan(
         "schema": "suite/v1",
         "suite_id": f"p7c3-math-{case_kind}-suite",
         "title": f"P7C3 public Math {case_kind} suite",
-        "cases": [
-            {"evaluation_case_id": case["evaluation_case_id"], "sha256": case_sha}
-        ],
+        "cases": [{"evaluation_case_id": case["evaluation_case_id"], "sha256": case_sha}],
         "frozen_at": generated_at,
     }
     forward = SkillForwardTestPlan(
@@ -573,13 +563,14 @@ def _safe_trial_summary(outcome: Any) -> dict[str, Any]:
             if pipeline.run_payload is not None
             else None,
             "output_sha256": observation.replay.output_sha256,
-            "process_started": observation.process_started,
+            "launcher_process_started": observation.launcher_process_started,
+            "agent_session_started": observation.agent_session_started,
+            "agent_turn_completed": observation.agent_turn_completed,
             "runtime_loaded": observation.runtime_loaded,
-            "runtime_expectation_verified": environment[
-                "runtime_expectation_verified"
-            ],
+            "runtime_expectation_verified": environment["runtime_expectation_verified"],
             "session_id_sha256": environment.get("session_id_sha256"),
             "transcript_sha256": observation.transcript_sha256,
+            "stderr_sha256": observation.stderr_sha256,
             "usage": observation.usage,
         }
     return {
@@ -619,12 +610,10 @@ def main(argv: list[str]) -> int:
     if output.exists():
         raise ValueError("P7C3 evidence output must not overwrite an existing file")
 
-    manifest, bundle, payload, static, semantic, envelope_closure = (
-        _build_candidate_chain(
-            model=args.model,
-            reasoning=args.reasoning,
-            generated_at=generated_at,
-        )
+    manifest, bundle, payload, static, semantic, envelope_closure = _build_candidate_chain(
+        model=args.model,
+        reasoning=args.reasoning,
+        generated_at=generated_at,
     )
     adapter = CodexCliAgentAdapter(
         args.launcher,
@@ -649,8 +638,7 @@ def main(argv: list[str]) -> int:
         outcomes.append((case_kind, run_agent_skill_forward_trial(plan, adapter)))
 
     summaries = [
-        {"case_kind": case_kind, **_safe_trial_summary(outcome)}
-        for case_kind, outcome in outcomes
+        {"case_kind": case_kind, **_safe_trial_summary(outcome)} for case_kind, outcome in outcomes
     ]
     session_hashes = [
         trial["arms"][arm]["session_id_sha256"]
@@ -658,10 +646,31 @@ def main(argv: list[str]) -> int:
         for arm in ("baseline", "candidate")
     ]
     all_completed = all(trial["status"] == "smoke_completed" for trial in summaries)
+    observed_launcher_processes = sum(
+        int(trial["arms"][arm]["launcher_process_started"])
+        for trial in summaries
+        for arm in ("baseline", "candidate")
+    )
+    observed_agent_sessions = sum(
+        int(trial["arms"][arm]["agent_session_started"])
+        for trial in summaries
+        for arm in ("baseline", "candidate")
+    )
+    completed_agent_turns = sum(
+        int(trial["arms"][arm]["agent_turn_completed"])
+        for trial in summaries
+        for arm in ("baseline", "candidate")
+    )
     four_distinct_sessions = (
         all(isinstance(value, str) for value in session_hashes)
         and len(session_hashes) == 4
         and len(set(session_hashes)) == 4
+    )
+    smoke_passed = (
+        all_completed
+        and four_distinct_sessions
+        and observed_agent_sessions == 4
+        and completed_agent_turns == 4
     )
     evidence = {
         "schema": "p7c3-real-agent-smoke-evidence/v1",
@@ -687,11 +696,9 @@ def main(argv: list[str]) -> int:
         "trials": summaries,
         "summary": {
             "planned_agent_executions": 4,
-            "observed_agent_processes": sum(
-                int(trial["arms"][arm]["process_started"])
-                for trial in summaries
-                for arm in ("baseline", "candidate")
-            ),
+            "observed_launcher_processes": observed_launcher_processes,
+            "observed_agent_sessions": observed_agent_sessions,
+            "completed_agent_turns": completed_agent_turns,
             "four_distinct_ephemeral_sessions": four_distinct_sessions,
             "all_trials_completed": all_completed,
             "raw_transcripts_persisted": False,
@@ -705,6 +712,9 @@ def main(argv: list[str]) -> int:
         "evidence_ceiling": (
             "P7C3_REAL_AGENT_SMOKE_RECORDED / ZERO_INDEPENDENT_FORWARD_ACCEPTANCES "
             "/ ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS"
+            if smoke_passed
+            else "P7C3_REAL_AGENT_SMOKE_ATTEMPT_RECORDED / ZERO_VALIDATED_REAL_AGENT_SMOKES "
+            "/ ZERO_INDEPENDENT_FORWARD_ACCEPTANCES / ZERO_PROMOTIONS"
         ),
         "generated_at": generated_at,
     }
@@ -714,12 +724,14 @@ def main(argv: list[str]) -> int:
     output.write_bytes(raw + b"\n")
     print(
         "P7C3 AGENT SMOKE: "
-        f"{'PASS' if all_completed and four_distinct_sessions else 'FAIL'} "
-        f"processes={evidence['summary']['observed_agent_processes']} "
+        f"{'PASS' if smoke_passed else 'FAIL'} "
+        f"launcher_processes={observed_launcher_processes} "
+        f"agent_sessions={observed_agent_sessions} "
+        f"completed_turns={completed_agent_turns} "
         f"distinct_ephemeral_sessions={str(four_distinct_sessions).lower()} "
         f"evidence_sha256={_sha(raw)}"
     )
-    return 0 if all_completed and four_distinct_sessions else 1
+    return 0 if smoke_passed else 1
 
 
 if __name__ == "__main__":

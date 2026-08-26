@@ -54,13 +54,17 @@ codex exec
 + --ignore-user-config
 + --ignore-rules
 + --sandbox read-only
-+ approval_policy="never"
-+ web_search="disabled"
++ --config approval_policy="never"
++ --config web_search="disabled"
 + output-schema + output-last-message + JSONL
 ```
 
+PowerShell `-File` 启动器必须接收完整的 `--config` 参数名，不得使用可被启动器参数绑定解释为
+`CodexArgs` 缩写的 `-c`。这是 launcher seam 的可执行契约，并由 command contract test 固化。
+
 进程环境使用 allowlist，`GH_TOKEN`、`GITHUB_TOKEN`、`OPENAI_API_KEY`、`CODEX_API_KEY`
-及其他 Token/Secret 变量不传入。stderr 与原始 JSONL 不进入 Core 或公开 evidence。
+及其他 Token/Secret 变量不传入。raw stderr 与原始 JSONL 不进入 Core 或公开 evidence；仅允许
+保留其 SHA-256，以便对失败 attempt 去重和对账。
 
 ### 3. 不新增 Core family
 
@@ -99,7 +103,14 @@ declared exclusion 两臂都必须报告未加载，即使 Candidate bytes 在�
 - runtime digest 不写入 prompt 或 output schema，避免模型直接照抄；
 - 非零退出、timeout、parse/output/trace cap、runtime mismatch 和 cleanup failure 均 fail closed；
 - raw session、stderr、JSONL、最终输出和本机路径不进入仓库；
-- fresh process 与 independent fresh-session acceptance 是不同事实，后者保持 false。
+- `launcher_process_started` 只表示 wrapper 已启动；只有 JSONL `thread.started` 才能证明
+  `agent_session_started`，只有同一有界 trace 中的 `turn.completed` 才能证明
+  `agent_turn_completed`；
+- wrapper 参数绑定失败仍保留 attempt 与 stderr hash，但计为零个真实 Agent session、零个完成
+  turn，不得升级为 real-Agent smoke；
+- 四次 Gate 只有在四个 session 均启动、四个 turn 均完成、session hash 互异且两项 runtime
+  oracle 均通过时才可 PASS；
+- ephemeral session 与 independent fresh-session acceptance 是不同事实，后者保持 false。
 
 ## 被拒绝的方案
 

@@ -29,12 +29,10 @@ class P7C3MathAgentSmokeGateTest(unittest.TestCase):
     def test_repository_authored_chain_runs_both_public_cases_without_model(self) -> None:
         module = _load_script()
         generated_at = "2026-08-26T00:00:00Z"
-        manifest, bundle, payload, static, semantic, closure = (
-            module._build_candidate_chain(
-                model="fixture-model",
-                reasoning="fixture-reasoning",
-                generated_at=generated_at,
-            )
+        manifest, bundle, payload, static, semantic, closure = module._build_candidate_chain(
+            model="fixture-model",
+            reasoning="fixture-reasoning",
+            generated_at=generated_at,
         )
         digest = hashlib.sha256(payload["SKILL.md"]).hexdigest()
         for case_kind, answer, route, loaded in (
@@ -85,6 +83,10 @@ class P7C3MathAgentSmokeGateTest(unittest.TestCase):
                 for arm in ("baseline", "candidate"):
                     self.assertNotIn("session_id", summary["arms"][arm])
                     self.assertIn("session_id_sha256", summary["arms"][arm])
+                    self.assertIn("launcher_process_started", summary["arms"][arm])
+                    self.assertIn("agent_session_started", summary["arms"][arm])
+                    self.assertIn("agent_turn_completed", summary["arms"][arm])
+                    self.assertIn("stderr_sha256", summary["arms"][arm])
                 self.assertTrue(summary["workspace_cleaned"])
 
     def test_hex_and_time_validation_fail_closed(self) -> None:
