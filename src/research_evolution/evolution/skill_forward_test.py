@@ -503,16 +503,18 @@ def _verify_payload_bytes(bundle: SkillCandidateBundle, payload: Mapping[str, by
             )
 
 
-def _adapter_identity(adapter: SkillForwardTestAdapter, model: str) -> dict[str, str]:
-    identity = dict(adapter.identity)
+def _validated_identity(
+    source: Mapping[str, str], model: str
+) -> dict[str, str]:
+    """Validate the runner fields shared by synthetic and real successors."""
+
+    identity = dict(source)
     if set(identity) != {"tool", "version", "model"}:
         raise SkillForwardTestError("adapter identity must contain tool, version, and model")
     if any(not isinstance(value, str) or not value.strip() for value in identity.values()):
         raise SkillForwardTestError("adapter identity fields must be non-empty strings")
     if identity["model"] != model:
         raise SkillForwardTestError("adapter model differs from the frozen manifest model")
-    if adapter.evidence_class != _EVIDENCE_CLASS:
-        raise SkillForwardTestError("P7C1 accepts only synthetic conformance adapters")
     return identity
 
 
@@ -578,9 +580,9 @@ def _execute_with_retries(
             return result
 
 
-def _preflight(
+def _preflight_with_identity(
     plan: SkillForwardTestPlan,
-    adapter: SkillForwardTestAdapter,
+    identity_source: Mapping[str, str],
 ) -> tuple[
     Record,
     SkillCandidateBundle,
@@ -663,7 +665,7 @@ def _preflight(
         )
 
     model = manifest.data["evaluation_envelope"]["model"]
-    identity = _adapter_identity(adapter, model)
+    identity = _validated_identity(identity_source, model)
     expected_runner = plan.gate_config.expected_runner
     if expected_runner != (identity["tool"], identity["version"]):
         raise SkillForwardTestError("gate policy does not freeze the exact adapter identity")
@@ -689,6 +691,23 @@ def _preflight(
         "runner": identity,
     }
     return manifest, bundle, static, semantic, closure, identity, canonical_sha256(axes_payload)
+
+
+def _preflight(
+    plan: SkillForwardTestPlan,
+    adapter: SkillForwardTestAdapter,
+) -> tuple[
+    Record,
+    SkillCandidateBundle,
+    SkillStaticValidationReceipt,
+    SkillSemanticReviewAttestation,
+    EvaluationEnvelopeClosureReceipt,
+    dict[str, str],
+    str,
+]:
+    if adapter.evidence_class != _EVIDENCE_CLASS:
+        raise SkillForwardTestError("P7C1 accepts only synthetic conformance adapters")
+    return _preflight_with_identity(plan, adapter.identity)
 
 
 def run_skill_forward_test(
