@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-25",
-  "phase": "phase7-p7b2-skill-candidate-bundle-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_precheck_and_p7b2_structural_drafting_engineering_zero_accepted_external_submissions_zero_real_skill_payloads_zero_promotions",
+  "reviewed_at": "2026-08-26",
+  "phase": "phase7-p7b4-semantic-review-protocol-main-merged",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_and_p7b4_semantic_review_protocol_engineering_zero_accepted_external_submissions_zero_real_independent_reviews_zero_real_skill_executions_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -88,6 +88,16 @@
       "name": "draft_skill_candidate_bundle",
       "version": "skill-candidate-bundle/v1",
       "status": "implemented_mainline_in_process_structural_drafting_only"
+    },
+    {
+      "name": "validate_skill_candidate",
+      "version": "skill-static-validation-receipt/v1",
+      "status": "implemented_mainline_in_process_static_validation_only"
+    },
+    {
+      "name": "attest_skill_semantic_review_protocol",
+      "version": "skill-semantic-review-attestation/v1",
+      "status": "implemented_mainline_in_process_synthetic_protocol_only"
     }
   ],
   "ci_lanes": {
@@ -898,6 +908,48 @@
         "four_matrix_jobs": "success",
         "windows_governance_jobs": "success",
         "scope": "Adds a byte-closed synthetic Skill candidate drafting contract with strict UTF-8, restricted-content, minimal frontmatter/layout, DAG, exact eligibility-evidence, and non-negative-size gates. It does not create a real Skill payload or authorize semantic review, private evaluation, promotion, installation, activation, or publication."
+      },
+      "p7b3": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/48",
+        "pr_head_commit": "f8c3100e84ddf372566bb25eed2ce0a6f9868e4d",
+        "main_merge_commit": "ebef9906ef6f8b6ab19341faf52f35306e4bce5b",
+        "shared_tree": "0a71c0c049d7efe2d5a20aff0a2a5c4a6dcd41b4",
+        "archive_sha256": "97b6588948f3102ddb8887d9e2eec5d103c3d29a296524d862eba58373c29c6f",
+        "archive_tests_per_interpreter": 1100,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "branch_coverage_percent": 82,
+        "mypy_source_files": 31,
+        "cuda_stable_projection_sha256": "bb1dbe0bbee8bdcc62677ac75782d5615608e5861392582fbb5370d477567561",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32874713519",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32875093337",
+        "main_ci_head_sha": "ebef9906ef6f8b6ab19341faf52f35306e4bce5b",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds exact-byte static validation for synthetic Skill candidates, platform metadata, declared trigger/router examples, registry exact collisions, and descriptor diffs. A static pass is not semantic review, real Agent or Router execution, Skill materialization, installation, activation, publication, or promotion."
+      },
+      "p7b4": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/49",
+        "pr_head_commit": "8a3de612a446593d3f7f817bcc5bebc26d236794",
+        "main_merge_commit": "0bfa324ae2ceeeb88932e3cbf8142729fb0aa733",
+        "shared_tree": "83febe661cc9adff106625116a1520ed076d2e12",
+        "archive_sha256": "20249b36e4c3e179e7f61f5b518413fe90b479e2c81deece48ff1d7b269eb25d",
+        "archive_tests_per_interpreter": 1107,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "branch_coverage_percent": 82,
+        "mypy_source_files": 32,
+        "cuda_stable_projection_sha256": "99008c89b6f7b7d9cc9093ebf8e3fcf466c245b326af61330aecbefe9ab3293a",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32877471634",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32877878739",
+        "main_ci_head_sha": "0bfa324ae2ceeeb88932e3cbf8142729fb0aa733",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds a synthetic semantic-review protocol attestation bound to exact Candidate, P7B3 receipt, review evidence bytes, declared reviewer labels, and seven dimensions. Protocol outcomes do not prove real reviewer identity, independent context, Candidate quality, execution, private evaluation, or promotion."
       }
     }
   },
@@ -971,7 +1023,9 @@
       "CR7 enforces fixed Ruff, mypy, and branch-coverage gates across the supported Python matrix",
       "CR8 prepares governed ContextBundle v2 records through classification, taint, redaction/export, lifecycle, and byte/token preflight without retaining restricted plaintext",
       "P7B1 computes only fail-closed candidate eligibility preflight outcomes and binds criterion evidence bytes without claiming a real Skill payload or promotion",
-      "P7B2 byte-closes synthetic candidate payload and eligibility-evidence members through one in-process seam while keeping every publication, installation, activation, runtime, semantic-review, private-evaluation, and promotion claim false"
+      "P7B2 byte-closes synthetic candidate payload and eligibility-evidence members through one in-process seam while keeping every publication, installation, activation, runtime, semantic-review, private-evaluation, and promotion claim false",
+      "P7B3 rebinds exact synthetic candidate bytes and records static metadata, trigger, exact collision, declared Router-example, and descriptor-diff outcomes without executing an Agent or Router",
+      "P7B4 binds exact Candidate, P7B3 receipt, synthetic review evidence bytes, reviewer declarations, and seven semantic dimensions while fixing every real-independent-review and later-lifecycle claim to false"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -983,7 +1037,7 @@
       "involuntary scheduler preemption and scheduler-managed process restart",
       "external checkpoint-store durability or authorization",
       "wall-clock, monetary cost, energy, or production reliability",
-      "any non-synthetic real Skill candidate payload, independent semantic review, fresh-session forward test, private evaluation, Skill installation, activation, or publication"
+      "any non-synthetic real Skill candidate payload, real independent semantic review, real Candidate execution, fresh-session forward test, private evaluation, Skill installation, activation, or publication"
     ]
   },
   "boundaries": [
@@ -996,12 +1050,13 @@
     "Three repeated seeds on one host do not establish portability across drivers, GPUs, hosts, framework versions, or real datasets.",
     "R5 is TRIAL_READY / ZERO_EXTERNAL_RECEIPTS; two local receipts from one normalized environment do not establish independent hosts, participants, portability, or adoption.",
     "R6A is PROTOCOL_READY / ZERO_ACCEPTED_EXTERNAL_SUBMISSIONS; synthetic submission and review fixtures do not establish a real participant, independent host, technical comparison, portability, or adoption.",
-    "P7B2 is P7B2_STRUCTURAL_DRAFTING_READY / ZERO_REAL_SKILL_PAYLOADS / ZERO_PROMOTIONS; byte closure, ContextBundle governance, synthetic Math/Quant fixtures, eligibility attestations, and synthetic candidate payload members do not establish semantic review, candidate quality, installation, activation, promotion, or publication.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, P7B1, and P7B2 did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7B3 static_pass/static_fail outcomes are synthetic static-contract evidence only; they do not establish semantic correctness, real Router or Agent behavior, Skill materialization, installation, activation, promotion, or publication.",
+    "P7B4 is P7B4_SEMANTIC_REVIEW_PROTOCOL_READY / ZERO_REAL_INDEPENDENT_REVIEWS / ZERO_REAL_SKILL_EXECUTIONS / ZERO_PROMOTIONS; synthetic protocol_accept/protocol_reject fixtures and distinct reviewer/session strings do not establish real reviewer identity, context isolation, Candidate quality, or later lifecycle authority.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7B4 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
-    "P7B2 closes the exact P7B1 eligibility-evidence bytes with a synthetic candidate payload, but structural byte closure is not semantic review, fresh-session execution, private evaluation, or promotion authority.",
+    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records, but none proves real semantic review, fresh-session execution, private evaluation, or promotion authority.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
