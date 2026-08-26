@@ -1,0 +1,27 @@
+{
+  "description": "Guide bounded public quantitative recovery after deterministic calculation failures.",
+  "positive_triggers": ["A public quantitative response failed a deterministic calculation check."],
+  "exclusions": ["The task requests trading actions, private market data, or production deployment."],
+  "skill_md": "---\nname: wrong-quant-name\ndescription: Guide bounded public quantitative recovery after deterministic calculation failures.\n---\n\n# Wrong Candidate\n",
+  "agent_metadata_yaml": "interface:\n  display_name: \"Public Quant Recovery\"\n  short_description: \"Recover bounded public quant failures\"\n  default_prompt: \"Use $public-quant-recovery to inspect this public quant failure.\"\npolicy:\n  allow_implicit_invocation: false\n",
+  "criterion_evidence": {
+    "clear_exclusions": "Declared.",
+    "clear_positive_triggers": "Declared.",
+    "explicit_failure_pause_boundaries": "Declared.",
+    "measurable_gain_plan": "Declared.",
+    "portable_resources": "Declared.",
+    "stable_input_contract": "Declared.",
+    "stable_output_contract": "Declared."
+  },
+  "criterion_rationales": {
+    "clear_exclusions": "Declared.",
+    "clear_positive_triggers": "Declared.",
+    "explicit_failure_pause_boundaries": "Declared.",
+    "measurable_gain_plan": "Declared.",
+    "portable_resources": "Declared.",
+    "stable_input_contract": "Declared.",
+    "stable_output_contract": "Declared."
+  },
+  "rollback_plan": "Retain the baseline.",
+  "retirement_plan": "Retire through a successor."
+}

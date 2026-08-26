@@ -1,0 +1,27 @@
+{
+  "description": "Guide bounded public quantitative recovery after deterministic calculation failures.",
+  "positive_triggers": ["A public quantitative response failed a deterministic calculation check."],
+  "exclusions": ["The task requests trading actions, private market data, or production deployment."],
+  "skill_md": "---\nname: public-quant-recovery\ndescription: Guide bounded public quantitative recovery after deterministic calculation failures.\n---\n\n# Public quantitative recovery\n\nRead the frozen public cases and shared Pattern. Reconstruct the calculation with explicit time alignment, verify the deterministic result, and stop when evidence is insufficient.\n",
+  "agent_metadata_yaml": "interface:\n  display_name: \"Public Quant Recovery\"\n  short_description: \"Recover bounded public quant failures\"\n  default_prompt: \"Use $public-quant-recovery to inspect this public quant failure.\"\npolicy:\n  allow_implicit_invocation: false\n",
+  "criterion_evidence": {
+    "clear_exclusions": "The payload excludes trading, private data, and production work.",
+    "clear_positive_triggers": "The trigger is a deterministic public quantitative failure.",
+    "explicit_failure_pause_boundaries": "The procedure stops when evidence or alignment is insufficient.",
+    "measurable_gain_plan": "The frozen public forward plan compares exact deterministic case outcomes.",
+    "portable_resources": "The payload contains only UTF-8 Markdown and YAML.",
+    "stable_input_contract": "Inputs are hash-pinned public cases and one shared Pattern.",
+    "stable_output_contract": "Output states the calculation, alignment, and deterministic check."
+  },
+  "criterion_rationales": {
+    "clear_exclusions": "The exclusions are explicit in the trigger contract.",
+    "clear_positive_triggers": "The positive trigger names the observed failure class.",
+    "explicit_failure_pause_boundaries": "The instructions contain a mandatory evidence stop.",
+    "measurable_gain_plan": "A frozen case-level forward test is already declared.",
+    "portable_resources": "No binary, dependency, or machine-local resource is proposed.",
+    "stable_input_contract": "Every source input is canonical and hash-pinned.",
+    "stable_output_contract": "The calculation and checker boundary are stated."
+  },
+  "rollback_plan": "Retain the immutable no-Skill baseline and discard this Candidate if any later gate fails.",
+  "retirement_plan": "Retire only through a separately reviewed successor after fresh-session evidence."
+}
