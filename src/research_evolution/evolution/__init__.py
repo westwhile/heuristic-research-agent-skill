@@ -1,5 +1,16 @@
 """Heuristic registries and immutable candidate-bundle construction."""
 
+from .agent_forward_trial import (
+    AgentExecutionObservation,
+    AgentForwardExecutionRequest,
+    AgentForwardExecutor,
+    AgentForwardTrialError,
+    AgentForwardTrialOutcome,
+    AgentForwardTrialPlan,
+    CodexCliAgentAdapter,
+    DeterministicAgentForwardAdapter,
+    run_agent_skill_forward_trial,
+)
 from .candidate_eligibility import (
     CandidateEligibilityAttestation,
     CandidateEligibilityError,
@@ -62,6 +73,12 @@ from .skill_static_validation import (
 )
 
 __all__ = [
+    "AgentExecutionObservation",
+    "AgentForwardExecutionRequest",
+    "AgentForwardExecutor",
+    "AgentForwardTrialError",
+    "AgentForwardTrialOutcome",
+    "AgentForwardTrialPlan",
     "ArtifactClosureError",
     "ArtifactClosureReceipt",
     "ArtifactRecord",
@@ -92,7 +109,9 @@ __all__ = [
     "close_candidate_bundle",
     "close_evaluation_envelope",
     "ConstrainedLocalProcessAdapter",
+    "CodexCliAgentAdapter",
     "DeterministicInProcessAdapter",
+    "DeterministicAgentForwardAdapter",
     "draft_skill_candidate_bundle",
     "ForwardTestRequest",
     "ForwardSuiteCase",
@@ -100,6 +119,7 @@ __all__ = [
     "prepare_context",
     "run_skill_forward_suite",
     "run_skill_forward_test",
+    "run_agent_skill_forward_trial",
     "SkillForwardSuiteError",
     "SkillForwardSuiteOutcome",
     "SkillForwardSuitePlan",
