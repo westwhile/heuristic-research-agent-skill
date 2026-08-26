@@ -84,6 +84,12 @@ outcomes are synthetic contract fixtures; no reviewer output, identity record,
 external Candidate, Skill payload, participant material, vendored dependency,
 or third-party expression is included. PR #49 merged this inventory to main.
 
+P7C1 added four repository-native live-execution seam source, fixed-worker,
+test, and ADR files. Its deterministic Math/Quant inputs and adapter outputs are
+synthetic contract fixtures; no Codex/model output, materialized Skill,
+participant material, external Candidate, vendored dependency, or third-party
+expression is included. PR #51 merged this inventory to main.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -91,10 +97,11 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7B4 mainline tracked inventory contains 1120 files: the
+The P7C1 mainline tracked inventory contains 1124 files: the
 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
-source, test, synthetic fixture, and ADR files and eleven P7B4 semantic-review
-protocol schema, source, test, synthetic fixture, and ADR files. The P7B1
+source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
+protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
+live-execution seam source, fixed-worker, test, and ADR files. The P7B1
 inventory consists of
 the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
@@ -115,7 +122,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 965 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol files |
+| `independently_authored` | 969 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol and P7C1 execution-seam files |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 35 | Independently implemented v8 compatibility and P7B2/P7B3 Skill-layout/static-validation contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -126,16 +133,16 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 965 `independently_authored`, 118 `generated`, 35
+The resulting counts are 969 `independently_authored`, 118 `generated`, 35
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
 references and independently authored repository changes; CR8 and P7B1 add
 only independently authored governance contracts and synthetic fixtures.
 P7B2/P7B3 add design-inspired but independently expressed structural/static
-contracts and synthetic fixtures; P7B4 adds independently authored protocol
-contracts and synthetic fixtures. None adds a real Skill payload or real
-independent-review artifact.
+contracts and synthetic fixtures; P7B4 and P7C1 add independently authored
+protocol/execution-seam contracts and synthetic fixtures. None adds a real
+Skill payload, real Agent/model output, or real independent-review artifact.
 
 ## External-source decisions
 
