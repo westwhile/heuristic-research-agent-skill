@@ -32,6 +32,16 @@ from .skill_candidate import (
     SkillCandidateBundleError,
     draft_skill_candidate_bundle,
 )
+from .skill_forward_test import (
+    ConstrainedLocalProcessAdapter,
+    DeterministicInProcessAdapter,
+    ForwardTestRequest,
+    SkillForwardTestAdapter,
+    SkillForwardTestError,
+    SkillForwardTestOutcome,
+    SkillForwardTestPlan,
+    run_skill_forward_test,
+)
 from .skill_semantic_review import (
     SkillSemanticReviewAttestation,
     SkillSemanticReviewError,
@@ -60,6 +70,10 @@ __all__ = [
     "EvaluationEnvelopeClosureReceipt",
     "SkillCandidateBundle",
     "SkillCandidateBundleError",
+    "SkillForwardTestAdapter",
+    "SkillForwardTestError",
+    "SkillForwardTestOutcome",
+    "SkillForwardTestPlan",
     "SkillSemanticReviewAttestation",
     "SkillSemanticReviewError",
     "SkillStaticValidationError",
@@ -69,7 +83,11 @@ __all__ = [
     "attest_skill_semantic_review_protocol",
     "close_candidate_bundle",
     "close_evaluation_envelope",
+    "ConstrainedLocalProcessAdapter",
+    "DeterministicInProcessAdapter",
     "draft_skill_candidate_bundle",
+    "ForwardTestRequest",
     "prepare_context",
+    "run_skill_forward_test",
     "validate_skill_candidate",
 ]
