@@ -169,6 +169,72 @@ class P7C3MathAgentSmokeGateTest(unittest.TestCase):
         )
         self.assertNotIn("output", baseline)
 
+    def test_safe_evidence_identifies_runtime_component_without_observed_values(
+        self,
+    ) -> None:
+        module = _load_script()
+        generated_at = "2026-08-26T00:00:00Z"
+        manifest, bundle, payload, static, semantic, closure = module._build_candidate_chain(
+            model="fixture-model",
+            reasoning="fixture-reasoning",
+            generated_at=generated_at,
+        )
+        plan = module._case_plan(
+            case_kind="explicit-load",
+            generated_at=generated_at,
+            manifest=manifest,
+            bundle=bundle,
+            payload=payload,
+            static=static,
+            semantic=semantic,
+            envelope_closure=closure,
+            runner=("deterministic-agent-forward", "0.1.0"),
+        )
+        runtime_absent = {"loaded": False, "name": None, "skill_md_sha256": None}
+        outputs = {
+            "baseline": canonical_bytes(
+                {"answer": "42", "route": "select_candidate", "skill_runtime": runtime_absent}
+            ),
+            "candidate": canonical_bytes(
+                {
+                    "answer": "42",
+                    "route": "select_candidate",
+                    "skill_runtime": {
+                        "loaded": True,
+                        "name": module._SKILL_NAME,
+                        "skill_md_sha256": "f" * 64,
+                    },
+                }
+            ),
+        }
+        outcome = run_agent_skill_forward_trial(
+            plan,
+            DeterministicAgentForwardAdapter(
+                outputs,
+                model="fixture-model",
+                reasoning_effort="fixture-reasoning",
+            ),
+        )
+
+        candidate = module._safe_trial_summary(outcome)["arms"]["candidate"]
+        self.assertEqual(
+            {
+                name: candidate[name]
+                for name in (
+                    "runtime_loaded_matches",
+                    "runtime_name_matches",
+                    "runtime_digest_matches",
+                )
+            },
+            {
+                "runtime_loaded_matches": True,
+                "runtime_name_matches": True,
+                "runtime_digest_matches": False,
+            },
+        )
+        self.assertNotIn("observed_skill_name", candidate)
+        self.assertNotIn("observed_skill_sha256", candidate)
+
     def test_hex_and_time_validation_fail_closed(self) -> None:
         module = _load_script()
         with self.assertRaisesRegex(ValueError, "40 lowercase hexadecimal"):

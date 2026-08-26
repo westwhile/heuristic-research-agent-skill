@@ -113,6 +113,8 @@ Agent 猜测未声明的自由文本标签。
   turn，不得升级为 real-Agent smoke；
 - 清洗 evidence 可保留已验证 score vector 的 dimension/value/unit，用于定位 answer、route 或
   runtime oracle 失败；不得保留回答文本或从 hash 反推回答；
+- runtime oracle 失败必须进一步以 `runtime_loaded_matches`、`runtime_name_matches` 和
+  `runtime_digest_matches` 三个布尔事实定位；清洗 evidence 不保留 Agent 报告的实际 name/digest；
 - 四次 Gate 只有在四个 session 均启动、四个 turn 均完成、session hash 互异且两项 runtime
   oracle 均通过时才可 PASS；
 - ephemeral session 与 independent fresh-session acceptance 是不同事实，后者保持 false。

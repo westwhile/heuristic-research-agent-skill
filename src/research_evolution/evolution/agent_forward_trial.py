@@ -842,12 +842,16 @@ def _runtime_expectation(
     }
 
 
-def _matches_runtime(observation: AgentExecutionObservation, expected: Mapping[str, Any]) -> bool:
-    return (
-        observation.runtime_loaded is expected["loaded"]
-        and observation.observed_skill_name == expected["name"]
-        and observation.observed_skill_sha256 == expected["skill_md_sha256"]
-    )
+def _runtime_match_components(
+    observation: AgentExecutionObservation, expected: Mapping[str, Any]
+) -> dict[str, bool]:
+    return {
+        "runtime_loaded_matches": observation.runtime_loaded is expected["loaded"],
+        "runtime_name_matches": observation.observed_skill_name == expected["name"],
+        "runtime_digest_matches": (
+            observation.observed_skill_sha256 == expected["skill_md_sha256"]
+        ),
+    }
 
 
 def run_agent_skill_forward_trial(
@@ -935,6 +939,7 @@ def run_agent_skill_forward_trial(
 
     outcomes: dict[str, PipelineOutcome] = {}
     runtime_matches: dict[str, bool] = {}
+    runtime_match_components: dict[str, dict[str, bool]] = {}
     for arm in _ARMS:
         observation = observations[arm]
         expected_runtime = _runtime_expectation(
@@ -943,7 +948,8 @@ def run_agent_skill_forward_trial(
             skill_name=skill_name,
             skill_sha256=skill_sha,
         )
-        runtime_matches[arm] = _matches_runtime(observation, expected_runtime)
+        runtime_match_components[arm] = _runtime_match_components(observation, expected_runtime)
+        runtime_matches[arm] = all(runtime_match_components[arm].values())
         scoring = dict(plan.forward_test_plan.scoring)
         oracle = dict(scoring["oracle"])
         oracle["skill_runtime"] = expected_runtime
@@ -968,6 +974,7 @@ def run_agent_skill_forward_trial(
             "candidate_installed": False,
             "candidate_activated": False,
             "runtime_loaded": observation.runtime_loaded,
+            **runtime_match_components[arm],
             "runtime_expectation_verified": runtime_matches[arm],
             "launcher_process_started": observation.launcher_process_started,
             "agent_session_started": observation.agent_session_started,

@@ -171,6 +171,88 @@ class AgentForwardTrialTest(unittest.TestCase):
             outcome.candidate.attempt_payload["environment"]["runtime_expectation_verified"]
         )
 
+    def test_runtime_match_components_identify_digest_mismatch(self) -> None:
+        plan = _trial_plan(expected_loaded=True)
+        outputs = _outputs(plan, candidate_loaded=True)
+        skill_name = plan.forward_test_plan.candidate_bundle.payload["skill"]["name"]
+        outputs["candidate"] = canonical_bytes(
+            {
+                "answer": 42,
+                "route": "select_candidate",
+                "skill_runtime": {
+                    "loaded": True,
+                    "name": skill_name,
+                    "skill_md_sha256": "f" * 64,
+                },
+            }
+        )
+        adapter = DeterministicAgentForwardAdapter(
+            outputs,
+            model="fixture-model",
+            reasoning_effort="fixture-reasoning",
+        )
+
+        outcome = run_agent_skill_forward_trial(plan, adapter)
+
+        environment = outcome.candidate.attempt_payload["environment"]
+        self.assertEqual(
+            {
+                name: environment[name]
+                for name in (
+                    "runtime_loaded_matches",
+                    "runtime_name_matches",
+                    "runtime_digest_matches",
+                )
+            },
+            {
+                "runtime_loaded_matches": True,
+                "runtime_name_matches": True,
+                "runtime_digest_matches": False,
+            },
+        )
+
+    def test_runtime_match_components_identify_name_mismatch(self) -> None:
+        plan = _trial_plan(expected_loaded=True)
+        outputs = _outputs(plan, candidate_loaded=True)
+        skill_digest = hashlib.sha256(
+            plan.forward_test_plan.candidate_payload["SKILL.md"]
+        ).hexdigest()
+        outputs["candidate"] = canonical_bytes(
+            {
+                "answer": 42,
+                "route": "select_candidate",
+                "skill_runtime": {
+                    "loaded": True,
+                    "name": "different-skill",
+                    "skill_md_sha256": skill_digest,
+                },
+            }
+        )
+        adapter = DeterministicAgentForwardAdapter(
+            outputs,
+            model="fixture-model",
+            reasoning_effort="fixture-reasoning",
+        )
+
+        outcome = run_agent_skill_forward_trial(plan, adapter)
+
+        environment = outcome.candidate.attempt_payload["environment"]
+        self.assertEqual(
+            {
+                name: environment[name]
+                for name in (
+                    "runtime_loaded_matches",
+                    "runtime_name_matches",
+                    "runtime_digest_matches",
+                )
+            },
+            {
+                "runtime_loaded_matches": True,
+                "runtime_name_matches": False,
+                "runtime_digest_matches": True,
+            },
+        )
+
     def test_failed_agent_attempt_remains_and_result_is_optional(self) -> None:
         plan = _trial_plan()
         adapter = DeterministicAgentForwardAdapter(
