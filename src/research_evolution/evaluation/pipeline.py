@@ -124,32 +124,43 @@ class PipelineOutcome:
     unpublishable_reason: str | None
 
 
-def evaluate_case(
+@dataclass(frozen=True)
+class _PreparedEvaluation:
+    """Validated, side-effect-free inputs shared by replay and live seams."""
+
+    run_id: str
+    case: Mapping[str, Any]
+    suite: Mapping[str, Any]
+    candidate: Mapping[str, str]
+    envelope: Envelope
+    scoring: Mapping[str, Any]
+    gate_config: GateConfig
+    generated_at: str
+    levels_covered: tuple[str, ...]
+    case_sha: str
+    suite_sha: str
+    case_id: str
+    level: str
+    scorer_id: dict[str, str]
+    environment: dict[str, Any]
+    envelope_echo: dict[str, Any]
+
+
+def _prepare_evaluation(
     *,
     run_id: str,
     case: Mapping[str, Any],
     suite: Mapping[str, Any],
     candidate: Mapping[str, str],
-    artifact: bytes,
-    artifact_sha256: str,
     envelope: Envelope,
     scoring: Mapping[str, Any],
     gate_config: GateConfig,
     generated_at: str,
     levels_covered: Sequence[str] = ("L0", "L1"),
     environment: Mapping[str, Any] | None = None,
-) -> PipelineOutcome:
-    """Replay, score, gate, and assemble attempt/result record payloads.
+) -> _PreparedEvaluation:
+    """Validate and freeze every input before any runner is started."""
 
-    *scoring* declares the level and its inputs:
-    ``{"level": "oracle", "oracle": {...}}``,
-    ``{"level": "deterministic_checker", "spec": {...}}``,
-    ``{"level": "structured_rubric", "scores": {...}}``, or
-    ``{"level": "calibrated_judge", "scores": {...},
-    "calibration_sha256": "..."}``. The level must equal the case's
-    ``evaluation_contract.scorer_level`` — the case contract, not the
-    caller's mood, decides how its outputs are scored.
-    """
     case_sha = _record_sha256(case, "case")
     suite_sha = _record_sha256(suite, "suite")
     case_id = case["evaluation_case_id"]
@@ -191,7 +202,53 @@ def evaluate_case(
     if envelope.notes is not None:
         envelope_echo["notes"] = envelope.notes
 
-    replay = run_replay(artifact, artifact_sha256, envelope)
+    return _PreparedEvaluation(
+        run_id=run_id,
+        case=case,
+        suite=suite,
+        candidate=candidate,
+        envelope=envelope,
+        scoring=scoring,
+        gate_config=gate_config,
+        generated_at=generated_at,
+        levels_covered=tuple(levels_covered),
+        case_sha=case_sha,
+        suite_sha=suite_sha,
+        case_id=case_id,
+        level=level,
+        scorer_id=scorer_id,
+        environment=environment_payload,
+        envelope_echo=envelope_echo,
+    )
+
+
+def _assemble_observation(
+    prepared: _PreparedEvaluation,
+    replay: ReplayResult,
+    runner_id: Mapping[str, str],
+) -> PipelineOutcome:
+    """Score and record one already-observed runner outcome.
+
+    This is an internal seam.  Replay and P7C1 live-execution adapters cross
+    it only after their inputs have passed :func:`_prepare_evaluation`.
+    """
+
+    run_id = prepared.run_id
+    suite = prepared.suite
+    candidate = prepared.candidate
+    scoring = prepared.scoring
+    gate_config = prepared.gate_config
+    generated_at = prepared.generated_at
+    levels_covered = prepared.levels_covered
+    case_sha = prepared.case_sha
+    suite_sha = prepared.suite_sha
+    case_id = prepared.case_id
+    level = prepared.level
+    scorer_id = prepared.scorer_id
+    environment_payload = prepared.environment
+    envelope_echo = prepared.envelope_echo
+    calibration_sha256 = scoring.get("calibration_sha256")
+
     entries: tuple[ScoreEntry, ...] | None = None
     scoring_error: str | None = None
     if replay.ok:
@@ -221,7 +278,7 @@ def evaluate_case(
     gate_results = evaluate_gates(
         replay=replay,
         score_vector=entries,
-        runner_id=runner_identity(),
+        runner_id=runner_id,
         scorer_id=scorer_id,
         config=gate_config,
     )
@@ -261,7 +318,7 @@ def evaluate_case(
         "suite": {"suite_id": suite["suite_id"], "sha256": suite_sha},
         "candidate": dict(candidate),
         "envelope": envelope_echo,
-        "runner": runner_identity(),
+        "runner": dict(runner_id),
         "scorer": scorer_id,
         "environment": environment_payload,
         "execution": {
@@ -303,7 +360,7 @@ def evaluate_case(
             "suite": {"suite_id": suite["suite_id"], "sha256": suite_sha},
             "candidate": dict(candidate),
             "envelope": envelope_echo,
-            "runner": runner_identity(),
+            "runner": dict(runner_id),
             "environment": environment_payload,
             "output": {"output_sha256": replay.output_sha256},
             "scorer": scorer_id,
@@ -331,6 +388,49 @@ def evaluate_case(
         run_payload=run_payload,
         unpublishable_reason=unpublishable_reason,
     )
+
+
+def evaluate_case(
+    *,
+    run_id: str,
+    case: Mapping[str, Any],
+    suite: Mapping[str, Any],
+    candidate: Mapping[str, str],
+    artifact: bytes,
+    artifact_sha256: str,
+    envelope: Envelope,
+    scoring: Mapping[str, Any],
+    gate_config: GateConfig,
+    generated_at: str,
+    levels_covered: Sequence[str] = ("L0", "L1"),
+    environment: Mapping[str, Any] | None = None,
+) -> PipelineOutcome:
+    """Replay, score, gate, and assemble attempt/result record payloads.
+
+    *scoring* declares the level and its inputs:
+    ``{"level": "oracle", "oracle": {...}}``,
+    ``{"level": "deterministic_checker", "spec": {...}}``,
+    ``{"level": "structured_rubric", "scores": {...}}``, or
+    ``{"level": "calibrated_judge", "scores": {...},
+    "calibration_sha256": "..."}``. The level must equal the case's
+    ``evaluation_contract.scorer_level`` — the case contract, not the
+    caller's mood, decides how its outputs are scored.
+    """
+
+    prepared = _prepare_evaluation(
+        run_id=run_id,
+        case=case,
+        suite=suite,
+        candidate=candidate,
+        envelope=envelope,
+        scoring=scoring,
+        gate_config=gate_config,
+        generated_at=generated_at,
+        levels_covered=levels_covered,
+        environment=environment,
+    )
+    replay = run_replay(artifact, artifact_sha256, envelope)
+    return _assemble_observation(prepared, replay, runner_identity())
 
 
 @dataclass(frozen=True)
