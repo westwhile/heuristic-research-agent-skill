@@ -1,8 +1,8 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `b9a3b8268575fe32399b83295595710944c6a772`
-- Review date: 2026-08-26
+- Baseline commit: `561919750ed31260fa76d396e57e97d7c0e467a7`
+- Review date: 2026-08-28
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
 This record defines the source and redistribution boundary for the repository's
@@ -105,6 +105,22 @@ outputs, actual runtime Skill names/digests, and local paths are not tracked;
 only public-safe hashes, counts, verdicts, score values, and match booleans are
 recorded in status documentation. PR #55 merged this inventory to main.
 
+P7D1A added five repository-native public failure-capture Module, test,
+synthetic fixture, and ADR files. P7D1B added seven repository-native Skill
+Candidate proposal Module, test, synthetic fixture, and ADR files. Their
+Math/Quant accept/reject material is independently authored contract data; no
+raw Codex output, real qualified-failure payload, real Candidate, participant
+material, vendored dependency, or third-party expression is tracked. PR #57
+and PR #58 merged these inventories to main. PR #59 only added
+`workflow_dispatch` to the already classified CI workflow and created no new
+tracked path.
+
+The repository-external P7D2 calibration used three public-safe, independently
+constructed or transformed Math cases and exact oracles. It tracks no prompt,
+raw transcript, model output, local path, Candidate payload, or external source
+artifact in this repository; this status synchronization records only aggregate
+counts, verdicts, timings, and evidence hashes in already classified documents.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -112,13 +128,14 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7C3 mainline tracked inventory contains 1132 files: the
+The P7D2 baseline mainline tracked inventory contains 1144 files: the
 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
 live-execution seam source, fixed-worker, test, and ADR files, plus three P7C2
 public forward-suite source, test, and ADR files, plus five P7C3 real-Agent Math
-smoke Module, script, test, and ADR files. The P7B1
+smoke Module, script, test, and ADR files, five P7D1A public failure-capture
+files, and seven P7D1B Candidate-proposal files. The P7B1
 inventory consists of
 the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
@@ -139,7 +156,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 977 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, and P7C3 real-Agent smoke files |
+| `independently_authored` | 989 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, and P7D1 failure/proposal files |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 35 | Independently implemented v8 compatibility and P7B2/P7B3 Skill-layout/static-validation contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -150,18 +167,19 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 977 `independently_authored`, 118 `generated`, 35
+The resulting counts are 989 `independently_authored`, 118 `generated`, 35
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
 references and independently authored repository changes; CR8 and P7B1 add
 only independently authored governance contracts and synthetic fixtures.
 P7B2/P7B3 add design-inspired but independently expressed structural/static
-contracts and synthetic fixtures; P7B4, P7C1, P7C2, and P7C3 add independently
-authored protocol/execution-seam/suite-orchestration/real-Agent-smoke code and
-synthetic probe material. P7C3 records public-safe hashes and aggregate facts
-from real Codex sessions but tracks no raw Agent/model output. None adds a real
-Skill payload, hidden case, or real independent-review artifact.
+contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, and P7D1 add
+independently authored protocol/execution-seam/suite-orchestration/real-Agent-
+smoke/failure-proposal code and synthetic probe material. P7C3 and P7D2 record
+public-safe hashes and aggregate facts from real Codex sessions but track no raw
+Agent/model output. None adds a real Skill payload, hidden case, or real
+independent-review artifact.
 
 ## External-source decisions
 
@@ -193,8 +211,9 @@ disclosure directories, separation of auxiliary project documentation from an
 installable payload, minimal platform metadata, and explicit-invocation policy.
 The repository does not copy the guidance, its examples, or any external Skill
 payload. The P7B2/P7B3 code, schemas, tests, fixtures, and ADRs are therefore
-recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7C3
-are repository-native and do not add a further external design source.
+recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7D2
+are repository-native or repository-external calibration work and do not add a
+further tracked external design source.
 
 ### math-research-solve v8 / 1.0.0–1.0.1
 
