@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-26",
-  "phase": "phase7-p7c3-single-operator-real-agent-math-smoke-main-merged",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_and_p7c3_single_operator_real_agent_math_smoke_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
+  "reviewed_at": "2026-08-28",
+  "phase": "phase7-p7d2-public-baseline-calibration-recorded",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_and_p7d2_single_operator_public_baseline_calibration_zero_qualified_failures_zero_real_candidates_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -113,6 +113,16 @@
       "name": "run_agent_skill_forward_trial",
       "version": "evaluation-attempt/v1 + evaluation-result/v1 + evaluation-run/v1",
       "status": "implemented_mainline_single_operator_public_math_smoke_only"
+    },
+    {
+      "name": "capture_public_agent_failure",
+      "version": "evaluation-attempt/v1 + evaluation-result/v1 + evaluation-run/v1 + failure-observation/v1 + failure-analysis/v1 + research-case/v1",
+      "status": "implemented_mainline_public_single_baseline_capture_seam_only"
+    },
+    {
+      "name": "propose_skill_candidate",
+      "version": "candidate-eligibility-attestation/v1 + skill-candidate-bundle/v1 + artifact-closure-receipt/v1",
+      "status": "implemented_mainline_proposal_seam_zero_real_candidates"
     }
   ],
   "ci_lanes": {
@@ -1040,6 +1050,58 @@
         "four_matrix_jobs": "success",
         "windows_governance_jobs": "success",
         "scope": "Runs four fresh ephemeral Codex sessions over two public Math cases from one exact archive, with Candidate bytes projected only into repository-external temporary workspaces and runtime-load oracles checked for explicit-load and declared-exclusion behavior. This single-operator provider-unseeded smoke is not independent fresh-session acceptance, statistical Candidate improvement, hidden evaluation, installation, activation, publication, or promotion."
+      },
+      "p7d1a": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/57",
+        "pr_head_commit": "cf3b7458d4c05420920a99a262c3685ac14d8c44",
+        "main_merge_commit": "f80ee1b990fb86943c7493cfe16f44226fc66f5d",
+        "shared_tree": "651096a956e8f95093b55342eed5c95282c1ada2",
+        "archive_sha256": "7173c70f91c6df5dac4a167c8b9437d84efba39431ed0e31707692ade4f981bf",
+        "archive_tests_per_interpreter": 1147,
+        "expected_archive_skips_per_interpreter": 6,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32979271039",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32979681718",
+        "main_ci_head_sha": "f80ee1b990fb86943c7493cfe16f44226fc66f5d",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "scope": "Adds one fail-closed public baseline failure-capture seam with deterministic and Codex CLI adapters. A real run is single-session and zero-retry, and only oracle-proven error plus closed redaction and cleanup may form a qualified failure chain. Synthetic fixtures do not prove a real failure, root cause, reusable Pattern, Candidate quality, or promotion authority."
+      },
+      "p7d1b": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/58",
+        "pr_head_commit": "b2d99e2ba88a543c871c3340aca11dc8625f3112",
+        "main_merge_commit": "f80f3e536257dff20a66fdbd95d0bfad85b165d9",
+        "shared_tree": "e0d7cb10ececaf4ed8f171a760c1a163910d1341",
+        "archive_sha256": "d82ea78d656bf38203944484a80cf0e212b75b429a6fa6d08e346a313ba21c68",
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32983501047",
+        "original_main_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/32983946454",
+        "original_main_run_outcome": "github_support_cleared_check_suite_after_control_plane_desynchronization",
+        "fresh_run_recovery_pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/59",
+        "fresh_run_recovery_main_commit": "561919750ed31260fa76d396e57e97d7c0e467a7",
+        "fresh_run_recovery_main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33137010990",
+        "fresh_run_recovery_four_matrix_jobs": "success",
+        "fresh_run_recovery_windows_governance_jobs": "success",
+        "real_candidates_generated": 0,
+        "scope": "Adds one fail-closed real Skill Candidate proposal seam with deterministic and Codex CLI adapters. Proposal eligibility requires at least two distinct qualified-failure lineages sharing one reusable Pattern and still passes existing eligibility, bundle, closure, privacy, and cleanup gates. Synthetic fixtures do not create a real Candidate or authorize materialization, review, installation, activation, publication, or promotion."
+      },
+      "p7d2": {
+        "baseline_commit": "561919750ed31260fa76d396e57e97d7c0e467a7",
+        "baseline_tree": "afc45b4c7eedccee69de3e6031876ef45fb62da0",
+        "archive_sha256": "53c37852a1b3e0c7946d9f0e5917c62df59b3d80c4c77ea7c6a336538e15a3e5",
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "xhigh",
+        "wall_clock_limit_seconds_per_case": 1800,
+        "public_cases_preregistered": 3,
+        "real_sessions_started": 3,
+        "completed_turns": 3,
+        "pass_no_failure": 3,
+        "qualified_failures": 0,
+        "retries": 0,
+        "adaptive_fourth_slot_executed": false,
+        "raw_session_transcript_output_persisted": false,
+        "batch_gate_sha256": "2901e9284968c5263ec343effd80069fb9c51e8263a5a28fb11d587b9eb65430",
+        "evidence_index_sha256": "b8ca24e1bfd6c79ef947447eb457721a52da9bca7680b5cd203598ef54fc76de",
+        "candidate_generated": false,
+        "scope": "Runs three preregistered public Math baseline calibrations in fixed order from one exact main archive. Every case uses one read-only, no-Web, zero-retry Codex session and an independent exact oracle. All three completed as pass/no_failure, so the adaptive fourth slot and Candidate gate remained closed. This single-operator calibration is not independent acceptance, scientific validation, hidden evaluation, external adoption, or promotion evidence."
       }
     }
   },
@@ -1118,7 +1180,9 @@
       "P7B4 binds exact Candidate, P7B3 receipt, synthetic review evidence bytes, reviewer declarations, and seven semantic dimensions while fixing every real-independent-review and later-lifecycle claim to false",
       "P7C1 runs deterministic synthetic baseline/candidate observations through one seam, binds the exact Skill-only axis plus frozen public evaluation artifacts, and records failures through mandatory attempts without claiming a real Agent, secure sandbox, fresh session, or promotion",
       "P7C2 preflights and executes a complete synthetic case-by-seed grid through the existing P7C1 seam, preserves every failed attempt, and creates an existing suite comparison only when every cell has result/run records",
-      "P7C3 recorded four distinct ephemeral Codex sessions and completed turns across explicit-load and declared-exclusion public Math cases, verified Candidate runtime name/digest oracles without exposing them to prompts, and cleaned all temporary workspaces"
+      "P7C3 recorded four distinct ephemeral Codex sessions and completed turns across explicit-load and declared-exclusion public Math cases, verified Candidate runtime name/digest oracles without exposing them to prompts, and cleaned all temporary workspaces",
+      "P7D1A and P7D1B add fail-closed public failure-capture and Candidate-proposal seams while keeping passing, inconclusive, non-oracle, under-lineage, privacy-open, and cleanup-open paths from becoming qualified failures or real Candidates",
+      "P7D2 recorded three fixed-order public Math baseline sessions from one exact main archive; all three independent exact oracles returned pass/no_failure, so zero retries, zero adaptive sibling runs, and zero Candidate generations occurred"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -1148,11 +1212,13 @@
     "P7C1 is P7C1_EXECUTION_SEAM_READY / ZERO_REAL_AGENT_EXECUTIONS / ZERO_REAL_INDEPENDENT_REVIEWS / ZERO_PROMOTIONS; deterministic synthetic adapter observations do not establish real Codex/model behavior, a secure sandbox, fresh-session independence, Candidate improvement, or later lifecycle authority.",
     "P7C2 is P7C2_PUBLIC_FORWARD_SUITE_READY / ZERO_REAL_AGENT_EXECUTIONS / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; a complete synthetic case-by-seed grid and public suite comparison do not establish real Candidate execution, independent fresh-session behavior, hidden-suite independence, Candidate improvement, or lifecycle authority.",
     "P7C3 is P7C3_REAL_AGENT_SMOKE_RECORDED / ZERO_INDEPENDENT_FORWARD_ACCEPTANCES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; four successful ephemeral Codex turns on two public Math cases from one operator do not establish independent acceptance, statistical improvement, hidden-suite independence, research validity, external adoption, or lifecycle authority.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7C3 did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7D1A/P7D1B are capture/proposal engineering seams: synthetic accepted and rejected fixtures do not establish a real qualified failure, shared reusable mechanism, real Candidate, independent review, installation, activation, or promotion.",
+    "P7D2 is P7D2_PUBLIC_BASELINE_CALIBRATION_RECORDED / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; three passing single-operator public Math sessions are calibration evidence only and do not establish independent forward acceptance, scientific validity, external adoption, or lifecycle authority.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7D2 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
-    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam, P7C2 adds complete public synthetic suite orchestration, and P7C3 adds one bounded real-Agent public Math smoke, but none proves real independent semantic review, independent fresh-session acceptance, hidden evaluation, Candidate improvement, or promotion authority.",
+    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam, P7C2 adds complete public synthetic suite orchestration, P7C3 adds one bounded real-Agent public Math smoke, P7D1 adds failure/proposal seams, and P7D2 adds three passing baseline calibrations, but none proves real independent semantic review, independent fresh-session acceptance, hidden evaluation, Candidate improvement, or promotion authority.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
