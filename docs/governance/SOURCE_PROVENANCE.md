@@ -121,6 +121,14 @@ raw transcript, model output, local path, Candidate payload, or external source
 artifact in this repository; this status synchronization records only aggregate
 counts, verdicts, timings, and evidence hashes in already classified documents.
 
+The repository-external P7D3 calibration used six maintainer-constructed public
+line-graph cases, exact stable-set/monomial/Kostka oracles, and three real
+single-operator Codex sessions. It tracks no prompt, raw transcript, model output,
+local path, Candidate payload, or external source artifact. The recorded
+`frontier-a` outcome is execution/cleanup-inconclusive, not a mathematical or
+model failure; only aggregate verdicts, hashes, counts, and evidence boundaries
+enter the already classified status documents.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -128,7 +136,7 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7D2 baseline mainline tracked inventory contains 1144 files: the
+The P7D3 baseline mainline tracked inventory contains 1144 files: the
 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
@@ -176,7 +184,7 @@ only independently authored governance contracts and synthetic fixtures.
 P7B2/P7B3 add design-inspired but independently expressed structural/static
 contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, and P7D1 add
 independently authored protocol/execution-seam/suite-orchestration/real-Agent-
-smoke/failure-proposal code and synthetic probe material. P7C3 and P7D2 record
+smoke/failure-proposal code and synthetic probe material. P7C3, P7D2, and P7D3 record
 public-safe hashes and aggregate facts from real Codex sessions but track no raw
 Agent/model output. None adds a real Skill payload, hidden case, or real
 independent-review artifact.
@@ -211,7 +219,7 @@ disclosure directories, separation of auxiliary project documentation from an
 installable payload, minimal platform metadata, and explicit-invocation policy.
 The repository does not copy the guidance, its examples, or any external Skill
 payload. The P7B2/P7B3 code, schemas, tests, fixtures, and ADRs are therefore
-recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7D2
+recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7D3
 are repository-native or repository-external calibration work and do not add a
 further tracked external design source.
 
