@@ -18,7 +18,6 @@ import os
 import re
 import shutil
 import stat
-import subprocess
 import tempfile
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -35,6 +34,7 @@ from research_evolution.evaluation.pipeline import (
 )
 from research_evolution.evaluation.runner import ReplayResult
 
+from ._process_containment import process_facts_are_valid, run_process_contained
 from .skill_forward_test import (
     SkillForwardTestError,
     SkillForwardTestPlan,
@@ -102,6 +102,9 @@ class AgentExecutionObservation:
     transcript_sha256: str | None
     stderr_sha256: str | None
     usage: dict[str, int]
+    execution_status: str
+    process_cleanup_status: str
+    process_tree_cleanup_verified: bool
 
 
 class AgentForwardExecutor(Protocol):
@@ -260,6 +263,9 @@ class DeterministicAgentForwardAdapter:
                 transcript_sha256=None,
                 stderr_sha256=None,
                 usage={},
+                execution_status="not_applicable",
+                process_cleanup_status="not_applicable",
+                process_tree_cleanup_verified=True,
             )
         output = self._outputs[request.arm]
         if len(output) > envelope.max_output_bytes:
@@ -306,6 +312,9 @@ class DeterministicAgentForwardAdapter:
             transcript_sha256=hashlib.sha256(transcript).hexdigest(),
             stderr_sha256=None,
             usage={},
+            execution_status="not_applicable",
+            process_cleanup_status="not_applicable",
+            process_tree_cleanup_verified=True,
         )
 
 
@@ -455,41 +464,67 @@ class CodexCliAgentAdapter:
     def execute(
         self, request: AgentForwardExecutionRequest, envelope: Envelope
     ) -> AgentExecutionObservation:
-        try:
-            completed = subprocess.run(
-                self._command(request),
-                cwd=request.workspace,
-                env=_filtered_codex_environment(),
-                input=request.prompt.encode("utf-8"),
-                capture_output=True,
-                timeout=envelope.timeout_ms / 1000,
-                check=False,
-            )
-        except subprocess.TimeoutExpired as exc:
-            trace = exc.stdout if isinstance(exc.stdout, bytes) else b""
-            stderr = exc.stderr if isinstance(exc.stderr, bytes) else b""
-            session_id, turn_completed, usage = _trace_facts(trace)
+        completed = run_process_contained(
+            self._command(request),
+            cwd=request.workspace,
+            env=_filtered_codex_environment(),
+            input_bytes=request.prompt.encode("utf-8"),
+            timeout_seconds=envelope.timeout_ms / 1000,
+        )
+        trace = completed.stdout
+        stderr = completed.stderr
+        session_id, turn_completed, usage = _trace_facts(trace)
+        trace_sha_optional = hashlib.sha256(trace).hexdigest() if trace else None
+        stderr_sha_optional = hashlib.sha256(stderr).hexdigest() if stderr else None
+        if completed.execution_status == "cleanup_failed":
             return AgentExecutionObservation(
                 replay=ReplayResult(
                     False,
                     None,
                     None,
-                    "timeout",
-                    "Codex CLI exceeded the frozen timeout",
+                    "runner_error",
+                    "Codex CLI process-tree cleanup failed",
                     1,
                 ),
-                launcher_process_started=True,
+                launcher_process_started=completed.process_started,
                 agent_session_started=session_id is not None,
                 agent_turn_completed=turn_completed,
                 session_id=session_id,
                 runtime_loaded=False,
                 observed_skill_name=None,
                 observed_skill_sha256=None,
-                transcript_sha256=hashlib.sha256(trace).hexdigest() if trace else None,
-                stderr_sha256=hashlib.sha256(stderr).hexdigest() if stderr else None,
+                transcript_sha256=trace_sha_optional,
+                stderr_sha256=stderr_sha_optional,
                 usage=usage,
+                execution_status=completed.execution_status,
+                process_cleanup_status=completed.process_cleanup_status,
+                process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
             )
-        except OSError:
+        if completed.execution_status == "timeout":
+            return AgentExecutionObservation(
+                replay=ReplayResult(
+                    False,
+                    None,
+                    None,
+                    "timeout",
+                    "Codex CLI exceeded the frozen timeout; process tree cleanup verified",
+                    1,
+                ),
+                launcher_process_started=completed.process_started,
+                agent_session_started=session_id is not None,
+                agent_turn_completed=turn_completed,
+                session_id=session_id,
+                runtime_loaded=False,
+                observed_skill_name=None,
+                observed_skill_sha256=None,
+                transcript_sha256=trace_sha_optional,
+                stderr_sha256=stderr_sha_optional,
+                usage=usage,
+                execution_status=completed.execution_status,
+                process_cleanup_status=completed.process_cleanup_status,
+                process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
+            )
+        if completed.execution_status == "launch_failed":
             return AgentExecutionObservation(
                 replay=ReplayResult(
                     False,
@@ -499,20 +534,21 @@ class CodexCliAgentAdapter:
                     "Codex CLI process could not be started",
                     1,
                 ),
-                launcher_process_started=False,
-                agent_session_started=False,
-                agent_turn_completed=False,
-                session_id=None,
+                launcher_process_started=completed.process_started,
+                agent_session_started=session_id is not None,
+                agent_turn_completed=turn_completed,
+                session_id=session_id,
                 runtime_loaded=False,
                 observed_skill_name=None,
                 observed_skill_sha256=None,
-                transcript_sha256=None,
-                stderr_sha256=None,
-                usage={},
+                transcript_sha256=trace_sha_optional,
+                stderr_sha256=stderr_sha_optional,
+                usage=usage,
+                execution_status=completed.execution_status,
+                process_cleanup_status=completed.process_cleanup_status,
+                process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
             )
 
-        trace = completed.stdout
-        stderr = completed.stderr if isinstance(completed.stderr, bytes) else b""
         trace_sha = hashlib.sha256(trace).hexdigest()
         stderr_sha = hashlib.sha256(stderr).hexdigest()
         if len(trace) > self._trace_max_bytes:
@@ -536,8 +572,10 @@ class CodexCliAgentAdapter:
                 transcript_sha256=trace_sha,
                 stderr_sha256=stderr_sha,
                 usage={},
+                execution_status=completed.execution_status,
+                process_cleanup_status=completed.process_cleanup_status,
+                process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
             )
-        session_id, turn_completed, usage = _trace_facts(trace)
         if completed.returncode != 0:
             replay = ReplayResult(
                 False,
@@ -601,6 +639,9 @@ class CodexCliAgentAdapter:
             transcript_sha256=trace_sha,
             stderr_sha256=stderr_sha,
             usage=usage,
+            execution_status=completed.execution_status,
+            process_cleanup_status=completed.process_cleanup_status,
+            process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
         )
 
 
@@ -759,6 +800,9 @@ def _normalize_observation(value: Any) -> AgentExecutionObservation:
             transcript_sha256=None,
             stderr_sha256=None,
             usage={},
+            execution_status="executor_failed",
+            process_cleanup_status="unverified",
+            process_tree_cleanup_verified=False,
         )
     replay = value.replay
     if not isinstance(replay, ReplayResult):
@@ -776,6 +820,12 @@ def _normalize_observation(value: Any) -> AgentExecutionObservation:
         raise AgentForwardTrialError("Agent session fact and session id disagree")
     if value.agent_turn_completed and not value.agent_session_started:
         raise AgentForwardTrialError("Agent turn completion requires a started session")
+    if not process_facts_are_valid(
+        value.execution_status,
+        value.process_cleanup_status,
+        value.process_tree_cleanup_verified,
+    ):
+        raise AgentForwardTrialError("Agent execution and cleanup facts are inconsistent")
     if value.transcript_sha256 is not None and _HEX_64.fullmatch(value.transcript_sha256) is None:
         raise AgentForwardTrialError("Agent transcript hash is invalid")
     if value.stderr_sha256 is not None and _HEX_64.fullmatch(value.stderr_sha256) is None:
@@ -823,6 +873,9 @@ def _execute_once(
             transcript_sha256=None,
             stderr_sha256=None,
             usage={},
+            execution_status="executor_failed",
+            process_cleanup_status="unverified",
+            process_tree_cleanup_verified=False,
         )
     return _normalize_observation(value)
 
@@ -979,6 +1032,9 @@ def run_agent_skill_forward_trial(
             "launcher_process_started": observation.launcher_process_started,
             "agent_session_started": observation.agent_session_started,
             "agent_turn_completed": observation.agent_turn_completed,
+            "execution_status": observation.execution_status,
+            "process_cleanup_status": observation.process_cleanup_status,
+            "process_tree_cleanup_verified": observation.process_tree_cleanup_verified,
             "ephemeral_session": policy["ephemeral"],
             "sandbox": policy["sandbox"],
             "approval_policy": policy["approval_policy"],
@@ -1031,6 +1087,8 @@ def run_agent_skill_forward_trial(
     if not workspace_cleaned:
         blockers.append("workspace_cleanup_failed")
     for arm in _ARMS:
+        if not observations[arm].process_tree_cleanup_verified:
+            blockers.append(f"{arm}_process_tree_cleanup_failed")
         if not runtime_matches[arm]:
             blockers.append(f"{arm}_runtime_expectation_failed")
         if outcomes[arm].result_payload is None:
@@ -1067,6 +1125,9 @@ def run_agent_skill_forward_trial(
     claims = {
         "candidate_payload_materialized_ephemerally": True,
         "workspace_cleanup_verified": workspace_cleaned,
+        "process_tree_cleanup_verified": all(
+            observation.process_tree_cleanup_verified for observation in observations.values()
+        ),
         "runtime_expectation_verified": all(runtime_matches.values()),
         "candidate_runtime_loaded": observations["candidate"].runtime_loaded,
         "real_agent_session_observed": real_sessions_observed,

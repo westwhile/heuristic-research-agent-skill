@@ -16,6 +16,7 @@ from research_evolution.evaluation import Envelope
 from research_evolution.evolution import (
     DeterministicPublicFailureAdapter,
     DeterministicSkillCandidateAdapter,
+    SkillCandidateGenerationObservation,
     SkillCandidateProposalError,
     SkillCandidateProposalPlan,
     capture_public_agent_failure,
@@ -226,6 +227,29 @@ def _proposal_plan(domain: str = "math") -> SkillCandidateProposalPlan:
 
 
 class SkillCandidateProposalTest(unittest.TestCase):
+    def test_process_tree_cleanup_failure_blocks_candidate_generation(self) -> None:
+        class CleanupFailureAdapter(DeterministicSkillCandidateAdapter):
+            def generate(self, request, envelope) -> SkillCandidateGenerationObservation:
+                observed = super().generate(request, envelope)
+                return replace(
+                    observed,
+                    execution_status="cleanup_failed",
+                    process_cleanup_status="failed",
+                    process_tree_cleanup_verified=False,
+                )
+
+        adapter = CleanupFailureAdapter(
+            _fixture("math-accept.json"),
+            model="fixture-model",
+            reasoning_effort="fixture-reasoning",
+        )
+        outcome = propose_skill_candidate(_proposal_plan(), adapter)
+
+        self.assertEqual(outcome.status, "proposal_inconclusive")
+        self.assertIn("process_tree_cleanup_failed", outcome.blockers)
+        self.assertFalse(outcome.claims["process_tree_cleanup_verified"])
+        self.assertIsNone(outcome.candidate_bundle)
+
     def test_math_and_quant_accept_through_one_existing_schema_seam(self) -> None:
         bundles = []
         for domain in ("math", "quant"):
@@ -258,7 +282,7 @@ class SkillCandidateProposalTest(unittest.TestCase):
                     set(outcome.payload_bytes), {"SKILL.md", "agents/openai.yaml"}
                 )
                 self.assertIn(
-                    f"public-{domain}-recovery".encode("utf-8"),
+                    f"public-{domain}-recovery".encode(),
                     outcome.member_bytes["members/candidate-payload.json"],
                 )
                 self.assertEqual(len(outcome.eligibility_evidence_bytes), 7)

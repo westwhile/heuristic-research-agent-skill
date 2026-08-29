@@ -5,7 +5,6 @@ from __future__ import annotations
 import copy
 import hashlib
 import os
-import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -23,6 +22,7 @@ from research_evolution.evolution import (
     DeterministicAgentForwardAdapter,
     run_agent_skill_forward_trial,
 )
+from research_evolution.evolution._process_containment import ContainedProcessResult
 
 from .test_skill_forward_test import _plan as _p7c1_plan
 
@@ -377,7 +377,7 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
                 reasoning_effort="xhigh",
             )
 
-            def fake_run(command: list[str], **kwargs: Any) -> subprocess.CompletedProcess[bytes]:
+            def fake_run(command: list[str], **kwargs: Any) -> ContainedProcessResult:
                 captured["command"] = command
                 captured["kwargs"] = kwargs
                 final.write_bytes(output)
@@ -386,7 +386,15 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
                     b'{"type":"turn.completed","usage":{"input_tokens":12,'
                     b'"output_tokens":8}}\n'
                 )
-                return subprocess.CompletedProcess(command, 0, trace, b"private stderr")
+                return ContainedProcessResult(
+                    returncode=0,
+                    stdout=trace,
+                    stderr=b"private stderr",
+                    process_started=True,
+                    execution_status="completed",
+                    process_cleanup_status="not_required",
+                    process_tree_cleanup_verified=True,
+                )
 
             secret_env = {
                 "GH_TOKEN": "not-forwarded",
@@ -397,7 +405,7 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
             with (
                 patch.dict(os.environ, secret_env, clear=False),
                 patch(
-                    "research_evolution.evolution.agent_forward_trial.subprocess.run",
+                    "research_evolution.evolution.agent_forward_trial.run_process_contained",
                     side_effect=fake_run,
                 ),
             ):
@@ -424,6 +432,9 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
         self.assertTrue(observed.agent_turn_completed)
         self.assertEqual(observed.session_id, "fresh-session-1")
         self.assertTrue(observed.runtime_loaded)
+        self.assertEqual(observed.execution_status, "completed")
+        self.assertEqual(observed.process_cleanup_status, "not_required")
+        self.assertTrue(observed.process_tree_cleanup_verified)
         self.assertEqual(observed.observed_skill_sha256, "a" * 64)
         self.assertEqual(observed.usage, {"input_tokens": 12, "output_tokens": 8})
         self.assertEqual(
@@ -431,6 +442,62 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
             hashlib.sha256(b"private stderr").hexdigest(),
         )
         self.assertNotIn("private stderr", str(observed))
+
+    def test_cleanup_failure_overrides_timeout_and_blocks_execution_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            launcher = root / "codex-cli.ps1"
+            powershell = root / "pwsh.exe"
+            launcher.write_text("# fixture", encoding="utf-8")
+            powershell.write_bytes(b"fixture")
+            workspace = root / "workspace"
+            workspace.mkdir()
+            schema = workspace / "schema.json"
+            schema.write_text("{}", encoding="utf-8")
+            request = AgentForwardExecutionRequest(
+                trial_id="p7d3-cleanup-failure",
+                arm="baseline",
+                workspace=workspace,
+                prompt="bounded public prompt",
+                output_schema_path=schema,
+                final_output_path=workspace / "final.json",
+                skill_name="p7c3-math-probe",
+                skill_md_sha256="a" * 64,
+                candidate_bundle_sha256="b" * 64,
+                axes_sha256="c" * 64,
+            )
+            adapter = CodexCliAgentAdapter(
+                launcher,
+                powershell=powershell,
+                cli_version="0.146.0",
+                model="gpt-5.6-sol",
+                reasoning_effort="xhigh",
+            )
+            failed = ContainedProcessResult(
+                returncode=1,
+                stdout=b'{{"type":"thread.started","thread_id":"private-session"}}\n',
+                stderr=b"private cleanup detail",
+                process_started=True,
+                execution_status="cleanup_failed",
+                process_cleanup_status="failed",
+                process_tree_cleanup_verified=False,
+            )
+            with patch(
+                "research_evolution.evolution.agent_forward_trial.run_process_contained",
+                return_value=failed,
+            ):
+                observed = adapter.execute(
+                    request,
+                    Envelope(timeout_ms=20, max_output_bytes=1 << 20),
+                )
+
+        self.assertEqual(observed.replay.error_class, "runner_error")
+        self.assertEqual(observed.replay.error_detail, "Codex CLI process-tree cleanup failed")
+        self.assertEqual(observed.execution_status, "cleanup_failed")
+        self.assertEqual(observed.process_cleanup_status, "failed")
+        self.assertFalse(observed.process_tree_cleanup_verified)
+        self.assertNotIn("private-session", str(observed))
+        self.assertNotIn("private cleanup detail", str(observed))
 
     def test_launcher_failure_is_not_claimed_as_real_agent_execution(self) -> None:
         plan = _trial_plan(
@@ -481,6 +548,9 @@ class CodexCliAgentAdapterTest(unittest.TestCase):
                     transcript_sha256=None,
                     stderr_sha256=hashlib.sha256(failure).hexdigest(),
                     usage={},
+                    execution_status="completed",
+                    process_cleanup_status="not_required",
+                    process_tree_cleanup_verified=True,
                 )
 
         outcome = run_agent_skill_forward_trial(plan, LauncherFailureAdapter())
