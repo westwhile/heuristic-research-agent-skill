@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-28",
-  "phase": "phase7-p7d2-public-baseline-calibration-recorded",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_and_p7d2_single_operator_public_baseline_calibration_zero_qualified_failures_zero_real_candidates_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
+  "reviewed_at": "2026-08-29",
+  "phase": "phase7-p7d3-schur-frontier-calibration-recorded",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_p7d2_single_operator_public_baseline_calibration_and_p7d3_single_operator_schur_frontier_calibration_zero_qualified_failures_zero_real_candidates_execution_containment_hardening_required_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -1102,6 +1102,30 @@
         "evidence_index_sha256": "b8ca24e1bfd6c79ef947447eb457721a52da9bca7680b5cd203598ef54fc76de",
         "candidate_generated": false,
         "scope": "Runs three preregistered public Math baseline calibrations in fixed order from one exact main archive. Every case uses one read-only, no-Web, zero-retry Codex session and an independent exact oracle. All three completed as pass/no_failure, so the adaptive fourth slot and Candidate gate remained closed. This single-operator calibration is not independent acceptance, scientific validation, hidden evaluation, external adoption, or promotion evidence."
+      },
+      "p7d3": {
+        "baseline_commit": "ad60f0b678615412fa9859df6c8e6a49e7a79a33",
+        "baseline_tree": "95d3311483568f519c33fbc972431c90fe7b03f2",
+        "archive_sha256": "dafff342235df24d770de500bcf07cd18a9ea09e08d86d8f919b5fd1ab302aed",
+        "model": "gpt-5.6-sol",
+        "reasoning_effort": "xhigh",
+        "wall_clock_limit_seconds_per_case": 1800,
+        "public_primary_cases_preregistered": 3,
+        "public_sibling_cases_preregistered": 3,
+        "real_sessions_started": 3,
+        "scored_results": 2,
+        "pass_no_failure": 2,
+        "capture_inconclusive": 1,
+        "qualified_failures": 0,
+        "retries": 0,
+        "adaptive_fourth_slot_executed": false,
+        "raw_session_transcript_output_persisted": false,
+        "preregistration_sha256": "66f8fab2b4652a08c77050307ab8b8158b6f0c62af1594e1cf2156dc8ba0fa86",
+        "execution_safety_addendum_sha256": "84c135ed94c880b9774acdc99fb935ecd2a723f2dc5cf4895d572edf7e5dd0a1",
+        "batch_gate_sha256": "a8df6db3df1a110fda08840239b07d8d262a7d2f4353fa7eb44b0861653bf5f9",
+        "evidence_index_sha256": "4b33ec3088fbc2b8b3f48842db6d6b833f742053e2920bb58e162f3f180bf85e",
+        "candidate_generated": false,
+        "scope": "Runs three preregistered, pairwise nonisomorphic and non-relabelled public line-graph Math calibrations in fixed order from one exact main archive, with independent exact stable-set/monomial/Kostka oracles. Two sessions returned pass/no_failure. One reached the frozen execution timeout and then exposed delayed Windows descendant-pipe cleanup, so it remains capture_inconclusive rather than a model failure. Zero qualified failures kept the adaptive sibling and Candidate gates closed."
       }
     }
   },
@@ -1182,7 +1206,8 @@
       "P7C2 preflights and executes a complete synthetic case-by-seed grid through the existing P7C1 seam, preserves every failed attempt, and creates an existing suite comparison only when every cell has result/run records",
       "P7C3 recorded four distinct ephemeral Codex sessions and completed turns across explicit-load and declared-exclusion public Math cases, verified Candidate runtime name/digest oracles without exposing them to prompts, and cleaned all temporary workspaces",
       "P7D1A and P7D1B add fail-closed public failure-capture and Candidate-proposal seams while keeping passing, inconclusive, non-oracle, under-lineage, privacy-open, and cleanup-open paths from becoming qualified failures or real Candidates",
-      "P7D2 recorded three fixed-order public Math baseline sessions from one exact main archive; all three independent exact oracles returned pass/no_failure, so zero retries, zero adaptive sibling runs, and zero Candidate generations occurred"
+      "P7D2 recorded three fixed-order public Math baseline sessions from one exact main archive; all three independent exact oracles returned pass/no_failure, so zero retries, zero adaptive sibling runs, and zero Candidate generations occurred",
+      "P7D3 preregistered six public line-graph cases and exact stable-set/monomial/Kostka oracles, then ran three fixed-order primary sessions with zero retries; two returned pass/no_failure and one remained capture_inconclusive after execution timeout plus delayed descendant cleanup, so zero qualified failures and zero Candidate generations occurred"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -1214,11 +1239,12 @@
     "P7C3 is P7C3_REAL_AGENT_SMOKE_RECORDED / ZERO_INDEPENDENT_FORWARD_ACCEPTANCES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; four successful ephemeral Codex turns on two public Math cases from one operator do not establish independent acceptance, statistical improvement, hidden-suite independence, research validity, external adoption, or lifecycle authority.",
     "P7D1A/P7D1B are capture/proposal engineering seams: synthetic accepted and rejected fixtures do not establish a real qualified failure, shared reusable mechanism, real Candidate, independent review, installation, activation, or promotion.",
     "P7D2 is P7D2_PUBLIC_BASELINE_CALIBRATION_RECORDED / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; three passing single-operator public Math sessions are calibration evidence only and do not establish independent forward acceptance, scientific validity, external adoption, or lifecycle authority.",
-    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7D2 did not receive, inspect, modify, or supersede participant materials or hashes.",
+    "P7D3 is P7D3_SCHUR_FRONTIER_CALIBRATION_RECORDED / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / EXECUTION_CONTAINMENT_HARDENING_REQUIRED / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; two passing sessions and one execution/cleanup-inconclusive session do not establish a model failure, independent acceptance, scientific validity, external adoption, or lifecycle authority.",
+    "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7D3 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
     "CR4-CR8 are protocol and correctness engineering: they do not prove a candidate Agent executed, a Skill improved behavior, a hidden evaluator remained independent, or a promotion decision is valid.",
-    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam, P7C2 adds complete public synthetic suite orchestration, P7C3 adds one bounded real-Agent public Math smoke, P7D1 adds failure/proposal seams, and P7D2 adds three passing baseline calibrations, but none proves real independent semantic review, independent fresh-session acceptance, hidden evaluation, Candidate improvement, or promotion authority.",
+    "P7B2 closes exact eligibility-evidence bytes with a synthetic candidate payload; P7B3 and P7B4 add static-validation and semantic-review protocol records; P7C1 adds a bounded synthetic execution seam, P7C2 adds complete public synthetic suite orchestration, P7C3 adds one bounded real-Agent public Math smoke, P7D1 adds failure/proposal seams, and P7D2/P7D3 add six single-operator baseline calibrations, but none proves real independent semantic review, independent fresh-session acceptance, hidden evaluation, Candidate improvement, or promotion authority.",
     "PyTorch is caller-managed and not a base package dependency; no framework payload is vendored.",
     "No v0.7.0 tag or release gate is open without separately authorized real framework, hardware, dataset, and reproducibility evidence."
   ]
