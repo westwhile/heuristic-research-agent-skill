@@ -129,6 +129,12 @@ local path, Candidate payload, or external source artifact. The recorded
 model failure; only aggregate verdicts, hashes, counts, and evidence boundaries
 enter the already classified status documents.
 
+P7D3 execution-containment hardening adds four independently authored,
+repository-native source, test, fixture, and ADR files. It vendors no operating-
+system implementation, external process supervisor, model output, Skill payload,
+or third-party expression. PR #62 merged these paths to main; this status
+synchronization changes only already classified governance documents.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -136,14 +142,15 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7D3 baseline mainline tracked inventory contains 1144 files: the
+The P7D3 execution-containment-hardened mainline tracked inventory contains 1148 files: the
 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
 live-execution seam source, fixed-worker, test, and ADR files, plus three P7C2
 public forward-suite source, test, and ADR files, plus five P7C3 real-Agent Math
 smoke Module, script, test, and ADR files, five P7D1A public failure-capture
-files, and seven P7D1B Candidate-proposal files. The P7B1
+files, seven P7D1B Candidate-proposal files, and four P7D3 execution-containment
+source, test, fixture, and ADR files. The P7B1
 inventory consists of
 the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
@@ -164,7 +171,7 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 989 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, and P7D1 failure/proposal files |
+| `independently_authored` | 993 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, P7D1 failure/proposal, and P7D3 containment files |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
 | `design_inspired` | 35 | Independently implemented v8 compatibility and P7B2/P7B3 Skill-layout/static-validation contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
@@ -175,16 +182,16 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 989 `independently_authored`, 118 `generated`, 35
+The resulting counts are 993 `independently_authored`, 118 `generated`, 35
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
 references and independently authored repository changes; CR8 and P7B1 add
 only independently authored governance contracts and synthetic fixtures.
 P7B2/P7B3 add design-inspired but independently expressed structural/static
-contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, and P7D1 add
+contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, P7D1, and P7D3 hardening add
 independently authored protocol/execution-seam/suite-orchestration/real-Agent-
-smoke/failure-proposal code and synthetic probe material. P7C3, P7D2, and P7D3 record
+smoke/failure-proposal/containment code and synthetic probe material. P7C3, P7D2, and P7D3 record
 public-safe hashes and aggregate facts from real Codex sessions but track no raw
 Agent/model output. None adds a real Skill payload, hidden case, or real
 independent-review artifact.

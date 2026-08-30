@@ -1,8 +1,8 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-29",
-  "phase": "phase7-p7d3-schur-frontier-calibration-recorded",
-  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_p7d2_single_operator_public_baseline_calibration_and_p7d3_single_operator_schur_frontier_calibration_zero_qualified_failures_zero_real_candidates_execution_containment_hardening_required_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
+  "reviewed_at": "2026-08-30",
+  "phase": "phase7-p7d3-execution-containment-hardened",
+  "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_p7d2_single_operator_public_baseline_calibration_p7d3_single_operator_schur_frontier_calibration_and_execution_containment_hardened_engineering_only_zero_qualified_failures_zero_real_candidates_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
   "interfaces": [
     {
       "name": "DLRunManifest",
@@ -112,7 +112,7 @@
     {
       "name": "run_agent_skill_forward_trial",
       "version": "evaluation-attempt/v1 + evaluation-result/v1 + evaluation-run/v1",
-      "status": "implemented_mainline_single_operator_public_math_smoke_only"
+      "status": "implemented_mainline_single_operator_public_math_smoke_with_fail_closed_process_tree_containment_engineering_only"
     },
     {
       "name": "capture_public_agent_failure",
@@ -1126,6 +1126,33 @@
         "evidence_index_sha256": "4b33ec3088fbc2b8b3f48842db6d6b833f742053e2920bb58e162f3f180bf85e",
         "candidate_generated": false,
         "scope": "Runs three preregistered, pairwise nonisomorphic and non-relabelled public line-graph Math calibrations in fixed order from one exact main archive, with independent exact stable-set/monomial/Kostka oracles. Two sessions returned pass/no_failure. One reached the frozen execution timeout and then exposed delayed Windows descendant-pipe cleanup, so it remains capture_inconclusive rather than a model failure. Zero qualified failures kept the adaptive sibling and Candidate gates closed."
+      },
+      "p7d3_execution_containment_hardening": {
+        "pr_url": "https://github.com/westwhile/heuristic-research-agent-skill/pull/62",
+        "pr_head_commit": "17b48ab9ef912c6221381f4ed3798e87fa142989",
+        "main_merge_commit": "968b70480c544fb22c202df602ca6459b3c6e6ff",
+        "shared_tree": "a182a57225785679efeb2fa615470afe63a30205",
+        "archive_sha256": "14ac38a61c0cc72faefe7d218f964081a209b16668c96e9097ed82369f96ef6e",
+        "archive_tests_per_interpreter": 1161,
+        "expected_archive_skips_per_interpreter": 6,
+        "clean_archive_install_python_3_12": "success",
+        "clean_archive_install_python_3_14": "success",
+        "branch_coverage_percent": 81,
+        "mypy_source_files": 39,
+        "mypy_target_platforms": [
+          "linux",
+          "win32"
+        ],
+        "cuda_stable_projection_sha256": "3f1e121786931befddaae5bcc52fbba377cd4cb798e43fafaa24898b20713ffe",
+        "cuda_receipt_output_written": false,
+        "pr_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33284411205",
+        "main_ci_run_url": "https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33284605519",
+        "main_ci_head_sha": "968b70480c544fb22c202df602ca6459b3c6e6ff",
+        "four_matrix_jobs": "success",
+        "windows_governance_jobs": "success",
+        "qualified_failure_verdicts_changed": false,
+        "real_candidates_generated": 0,
+        "scope": "Adds one private process-containment module beneath the existing Agent forward-trial interface. POSIX process groups and Windows descendant enumeration plus exact-PID fallback make timeout cleanup, reap, and verification fail closed; cleanup failure remains distinct from timeout and blocks qualified-failure and Candidate-proposal claims. Deterministic Windows/Ubuntu tests are engineering evidence only, not hostile-process isolation, a secure sandbox, Agent quality, scientific validity, hidden evaluation, installation, activation, publication, or promotion."
       }
     }
   },
@@ -1207,7 +1234,8 @@
       "P7C3 recorded four distinct ephemeral Codex sessions and completed turns across explicit-load and declared-exclusion public Math cases, verified Candidate runtime name/digest oracles without exposing them to prompts, and cleaned all temporary workspaces",
       "P7D1A and P7D1B add fail-closed public failure-capture and Candidate-proposal seams while keeping passing, inconclusive, non-oracle, under-lineage, privacy-open, and cleanup-open paths from becoming qualified failures or real Candidates",
       "P7D2 recorded three fixed-order public Math baseline sessions from one exact main archive; all three independent exact oracles returned pass/no_failure, so zero retries, zero adaptive sibling runs, and zero Candidate generations occurred",
-      "P7D3 preregistered six public line-graph cases and exact stable-set/monomial/Kostka oracles, then ran three fixed-order primary sessions with zero retries; two returned pass/no_failure and one remained capture_inconclusive after execution timeout plus delayed descendant cleanup, so zero qualified failures and zero Candidate generations occurred"
+      "P7D3 preregistered six public line-graph cases and exact stable-set/monomial/Kostka oracles, then ran three fixed-order primary sessions with zero retries; two returned pass/no_failure and one remained capture_inconclusive after execution timeout plus delayed descendant cleanup, so zero qualified failures and zero Candidate generations occurred",
+      "P7D3 execution-containment hardening verifies deterministic parent-child-grandchild timeout cleanup on required Windows/Ubuntu lanes, records cleanup failure separately from timeout, and blocks qualified-failure or Candidate claims whenever process-tree cleanup is unverified"
     ],
     "not_verified": [
       "cross-GPU numerical reproducibility",
@@ -1239,7 +1267,7 @@
     "P7C3 is P7C3_REAL_AGENT_SMOKE_RECORDED / ZERO_INDEPENDENT_FORWARD_ACCEPTANCES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; four successful ephemeral Codex turns on two public Math cases from one operator do not establish independent acceptance, statistical improvement, hidden-suite independence, research validity, external adoption, or lifecycle authority.",
     "P7D1A/P7D1B are capture/proposal engineering seams: synthetic accepted and rejected fixtures do not establish a real qualified failure, shared reusable mechanism, real Candidate, independent review, installation, activation, or promotion.",
     "P7D2 is P7D2_PUBLIC_BASELINE_CALIBRATION_RECORDED / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; three passing single-operator public Math sessions are calibration evidence only and do not establish independent forward acceptance, scientific validity, external adoption, or lifecycle authority.",
-    "P7D3 is P7D3_SCHUR_FRONTIER_CALIBRATION_RECORDED / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / EXECUTION_CONTAINMENT_HARDENING_REQUIRED / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; two passing sessions and one execution/cleanup-inconclusive session do not establish a model failure, independent acceptance, scientific validity, external adoption, or lifecycle authority.",
+    "P7D3 is P7D3_SCHUR_FRONTIER_CALIBRATION_RECORDED / P7D3_EXECUTION_CONTAINMENT_HARDENED_ENGINEERING_ONLY / ZERO_QUALIFIED_FAILURES / ZERO_REAL_CANDIDATES / ZERO_HIDDEN_EVALUATIONS / ZERO_PROMOTIONS; hardening does not change the two passing and one capture-inconclusive calibration verdicts or establish a model failure, hostile-process isolation, a secure sandbox, independent acceptance, scientific validity, external adoption, or lifecycle authority.",
     "R6B remains TARGET_FROZEN / ZERO_EXTERNAL_SUBMISSIONS; P7A, the Correctness Reset, and P7B1-P7D3 did not receive, inspect, modify, or supersede participant materials or hashes.",
     "CR1 is not complete taint, classification, encryption, retention, deletion, or privacy governance.",
     "CR2 is lexical engineering behavior, not semantic retrieval quality, negative-transfer safety, scientific validity, or external adoption evidence.",
