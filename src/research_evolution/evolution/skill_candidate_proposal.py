@@ -30,7 +30,7 @@ from research_evolution.core import (
     load_strict_json,
 )
 from research_evolution.core._restricted import scan_value_for_restricted
-from research_evolution.evaluation import Envelope
+from research_evolution.evaluation import ERROR_CLASSES, Envelope
 from research_evolution.evaluation.runner import ReplayResult
 
 from ._process_containment import process_facts_are_valid
@@ -127,6 +127,15 @@ class SkillCandidateProposalError(ValueError):
     """The proposal plan, generator, or candidate violated a hard gate."""
 
 
+class _CandidateContractDiagnostic(ValueError):
+    """Carry only stable, non-sensitive Candidate contract diagnostics."""
+
+    def __init__(self, stage: str, code: str) -> None:
+        super().__init__(f"{stage}:{code}")
+        self.stage = stage
+        self.code = code
+
+
 @dataclass(frozen=True)
 class SkillCandidateGenerationRequest:
     """One request crossing the internal Candidate-generator seam."""
@@ -203,6 +212,8 @@ class SkillCandidateProposalOutcome:
 
     status: str
     blockers: tuple[str, ...]
+    failure_stage: str | None
+    failure_code: str | None
     manifest_payload: dict[str, Any] | None
     closure_receipt: ArtifactClosureReceipt | None
     eligibility_attestation: CandidateEligibilityAttestation | None
@@ -729,11 +740,15 @@ def _parse_candidate_output(output: bytes) -> dict[str, Any]:
     try:
         value = load_strict_json(output)
     except (CoreError, TypeError, ValueError) as exc:
-        raise SkillCandidateProposalError("Candidate output is not strict JSON") from exc
+        raise _CandidateContractDiagnostic(
+            "output_contract", "strict_json_invalid"
+        ) from exc
     if not isinstance(value, dict) or set(value) != _OUTPUT_FIELDS:
-        raise SkillCandidateProposalError("Candidate output fields are not exact")
+        raise _CandidateContractDiagnostic(
+            "output_contract", "output_fields_invalid"
+        )
     if scan_value_for_restricted(value, "candidate_generator_output"):
-        raise SkillCandidateProposalError("Candidate output contains restricted content")
+        raise _CandidateContractDiagnostic("output_contract", "restricted_content")
     for name in (
         "description",
         "skill_md",
@@ -742,7 +757,9 @@ def _parse_candidate_output(output: bytes) -> dict[str, Any]:
         "retirement_plan",
     ):
         if not isinstance(value[name], str) or not value[name].strip():
-            raise SkillCandidateProposalError(f"Candidate output {name} is empty")
+            raise _CandidateContractDiagnostic(
+                "output_contract", "output_value_invalid"
+            )
     for name in ("positive_triggers", "exclusions"):
         rows = value[name]
         if (
@@ -751,15 +768,21 @@ def _parse_candidate_output(output: bytes) -> dict[str, Any]:
             or not all(isinstance(row, str) and row.strip() for row in rows)
             or len(rows) != len(set(rows))
         ):
-            raise SkillCandidateProposalError(f"Candidate output {name} is invalid")
+            raise _CandidateContractDiagnostic(
+                "output_contract", "trigger_contract_invalid"
+            )
     if set(value["positive_triggers"]) & set(value["exclusions"]):
-        raise SkillCandidateProposalError("Candidate triggers and exclusions overlap")
+        raise _CandidateContractDiagnostic(
+            "output_contract", "trigger_contract_invalid"
+        )
     for name in ("criterion_evidence", "criterion_rationales"):
         rows = value[name]
         if not isinstance(rows, dict) or set(rows) != set(_CRITERIA) or any(
             not isinstance(row, str) or not row.strip() for row in rows.values()
         ):
-            raise SkillCandidateProposalError(f"Candidate output {name} is invalid")
+            raise _CandidateContractDiagnostic(
+                "output_contract", "criterion_contract_invalid"
+            )
     return value
 
 
@@ -925,7 +948,18 @@ def _build_candidate(
         },
         "created_at": plan.created_at,
     }
-    closure = close_candidate_bundle(manifest, member_bytes, closed_at=plan.created_at)
+    try:
+        closure = close_candidate_bundle(
+            manifest, member_bytes, closed_at=plan.created_at
+        )
+    except CandidateManifestError as exc:
+        raise _CandidateContractDiagnostic(
+            "manifest", "candidate_manifest_invalid"
+        ) from exc
+    except (ArtifactClosureError, CoreError, TypeError, ValueError) as exc:
+        raise _CandidateContractDiagnostic(
+            "closure", "artifact_closure_invalid"
+        ) from exc
     lineage_by_case = {
         record.data["case_id"]: lineage
         for record, lineage in zip(cases, lineages, strict=True)
@@ -947,13 +981,18 @@ def _build_candidate(
             for criterion in _CRITERIA
         ],
     }
-    eligibility = assess_candidate_eligibility(
-        manifest,
-        closure,
-        assessment,
-        eligibility_evidence_bytes,
-        assessed_at=plan.created_at,
-    )
+    try:
+        eligibility = assess_candidate_eligibility(
+            manifest,
+            closure,
+            assessment,
+            eligibility_evidence_bytes,
+            assessed_at=plan.created_at,
+        )
+    except (CandidateEligibilityError, CoreError, TypeError, ValueError) as exc:
+        raise _CandidateContractDiagnostic(
+            "eligibility", "candidate_eligibility_invalid"
+        ) from exc
     contract = {
         "drafter": plan.principals["drafter"],
         "skill_name": plan.skill_name,
@@ -977,13 +1016,18 @@ def _build_candidate(
         "rollback_plan": generated["rollback_plan"],
         "retirement_plan": generated["retirement_plan"],
     }
-    bundle = draft_skill_candidate_bundle(
-        eligibility,
-        contract,
-        payload_bytes,
-        eligibility_evidence_bytes,
-        drafted_at=plan.created_at,
-    )
+    try:
+        bundle = draft_skill_candidate_bundle(
+            eligibility,
+            contract,
+            payload_bytes,
+            eligibility_evidence_bytes,
+            drafted_at=plan.created_at,
+        )
+    except (SkillCandidateBundleError, CoreError, TypeError, ValueError) as exc:
+        raise _CandidateContractDiagnostic(
+            "candidate_bundle", "skill_candidate_bundle_invalid"
+        ) from exc
     return (
         manifest,
         closure,
@@ -1092,7 +1136,10 @@ def propose_skill_candidate(
         blockers.append("real_agent_turn_incomplete")
     candidate_output = observation.replay.output_bytes
     if not observation.replay.ok or candidate_output is None:
-        blockers.append(f"generation_{observation.replay.error_class or 'error'}")
+        error_class = observation.replay.error_class
+        if error_class not in ERROR_CLASSES:
+            error_class = "runner_error"
+        blockers.append(f"generation_{error_class}")
 
     manifest = None
     closure = None
@@ -1101,15 +1148,21 @@ def propose_skill_candidate(
     member_bytes = None
     payload_bytes = None
     evidence_bytes = None
+    failure_stage = None
+    failure_code = None
     if blockers:
         status = "proposal_inconclusive"
+        failure_stage = "execution"
+        failure_code = blockers[0]
     else:
         assert candidate_output is not None
         try:
             generated = _parse_candidate_output(candidate_output)
-        except SkillCandidateProposalError as exc:
+        except _CandidateContractDiagnostic as diagnostic:
             status = "proposal_rejected"
-            if "restricted content" in str(exc):
+            failure_stage = diagnostic.stage
+            failure_code = diagnostic.code
+            if diagnostic.code == "restricted_content":
                 blockers.append("restricted_candidate_output")
             else:
                 blockers.append("candidate_contract_invalid")
@@ -1130,16 +1183,15 @@ def propose_skill_candidate(
                     lineages=lineages,
                     generated=generated,
                 )
-            except (
-                ArtifactClosureError,
-                CandidateEligibilityError,
-                CandidateManifestError,
-                SkillCandidateBundleError,
-                CoreError,
-                TypeError,
-                ValueError,
-            ):
+            except _CandidateContractDiagnostic as diagnostic:
                 status = "proposal_rejected"
+                failure_stage = diagnostic.stage
+                failure_code = diagnostic.code
+                blockers.append("candidate_contract_invalid")
+            except (CoreError, TypeError, ValueError):
+                status = "proposal_rejected"
+                failure_stage = "manifest"
+                failure_code = "candidate_manifest_invalid"
                 blockers.append("candidate_contract_invalid")
             else:
                 status = "proposal_ready"
@@ -1167,6 +1219,8 @@ def propose_skill_candidate(
     return SkillCandidateProposalOutcome(
         status=status,
         blockers=tuple(blockers),
+        failure_stage=failure_stage,
+        failure_code=failure_code,
         manifest_payload=manifest,
         closure_receipt=closure,
         eligibility_attestation=eligibility,
