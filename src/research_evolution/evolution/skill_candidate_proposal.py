@@ -33,6 +33,7 @@ from research_evolution.core._restricted import scan_value_for_restricted
 from research_evolution.evaluation import Envelope
 from research_evolution.evaluation.runner import ReplayResult
 
+from ._process_containment import process_facts_are_valid
 from .agent_forward_trial import (
     AgentForwardExecutionRequest,
     CodexCliAgentAdapter,
@@ -153,6 +154,9 @@ class SkillCandidateGenerationObservation:
     usage: dict[str, int]
     started_at: str
     completed_at: str
+    execution_status: str
+    process_cleanup_status: str
+    process_tree_cleanup_verified: bool
 
 
 class SkillCandidateGenerator(Protocol):
@@ -324,6 +328,9 @@ class DeterministicSkillCandidateAdapter:
             usage={},
             started_at=self._started_at,
             completed_at=self._completed_at,
+            execution_status="not_applicable",
+            process_cleanup_status="not_applicable",
+            process_tree_cleanup_verified=True,
         )
 
 
@@ -396,6 +403,9 @@ class CodexCliSkillCandidateAdapter:
             usage=observed.usage,
             started_at=started_at,
             completed_at=_now(),
+            execution_status=observed.execution_status,
+            process_cleanup_status=observed.process_cleanup_status,
+            process_tree_cleanup_verified=observed.process_tree_cleanup_verified,
         )
 
 
@@ -695,6 +705,12 @@ def _normalize_observation(value: Any) -> SkillCandidateGenerationObservation:
         raise SkillCandidateProposalError("session fact and session id disagree")
     if value.agent_turn_completed and not value.agent_session_started:
         raise SkillCandidateProposalError("turn completion requires a started session")
+    if not process_facts_are_valid(
+        value.execution_status,
+        value.process_cleanup_status,
+        value.process_tree_cleanup_verified,
+    ):
+        raise SkillCandidateProposalError("execution and process cleanup facts are inconsistent")
     for digest in (value.transcript_sha256, value.stderr_sha256):
         if digest is not None and not _valid_sha256(digest):
             raise SkillCandidateProposalError("generator emitted an invalid SHA-256")
@@ -1052,6 +1068,9 @@ def propose_skill_candidate(
                 usage={},
                 started_at=plan.created_at,
                 completed_at=plan.created_at,
+                execution_status="executor_failed",
+                process_cleanup_status="unverified",
+                process_tree_cleanup_verified=False,
             )
     finally:
         workspace_cleaned = _safe_cleanup(temp_root)
@@ -1064,6 +1083,8 @@ def propose_skill_candidate(
     blockers: list[str] = []
     if not workspace_cleaned:
         blockers.append("workspace_cleanup_failed")
+    if not observation.process_tree_cleanup_verified:
+        blockers.append("process_tree_cleanup_failed")
     real_generator = generator.evidence_class == _REAL_EVIDENCE_CLASS
     if real_generator and not observation.agent_session_started:
         blockers.append("real_agent_session_missing")
@@ -1128,6 +1149,7 @@ def propose_skill_candidate(
         "generator_called_once": True,
         "raw_trace_persisted": False,
         "workspace_cleanup_verified": workspace_cleaned,
+        "process_tree_cleanup_verified": observation.process_tree_cleanup_verified,
         "real_agent_session_observed": real_generator and observation.agent_session_started,
         "real_agent_turn_completed": real_generator and observation.agent_turn_completed,
         "candidate_proposal_generated": ready,

@@ -8,6 +8,7 @@ import json
 import tempfile
 import unittest
 from collections.abc import Mapping
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -17,11 +18,12 @@ from research_evolution.core import (
     publish_record,
     verify_record_graph,
 )
-from research_evolution.evaluation import Envelope, GateConfig
+from research_evolution.evaluation import Envelope, GateConfig, ReplayResult
 from research_evolution.evolution import (
     DeterministicPublicFailureAdapter,
     PublicFailureCaptureError,
     PublicFailureCapturePlan,
+    PublicFailureExecutionObservation,
     capture_public_agent_failure,
 )
 
@@ -121,6 +123,39 @@ def _plan(name: str) -> tuple[PublicFailureCapturePlan, bytes]:
 
 
 class PublicFailureCaptureTest(unittest.TestCase):
+    def test_process_tree_cleanup_failure_is_explicit_and_inconclusive(self) -> None:
+        plan, output = _plan("math-fail.json")
+
+        class CleanupFailureAdapter(DeterministicPublicFailureAdapter):
+            def execute(self, request, envelope) -> PublicFailureExecutionObservation:
+                observed = super().execute(request, envelope)
+                return replace(
+                    observed,
+                    replay=ReplayResult(
+                        False,
+                        None,
+                        None,
+                        "runner_error",
+                        "process-tree cleanup failed",
+                        1,
+                    ),
+                    execution_status="cleanup_failed",
+                    process_cleanup_status="failed",
+                    process_tree_cleanup_verified=False,
+                )
+
+        adapter = CleanupFailureAdapter(
+            output,
+            model="fixture-model",
+            reasoning_effort="fixture-reasoning",
+        )
+        outcome = capture_public_agent_failure(plan, adapter)
+
+        self.assertEqual(outcome.status, "capture_inconclusive")
+        self.assertIn("process_tree_cleanup_failed", outcome.blockers)
+        self.assertFalse(outcome.claims["process_tree_cleanup_verified"])
+        self.assertIsNone(outcome.case_payload)
+
     def test_math_failure_builds_existing_closed_record_chain(self) -> None:
         plan, output = _plan("math-fail.json")
         adapter = DeterministicPublicFailureAdapter(

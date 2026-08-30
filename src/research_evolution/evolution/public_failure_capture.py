@@ -35,6 +35,7 @@ from research_evolution.evaluation.pipeline import (
 )
 from research_evolution.evaluation.runner import ReplayResult
 
+from ._process_containment import process_facts_are_valid
 from .agent_forward_trial import (
     AgentForwardExecutionRequest,
     CodexCliAgentAdapter,
@@ -95,6 +96,9 @@ class PublicFailureExecutionObservation:
     usage: dict[str, int]
     started_at: str
     completed_at: str
+    execution_status: str
+    process_cleanup_status: str
+    process_tree_cleanup_verified: bool
 
 
 class PublicFailureExecutor(Protocol):
@@ -267,6 +271,9 @@ class DeterministicPublicFailureAdapter:
             usage={},
             started_at=self._started_at,
             completed_at=self._completed_at,
+            execution_status="not_applicable",
+            process_cleanup_status="not_applicable",
+            process_tree_cleanup_verified=True,
         )
 
 
@@ -334,6 +341,9 @@ class CodexCliPublicFailureAdapter:
             usage=observed.usage,
             started_at=started_at,
             completed_at=_now(),
+            execution_status=observed.execution_status,
+            process_cleanup_status=observed.process_cleanup_status,
+            process_tree_cleanup_verified=observed.process_tree_cleanup_verified,
         )
 
 
@@ -496,6 +506,12 @@ def _normalize_observation(value: Any) -> PublicFailureExecutionObservation:
         raise PublicFailureCaptureError("session fact and session id disagree")
     if value.agent_turn_completed and not value.agent_session_started:
         raise PublicFailureCaptureError("turn completion requires a started session")
+    if not process_facts_are_valid(
+        value.execution_status,
+        value.process_cleanup_status,
+        value.process_tree_cleanup_verified,
+    ):
+        raise PublicFailureCaptureError("execution and process cleanup facts are inconsistent")
     for digest in (value.transcript_sha256, value.stderr_sha256):
         if digest is not None and (
             len(digest) != 64 or any(ch not in "0123456789abcdef" for ch in digest)
@@ -794,6 +810,9 @@ def capture_public_agent_failure(
                 usage={},
                 started_at=case["created_at"],
                 completed_at=case["created_at"],
+                execution_status="executor_failed",
+                process_cleanup_status="unverified",
+                process_tree_cleanup_verified=False,
             )
     finally:
         workspace_cleaned = _safe_cleanup(temp_root)
@@ -809,6 +828,9 @@ def capture_public_agent_failure(
             "launcher_process_started": observation.launcher_process_started,
             "agent_session_started": observation.agent_session_started,
             "agent_turn_completed": observation.agent_turn_completed,
+            "execution_status": observation.execution_status,
+            "process_cleanup_status": observation.process_cleanup_status,
+            "process_tree_cleanup_verified": observation.process_tree_cleanup_verified,
             "workspace_cleaned": workspace_cleaned,
             "usage": observation.usage,
         }
@@ -825,6 +847,8 @@ def capture_public_agent_failure(
     blockers: list[str] = []
     if not workspace_cleaned:
         blockers.append("workspace_cleanup_failed")
+    if not observation.process_tree_cleanup_verified:
+        blockers.append("process_tree_cleanup_failed")
     real_executor = executor.evidence_class == _REAL_EVIDENCE_CLASS
     if real_executor and not observation.agent_session_started:
         blockers.append("real_agent_session_missing")
@@ -856,6 +880,7 @@ def capture_public_agent_failure(
         "one_baseline_attempt_executed": True,
         "raw_output_persisted": False,
         "workspace_cleanup_verified": workspace_cleaned,
+        "process_tree_cleanup_verified": observation.process_tree_cleanup_verified,
         "real_agent_session_observed": real_executor and observation.agent_session_started,
         "real_agent_turn_completed": real_executor and observation.agent_turn_completed,
         "qualified_public_failure_captured": qualified,
