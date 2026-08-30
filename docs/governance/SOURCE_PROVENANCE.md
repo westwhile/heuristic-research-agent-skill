@@ -135,6 +135,20 @@ system implementation, external process supervisor, model output, Skill payload,
 or third-party expression. PR #62 merged these paths to main; this status
 synchronization changes only already classified governance documents.
 
+P7D6 Candidate-contract diagnostics adds one independently authored,
+repository-native ADR and modifies only the already classified Candidate-proposal
+source and test paths. It vendors no model output, Candidate payload, validator,
+dependency, or third-party expression. PR #64 merged these paths to main.
+
+The repository-external P7D4/P7D5/P7D6 work used maintainer-constructed public
+Schur cases, exact oracles, one formal Pattern, real Codex sessions, one byte-
+closed Candidate, and an official `skill-creator` structural validation in a
+unique temporary directory. No prompt, raw transcript, raw model output, local
+path, Pattern, failure package, Candidate payload, materialized Skill directory,
+ZIP, validator source, or isolated dependency is tracked. This synchronization
+records only public-safe hashes, aggregate verdicts, counts, lifecycle booleans,
+and evidence boundaries in already classified files.
+
 Repository-native material may have been drafted, reviewed, or mechanically
 generated with AI or automation under maintainer direction. The maintainer is
 responsible for the final form, source review, and rights decision. Tool or AI
@@ -142,15 +156,16 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7D3 execution-containment-hardened mainline tracked inventory contains 1148 files: the
+The P7D6 Candidate-contract-diagnostics mainline tracked inventory contains 1149 files: the
 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
 live-execution seam source, fixed-worker, test, and ADR files, plus three P7C2
 public forward-suite source, test, and ADR files, plus five P7C3 real-Agent Math
 smoke Module, script, test, and ADR files, five P7D1A public failure-capture
-files, seven P7D1B Candidate-proposal files, and four P7D3 execution-containment
-source, test, fixture, and ADR files. The P7B1
+files, seven P7D1B Candidate-proposal files, four P7D3 execution-containment
+source, test, fixture, and ADR files, and one P7D6 Candidate-contract diagnostics
+ADR. The P7B1
 inventory consists of
 the 1008-file CR2
 mainline inventory, the CR3 status synchronization (modified paths only),
@@ -182,19 +197,20 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 993 `independently_authored`, 118 `generated`, 35
+The resulting counts are 994 `independently_authored`, 118 `generated`, 35
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
 references and independently authored repository changes; CR8 and P7B1 add
 only independently authored governance contracts and synthetic fixtures.
 P7B2/P7B3 add design-inspired but independently expressed structural/static
-contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, P7D1, and P7D3 hardening add
-independently authored protocol/execution-seam/suite-orchestration/real-Agent-
-smoke/failure-proposal/containment code and synthetic probe material. P7C3, P7D2, and P7D3 record
-public-safe hashes and aggregate facts from real Codex sessions but track no raw
-Agent/model output. None adds a real Skill payload, hidden case, or real
-independent-review artifact.
+contracts and synthetic fixtures; P7B4, P7C1, P7C2, P7C3, P7D1, P7D3 hardening,
+and P7D6 diagnostics add independently authored protocol/execution-seam/suite-
+orchestration/real-Agent-smoke/failure-proposal/containment/diagnostic code and
+synthetic probe material. P7C3 and P7D2—P7D6 record public-safe hashes and
+aggregate facts from real Codex sessions but track no raw Agent/model output or
+external Candidate payload. None adds a hidden case or real independent-review
+artifact.
 
 ## External-source decisions
 
@@ -226,9 +242,11 @@ disclosure directories, separation of auxiliary project documentation from an
 installable payload, minimal platform metadata, and explicit-invocation policy.
 The repository does not copy the guidance, its examples, or any external Skill
 payload. The P7B2/P7B3 code, schemas, tests, fixtures, and ADRs are therefore
-recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7D3
+recorded as `design_inspired`, not `third_party_reused`. P7B4 and P7C1—P7D6
 are repository-native or repository-external calibration work and do not add a
-further tracked external design source.
+further tracked external design source. P7D6 used the official initializer and
+validator only outside the repository; their source, templates, and generated
+Candidate were not copied into tracked files.
 
 ### math-research-solve v8 / 1.0.0–1.0.1
 
