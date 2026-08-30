@@ -15,6 +15,7 @@ import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 _STATUS_PAIRS = {
     "not_applicable": "not_applicable",
@@ -65,6 +66,24 @@ def _as_bytes(value: bytes | str | None) -> bytes:
     if isinstance(value, str):
         return value.encode("utf-8", errors="replace")
     return b""
+
+
+def _windows_kernel32() -> Any | None:
+    """Load kernel32 when the runtime exposes Windows ctypes support."""
+
+    win_dll = getattr(ctypes, "WinDLL", None)
+    if win_dll is None:
+        return None
+    return win_dll("kernel32", use_last_error=True)
+
+
+def _windows_last_error() -> int | None:
+    """Return the thread-local Windows error without assuming a Windows host."""
+
+    get_last_error = getattr(ctypes, "get_last_error", None)
+    if get_last_error is None:
+        return None
+    return int(get_last_error())
 
 
 def _process_group_exists(process_group_id: int) -> bool:
@@ -168,7 +187,9 @@ def _terminate_windows_process_tree(
 def _windows_pid_running(pid: int) -> bool | None:
     process_query_limited_information = 0x1000
     still_active = 259
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = _windows_kernel32()
+    if kernel32 is None:
+        return None
     kernel32.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
     kernel32.OpenProcess.restype = ctypes.c_void_p
     kernel32.GetExitCodeProcess.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_ulong)]
@@ -179,7 +200,7 @@ def _windows_pid_running(pid: int) -> bool | None:
         # ERROR_INVALID_PARAMETER is the documented result for a PID that no
         # longer exists.  Access denial or any other error is not evidence of
         # exit and must remain unverified.
-        return False if ctypes.get_last_error() == 87 else None
+        return False if _windows_last_error() == 87 else None
     try:
         exit_code = ctypes.c_ulong()
         if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
@@ -193,7 +214,9 @@ def _windows_terminate_pid(pid: int) -> bool:
     process_terminate = 0x0001
     synchronize = 0x00100000
     wait_object_0 = 0
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = _windows_kernel32()
+    if kernel32 is None:
+        return False
     kernel32.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
     kernel32.OpenProcess.restype = ctypes.c_void_p
     kernel32.TerminateProcess.argtypes = [ctypes.c_void_p, ctypes.c_uint]
@@ -230,7 +253,9 @@ def _windows_descendant_pids(root_pid: int) -> list[int] | None:
             ("szExeFile", ctypes.c_wchar * max_path),
         ]
 
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32 = _windows_kernel32()
+    if kernel32 is None:
+        return None
     kernel32.CreateToolhelp32Snapshot.argtypes = [ctypes.c_ulong, ctypes.c_ulong]
     kernel32.CreateToolhelp32Snapshot.restype = ctypes.c_void_p
     kernel32.Process32FirstW.argtypes = [ctypes.c_void_p, ctypes.POINTER(ProcessEntry32W)]
