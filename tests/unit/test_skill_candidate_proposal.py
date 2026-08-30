@@ -247,6 +247,8 @@ class SkillCandidateProposalTest(unittest.TestCase):
 
         self.assertEqual(outcome.status, "proposal_inconclusive")
         self.assertIn("process_tree_cleanup_failed", outcome.blockers)
+        self.assertEqual(outcome.failure_stage, "execution")
+        self.assertEqual(outcome.failure_code, "process_tree_cleanup_failed")
         self.assertFalse(outcome.claims["process_tree_cleanup_verified"])
         self.assertIsNone(outcome.candidate_bundle)
 
@@ -262,6 +264,8 @@ class SkillCandidateProposalTest(unittest.TestCase):
                 outcome = propose_skill_candidate(_proposal_plan(domain), adapter)
                 self.assertEqual(outcome.status, "proposal_ready")
                 self.assertEqual(outcome.blockers, ())
+                self.assertIsNone(outcome.failure_stage)
+                self.assertIsNone(outcome.failure_code)
                 self.assertEqual(len(adapter.requests), 1)
                 self.assertFalse(adapter.requests[0].workspace.exists())
                 self.assertTrue(outcome.workspace_cleaned)
@@ -303,8 +307,12 @@ class SkillCandidateProposalTest(unittest.TestCase):
         self.assertNotEqual(bundles[0], bundles[1])
 
     def test_explicit_math_and_quant_reject_fixtures_produce_no_candidate(self) -> None:
-        for domain in ("math", "quant"):
-            with self.subTest(domain=domain):
+        expected_diagnostics = {
+            "math": ("output_contract", "output_fields_invalid"),
+            "quant": ("candidate_bundle", "skill_candidate_bundle_invalid"),
+        }
+        for domain, diagnostic in expected_diagnostics.items():
+            with self.subTest(domain=domain, diagnostic=diagnostic):
                 adapter = DeterministicSkillCandidateAdapter(
                     _fixture(f"{domain}-reject.json"),
                     model="fixture-model",
@@ -313,9 +321,13 @@ class SkillCandidateProposalTest(unittest.TestCase):
                 outcome = propose_skill_candidate(_proposal_plan(domain), adapter)
                 self.assertEqual(outcome.status, "proposal_rejected")
                 self.assertEqual(outcome.blockers, ("candidate_contract_invalid",))
+                self.assertEqual(
+                    (outcome.failure_stage, outcome.failure_code), diagnostic
+                )
                 self.assertIsNone(outcome.manifest_payload)
                 self.assertIsNone(outcome.candidate_bundle)
                 self.assertEqual(len(adapter.requests), 1)
+                self.assertNotIn("wrong-quant-name", repr(outcome))
 
     def test_case_deletion_lineage_collision_and_pattern_pin_mutation_fail_pre_call(self) -> None:
         base = _proposal_plan()
@@ -376,6 +388,8 @@ class SkillCandidateProposalTest(unittest.TestCase):
         outcome = propose_skill_candidate(plan, adapter)
         self.assertEqual(outcome.status, "proposal_rejected")
         self.assertEqual(outcome.blockers, ("restricted_candidate_output",))
+        self.assertEqual(outcome.failure_stage, "output_contract")
+        self.assertEqual(outcome.failure_code, "restricted_content")
         self.assertIsNone(outcome.payload_bytes)
         self.assertNotIn(secret, repr(outcome))
 
@@ -396,7 +410,7 @@ class SkillCandidateProposalTest(unittest.TestCase):
             (
                 plan,
                 _fixture("math-accept.json"),
-                ("runner_error", "private local detail"),
+                ("private_custom_error", "private local detail"),
                 "generation_runner_error",
             ),
         )
@@ -411,8 +425,12 @@ class SkillCandidateProposalTest(unittest.TestCase):
                 outcome = propose_skill_candidate(active_plan, adapter)
                 self.assertEqual(outcome.status, "proposal_inconclusive")
                 self.assertIn(blocker, outcome.blockers)
+                self.assertEqual(outcome.failure_stage, "execution")
+                self.assertEqual(outcome.failure_code, blocker)
                 self.assertIsNone(outcome.candidate_bundle)
                 self.assertEqual(len(adapter.requests), 1)
+                self.assertNotIn("private_custom_error", repr(outcome))
+                self.assertNotIn("private local detail", repr(outcome))
 
     def test_real_evidence_requires_started_session_and_completed_turn(self) -> None:
         class MissingSessionAdapter(DeterministicSkillCandidateAdapter):
@@ -435,6 +453,8 @@ class SkillCandidateProposalTest(unittest.TestCase):
         self.assertEqual(outcome.status, "proposal_inconclusive")
         self.assertIn("real_agent_session_missing", outcome.blockers)
         self.assertIn("real_agent_turn_incomplete", outcome.blockers)
+        self.assertEqual(outcome.failure_stage, "execution")
+        self.assertEqual(outcome.failure_code, "real_agent_session_missing")
         self.assertIsNone(outcome.candidate_bundle)
 
     def test_module_exports_one_behavior_interface(self) -> None:
