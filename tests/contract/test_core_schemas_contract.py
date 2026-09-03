@@ -469,6 +469,36 @@ FIXTURE_MANIFEST = {
             "unknown-schema.json": ("UnknownSchemaError", "unsupported schema"),
         },
     },
+    "collaboration-window-plan/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-created-at.json": ("RecordValidationError", "created_at"),
+            "bad-id.json": ("RecordValidationError", "collaboration_window_plan_id"),
+            "missing-id.json": ("RecordValidationError", "collaboration_window_plan_id"),
+            "missing-task.json": ("RecordValidationError", "task"),
+        },
+    },
+    "collaboration-ticket/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-generated-at.json": ("RecordValidationError", "generated_at"),
+            "bad-id.json": ("RecordValidationError", "collaboration_ticket_id"),
+            "missing-id.json": ("RecordValidationError", "collaboration_ticket_id"),
+            "missing-window.json": ("RecordValidationError", "window"),
+        },
+    },
+    "collaboration-worker-outcome/v1": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "bad-generated-at.json": ("RecordValidationError", "generated_at"),
+            "bad-id.json": ("RecordValidationError", "collaboration_worker_outcome_id"),
+            "bad-role.json": ("RecordValidationError", "role"),
+            "missing-id.json": ("RecordValidationError", "collaboration_worker_outcome_id"),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -585,6 +615,15 @@ FIXTURE_MANIFEST = {
 
 # Golden pins: canonical SHA-256 of each family's valid/minimal.json fixture.
 MINIMAL_FIXTURE_SHA256 = {
+    "collaboration-window-plan/v1": (
+        "73c630725f1d011b49b1a2627c37b00030528c8be4016686963089da4380385b"
+    ),
+    "collaboration-ticket/v1": (
+        "dcf9c93fdebc7f1cde5e7478a7cc00152be86f2b2e9633559dcf9be979a56345"
+    ),
+    "collaboration-worker-outcome/v1": (
+        "f4d988f8b10f85ef8a7dfdc57060d8b949afbb75ed7948c3a9499b4a81f97c8f"
+    ),
     "artifact-record/v1": (
         "b54a0cff2110d9a1e6b7f6eb8f18a6b2a9715e8e02db1289834d78e5157feb3c"
     ),
@@ -685,6 +724,15 @@ MINIMAL_FIXTURE_SHA256 = {
 # (``*.json text eol=lf``); any byte-level edit of a frozen schema — even
 # pure reformatting — fails this pin.
 SCHEMA_TEXT_SHA256 = {
+    "collaboration-window-plan-v1.schema.json": (
+        "8b8b34eabc1dec6d6c031c84ead584ad21865be10e6be44cf0bb98b1c6d8b001"
+    ),
+    "collaboration-ticket-v1.schema.json": (
+        "c53a38de34a2505b2678962820a6905efe57e31ffe0cda013f085caa90aa380c"
+    ),
+    "collaboration-worker-outcome-v1.schema.json": (
+        "8f82fe22d048368d58ec3489be69666b19b94fe5401458132fd3c363678e8dca"
+    ),
     "artifact-record-v1.schema.json": (
         "1acb72c52221a79bfa5ae514619a22b4bb46cbfcd2774496415c9d6f3d2a8f8f"
     ),
@@ -863,7 +911,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_thirty_one_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirty_four_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -872,6 +920,9 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "artifact-record/v1",
                 "candidate-eligibility-attestation/v1",
                 "candidate-manifest/v1",
+                "collaboration-ticket/v1",
+                "collaboration-window-plan/v1",
+                "collaboration-worker-outcome/v1",
                 "comparison-report/v1",
                 "context-bundle/v1",
                 "context-bundle/v2",

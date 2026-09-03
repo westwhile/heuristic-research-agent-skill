@@ -56,6 +56,11 @@ exact Skill candidate bundle and its P7B3 static-validation receipt. Review
 evidence binding, declared reviewer-label separation, required dimensions, and
 protocol outcomes remain inside the pure in-process evolution module; the
 family deliberately cannot claim a real independent semantic review.
+Phase 7 P7F adds three collaboration-autonomy families. A window pins one
+research task, each ticket pins its window and task, and each worker outcome
+pins its ticket. Method autonomy, three-slot composition, budget extension,
+scope-drift, and evidence-ceiling semantics remain inside the pure in-process
+evolution Module. With only one deterministic Adapter, the seam is provisional.
 """
 
 from __future__ import annotations
@@ -93,6 +98,9 @@ CONTEXT_BUNDLE_V2 = "context-bundle/v2"
 CONTEXT_MATERIAL_ASSESSMENT = "context-material-assessment/v1"
 ARTIFACT_RECORD = "artifact-record/v1"
 EVALUATION_ENVELOPE_CLOSURE = "evaluation-envelope-closure-receipt/v1"
+COLLABORATION_WINDOW_PLAN = "collaboration-window-plan/v1"
+COLLABORATION_TICKET = "collaboration-ticket/v1"
+COLLABORATION_WORKER_OUTCOME = "collaboration-worker-outcome/v1"
 
 
 @dataclass(frozen=True)
@@ -776,6 +784,59 @@ FAMILIES: dict[str, FamilyContract] = {
                     shape="array_of_objects",
                     target_family=ARTIFACT_RECORD,
                     target_id_field="artifact_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        # Phase 7 P7F: generic collaboration contracts form a strict
+        # task -> window -> ticket -> outcome reference chain. Runtime method
+        # autonomy and semantic/resource fail-closed checks stay in the deep
+        # Module and do not enlarge the graph verifier's rules language.
+        FamilyContract(
+            schema_id=COLLABORATION_WINDOW_PLAN,
+            identity_field="collaboration_window_plan_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="task",
+                    shape="object",
+                    target_family=TASK,
+                    target_id_field="task_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=COLLABORATION_TICKET,
+            identity_field="collaboration_ticket_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="window",
+                    shape="object",
+                    target_family=COLLABORATION_WINDOW_PLAN,
+                    target_id_field="collaboration_window_plan_id",
+                    pin_required=True,
+                ),
+                ReferenceContract(
+                    field="task",
+                    shape="object",
+                    target_family=TASK,
+                    target_id_field="task_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=COLLABORATION_WORKER_OUTCOME,
+            identity_field="collaboration_worker_outcome_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="ticket",
+                    shape="object",
+                    target_family=COLLABORATION_TICKET,
+                    target_id_field="collaboration_ticket_id",
                     pin_required=True,
                 ),
             ),

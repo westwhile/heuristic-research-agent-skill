@@ -1,8 +1,8 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `561919750ed31260fa76d396e57e97d7c0e467a7`
-- Review date: 2026-08-28
+- Baseline commit: `ae7990ce13898a5ce767d73bb1412c43154ddf5f`
+- Review date: 2026-09-04
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
 This record defines the source and redistribution boundary for the repository's
@@ -140,6 +140,15 @@ repository-native ADR and modifies only the already classified Candidate-proposa
 source and test paths. It vendors no model output, Candidate payload, validator,
 dependency, or third-party expression. PR #64 merged these paths to main.
 
+P7F0–P7F2 proposes twenty-seven independently implemented collaboration-
+autonomy ADR, schema, Module, test, and synthetic fixture files. They are
+conservatively classified as `design_inspired` by the abstract stable-envelope/
+method-autonomy design observed in the excluded user-provided
+`pika_math_learning_toolkit-2.1.0.zip` / `math-research-solve v2.31` artifact.
+No upstream source, schema, fixture, template, prompt, prose, model output,
+Skill payload, or executable content is copied. The archive did not expose a
+LICENSE/COPYING/NOTICE or package-manifest license supporting payload reuse.
+
 The repository-external P7D4/P7D5/P7D6 work used maintainer-constructed public
 Schur cases, exact oracles, one formal Pattern, real Codex sessions, one byte-
 closed Candidate, and an official `skill-creator` structural validation in a
@@ -156,8 +165,10 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The P7D6 Candidate-contract-diagnostics mainline tracked inventory contains 1149 files: the
-1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
+The proposed P7F0–P7F2 tracked inventory contains 1176 files: the 1149-file
+P7D6 Candidate-contract-diagnostics mainline inventory plus twenty-seven P7F
+collaboration-autonomy ADR, schema, Module, test, and synthetic fixture files.
+The prior mainline inventory contains the 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
 live-execution seam source, fixed-worker, test, and ADR files, plus three P7C2
@@ -186,9 +197,9 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 993 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, P7D1 failure/proposal, and P7D3 containment files |
+| `independently_authored` | 994 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, P7D1 failure/proposal, and P7D3 containment files |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
-| `design_inspired` | 35 | Independently implemented v8 compatibility and P7B2/P7B3 Skill-layout/static-validation contracts/tests/fixtures |
+| `design_inspired` | 62 | Independently implemented v8 compatibility, P7B2/P7B3 Skill contracts, and P7F collaboration-autonomy contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
 | `unknown` | 0 | No unresolved tracked file |
 
@@ -197,7 +208,7 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 994 `independently_authored`, 118 `generated`, 35
+The resulting counts are 994 `independently_authored`, 118 `generated`, 62
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
@@ -211,6 +222,10 @@ synthetic probe material. P7C3 and P7D2—P7D6 record public-safe hashes and
 aggregate facts from real Codex sessions but track no raw Agent/model output or
 external Candidate payload. None adds a hidden case or real independent-review
 artifact.
+
+P7F adds only synthetic contract evidence. Its single deterministic Adapter
+does not establish real multi-Agent execution, identity separation, research
+improvement, independent verification, or a stable collaboration seam.
 
 ## External-source decisions
 
@@ -264,6 +279,22 @@ therefore replaced by a short, independently written source-boundary note. No
 Pika/v13 source, schema, fixture, template, payload, or detailed descriptive
 expression is distributed. Future evaluation requires a newly registered
 artifact, license decision, and separate implementation authorization.
+
+### Pika toolkit 2.1.0 / math-research-solve v2.31
+
+The user-provided archive was reviewed locally as a source-boundary artifact.
+Its ZIP SHA-256 is
+`b2f50874398c079f7dc083feae62b9cbae4b774f9fb96d15199d7bf3ce0c5480`;
+the package metadata records source-tree SHA-256
+`9f9bd3b09c0a2a0f2be825db69e246a644a53b438c702a88e54635fc12208461`
+and inventory SHA-256
+`2a9d1f0fe89a2b04455bccac56494f06539698d0a2f2fd0a26055fc54b73cdf7`.
+No LICENSE, COPYING, NOTICE, or package-manifest license was observed in the
+reviewed archive. P7F therefore uses only the abstract idea of keeping semantic,
+security, and resource envelopes stable while leaving method selection to a
+bounded worker. All P7F code, schemas, fixtures, tests, and ADR expression are
+independently implemented and conservatively classified as `design_inspired`;
+all upstream payload and expression remain excluded.
 
 ### Referenced dependencies and services
 

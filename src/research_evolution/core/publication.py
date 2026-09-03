@@ -234,6 +234,9 @@ def publish_record(
         "skill-candidate-bundle/v1",
         "skill-static-validation-receipt/v1",
         "skill-semantic-review-attestation/v1",
+        "collaboration-window-plan/v1",
+        "collaboration-ticket/v1",
+        "collaboration-worker-outcome/v1",
     }:
         restricted = scan_value_for_restricted(record.data)
         if restricted:

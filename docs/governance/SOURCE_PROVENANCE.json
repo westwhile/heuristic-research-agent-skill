@@ -1,9 +1,9 @@
 {
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
-  "reviewed_at": "2026-08-30",
-  "baseline_commit": "ad3bd5226226eb751bffdb1c37ab15f799dc35a7",
-  "inventory_scope": "The original 844-file OSS-R0 inventory plus two repository-native O6 application-evidence files, thirteen Phase 6 L1 manifest files, two Phase 6 L2 runner files, three Phase 6 L3 runner/selection files, nine Phase 6 L4 study/case/matrix/report files merged to main by PR #21, eleven Phase 6 R1 observation schema/source/test/fixture files merged to main by PR #23, eleven Phase 6 R2 checkpoint-recovery schema/source/script/test/fixture files merged to main by PR #25, eleven Phase 6 R3 same-host-reproducibility schema/source/script/test/fixture files merged to main by PR #26, eleven Phase 6 R4 controlled-interruption schema/source/script/test/fixture files merged to main by PR #28, twenty-three Phase 6 R5 portability-receipt/report schema/source/script/test/fixture files merged to main by PR #30, thirty-eight Phase 6 R6A external-trial protocol schema/source/script/test/fixture/governance files merged to main by PR #32, twenty-nine repository-native Phase 7 P7A schema/source/test/fixture/ADR files merged to main by PR #34, one repository-native CR1 restricted-content scanner source file merged to main by PR #36, nineteen repository-native CR4 attempt/result schema/fixture/ADR files merged to main by PR #39, eleven repository-native CR5 suite-level comparison schema/source/test/fixture/ADR files merged to main by PR #40, nineteen repository-native CR6 artifact/envelope-closure schema/source/test/fixture/ADR files merged to main by PR #41, one repository-native CR7 quality-gate ADR file merged to main by PR #42, eighteen repository-native CR8 context-governance schema/source/test/fixture/ADR files merged to main by PR #43, eleven repository-native P7B1 candidate-eligibility schema/source/test/fixture/ADR files merged to main by PR #44, eleven design-inspired P7B2 skill-candidate schema/source/test/fixture/ADR files merged to main by PR #46, eleven design-inspired P7B3 static-validation schema/source/test/fixture/ADR files merged to main by PR #48, eleven repository-native P7B4 semantic-review protocol schema/source/test/fixture/ADR files merged to main by PR #49, four repository-native P7C1 live-execution seam source/worker/test/ADR files merged to main by PR #51, three repository-native P7C2 public forward-suite source/test/ADR files merged to main by PR #53, five repository-native P7C3 real-agent Math smoke Module/script/test/ADR files merged to main by PR #55, five repository-native P7D1A public failure-capture Module/test/fixture/ADR files merged to main by PR #57, seven repository-native P7D1B Skill Candidate proposal Module/test/fixture/ADR files merged to main by PR #58, four repository-native P7D3 execution-containment source/test/fixture/ADR files merged to main by PR #62, and one repository-native P7D6 Candidate-contract diagnostics ADR merged to main by PR #64; CR2 PR #37, CR3 and later status synchronization, the remaining CR7/CR8/P7B1-P7C3 status changes, PR #59's workflow_dispatch edit, and the P7D6 source/test changes modified only paths already covered by existing first-match rules. The repository-external P7D2-P7D6 calibrations, Pattern, Candidate, and materialized uninstalled package added no tracked raw model output, external payload, or source-class exception.",
+  "reviewed_at": "2026-09-04",
+  "baseline_commit": "ae7990ce13898a5ce767d73bb1412c43154ddf5f",
+  "inventory_scope": "The 1149-file P7D6 Candidate-contract-diagnostics mainline inventory at ae7990ce13898a5ce767d73bb1412c43154ddf5f, plus twenty-seven proposed P7F0-P7F2 collaboration-autonomy ADR, schema, Module, test, and synthetic fixture files. Earlier source classes and the immutable math-research-solve v8/1.0.1 baseline remain unchanged. The P7F files are independently implemented but conservatively classified as design_inspired by the abstract collaboration-autonomy design observed in the excluded user-provided pika_math_learning_toolkit-2.1.0.zip / math-research-solve v2.31 artifact. No external source, schema, fixture, template, prompt, prose, model output, Skill payload, or executable content is tracked.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -33,10 +33,10 @@
     "expected_counts": {
       "independently_authored": 994,
       "generated": 118,
-      "design_inspired": 35,
+      "design_inspired": 62,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 1149
+      "total": 1176
     },
     "rules": [
       {
@@ -103,6 +103,22 @@
           "tests/unit/test_skill_static_validation.py"
         ],
         "source": "Independently implemented P7B2/P7B3 structural and static-validation contracts informed by the Codex skill-creator guidance current on 2026-08-26; no guidance text, template, example payload, or external Skill payload is copied."
+      },
+      {
+        "id": "pika-toolkit-2.1.0-collaboration-autonomy-design",
+        "class": "design_inspired",
+        "patterns": [
+          "docs/decisions/0027-phase7-p7f-collaborative-autonomy-foundation.md",
+          "schemas/core/collaboration-ticket-v1.schema.json",
+          "schemas/core/collaboration-window-plan-v1.schema.json",
+          "schemas/core/collaboration-worker-outcome-v1.schema.json",
+          "src/research_evolution/evolution/collaboration_window.py",
+          "tests/fixtures/core/collaboration-ticket/**",
+          "tests/fixtures/core/collaboration-window-plan/**",
+          "tests/fixtures/core/collaboration-worker-outcome/**",
+          "tests/unit/test_collaboration_window.py"
+        ],
+        "source": "Independently implemented P7F0-P7F2 collaboration-autonomy contracts informed only by the abstract stable-envelope/method-autonomy design observed in the excluded user-provided toolkit 2.1.0 / math-research-solve v2.31 artifact; no upstream source, schema, fixture, template, prompt, prose, model output, or Skill payload is copied."
       },
       {
         "id": "canonical-apache-license-text",
@@ -245,6 +261,24 @@
       "tracked_use": "Source-boundary facts only. The former detailed mechanism plan was replaced with an independently written exclusion and deferred-review note.",
       "disposition": "Exclude all source, schemas, fixtures, templates, payloads, and detailed descriptive expression unless a compatible license and a separate adoption authorization are later recorded.",
       "notice_action": "None while the payload and expressive content remain excluded.",
+      "evidence_sufficient_for_reuse": false
+    },
+    {
+      "id": "pika-toolkit-2.1.0-collaboration-autonomy-design",
+      "source_name": "pika_math_learning_toolkit-2.1.0.zip / math-research-solve v2.31",
+      "source_url": null,
+      "versions": [
+        "toolkit 2.1.0",
+        "math-research-solve v2.31",
+        "ZIP SHA-256 b2f50874398c079f7dc083feae62b9cbae4b774f9fb96d15199d7bf3ce0c5480",
+        "source-tree SHA-256 9f9bd3b09c0a2a0f2be825db69e246a644a53b438c702a88e54635fc12208461",
+        "inventory SHA-256 2a9d1f0fe89a2b04455bccac56494f06539698d0a2f2fd0a26055fc54b73cdf7"
+      ],
+      "visible_license": "no LICENSE, COPYING, NOTICE, or package-manifest license observed in the reviewed archive",
+      "tracked_expression_reused": false,
+      "tracked_use": "Artifact/version/hash boundary plus independently authored generic collaboration-autonomy contracts, Module, deterministic tests, and synthetic fixtures informed only by an abstract design idea.",
+      "disposition": "Exclude every upstream payload, source file, schema, fixture, template, prompt, and descriptive expression. Retain only the source-boundary facts and independently implemented design; re-audit before any broader adoption.",
+      "notice_action": "None while upstream expression and payload remain excluded.",
       "evidence_sufficient_for_reuse": false
     },
     {

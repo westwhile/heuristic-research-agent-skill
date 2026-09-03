@@ -24,8 +24,8 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertEqual(report["counts"]["unknown"], 0)
         self.assertEqual(report["counts"]["third_party_reused"], 2)
         self.assertEqual(report["counts"]["independently_authored"], 994)
-        self.assertEqual(report["counts"]["design_inspired"], 35)
-        self.assertEqual(report["counts"]["total"], 1149)
+        self.assertEqual(report["counts"]["design_inspired"], 62)
+        self.assertEqual(report["counts"]["total"], 1176)
 
     def test_apache_license_metadata_and_rights_confirmation(self) -> None:
         manifest = json.loads(
@@ -94,6 +94,29 @@ class SourceProvenanceTests(unittest.TestCase):
         self.assertLess(len(plan.splitlines()), 100)
         for stale_count in ("493", "249", "170", "18 个"):
             self.assertNotIn(stale_count, plan)
+
+    def test_p7f_source_is_design_inspiration_only(self) -> None:
+        manifest = json.loads(
+            (REPO_ROOT / "docs/governance/SOURCE_PROVENANCE.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        source = next(
+            item
+            for item in manifest["external_sources"]
+            if item["id"] == "pika-toolkit-2.1.0-collaboration-autonomy-design"
+        )
+
+        self.assertFalse(source["tracked_expression_reused"])
+        self.assertFalse(source["evidence_sufficient_for_reuse"])
+        self.assertIn("Exclude every upstream payload", source["disposition"])
+        self.assertTrue(
+            any(
+                "b2f50874398c079f7dc083feae62b9cbae4b774f9fb96d15199d7bf3ce0c5480"
+                in value
+                for value in source["versions"]
+            )
+        )
 
 
 if __name__ == "__main__":
