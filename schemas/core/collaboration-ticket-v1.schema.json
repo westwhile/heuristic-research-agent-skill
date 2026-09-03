@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "collaboration-ticket/v1",
+  "title": "CollaborationTicket v1",
+  "description": "One bounded worker ticket derived from an immutable collaboration window. The worker may select and replace methods within the ticket but cannot change target, evidence, permission, resource, or publication authority.",
+  "type": "object",
+  "required": ["schema", "collaboration_ticket_id", "window", "task", "route_id", "slot", "role", "bounded_question", "semantic_scope", "input_artifacts", "allowed_tools", "writable_staging", "budget", "stop_conditions", "required_outputs", "autonomy", "generated_at", "limitations"],
+  "properties": {
+    "schema": {"const": "collaboration-ticket/v1"},
+    "collaboration_ticket_id": {"type": "string", "minLength": 1, "maxLength": 160, "pattern": "^collaboration-ticket-[A-Za-z0-9._:-]+$"},
+    "window": {
+      "type": "object",
+      "required": ["collaboration_window_plan_id", "sha256"],
+      "properties": {
+        "collaboration_window_plan_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^collaboration-window-[A-Za-z0-9._:-]+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "task": {
+      "type": "object",
+      "required": ["task_id", "sha256"],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "route_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "slot": {"enum": ["A", "B", "C"]},
+    "role": {"enum": ["explorer_a", "explorer_b", "explorer_c"]},
+    "bounded_question": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "semantic_scope": {
+      "type": "object",
+      "required": ["active_target", "claim_scope", "completion_standard", "evidence_standard", "forbidden_expansions"],
+      "properties": {
+        "active_target": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "claim_scope": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "completion_standard": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "evidence_standard": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "forbidden_expansions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"}}
+      },
+      "additionalProperties": false
+    },
+    "input_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256", "size_bytes"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "allowed_tools": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"}},
+    "writable_staging": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+    "budget": {
+      "type": "object",
+      "required": ["base", "extension_reserve", "max_extra_budget_extensions"],
+      "properties": {
+        "base": {
+          "type": "object",
+          "required": ["max_runtime_seconds", "max_tool_calls", "max_output_bytes"],
+          "properties": {
+            "max_runtime_seconds": {"type": "integer", "minimum": 1},
+            "max_tool_calls": {"type": "integer", "minimum": 1},
+            "max_output_bytes": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        },
+        "extension_reserve": {
+          "type": "object",
+          "required": ["max_runtime_seconds", "max_tool_calls", "max_output_bytes"],
+          "properties": {
+            "max_runtime_seconds": {"type": "integer", "minimum": 0},
+            "max_tool_calls": {"type": "integer", "minimum": 0},
+            "max_output_bytes": {"type": "integer", "minimum": 0}
+          },
+          "additionalProperties": false
+        },
+        "max_extra_budget_extensions": {"const": 1}
+      },
+      "additionalProperties": false
+    },
+    "stop_conditions": {
+      "type": "object",
+      "required": ["success", "bounded_negative", "no_new_opportunity"],
+      "properties": {
+        "success": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+        "bounded_negative": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+        "no_new_opportunity": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "required_outputs": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"enum": ["status", "artifacts", "opportunity_chain"]}},
+    "autonomy": {
+      "type": "object",
+      "required": ["choose_methods", "combine_methods", "abandon_methods", "replace_methods", "create_auxiliary_work", "run_allowed_tools", "stop_early", "change_active_target", "expand_claim_scope", "lower_evidence_standard", "expand_permissions", "expand_budget", "publish_authoritative_state"],
+      "properties": {
+        "choose_methods": {"const": true},
+        "combine_methods": {"const": true},
+        "abandon_methods": {"const": true},
+        "replace_methods": {"const": true},
+        "create_auxiliary_work": {"const": true},
+        "run_allowed_tools": {"const": true},
+        "stop_early": {"const": true},
+        "change_active_target": {"const": false},
+        "expand_claim_scope": {"const": false},
+        "lower_evidence_standard": {"const": false},
+        "expand_permissions": {"const": false},
+        "expand_budget": {"const": false},
+        "publish_authoritative_state": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "generated_at": {"type": "string", "x-rfc3339-datetime": true},
+    "limitations": {"type": "array", "minItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}

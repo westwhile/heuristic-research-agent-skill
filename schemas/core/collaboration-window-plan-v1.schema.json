@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "collaboration-window-plan/v1",
+  "title": "CollaborationWindowPlan v1",
+  "description": "A frozen three-slot collaboration envelope. It fixes target, evidence, permissions, resources, and stop signals while deliberately leaving methods to workers. It is not execution, identity, verification, publication, installation, activation, or promotion evidence.",
+  "type": "object",
+  "required": ["schema", "collaboration_window_plan_id", "task", "active_target", "semantic_scope", "input_artifacts", "routes", "policy", "created_at", "limitations"],
+  "properties": {
+    "schema": {"const": "collaboration-window-plan/v1"},
+    "collaboration_window_plan_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^collaboration-window-[A-Za-z0-9._:-]+$"},
+    "task": {
+      "type": "object",
+      "required": ["task_id", "sha256"],
+      "properties": {
+        "task_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"},
+        "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "active_target": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+    "semantic_scope": {
+      "type": "object",
+      "required": ["claim_scope", "completion_standard", "evidence_standard", "forbidden_expansions"],
+      "properties": {
+        "claim_scope": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "completion_standard": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "evidence_standard": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "forbidden_expansions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"}}
+      },
+      "additionalProperties": false
+    },
+    "input_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256", "size_bytes"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "sha256": {"type": "string", "minLength": 64, "maxLength": 64, "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["route_id", "slot", "route_class", "bounded_question", "intended_contribution", "targeted_bottleneck", "why_high_value_now", "rerank_condition", "success_signal", "bounded_negative_signal", "no_new_opportunity_signal", "base_budget", "extension_reserve"],
+        "properties": {
+          "route_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+          "slot": {"enum": ["A", "B", "C"]},
+          "route_class": {"enum": ["direct", "enabling", "hedge"]},
+          "bounded_question": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+          "intended_contribution": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+          "targeted_bottleneck": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "why_high_value_now": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "rerank_condition": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "success_signal": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "bounded_negative_signal": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "no_new_opportunity_signal": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"},
+          "base_budget": {
+            "type": "object",
+            "required": ["max_runtime_seconds", "max_tool_calls", "max_output_bytes"],
+            "properties": {
+              "max_runtime_seconds": {"type": "integer", "minimum": 1},
+              "max_tool_calls": {"type": "integer", "minimum": 1},
+              "max_output_bytes": {"type": "integer", "minimum": 1}
+            },
+            "additionalProperties": false
+          },
+          "extension_reserve": {
+            "type": "object",
+            "required": ["max_runtime_seconds", "max_tool_calls", "max_output_bytes"],
+            "properties": {
+              "max_runtime_seconds": {"type": "integer", "minimum": 0},
+              "max_tool_calls": {"type": "integer", "minimum": 0},
+              "max_output_bytes": {"type": "integer", "minimum": 0}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["allowed_tools", "network_access", "filesystem_write_scope", "allowed_external_effects", "child_cap", "max_extra_budget_extensions", "hard_budget"],
+      "properties": {
+        "allowed_tools": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^\\S+$"}},
+        "network_access": {"const": "disabled"},
+        "filesystem_write_scope": {"const": "isolated_staging_only"},
+        "allowed_external_effects": {"const": []},
+        "child_cap": {"const": 3},
+        "max_extra_budget_extensions": {"const": 1},
+        "hard_budget": {
+          "type": "object",
+          "required": ["max_runtime_seconds", "max_tool_calls", "max_output_bytes"],
+          "properties": {
+            "max_runtime_seconds": {"type": "integer", "minimum": 1},
+            "max_tool_calls": {"type": "integer", "minimum": 1},
+            "max_output_bytes": {"type": "integer", "minimum": 1}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "created_at": {"type": "string", "x-rfc3339-datetime": true},
+    "limitations": {"type": "array", "minItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}
