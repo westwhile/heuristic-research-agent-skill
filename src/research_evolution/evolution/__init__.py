@@ -17,6 +17,7 @@ from .candidate_eligibility import (
     assess_candidate_eligibility,
 )
 from .collaboration_window import (
+    CodexCliCollaborationAdapter,
     CollaborationAdapter,
     CollaborationWindowError,
     CollaborationWindowOutcome,
@@ -117,6 +118,7 @@ __all__ = [
     "CandidateEligibilityAttestation",
     "CandidateEligibilityError",
     "CandidateManifestError",
+    "CodexCliCollaborationAdapter",
     "CollaborationAdapter",
     "CollaborationWindowError",
     "CollaborationWindowOutcome",

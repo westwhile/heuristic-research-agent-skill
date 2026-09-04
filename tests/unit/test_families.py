@@ -62,6 +62,7 @@ class FamilyRegistryTest(unittest.TestCase):
                 "collaboration-window-plan/v1",
                 "collaboration-ticket/v1",
                 "collaboration-worker-outcome/v1",
+                "collaboration-worker-outcome/v2",
             },
         )
 
@@ -70,8 +71,11 @@ class FamilyRegistryTest(unittest.TestCase):
         duplicates = {field for field in fields if fields.count(field) > 1}
         # The sanctioned exceptions are versioned successors that share one
         # logical identity field with their frozen predecessor.
-        self.assertEqual(duplicates, {"case_id", "context_bundle_id"})
-        self.assertEqual(len(set(fields)), len(fields) - 2)
+        self.assertEqual(
+            duplicates,
+            {"case_id", "context_bundle_id", "collaboration_worker_outcome_id"},
+        )
+        self.assertEqual(len(set(fields)), len(fields) - 3)
 
     def test_reference_targets_are_registered(self) -> None:
         for contract in FAMILIES.values():
@@ -113,9 +117,7 @@ class FamilyRegistryTest(unittest.TestCase):
             self.assertIn(contract.supersedes.scope, ("family", "anchor"))
             if contract.supersedes.scope == "anchor":
                 reference_fields = [ref.field for ref in contract.references]
-                self.assertIn(
-                    contract.supersedes.anchor_field, reference_fields
-                )
+                self.assertIn(contract.supersedes.anchor_field, reference_fields)
             else:
                 self.assertIsNone(contract.supersedes.anchor_field)
 
@@ -164,9 +166,7 @@ class FamilyRegistryTest(unittest.TestCase):
         }
         for family, field in pinned:
             ref = next(
-                candidate
-                for candidate in FAMILIES[family].references
-                if candidate.field == field
+                candidate for candidate in FAMILIES[family].references if candidate.field == field
             )
             self.assertTrue(ref.pin_required)
 

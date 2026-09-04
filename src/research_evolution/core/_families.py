@@ -101,6 +101,7 @@ EVALUATION_ENVELOPE_CLOSURE = "evaluation-envelope-closure-receipt/v1"
 COLLABORATION_WINDOW_PLAN = "collaboration-window-plan/v1"
 COLLABORATION_TICKET = "collaboration-ticket/v1"
 COLLABORATION_WORKER_OUTCOME = "collaboration-worker-outcome/v1"
+COLLABORATION_WORKER_OUTCOME_V2 = "collaboration-worker-outcome/v2"
 
 
 @dataclass(frozen=True)
@@ -829,6 +830,20 @@ FAMILIES: dict[str, FamilyContract] = {
         ),
         FamilyContract(
             schema_id=COLLABORATION_WORKER_OUTCOME,
+            identity_field="collaboration_worker_outcome_id",
+            supersedes=None,
+            references=(
+                ReferenceContract(
+                    field="ticket",
+                    shape="object",
+                    target_family=COLLABORATION_TICKET,
+                    target_id_field="collaboration_ticket_id",
+                    pin_required=True,
+                ),
+            ),
+        ),
+        FamilyContract(
+            schema_id=COLLABORATION_WORKER_OUTCOME_V2,
             identity_field="collaboration_worker_outcome_id",
             supersedes=None,
             references=(

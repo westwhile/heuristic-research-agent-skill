@@ -1,9 +1,9 @@
 {
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
-  "reviewed_at": "2026-09-04",
-  "baseline_commit": "ae7990ce13898a5ce767d73bb1412c43154ddf5f",
-  "inventory_scope": "The 1149-file P7D6 Candidate-contract-diagnostics mainline inventory at ae7990ce13898a5ce767d73bb1412c43154ddf5f, plus twenty-seven proposed P7F0-P7F2 collaboration-autonomy ADR, schema, Module, test, and synthetic fixture files. Earlier source classes and the immutable math-research-solve v8/1.0.1 baseline remain unchanged. The P7F files are independently implemented but conservatively classified as design_inspired by the abstract collaboration-autonomy design observed in the excluded user-provided pika_math_learning_toolkit-2.1.0.zip / math-research-solve v2.31 artifact. No external source, schema, fixture, template, prompt, prose, model output, Skill payload, or executable content is tracked.",
+  "reviewed_at": "2026-09-05",
+  "baseline_commit": "1a5a9d01a4481d8f95f5179b5eafd619fdecd493",
+  "inventory_scope": "The 1176-file P7F0-P7F2 mainline inventory at 1a5a9d01a4481d8f95f5179b5eafd619fdecd493, plus ten proposed P7F3A outcome-v2, Adapter, ADR, deterministic fake-launcher, and synthetic fixture files. Earlier source classes and the immutable math-research-solve v8/1.0.1 baseline remain unchanged. The P7F files are independently implemented but conservatively classified as design_inspired by the abstract collaboration-autonomy design observed in the excluded user-provided pika_math_learning_toolkit-2.1.0.zip / math-research-solve v2.31 artifact. No external source, schema, fixture, template, prompt, prose, model output, Skill payload, or executable content is tracked.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -33,10 +33,10 @@
     "expected_counts": {
       "independently_authored": 994,
       "generated": 118,
-      "design_inspired": 62,
+      "design_inspired": 72,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 1176
+      "total": 1186
     },
     "rules": [
       {
@@ -109,16 +109,19 @@
         "class": "design_inspired",
         "patterns": [
           "docs/decisions/0027-phase7-p7f-collaborative-autonomy-foundation.md",
+          "docs/decisions/0028-phase7-p7f3a-real-collaboration-adapter.md",
           "schemas/core/collaboration-ticket-v1.schema.json",
           "schemas/core/collaboration-window-plan-v1.schema.json",
           "schemas/core/collaboration-worker-outcome-v1.schema.json",
+          "schemas/core/collaboration-worker-outcome-v2.schema.json",
           "src/research_evolution/evolution/collaboration_window.py",
           "tests/fixtures/core/collaboration-ticket/**",
           "tests/fixtures/core/collaboration-window-plan/**",
           "tests/fixtures/core/collaboration-worker-outcome/**",
+          "tests/fixtures/collaboration/**",
           "tests/unit/test_collaboration_window.py"
         ],
-        "source": "Independently implemented P7F0-P7F2 collaboration-autonomy contracts informed only by the abstract stable-envelope/method-autonomy design observed in the excluded user-provided toolkit 2.1.0 / math-research-solve v2.31 artifact; no upstream source, schema, fixture, template, prompt, prose, model output, or Skill payload is copied."
+        "source": "Independently implemented P7F0-P7F3A collaboration-autonomy contracts and local-process seam informed only by the abstract stable-envelope/method-autonomy design observed in the excluded user-provided toolkit 2.1.0 / math-research-solve v2.31 artifact; no upstream source, schema, fixture, template, prompt, prose, model output, or Skill payload is copied."
       },
       {
         "id": "canonical-apache-license-text",

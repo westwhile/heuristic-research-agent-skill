@@ -149,6 +149,12 @@ No upstream source, schema, fixture, template, prompt, prose, model output,
 Skill payload, or executable content is copied. The archive did not expose a
 LICENSE/COPYING/NOTICE or package-manifest license supporting payload reuse.
 
+P7F3A proposes ten additional independently implemented successor-schema, ADR,
+local-process Adapter, deterministic fake-launcher, and synthetic fixture files.
+They remain conservatively `design_inspired` under the same abstract P7F source
+boundary. The fake launcher is repository-native test code; no upstream CLI,
+prompt, output, transcript, session identifier, or executable payload is copied.
+
 The repository-external P7D4/P7D5/P7D6 work used maintainer-constructed public
 Schur cases, exact oracles, one formal Pattern, real Codex sessions, one byte-
 closed Candidate, and an official `skill-creator` structural validation in a
@@ -165,9 +171,9 @@ assistance never supplies permission to copy third-party expression.
 
 ## Inventory
 
-The proposed P7F0–P7F2 tracked inventory contains 1176 files: the 1149-file
-P7D6 Candidate-contract-diagnostics mainline inventory plus twenty-seven P7F
-collaboration-autonomy ADR, schema, Module, test, and synthetic fixture files.
+The proposed P7F3A tracked inventory contains 1186 files: the 1176-file
+P7F0–P7F2 mainline inventory plus ten P7F3A successor-schema, ADR, Adapter,
+deterministic fake-launcher, and synthetic fixture files.
 The prior mainline inventory contains the 1098-file P7B2 mainline inventory plus eleven P7B3 static-validation schema,
 source, test, synthetic fixture, and ADR files, eleven P7B4 semantic-review
 protocol schema, source, test, synthetic fixture, and ADR files, and four P7C1
@@ -199,7 +205,7 @@ evidence:
 |---|---:|---|
 | `independently_authored` | 994 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, P7D1 failure/proposal, and P7D3 containment files |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
-| `design_inspired` | 62 | Independently implemented v8 compatibility, P7B2/P7B3 Skill contracts, and P7F collaboration-autonomy contracts/tests/fixtures |
+| `design_inspired` | 72 | Independently implemented v8 compatibility, P7B2/P7B3 Skill contracts, and P7F collaboration-autonomy contracts/tests/fixtures |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
 | `unknown` | 0 | No unresolved tracked file |
 
@@ -208,7 +214,7 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 994 `independently_authored`, 118 `generated`, 62
+The resulting counts are 994 `independently_authored`, 118 `generated`, 72
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
@@ -223,8 +229,9 @@ aggregate facts from real Codex sessions but track no raw Agent/model output or
 external Candidate payload. None adds a hidden case or real independent-review
 artifact.
 
-P7F adds only synthetic contract evidence. Its single deterministic Adapter
-does not establish real multi-Agent execution, identity separation, research
+P7F3A adds a constrained local-process Adapter, but its tracked tests use only a
+deterministic fake launcher and therefore add only synthetic contract evidence.
+It does not establish real multi-Agent execution, identity separation, research
 improvement, independent verification, or a stable collaboration seam.
 
 ## External-source decisions
