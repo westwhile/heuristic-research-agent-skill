@@ -499,6 +499,16 @@ FIXTURE_MANIFEST = {
             "missing-id.json": ("RecordValidationError", "collaboration_worker_outcome_id"),
         },
     },
+    "collaboration-worker-outcome/v2": {
+        "valid": ["full.json", "minimal.json"],
+        "invalid": {
+            "additional-property.json": ("RecordValidationError", "additional property"),
+            "duplicate-key.json": ("StrictJsonError", "duplicate"),
+            "missing-id.json": ("RecordValidationError", "collaboration_worker_outcome_id"),
+            "non-string-schema.json": ("UnknownSchemaError", "string"),
+            "unknown-schema.json": ("UnknownSchemaError", "unsupported schema"),
+        },
+    },
     "artifact-closure-receipt/v1": {
         "valid": ["full.json", "minimal.json"],
         "invalid": {
@@ -618,21 +628,18 @@ MINIMAL_FIXTURE_SHA256 = {
     "collaboration-window-plan/v1": (
         "73c630725f1d011b49b1a2627c37b00030528c8be4016686963089da4380385b"
     ),
-    "collaboration-ticket/v1": (
-        "dcf9c93fdebc7f1cde5e7478a7cc00152be86f2b2e9633559dcf9be979a56345"
-    ),
+    "collaboration-ticket/v1": ("dcf9c93fdebc7f1cde5e7478a7cc00152be86f2b2e9633559dcf9be979a56345"),
     "collaboration-worker-outcome/v1": (
         "f4d988f8b10f85ef8a7dfdc57060d8b949afbb75ed7948c3a9499b4a81f97c8f"
     ),
-    "artifact-record/v1": (
-        "b54a0cff2110d9a1e6b7f6eb8f18a6b2a9715e8e02db1289834d78e5157feb3c"
+    "collaboration-worker-outcome/v2": (
+        "c075dec84fce975097d2c7a18c077da43603e42d83e5ccf5e33b1c5355b1ab5f"
     ),
+    "artifact-record/v1": ("b54a0cff2110d9a1e6b7f6eb8f18a6b2a9715e8e02db1289834d78e5157feb3c"),
     "artifact-closure-receipt/v1": (
         "31023abcf8518679d1b9b2d933dfd374341ffe0af4da419693c84db09a2aea88"
     ),
-    "candidate-manifest/v1": (
-        "4a251d80b2aec6cd9c4656896136f7801cfa86cf291659ff6254739a25889b7e"
-    ),
+    "candidate-manifest/v1": ("4a251d80b2aec6cd9c4656896136f7801cfa86cf291659ff6254739a25889b7e"),
     "candidate-eligibility-attestation/v1": (
         "e8b22653837f2f0ad41ea33b5384212d0e1c071403ea146901f8f6eeba4ef9f0"
     ),
@@ -645,78 +652,42 @@ MINIMAL_FIXTURE_SHA256 = {
     "skill-semantic-review-attestation/v1": (
         "e3b4949e297b0c230ea8116630f31a1820e1d1e0a76a5cf997a97b2417276378"
     ),
-    "comparison-report/v1": (
-        "bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"
-    ),
-    "evaluation-case/v1": (
-        "95e8a4bf98b88f746c0b9d653c7067bee5845e624681fe2a8da35be7b61b30f7"
-    ),
-    "evaluation-attempt/v1": (
-        "6179fefaee14d5c650bfe49268b142528dd8d4b90c2ac09650ed85b5e15ef66c"
-    ),
-    "evaluation-result/v1": (
-        "b6a1bdc98169a257ee81698689093a19e03adec623cb4b4cdbf797f4e58aa08f"
-    ),
+    "comparison-report/v1": ("bf36390b526c89c65b6a3c1e79f5f3a1bc5a9ea545ba27924db803218e1542cb"),
+    "evaluation-case/v1": ("95e8a4bf98b88f746c0b9d653c7067bee5845e624681fe2a8da35be7b61b30f7"),
+    "evaluation-attempt/v1": ("6179fefaee14d5c650bfe49268b142528dd8d4b90c2ac09650ed85b5e15ef66c"),
+    "evaluation-result/v1": ("b6a1bdc98169a257ee81698689093a19e03adec623cb4b4cdbf797f4e58aa08f"),
     "evaluation-envelope-closure-receipt/v1": (
         "8172f2d98dccd6f3afb93fc162c245d63dfbaad623dc7dc0f719446d04066f83"
     ),
-    "evaluation-run/v1": (
-        "c73ef291b765868e9cb556cc5d63f3d3bb17a77f5de07aee270096954d24db7e"
-    ),
-    "export-decision/v1": (
-        "752c486c686785603c248de08379279ac366ba85b7f7c64fb1f6638da08b877f"
-    ),
-    "export-receipt/v1": (
-        "acbf6c46800da6f12a104d885dbd3bb727e5bbd688a128992239259be1247ebc"
-    ),
-    "heuristic/v1": (
-        "8533c35152d56a11f47900b06958a065988f7087f5a316e110dd3ec31b83fbed"
-    ),
+    "evaluation-run/v1": ("c73ef291b765868e9cb556cc5d63f3d3bb17a77f5de07aee270096954d24db7e"),
+    "export-decision/v1": ("752c486c686785603c248de08379279ac366ba85b7f7c64fb1f6638da08b877f"),
+    "export-receipt/v1": ("acbf6c46800da6f12a104d885dbd3bb727e5bbd688a128992239259be1247ebc"),
+    "heuristic/v1": ("8533c35152d56a11f47900b06958a065988f7087f5a316e110dd3ec31b83fbed"),
     "research-case-package/v1": (
         "d83202cfeafc280b98df1b7d9e0c69be70e1d8681c3c6fbc0e5b252c7a5f2ae5"
     ),
     "research-case-package/v2": (
         "042eca632dfeab36b6d02e3279cf56b2eb650072e84b6223a6ed2572444c1fff"
     ),
-    "research-claim/v1": (
-        "a496686fd72c63ee8cba7c3e59281a7575f8ee499798072457e2bcce6796c769"
-    ),
-    "research-evidence/v1": (
-        "a77ec6c1bb747e00d95d5a0d227f6bc0f6f8e9592bd93ca6911978810f09b3a4"
-    ),
+    "research-claim/v1": ("a496686fd72c63ee8cba7c3e59281a7575f8ee499798072457e2bcce6796c769"),
+    "research-evidence/v1": ("a77ec6c1bb747e00d95d5a0d227f6bc0f6f8e9592bd93ca6911978810f09b3a4"),
     "research-failure-analysis/v1": (
         "97143007a8f05ca7e243228f490f8bee23c06323155b3ad68710ae34b4fddeed"
     ),
     "research-failure-observation/v1": (
         "946bd26918fe3ec254be0fa375c0a2090ddde0dffee5d4fb6de9c3d546300ece"
     ),
-    "research-pattern/v1": (
-        "cce2f8f67b911b85005a08c48490be3d000f1a099883216818a0c5785299945c"
-    ),
-    "research-run/v1": (
-        "f6a3a6273e87f9ac38efc332b98b14b5c9b95ec3f5652567502d7063df8e4c9e"
-    ),
-    "research-task/v1": (
-        "7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"
-    ),
-    "reuse-event/v1": (
-        "21054deab507d4a8ce66ca818aa38d8a674cf2b7b0484d82de0585fe9cda9669"
-    ),
-    "suite/v1": (
-        "72e17ae19ab298e6c04f6886b8dcf2c1c6ea48306d4d35672c6fc853c7fe301b"
-    ),
-    "context-bundle/v1": (
-        "912f081adada126661f0c0cd4baacc8ad5faf5cf308636aa7efa8b5d3a3e4f8e"
-    ),
-    "context-bundle/v2": (
-        "97ad32a7f784c9bca716a1f248c1edd6d3992f6228019e9cd7ac140969099764"
-    ),
+    "research-pattern/v1": ("cce2f8f67b911b85005a08c48490be3d000f1a099883216818a0c5785299945c"),
+    "research-run/v1": ("f6a3a6273e87f9ac38efc332b98b14b5c9b95ec3f5652567502d7063df8e4c9e"),
+    "research-task/v1": ("7a73b657e4b3e8ae6250e0a56b0dee7a73b3838ca4bdd637fe58b7d044e7519a"),
+    "reuse-event/v1": ("21054deab507d4a8ce66ca818aa38d8a674cf2b7b0484d82de0585fe9cda9669"),
+    "suite/v1": ("72e17ae19ab298e6c04f6886b8dcf2c1c6ea48306d4d35672c6fc853c7fe301b"),
+    "context-bundle/v1": ("912f081adada126661f0c0cd4baacc8ad5faf5cf308636aa7efa8b5d3a3e4f8e"),
+    "context-bundle/v2": ("97ad32a7f784c9bca716a1f248c1edd6d3992f6228019e9cd7ac140969099764"),
     "context-material-assessment/v1": (
         "9d88af279e7ac3a30055ec9ace31180efad45700912c36a936e7fb88a8d4a484"
     ),
-    "suite-comparison/v1": (
-        "bea90285ac9e9cfa7cecb2be836450beb26fa9d5396d0bea7a68962a3e370302"
-    ),
+    "suite-comparison/v1": ("bea90285ac9e9cfa7cecb2be836450beb26fa9d5396d0bea7a68962a3e370302"),
 }
 
 # Golden pins (ADR-0004 decision 7): SHA-256 of each schema file's raw
@@ -732,6 +703,9 @@ SCHEMA_TEXT_SHA256 = {
     ),
     "collaboration-worker-outcome-v1.schema.json": (
         "8f82fe22d048368d58ec3489be69666b19b94fe5401458132fd3c363678e8dca"
+    ),
+    "collaboration-worker-outcome-v2.schema.json": (
+        "bb6693b8aa82bd3a424a9ac06512ee8476b9ac930043d447b22e521ea58e4068"
     ),
     "artifact-record-v1.schema.json": (
         "1acb72c52221a79bfa5ae514619a22b4bb46cbfcd2774496415c9d6f3d2a8f8f"
@@ -811,9 +785,7 @@ SCHEMA_TEXT_SHA256 = {
     "reuse-event-v1.schema.json": (
         "52b82c7badd9a8cddf07955f778c5262d53f030e7b3749762302330e55297fb5"
     ),
-    "suite-v1.schema.json": (
-        "217368272ab7c555b4961d1681eb1047ff5ca070248f3559499c2b4ccacf938a"
-    ),
+    "suite-v1.schema.json": ("217368272ab7c555b4961d1681eb1047ff5ca070248f3559499c2b4ccacf938a"),
     "context-bundle-v1.schema.json": (
         "aa1f4039c2359d8e92ac80cfa3916d21c7b2359ad36eda7755a930c99b4a83d7"
     ),
@@ -911,7 +883,7 @@ class FixtureBehaviorTest(unittest.TestCase):
 
 
 class SchemaIntegrityTest(unittest.TestCase):
-    def test_registry_loads_exactly_the_thirty_four_schemas(self) -> None:
+    def test_registry_loads_exactly_the_thirty_five_schemas(self) -> None:
         registry = SchemaRegistry(SCHEMA_ROOT)
         self.assertEqual(
             registry.schema_ids,
@@ -923,6 +895,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 "collaboration-ticket/v1",
                 "collaboration-window-plan/v1",
                 "collaboration-worker-outcome/v1",
+                "collaboration-worker-outcome/v2",
                 "comparison-report/v1",
                 "context-bundle/v1",
                 "context-bundle/v2",
@@ -968,9 +941,7 @@ class SchemaIntegrityTest(unittest.TestCase):
                 match = _BANNED_TERMS.search(text)
                 self.assertIsNone(
                     match,
-                    f"domain term {match.group(0)!r} leaked into {path.name}"
-                    if match
-                    else "",
+                    f"domain term {match.group(0)!r} leaked into {path.name}" if match else "",
                 )
 
 

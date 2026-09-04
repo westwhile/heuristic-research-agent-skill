@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "collaboration-worker-outcome/v2",
+  "title": "CollaborationWorkerOutcome v2",
+  "description": "A sanitized local-process worker outcome with non-overlapping token accounting and verified process/workspace cleanup. It supersedes v1 without claiming identity, independent review, or lifecycle authority.",
+  "type": "object",
+  "required": ["schema", "collaboration_worker_outcome_id", "ticket", "route_id", "role", "status", "candidate_artifacts", "verified_partial_artifacts", "substantive_method_changes", "opportunity_chain", "cannot_imply", "reopen_conditions", "resource_usage", "scope_compliance", "adapter", "execution", "claims", "generated_at", "limitations"],
+  "properties": {
+    "schema": {"const": "collaboration-worker-outcome/v2"},
+    "collaboration_worker_outcome_id": {"type": "string", "minLength": 1, "maxLength": 176, "pattern": "^collaboration-outcome-[A-Za-z0-9._:-]+$"},
+    "ticket": {
+      "type": "object",
+      "required": ["collaboration_ticket_id", "sha256"],
+      "properties": {
+        "collaboration_ticket_id": {"type": "string", "minLength": 1, "maxLength": 160, "pattern": "^collaboration-ticket-[A-Za-z0-9._:-]+$"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "route_id": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "role": {"enum": ["explorer_a", "explorer_b", "explorer_c"]},
+    "status": {"enum": ["candidate", "verified_partial", "bounded_negative", "no_new_opportunity", "inconclusive", "failed"]},
+    "candidate_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256", "size_bytes"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "verified_partial_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "sha256", "size_bytes"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 512, "x-safe-relative-path": true},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "work_product": {
+      "type": "object",
+      "required": ["approach", "result", "verification"],
+      "properties": {
+        "approach": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"},
+        "result": {"type": "string", "minLength": 1, "maxLength": 8192, "pattern": "\\S"},
+        "verification": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"}
+      },
+      "additionalProperties": false
+    },
+    "substantive_method_changes": {"type": "array", "items": {"type": "object", "required": ["summary", "rationale"], "properties": {"summary": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}, "rationale": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}, "additionalProperties": false}},
+    "opportunity_chain": {"type": "array", "items": {"type": "object", "required": ["kind", "summary"], "properties": {"kind": {"enum": ["substantive_method_change", "new_opportunity", "route_exhausted", "future_route_proposal", "natural_stop"]}, "summary": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}, "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "expected_gain": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}, "additionalProperties": false}},
+    "future_route_proposal": {"type": "object", "required": ["proposed_target", "reason", "evidence_sha256"], "properties": {"proposed_target": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"}, "reason": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "\\S"}, "evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}, "additionalProperties": false},
+    "cannot_imply": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}},
+    "reopen_conditions": {"type": "array", "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}},
+    "resource_usage": {
+      "type": "object",
+      "required": ["runtime_seconds", "tool_calls", "output_bytes", "extra_budget_extensions"],
+      "properties": {
+        "runtime_seconds": {"type": "integer", "minimum": 0},
+        "tool_calls": {"type": "integer", "minimum": 0},
+        "output_bytes": {"type": "integer", "minimum": 0},
+        "extra_budget_extensions": {"enum": [0, 1]}
+      },
+      "additionalProperties": false
+    },
+    "scope_compliance": {
+      "type": "object",
+      "required": ["target_unchanged", "claim_scope_unchanged", "evidence_standard_preserved", "permissions_respected"],
+      "properties": {
+        "target_unchanged": {"type": "boolean"},
+        "claim_scope_unchanged": {"type": "boolean"},
+        "evidence_standard_preserved": {"type": "boolean"},
+        "permissions_respected": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "required": ["stage", "code"],
+      "properties": {
+        "stage": {"enum": ["adapter_execution", "observation_validation", "scope_validation", "resource_validation", "usage_validation", "output_validation", "workspace_cleanup"]},
+        "code": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-z0-9_]+$"}
+      },
+      "additionalProperties": false
+    },
+    "adapter": {
+      "type": "object",
+      "required": ["tool", "version", "evidence_class", "cli_version", "model", "reasoning_effort", "launcher_sha256"],
+      "properties": {
+        "tool": {"const": "codex-cli-collaboration-adapter"},
+        "version": {"const": "0.1.0"},
+        "evidence_class": {"enum": ["deterministic_fake_launcher_contract", "real_codex_cli"]},
+        "cli_version": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+        "model": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "\\S"},
+        "reasoning_effort": {"enum": ["low", "medium", "high", "xhigh", "max", "ultra"]},
+        "launcher_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "execution": {
+      "type": "object",
+      "required": ["launcher_process_started", "agent_session_started", "agent_turn_completed", "session_sha256", "trace_sha256", "stderr_sha256", "execution_status", "process_cleanup_status", "process_tree_cleanup_verified", "workspace_cleanup_verified", "usage"],
+      "properties": {
+        "launcher_process_started": {"type": "boolean"},
+        "agent_session_started": {"type": "boolean"},
+        "agent_turn_completed": {"type": "boolean"},
+        "session_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "trace_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "stderr_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "execution_status": {"enum": ["completed", "timeout", "launch_failed", "cleanup_failed", "executor_failed"]},
+        "process_cleanup_status": {"enum": ["not_required", "verified", "not_started", "failed", "unverified"]},
+        "process_tree_cleanup_verified": {"type": "boolean"},
+        "workspace_cleanup_verified": {"type": "boolean"},
+        "usage": {
+          "type": "object",
+          "required": ["input_tokens", "cached_input_tokens", "output_tokens", "total_tokens", "usage_closed"],
+          "properties": {
+            "input_tokens": {"type": "integer", "minimum": 0},
+            "cached_input_tokens": {"type": "integer", "minimum": 0},
+            "output_tokens": {"type": "integer", "minimum": 0},
+            "total_tokens": {"type": "integer", "minimum": 0},
+            "usage_closed": {"type": "boolean"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "claims": {
+      "type": "object",
+      "required": ["synthetic_collaboration_contract_exercised", "real_multi_agent_execution_observed", "real_agent_identity_verified", "collaboration_seam_stable", "independent_verification_completed", "publication_authorized", "installation_authorized", "activation_authorized", "promotion_authorized"],
+      "properties": {
+        "synthetic_collaboration_contract_exercised": {"type": "boolean"},
+        "real_multi_agent_execution_observed": {"type": "boolean"},
+        "real_agent_identity_verified": {"const": false},
+        "collaboration_seam_stable": {"const": false},
+        "independent_verification_completed": {"const": false},
+        "publication_authorized": {"const": false},
+        "installation_authorized": {"const": false},
+        "activation_authorized": {"const": false},
+        "promotion_authorized": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "generated_at": {"type": "string", "x-rfc3339-datetime": true},
+    "limitations": {"type": "array", "minItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 2048, "pattern": "\\S"}}
+  },
+  "additionalProperties": false
+}

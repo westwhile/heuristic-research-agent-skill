@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import copy
+import shutil
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from research_evolution.core import (
     PublicationError,
@@ -17,15 +19,19 @@ from research_evolution.core import (
     verify_record_graph,
 )
 from research_evolution.evolution import (
+    CodexCliCollaborationAdapter,
     CollaborationWindowError,
     CollaborationWindowPlan,
     CollaborationWorkerObservation,
     DeterministicCollaborationAdapter,
     run_collaboration_window,
 )
-
+from research_evolution.evolution._process_containment import ContainedProcessResult
 
 NOW = "2026-09-04T02:00:00Z"
+FAKE_CODEX_LAUNCHER = (
+    Path(__file__).parents[1] / "fixtures" / "collaboration" / "fake_codex_cli.ps1"
+)
 
 
 def _task(domain: str = "math") -> Any:
@@ -216,6 +222,220 @@ def _adapter() -> DeterministicCollaborationAdapter:
 
 
 class CollaborationWindowTests(unittest.TestCase):
+    def _process_adapter(self, model: str) -> CodexCliCollaborationAdapter:
+        powershell = shutil.which("pwsh")
+        self.assertIsNotNone(powershell, "PowerShell 7 is required by the repository")
+        return CodexCliCollaborationAdapter(
+            FAKE_CODEX_LAUNCHER,
+            powershell=Path(str(powershell)),
+            cli_version="fake-0.1.0",
+            model=model,
+            reasoning_effort="xhigh",
+            execution_mode="deterministic_fake_launcher",
+        )
+
+    def test_fake_codex_launcher_crosses_the_existing_collaboration_interface(self) -> None:
+        powershell = shutil.which("pwsh")
+        self.assertIsNotNone(powershell, "PowerShell 7 is required by the repository")
+        adapter = CodexCliCollaborationAdapter(
+            FAKE_CODEX_LAUNCHER,
+            powershell=Path(str(powershell)),
+            cli_version="fake-0.1.0",
+            model="deterministic-fake-model",
+            reasoning_effort="xhigh",
+            execution_mode="deterministic_fake_launcher",
+        )
+
+        outcome = run_collaboration_window(_plan(), adapter)
+
+        self.assertEqual(outcome.status, "window_completed")
+        self.assertEqual(len(outcome.worker_outcomes), 3)
+        for record in outcome.worker_outcomes:
+            self.assertEqual(record.schema_id, "collaboration-worker-outcome/v2")
+            self.assertEqual(
+                record.data["adapter"]["evidence_class"],
+                "deterministic_fake_launcher_contract",
+            )
+            self.assertTrue(record.data["execution"]["usage"]["usage_closed"])
+            self.assertEqual(
+                record.data["execution"]["usage"]["total_tokens"],
+                record.data["execution"]["usage"]["input_tokens"]
+                + record.data["execution"]["usage"]["output_tokens"],
+            )
+            self.assertTrue(record.data["execution"]["process_tree_cleanup_verified"])
+            self.assertTrue(record.data["execution"]["workspace_cleanup_verified"])
+            self.assertFalse(record.data["claims"]["real_multi_agent_execution_observed"])
+
+    def test_missing_usage_fails_closed_with_a_sanitized_v2_receipt(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-missing-usage"))
+
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:usage_incomplete_or_inconsistent",))
+        self.assertEqual(len(outcome.worker_outcomes), 1)
+        record = outcome.worker_outcomes[0]
+        self.assertEqual(
+            record.data["failure"],
+            {
+                "stage": "usage_validation",
+                "code": "usage_incomplete_or_inconsistent",
+            },
+        )
+        self.assertFalse(record.data["execution"]["usage"]["usage_closed"])
+        serialized = record.canonical_bytes.decode("utf-8")
+        self.assertNotIn("fake-session-p7f3", serialized)
+
+    def test_total_usage_is_derived_when_codex_omits_redundant_total(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-no-total"))
+
+        self.assertEqual(outcome.status, "window_completed")
+        for record in outcome.worker_outcomes:
+            usage = record.data["execution"]["usage"]
+            self.assertTrue(usage["usage_closed"])
+            self.assertEqual(usage["total_tokens"], 20)
+
+    def test_ticket_binding_mutation_fails_closed_before_later_dispatch(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-binding-mismatch"))
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:ticket_binding_mismatch",))
+        self.assertEqual(len(outcome.worker_outcomes), 1)
+
+    def test_invalid_structured_output_is_a_receipted_failure(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-invalid-output"))
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:invalid_structured_output",))
+        self.assertEqual(
+            outcome.worker_outcomes[0].data["failure"]["stage"],
+            "output_validation",
+        )
+
+    def test_real_evidence_mode_rejects_a_fixture_launcher(self) -> None:
+        powershell = Path(str(shutil.which("pwsh")))
+        with self.assertRaisesRegex(CollaborationWindowError, "authenticated launcher"):
+            CodexCliCollaborationAdapter(
+                FAKE_CODEX_LAUNCHER,
+                powershell=powershell,
+                cli_version="fake-0.1.0",
+                model="gpt-5.6-sol",
+                reasoning_effort="xhigh",
+                execution_mode="authenticated_codex_cli",
+            )
+
+    def test_restricted_worker_output_is_hashed_then_discarded(self) -> None:
+        sensitive = "operator@example.invalid"
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-sensitive-output"))
+        self.assertEqual(outcome.status, "failed_closed")
+        record = outcome.worker_outcomes[0]
+        self.assertEqual(
+            record.data["failure"],
+            {"stage": "output_validation", "code": "restricted_output"},
+        )
+        self.assertNotIn(sensitive, record.canonical_bytes.decode("utf-8"))
+
+    def test_fake_process_adapter_is_domain_neutral_for_math_and_quant(self) -> None:
+        for domain in ("math", "quant"):
+            with self.subTest(domain=domain):
+                outcome = run_collaboration_window(
+                    _plan(domain), self._process_adapter("deterministic-fake-model")
+                )
+                self.assertEqual(outcome.status, "window_completed")
+                self.assertEqual(len(outcome.worker_outcomes), 3)
+
+    def test_deleted_work_product_fails_closed(self) -> None:
+        outcome = run_collaboration_window(
+            _plan(), self._process_adapter("fake-missing-work-product")
+        )
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:invalid_structured_output",))
+
+    def test_cleanup_failure_is_receipted_and_stops_later_dispatch(self) -> None:
+        contained = ContainedProcessResult(
+            returncode=None,
+            stdout=b"",
+            stderr=b"sensitive stderr is never copied",
+            process_started=True,
+            execution_status="cleanup_failed",
+            process_cleanup_status="failed",
+            process_tree_cleanup_verified=False,
+        )
+        with patch(
+            "research_evolution.evolution.collaboration_window.run_process_contained",
+            return_value=contained,
+        ):
+            outcome = run_collaboration_window(
+                _plan(), self._process_adapter("deterministic-fake-model")
+            )
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:cleanup_failed",))
+        record = outcome.worker_outcomes[0]
+        self.assertFalse(record.data["execution"]["process_tree_cleanup_verified"])
+        self.assertNotIn("sensitive stderr", record.canonical_bytes.decode("utf-8"))
+
+    def test_missing_session_fact_cannot_become_success(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-missing-session"))
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:session_or_turn_incomplete",))
+
+    def test_workspace_cleanup_failure_is_a_hard_blocker(self) -> None:
+        with patch(
+            "research_evolution.evolution.collaboration_window._remove_workspace",
+            return_value=False,
+        ):
+            outcome = run_collaboration_window(
+                _plan(), self._process_adapter("deterministic-fake-model")
+            )
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:workspace_cleanup_failed",))
+        self.assertEqual(
+            outcome.worker_outcomes[0].data["failure"],
+            {"stage": "workspace_cleanup", "code": "workspace_cleanup_failed"},
+        )
+
+    def test_process_worker_can_propose_but_not_activate_a_future_route(self) -> None:
+        outcome = run_collaboration_window(_plan(), self._process_adapter("fake-future-proposal"))
+        proposal = outcome.worker_outcomes[0].data["future_route_proposal"]
+        self.assertEqual(proposal["proposed_target"], "Separate future target")
+        self.assertEqual(outcome.plan_record.data["active_target"], _plan().active_target)
+
+    def test_worker_reported_inconclusive_is_a_receipted_terminal_failure(self) -> None:
+        outcome = run_collaboration_window(
+            _plan(), self._process_adapter("fake-worker-inconclusive")
+        )
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:worker_reported_inconclusive",))
+        self.assertEqual(outcome.worker_outcomes[0].data["status"], "inconclusive")
+
+    def test_v2_publication_rechecks_restricted_metadata_without_writing(self) -> None:
+        source = load_record(
+            (
+                Path(__file__).parents[1]
+                / "fixtures/core/collaboration-worker-outcome/v2/valid/minimal.json"
+            ).read_bytes()
+        ).data
+        sensitive = "operator@example.invalid"
+        source["adapter"]["model"] = sensitive
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "store"
+            with self.assertRaises(PublicationError) as caught:
+                publish_record(canonical_bytes(source), root=root)
+            self.assertFalse(root.exists())
+        self.assertNotIn(sensitive, str(caught.exception))
+
+    def test_v2_task_window_ticket_outcome_graph_is_resolvable(self) -> None:
+        plan = _plan()
+        outcome = run_collaboration_window(plan, self._process_adapter("deterministic-fake-model"))
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "store"
+            for record in (
+                plan.task,
+                outcome.plan_record,
+                *outcome.ticket_records,
+                *outcome.worker_outcomes,
+            ):
+                publish_record(record.canonical_bytes, root=root)
+            report = verify_record_graph(root)
+        self.assertTrue(report.ok, report.to_dict())
+        self.assertEqual(report.records_total, 8)
+
     def test_math_and_quant_cross_one_domain_neutral_three_slot_interface(self) -> None:
         for domain in ("math", "quant"):
             with self.subTest(domain=domain):
@@ -232,9 +452,7 @@ class CollaborationWindowTests(unittest.TestCase):
                 self.assertEqual(len(outcome.ticket_records), 3)
                 self.assertEqual(len(outcome.worker_outcomes), 3)
                 self.assertEqual(
-                    outcome.worker_outcomes[0].data["substantive_method_changes"][0][
-                        "summary"
-                    ],
+                    outcome.worker_outcomes[0].data["substantive_method_changes"][0]["summary"],
                     "Replaced the initial tactic with an equivalent method.",
                 )
                 self.assertTrue(outcome.claims["synthetic_collaboration_contract_exercised"])
@@ -330,9 +548,7 @@ class CollaborationWindowTests(unittest.TestCase):
             },
         )
         adapter = _adapter()
-        adapter = DeterministicCollaborationAdapter(
-            {**adapter.observations, "route-a": drift}
-        )
+        adapter = DeterministicCollaborationAdapter({**adapter.observations, "route-a": drift})
         outcome = run_collaboration_window(_plan(), adapter)
 
         self.assertEqual(outcome.status, "failed_closed")
@@ -365,9 +581,7 @@ class CollaborationWindowTests(unittest.TestCase):
         adapter = _adapter()
         outcome = run_collaboration_window(
             _plan(),
-            DeterministicCollaborationAdapter(
-                {**adapter.observations, "route-a": extended}
-            ),
+            DeterministicCollaborationAdapter({**adapter.observations, "route-a": extended}),
         )
         self.assertEqual(outcome.status, "window_completed")
 
@@ -375,9 +589,7 @@ class CollaborationWindowTests(unittest.TestCase):
         with self.assertRaisesRegex(CollaborationWindowError, "evidence-backed new opportunity"):
             run_collaboration_window(
                 _plan(),
-                DeterministicCollaborationAdapter(
-                    {**adapter.observations, "route-a": unjustified}
-                ),
+                DeterministicCollaborationAdapter({**adapter.observations, "route-a": unjustified}),
             )
 
     def test_future_route_proposal_cannot_mutate_active_target(self) -> None:
@@ -400,9 +612,7 @@ class CollaborationWindowTests(unittest.TestCase):
         adapter = _adapter()
         outcome = run_collaboration_window(
             _plan(),
-            DeterministicCollaborationAdapter(
-                {**adapter.observations, "route-a": proposal}
-            ),
+            DeterministicCollaborationAdapter({**adapter.observations, "route-a": proposal}),
         )
         self.assertEqual(
             outcome.plan_record.data["active_target"],

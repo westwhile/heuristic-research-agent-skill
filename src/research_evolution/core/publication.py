@@ -237,6 +237,7 @@ def publish_record(
         "collaboration-window-plan/v1",
         "collaboration-ticket/v1",
         "collaboration-worker-outcome/v1",
+        "collaboration-worker-outcome/v2",
     }:
         restricted = scan_value_for_restricted(record.data)
         if restricted:
