@@ -132,6 +132,21 @@ def _suite_plan(
 
 
 class SkillForwardSuiteTests(unittest.TestCase):
+    def test_both_domains_bind_report_candidates_to_every_run(self) -> None:
+        for domain in ("math", "quant"):
+            with self.subTest(domain=domain):
+                adapter = DeterministicInProcessAdapter(_outputs(), model="fixture-model")
+                outcome = run_skill_forward_suite(_suite_plan(domain), adapter)
+                comparison = outcome.suite_comparison
+                self.assertIsNotNone(comparison)
+                for cell in outcome.cells:
+                    self.assertEqual(
+                        cell.outcome.baseline.run_payload["candidate"], comparison["champion"]
+                    )
+                    self.assertEqual(
+                        cell.outcome.candidate.run_payload["candidate"], comparison["challenger"]
+                    )
+
     def test_math_accept_runs_complete_case_seed_grid_and_existing_comparison(self) -> None:
         adapter = DeterministicInProcessAdapter(_outputs(), model="fixture-model")
         outcome = run_skill_forward_suite(_suite_plan(), adapter)

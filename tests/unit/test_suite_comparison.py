@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import unittest
+from unittest.mock import patch
 
 from research_evolution.core import canonical_sha256, load_record
+from research_evolution.evaluation.statistics import paired_permutation
 from research_evolution.evaluation import (
     ComparePolicy,
     MetricPolicy,
@@ -87,7 +89,7 @@ def _runs(candidate_id: str, offset: float) -> list[dict]:
 def _candidate(candidate_id: str) -> dict[str, str]:
     return {
         "candidate_id": candidate_id,
-        "sha256": canonical_sha256({"candidate_manifest": candidate_id}),
+        "sha256": canonical_sha256({"candidate": candidate_id}),
     }
 
 
@@ -143,6 +145,52 @@ class SuiteComparisonObservationUnitTest(unittest.TestCase):
             self.assertIn("insufficient_pairs", rendered)
             self.assertIn("rank_biserial", rendered)
 
+    def test_candidate_digest_drift_is_rejected_before_statistics(self) -> None:
+        original = _runs
+        for side in ("champion", "challenger"):
+            for mutation in ("one_hash", "all_hashes", "one_id", "missing_hash"):
+                with self.subTest(side=side, mutation=mutation):
+                    def mutated_runs(candidate_id: str, offset: float) -> list[dict]:
+                        runs = original(candidate_id, offset)
+                        if candidate_id == side:
+                            if mutation == "one_hash":
+                                runs[0]["candidate"]["sha256"] = "a" * 64
+                            elif mutation == "all_hashes":
+                                for run in runs:
+                                    run["candidate"]["sha256"] = "a" * 64
+                            elif mutation == "one_id":
+                                runs[0]["candidate"]["candidate_id"] = "different"
+                            else:
+                                del runs[0]["candidate"]["sha256"]
+                        return runs
+
+                    with (
+                        patch(f"{__name__}._runs", side_effect=mutated_runs),
+                        patch(
+                            "research_evolution.evaluation.suite_comparison.paired_permutation",
+                            wraps=paired_permutation,
+                        ) as statistics,
+                        self.assertRaises(ValueError),
+                    ):
+                        self._report()
+                    statistics.assert_not_called()
+
+    def test_report_reference_must_match_every_observation(self) -> None:
+        original = _candidate
+        for side in ("champion", "challenger"):
+            with self.subTest(side=side):
+                def changed_reference(candidate_id: str) -> dict[str, str]:
+                    reference = original(candidate_id)
+                    if candidate_id == side:
+                        reference["sha256"] = "f" * 64
+                    return reference
+
+                with (
+                    patch(f"{__name__}._candidate", side_effect=changed_reference),
+                    self.assertRaisesRegex(ValueError, "candidate"),
+                ):
+                    self._report()
+
     def test_legacy_per_run_compare_fails_closed(self) -> None:
         champion = _runs("champion", 0.0)[0]
         challenger = _runs("challenger", 0.1)[0]
@@ -163,6 +211,8 @@ class SuiteComparisonObservationUnitTest(unittest.TestCase):
         champion_candidate = _candidate("champion")
         challenger_candidate = _candidate("challenger")
         challenger_candidate["sha256"] = champion_candidate["sha256"]
+        for run in challenger_runs:
+            run["candidate"]["sha256"] = champion_candidate["sha256"]
         with self.assertRaisesRegex(ValueError, "same candidate artifact"):
             compare_suite(
                 suite=_suite(),

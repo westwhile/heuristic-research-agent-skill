@@ -122,7 +122,7 @@ def _index_runs(
     expected_seeds: tuple[int, ...],
 ) -> tuple[
     dict[tuple[str, int], tuple[Mapping[str, Any], str]],
-    str,
+    tuple[str, str],
 ]:
     if not runs:
         raise ValueError(f"{side}_runs must not be empty")
@@ -130,7 +130,7 @@ def _index_runs(
         item["evaluation_case_id"]: item["sha256"] for item in suite["cases"]
     }
     indexed: dict[tuple[str, int], tuple[Mapping[str, Any], str]] = {}
-    candidate_id: str | None = None
+    candidate_ref: tuple[str, str] | None = None
     for run in runs:
         run_sha = _record_sha256(run, f"{side} run")
         if run["suite"] != {"suite_id": suite["suite_id"], "sha256": suite_sha}:
@@ -144,10 +144,11 @@ def _index_runs(
         key = (case_id, seed)
         if key in indexed:
             raise ValueError(f"duplicate {side} observation for case/seed {key!r}")
-        if candidate_id is None:
-            candidate_id = run["candidate"]["candidate_id"]
-        elif candidate_id != run["candidate"]["candidate_id"]:
-            raise ValueError(f"{side} runs must name exactly one candidate")
+        reference = (run["candidate"]["candidate_id"], run["candidate"]["sha256"])
+        if candidate_ref is None:
+            candidate_ref = reference
+        elif candidate_ref != reference:
+            raise ValueError(f"{side} runs must pin exactly one candidate id and sha256")
         indexed[key] = (run, run_sha)
 
     expected = {
@@ -163,8 +164,8 @@ def _index_runs(
             f"{side} run coverage must equal suite cases x expected seeds; "
             f"missing={missing!r}, extra={extra!r}"
         )
-    assert candidate_id is not None
-    return indexed, candidate_id
+    assert candidate_ref is not None
+    return indexed, candidate_ref
 
 
 def compare_suite(
@@ -181,31 +182,40 @@ def compare_suite(
     generated_at: str,
     limitations: Sequence[str] = (),
 ) -> dict[str, Any]:
-    """Compare two candidates over a complete frozen suite observation grid."""
+    """Compare a complete grid whose runs pin the exact candidate descriptors.
 
+    A candidate reference identifies the same immutable artifact on every run
+    of one arm. Per-case replay output hashes cannot substitute for that pin.
+    All reference checks finish before any statistical analysis is performed.
+    """
+
+    if set(champion_candidate) != {"candidate_id", "sha256"} or set(
+        challenger_candidate
+    ) != {"candidate_id", "sha256"}:
+        raise ValueError("candidate manifest references require candidate_id and sha256")
     suite_sha = _record_sha256(suite, "suite")
-    champion_index, champion_candidate_id = _index_runs(
+    champion_index, champion_candidate_ref = _index_runs(
         champion_runs,
         side="champion",
         suite=suite,
         suite_sha=suite_sha,
         expected_seeds=policy.expected_seeds,
     )
-    challenger_index, challenger_candidate_id = _index_runs(
+    challenger_index, challenger_candidate_ref = _index_runs(
         challenger_runs,
         side="challenger",
         suite=suite,
         suite_sha=suite_sha,
         expected_seeds=policy.expected_seeds,
     )
-    if champion_candidate_id != champion_candidate.get("candidate_id"):
+    if champion_candidate_ref != (
+        champion_candidate["candidate_id"], champion_candidate["sha256"]
+    ):
         raise ValueError("champion candidate manifest does not match champion runs")
-    if challenger_candidate_id != challenger_candidate.get("candidate_id"):
+    if challenger_candidate_ref != (
+        challenger_candidate["candidate_id"], challenger_candidate["sha256"]
+    ):
         raise ValueError("challenger candidate manifest does not match challenger runs")
-    if set(champion_candidate) != {"candidate_id", "sha256"} or set(
-        challenger_candidate
-    ) != {"candidate_id", "sha256"}:
-        raise ValueError("candidate manifest references require candidate_id and sha256")
     if champion_candidate["sha256"] == challenger_candidate["sha256"]:
         raise ValueError("champion and challenger pin the same candidate artifact")
 
