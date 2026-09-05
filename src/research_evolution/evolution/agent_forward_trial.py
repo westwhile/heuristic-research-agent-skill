@@ -13,7 +13,6 @@ publication, promotion, installation, or activation.
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import re
 import shutil
@@ -34,6 +33,7 @@ from research_evolution.evaluation.pipeline import (
 )
 from research_evolution.evaluation.runner import ReplayResult
 
+from ._codex_jsonl import parse_codex_trace
 from ._process_containment import process_facts_are_valid, run_process_contained
 from .skill_forward_test import (
     SkillForwardTestError,
@@ -336,38 +336,6 @@ def _filtered_codex_environment() -> dict[str, str]:
     return {key: value for key, value in os.environ.items() if key.upper() in allowed and value}
 
 
-def _trace_facts(trace: bytes) -> tuple[str | None, bool, dict[str, int]]:
-    """Extract only session/turn/usage facts from bounded Codex JSONL."""
-
-    session_id: str | None = None
-    turn_completed = False
-    usage: dict[str, int] = {}
-    for raw_line in trace.splitlines():
-        try:
-            event = json.loads(raw_line)
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            continue
-        thread_id = event.get("thread_id")
-        if event.get("type") == "thread.started" and isinstance(thread_id, str):
-            stripped = thread_id.strip()
-            session_id = stripped or None
-        if event.get("type") == "turn.completed":
-            turn_completed = True
-            raw_usage = event.get("usage")
-            if isinstance(raw_usage, dict):
-                usage = {
-                    key: value
-                    for key, value in raw_usage.items()
-                    if isinstance(key, str)
-                    and isinstance(value, int)
-                    and not isinstance(value, bool)
-                    and value >= 0
-                }
-    if session_id is None:
-        return None, False, {}
-    return session_id, turn_completed, usage
-
-
 class CodexCliAgentAdapter:
     """Invoke the authenticated Codex CLI with a frozen least-privilege policy."""
 
@@ -473,7 +441,8 @@ class CodexCliAgentAdapter:
         )
         trace = completed.stdout
         stderr = completed.stderr
-        session_id, turn_completed, usage = _trace_facts(trace)
+        facts = parse_codex_trace(trace, max_bytes=self._trace_max_bytes)
+        session_id, turn_completed, usage = facts.session_id, facts.turn_completed, facts.usage
         trace_sha_optional = hashlib.sha256(trace).hexdigest() if trace else None
         stderr_sha_optional = hashlib.sha256(stderr).hexdigest() if stderr else None
         if completed.execution_status == "cleanup_failed":
@@ -584,6 +553,11 @@ class CodexCliAgentAdapter:
                 "runner_error",
                 f"Codex CLI exited with code {completed.returncode}",
                 1,
+            )
+        elif facts.error_code is not None:
+            replay = ReplayResult(
+                False, None, None, "parse_error",
+                f"Codex JSONL protocol rejected: {facts.error_code}", 1,
             )
         elif not request.final_output_path.is_file():
             replay = ReplayResult(

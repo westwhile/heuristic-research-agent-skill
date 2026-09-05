@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-09-05",
-  "baseline_commit": "46651d0454e13658e27d80b20f0c0b29a76b3f7b",
-  "inventory_scope": "The 1186 tracked files at main commit 46651d0454e13658e27d80b20f0c0b29a76b3f7b include P7F0-P7F3A and the #68 cleanup/diagnostic fix. Five status files are conservatively reclassified as design_inspired by an excluded user-provided post-merge review plan. External expression and payload remain excluded; the math-research-solve v8/1.0.1 baseline remains immutable. Only independently written status and sanitized evidence references are added.",
+  "baseline_commit": "6f1e9c38333edea1a17a39622246dc5a243196a4",
+  "inventory_scope": "The 1186 tracked files at main commit 6f1e9c38333edea1a17a39622246dc5a243196a4 plus two independently authored PR-C files form a proposed 1188-file inventory. The shared Codex JSONL module and deterministic contract tests implement repository acceptance policy using official interface facts, without copying documentation expression or external payload. Five status files remain design_inspired by the excluded user-provided post-merge review plan. The math-research-solve v8/1.0.1 baseline and historical evidence remain immutable.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,12 +31,12 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 989,
+      "independently_authored": 991,
       "generated": 118,
       "design_inspired": 77,
       "third_party_reused": 2,
       "unknown": 0,
-      "total": 1186
+      "total": 1188
     },
     "rules": [
       {

@@ -30,6 +30,7 @@ from typing import Any, Protocol, runtime_checkable
 from research_evolution.core import CoreError, Record, canonical_bytes, load_record
 from research_evolution.core._restricted import scan_value_for_restricted
 
+from ._codex_jsonl import parse_codex_trace
 from ._process_containment import process_facts_are_valid, run_process_contained
 
 _PLAN_SCHEMA = "collaboration-window-plan/v1"
@@ -313,43 +314,6 @@ def _collaboration_environment() -> dict[str, str]:
     return {key: value for key, value in os.environ.items() if key.upper() in allowed and value}
 
 
-def _collaboration_trace_facts(
-    trace: bytes,
-) -> tuple[str | None, bool, dict[str, int], int]:
-    session_id: str | None = None
-    turn_completed = False
-    usage: dict[str, int] = {}
-    tool_calls = 0
-    for raw_line in trace.splitlines():
-        try:
-            event = json.loads(raw_line)
-        except (UnicodeDecodeError, json.JSONDecodeError):
-            continue
-        if event.get("type") == "thread.started" and isinstance(event.get("thread_id"), str):
-            session_id = event["thread_id"].strip() or None
-        if event.get("type") == "turn.completed":
-            turn_completed = True
-            raw_usage = event.get("usage")
-            if isinstance(raw_usage, dict):
-                usage = {
-                    key: value
-                    for key, value in raw_usage.items()
-                    if key
-                    in {"input_tokens", "cached_input_tokens", "output_tokens", "total_tokens"}
-                    and isinstance(value, int)
-                    and not isinstance(value, bool)
-                    and value >= 0
-                }
-        item = event.get("item")
-        if (
-            event.get("type") == "item.completed"
-            and isinstance(item, dict)
-            and item.get("type") in {"command_execution", "mcp_tool_call", "web_search"}
-        ):
-            tool_calls += 1
-    return session_id, turn_completed, usage, tool_calls
-
-
 def _closed_usage(raw: Mapping[str, int]) -> dict[str, int | bool]:
     required = {"input_tokens", "output_tokens"}
     computed_total = raw.get("input_tokens", -1) + raw.get("output_tokens", -1)
@@ -624,7 +588,9 @@ class CodexCliCollaborationAdapter:
             runtime_seconds = max(0, math.ceil(time.monotonic() - started))
             trace = completed.stdout
             stderr = completed.stderr
-            session_id, turn_completed, raw_usage, tool_calls = _collaboration_trace_facts(trace)
+            facts = parse_codex_trace(trace, max_bytes=self._trace_max_bytes)
+            session_id, turn_completed = facts.session_id, facts.turn_completed
+            raw_usage, tool_calls = facts.usage, facts.tool_calls
             usage = _closed_usage(raw_usage)
             output_bytes = final_output.read_bytes() if final_output.is_file() else b""
             output_sha = hashlib.sha256(output_bytes).hexdigest() if output_bytes else None
@@ -662,13 +628,13 @@ class CodexCliCollaborationAdapter:
                     "stage": "adapter_execution",
                     "code": "cleanup_failed",
                 }
-            elif session_id is None or not turn_completed:
+            elif facts.error_code is not None:
                 failure = {
-                    "stage": "adapter_execution",
-                    "code": "session_or_turn_incomplete",
+                    "stage": "usage_validation"
+                    if facts.error_code == "usage_incomplete_or_inconsistent"
+                    else "adapter_execution",
+                    "code": facts.error_code,
                 }
-            elif len(trace) > self._trace_max_bytes:
-                failure = {"stage": "adapter_execution", "code": "trace_limit_exceeded"}
             elif not usage["usage_closed"]:
                 failure = {"stage": "usage_validation", "code": "usage_incomplete_or_inconsistent"}
             elif not output_bytes or len(output_bytes) > int(

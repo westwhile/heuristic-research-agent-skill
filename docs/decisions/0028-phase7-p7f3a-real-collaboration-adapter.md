@@ -62,6 +62,24 @@ P7F3A 工程测试证明同一 seam 能承载受约束的本地进程，并能�
 也只证明六个有界 worker sessions 的执行事实，不证明身份独立、研究质量提升、算力
 节约、独立审查、Hidden Evaluation、Promotion、Skill 安装/激活或 P7F4 稳定性。
 
+## PR-C：共享 JSONL 事实合同
+
+两个 Codex 消费者复用 `_codex_jsonl.parse_codex_trace`，只返回会话、终态、
+非重叠 usage、工具完成计数与稳定错误码。官方非交互接口提供 JSONL 事件及独立的
+final-message 文件；文件存在或进程退出并不替代终态证据。
+参见 [Codex 非交互接口](https://learn.chatgpt.com/docs/non-interactive-mode)。
+
+单会话、单 completed 终态、最多 10000 行、单行 1 MiB 及调用方总字节上限是本仓库
+验收策略，不是对所有 CLI 版本的断言。沿用最小 trace 对 `turn.started` 可省略的
+兼容性；未知非关键 metadata 可跳过，未知 thread/turn 事件、重复终态、失败终态、
+截断、重复 JSON 键、非法 usage 均不能变成成功。已识别工具完成事件按唯一 item ID
+计数，重复完成拒绝。reasoning/cached 不重复加入 input + output。
+
+拒绝的 trace 不产生闭合 usage 或成功 turn；错误只返回稳定 code，不包含原始事件、
+解析异常或 stderr。已有启动、退出、超时和清理事实独立保留且优先于解析错误。
+不修改既有 schema，不回填历史记录；本次只执行 deterministic 验证。运行期间的管道
+内存边界与 final 文件有界读取由独立 PR-D 处理，解析器的事后上限不冒充执行隔离。
+
 ## 拒绝的替代方案
 
 - 修改 v1 adapter 常量或追加字段：违反 immutable schema policy。
