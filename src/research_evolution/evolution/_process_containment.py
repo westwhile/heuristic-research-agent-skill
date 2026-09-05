@@ -188,17 +188,21 @@ def _terminate_windows_process_tree(
     descendants = _windows_descendant_pids(process.pid)
     if descendants is None:
         return False
-    try:
-        subprocess.run(
-            ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=max(0.001, deadline - time.monotonic()),
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired):
-        pass
+    # Popen owns a handle to this exact root. Once it has exited, taskkill /T
+    # cannot be relied on to find its orphans and may consume the entire shared
+    # deadline. Keep that budget for the descendants already enumerated below.
+    if process.poll() is None:
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=max(0.001, deadline - time.monotonic()),
+                check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            pass
     for pid in reversed(descendants):
         running = _windows_pid_running(pid)
         if running is False:
