@@ -1,6 +1,23 @@
 {
   "schema": "research-evolution-dl-support-matrix/v1",
-  "reviewed_at": "2026-08-30",
+  "reviewed_at": "2026-09-05",
+  "post_merge_reconciliation": {
+    "baseline_commit": "46651d0454e13658e27d80b20f0c0b29a76b3f7b",
+    "main_ci_run": "33937938857",
+    "required_jobs_success": 4,
+    "windows_governance_success": 2,
+    "p7f3_engineering": "merged_cleanup_and_diagnostics_only",
+    "reviewer_v4_recorded_outcome": "semantic_review_passed",
+    "reviewer_v4_scope": "session_independent_model_assisted_review_not_external_human_review",
+    "reviewer_v4_receipt_sha256": "abdf7d348ed6fe4c28ec0a931c34e5869e576b0fad37ac2545814195dbf9f883",
+    "ab_v3_status": "HOLD_PHASE7_FINAL_GATE",
+    "ab_v3_blocker": "no_observed_candidate_gain",
+    "ab_v3_gate_receipt_sha256": "d308018250da08397109b73e37c3350362c3d2469df80d2666bf7c1e9df29810",
+    "p7f3b_status": "failed_closed_workspace_cleanup",
+    "independent_forward_acceptance": false,
+    "new_real_sessions_in_this_batch": 0,
+    "historical_phase_snapshots_below": true
+  },
   "phase": "phase7-p7d6-real-candidate-proposal-ready-materialized-uninstalled",
   "evidence_ceiling": "single_host_real_framework_hardware_checkpoint_recovery_reproducibility_controlled_interruption_portability_trial_external_trial_protocol_p7a_foundation_correctness_reset_cr4_cr8_p7b1_eligibility_p7b2_structural_drafting_p7b3_static_validation_p7b4_semantic_review_protocol_p7c1_synthetic_execution_seam_p7c2_synthetic_public_forward_suite_p7c3_single_operator_real_agent_math_smoke_p7d1_public_failure_and_candidate_proposal_seams_p7d2_single_operator_public_baseline_calibration_p7d3_single_operator_schur_frontier_calibration_and_execution_containment_hardened_engineering_p7d4_public_qualified_failure_calibration_p7d5_cross_template_pattern_p7d6_single_real_candidate_proposal_ready_materialized_uninstalled_structure_only_zero_accepted_external_submissions_zero_real_independent_reviews_zero_independent_forward_acceptances_zero_hidden_evaluations_zero_promotions",
   "interfaces": [

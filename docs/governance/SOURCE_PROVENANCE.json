@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-09-05",
-  "baseline_commit": "1a5a9d01a4481d8f95f5179b5eafd619fdecd493",
-  "inventory_scope": "The 1176-file P7F0-P7F2 mainline inventory at 1a5a9d01a4481d8f95f5179b5eafd619fdecd493, plus ten proposed P7F3A outcome-v2, Adapter, ADR, deterministic fake-launcher, and synthetic fixture files. Earlier source classes and the immutable math-research-solve v8/1.0.1 baseline remain unchanged. The P7F files are independently implemented but conservatively classified as design_inspired by the abstract collaboration-autonomy design observed in the excluded user-provided pika_math_learning_toolkit-2.1.0.zip / math-research-solve v2.31 artifact. No external source, schema, fixture, template, prompt, prose, model output, Skill payload, or executable content is tracked.",
+  "baseline_commit": "46651d0454e13658e27d80b20f0c0b29a76b3f7b",
+  "inventory_scope": "The 1186 tracked files at main commit 46651d0454e13658e27d80b20f0c0b29a76b3f7b include P7F0-P7F3A and the #68 cleanup/diagnostic fix. Five status files are conservatively reclassified as design_inspired by an excluded user-provided post-merge review plan. External expression and payload remain excluded; the math-research-solve v8/1.0.1 baseline remains immutable. Only independently written status and sanitized evidence references are added.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",
@@ -31,14 +31,20 @@
     ],
     "first_match_wins": true,
     "expected_counts": {
-      "independently_authored": 994,
+      "independently_authored": 989,
       "generated": 118,
-      "design_inspired": 72,
+      "design_inspired": 77,
       "third_party_reused": 2,
       "unknown": 0,
       "total": 1186
     },
     "rules": [
+      {
+        "id": "post-merge-review-design-input",
+        "class": "design_inspired",
+        "patterns": ["README.md", "docs/governance/DL_SUPPORT_MATRIX.json", "docs/governance/SOURCE_PROVENANCE.json", "docs/governance/SOURCE_PROVENANCE.md", "docs/plans/PROJECT_IMPLEMENTATION_PLAN.md"],
+        "source": "Independently written reconciliation informed by abstract acceptance categories in the excluded user-provided heuristic_post_merge_review_plan.zip; no upstream expression copied."
+      },
       {
         "id": "generated-external-baseline-metadata",
         "class": "generated",
@@ -180,6 +186,18 @@
     ]
   },
   "external_sources": [
+    {
+      "id": "post-merge-review-design-input",
+      "source_name": "User-provided heuristic_post_merge_review_plan.zip",
+      "source_url": null,
+      "versions": ["SHA-256 1c329f1b139875d97ec3a368d68a00c262bb425f1f4126b5df357b046fe24dbb"],
+      "visible_license": "No reuse license established; artifact remains excluded.",
+      "tracked_expression_reused": false,
+      "tracked_use": "Abstract acceptance design only; repository conclusions require independent source and test evidence.",
+      "disposition": "Exclude source expression and independently author implementation and status records.",
+      "notice_action": "No upstream expression redistributed.",
+      "evidence_sufficient_for_reuse": false
+    },
     {
       "id": "canonical-apache-license-text",
       "source_name": "Apache License, Version 2.0",
