@@ -1,8 +1,8 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `ae7990ce13898a5ce767d73bb1412c43154ddf5f`
-- Review date: 2026-09-04
+- Baseline commit: `46651d0454e13658e27d80b20f0c0b29a76b3f7b`
+- Review date: 2026-09-05
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
 This record defines the source and redistribution boundary for the repository's
@@ -325,6 +325,23 @@ records independently written factual summaries of the live pages checked on
 be checked again before any application submission.
 
 ## Change rule
+
+### Post-merge review design input
+
+The user-provided `heuristic_post_merge_review_plan.zip` has SHA-256
+`1c329f1b139875d97ec3a368d68a00c262bb425f1f4126b5df357b046fe24dbb`.
+Its manifest identifies no audited commit and explicitly records that source
+review and repository tests were not completed. We use its abstract acceptance
+categories as design input, then independently inspect and reproduce behavior.
+No archive text, task template, or payload is copied into the repository.
+The five status files are conservatively classified as design_inspired.
+
+The baseline inventory contains 1186 tracked files, including P7F3A from #67
+and the seven-file cleanup/diagnostic change in #68. Reconciliation reads only
+existing sanitized review and A/B receipts; no raw model output or Candidate
+payload is added. Reviewer-v4 records model-assisted session separation, not
+external human identity verification. Protocol-v3 remains on HOLD because no
+Candidate gain was observed. Historical attempts remain unchanged.
 
 Every PR that adds or changes an external source, generated artifact family,
 compatibility fixture, template, substantial quotation, or vendored dependency

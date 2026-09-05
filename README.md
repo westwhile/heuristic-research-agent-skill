@@ -2,6 +2,8 @@
 
 面向数学、量化研究、机器学习与深度学习科研的可审计 Agent 经验学习、评测和受控进化平台。
 
+2026-09-05 合并后核验：P7F0–P7F3A 与 cleanup/diagnostic 修复已由 #66–#68 合入，基线为 `46651d0454e13658e27d80b20f0c0b29a76b3f7b`，对应 [main CI](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33937938857) 四项检查及两个 Windows governance 步骤成功。仓库外 reviewer-v4 receipt 记录一次 session-independent model-assisted semantic review 通过；这不等于外部人工独立审查。A/B protocol-v3 的终态为 `HOLD_PHASE7_FINAL_GATE / no_observed_candidate_gain`。P7F3B 原批次在首个 Math outcome 的 workspace cleanup failure 后停止。以下 P7D6 及更早的零计数是当时快照；当前未获得独立 forward acceptance、Hidden Evaluation 或 Promotion。详见[合并后验收与收敛批次](docs/plans/PROJECT_IMPLEMENTATION_PLAN.md#合并后验收与收敛批次2026-09-05)。
+
 本仓库已交付 Phase 1 通用记录与证据内核（v0.2.0）、Phase 2 领域 Adapter 垂直切片（v0.3.0）、Phase 3 Public Evaluator MVP（v0.4.0，仅覆盖 L0/L1）与 Phase 4 研究记忆与 Pattern Registry（v0.5.0，上限 active Pattern + shadow Heuristic；v0.5.1 为归档缺件 hotfix）；**Phase 5 Machine Learning Adapter 的 L1–L6 已以 annotated `v0.6.0` Tag 发布，随后 Apache-2.0、来源治理、source-install Quick Start、双平台 archive Gate 与公共协作入口又以 annotated [`v0.6.1` source Release](https://github.com/westwhile/heuristic-research-agent-skill/releases/tag/v0.6.1) 发布。`v0.6.1` tag object `2cdb9621d05211c779f933836adae476241206c0` 指向提交 `5af73595f847702930e0c1966986f3d06d3c1c35`；六项 Release assets 已回下载并与 GitHub digest、发布前 SHA-256 三方对账**。O5 外部 Quick Start 试用入口已公开，当前等待维护者选择参与者且仍无外部结果；O6 只建立公开证据草案，不代表已提交申请。这不是 PyPI 发布、Skill 安装、真实 ML 执行、真实科研验收或生产能力证明。
 
 ## 项目目标

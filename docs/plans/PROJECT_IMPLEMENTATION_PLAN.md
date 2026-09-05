@@ -806,6 +806,88 @@ P7D6 Candidate 合同与提案终态（2026-08-30）：Ready PR #64 的 final he
 
 ---
 
+## 合并后验收与收敛批次（2026-09-05）
+
+本节是当前增量状态；上文 P7D6 及更早的零计数保留为阶段快照。
+审计基线为 `46651d0454e13658e27d80b20f0c0b29a76b3f7b`，tree 为
+`f5b2724380eaa06f5958f0561704cc53af8b279a`。#67 合入 P7F3A，#68
+合入 cleanup/diagnostic 修复；main run `33937938857` 四项矩阵与两个
+Windows governance 步骤成功。现有安装 Gate 已在隔离环境安装 archive
+source 并从仓库外验证导入和 demo；独立冻结 wheel 的再安装验收仍待实施。
+
+仓库外证据重新核对：reviewer-v4 的 semantic receipt SHA-256 为
+`abdf7d348ed6fe4c28ec0a931c34e5869e576b0fad37ac2545814195dbf9f883`，
+其记录 `semantic_review_passed`、hash Gate 成功、27043 个不重叠 token，
+仅证明记录中的 session-independent model-assisted review，不证明外部人工
+身份或组织独立性。A/B protocol-v3 的 gate receipt SHA-256 为
+`d308018250da08397109b73e37c3350362c3d2469df80d2666bf7c1e9df29810`，
+终态 `HOLD_PHASE7_FINAL_GATE`，blocker `no_observed_candidate_gain`，禁止重试。
+P7F3B 原批次首个 Math outcome 为 workspace cleanup failed；不重试旧槽位。
+本次只是核对既有脱敏 receipt，未重新评分、运行模型或改写证据。
+
+### 验收登记
+
+下表是基线上的覆盖与待办登记，不是 34 项全部通过的声明。每项结案须绑定
+相同合同的测试命令、代码 SHA、平台、结果与限制；测试名存在不能单独结案。
+
+| ID | 当前依据或范围 | 待办/结案条件 |
+| --- | --- | --- |
+| MG-01 | 精确 baseline/tree、干净 worktree、main CI 已核验 | 每个 PR 再核验 head/base/diff |
+| MG-02 | 三类缺口有源码或最小复现依据 | 同一回归先红后绿 |
+| MG-03 | 多个消费者已有记录合同 | 新诊断贯穿 Adapter 和 receipt |
+| MG-04 | 既有 archive 有预期 skip | 审查 skip/coverage/CI 容错差异 |
+| RT-01 | 进程树测试与双平台 main CI | 保留父子孙及管道回归 |
+| RT-02 | stdout/stderr 收集后才限长 | PR-D 执行期有界采集 |
+| RT-03 | 缺 session/turn 会拒绝 | 与冲突终态合并回归 |
+| RT-04 | 冲突/截断事件仍被解析为完成 | PR-C 严格解析并稳定拒绝 |
+| RT-05 | 当前会跳过无法解析行 | 明确可扩展事件与关键事件策略 |
+| RT-06 | cleanup 已有回归；取消未全面验收 | 首因与 cleanup 分开；取消另审 |
+| RT-07 | 可发布终态 attempt 不等于启动持久化 | 故障恢复合同单独设计 |
+| RT-08 | 无 Web 仍有模型服务通信 | 远端执行不明不得自动重试 |
+| EV-01 | 有 byte/envelope closure | 补消费者读取时的变更测试 |
+| EV-02 | compare_suite 直接入口容许混合摘要 | PR-B 核对完整 Candidate 引用 |
+| EV-03 | Core append-only/图验证已有覆盖 | 新记录不可改写旧记录 |
+| TR-01 | 未实施 Hidden 权限域 | Phase 8 通道隔离验收 |
+| TR-02 | 启动参数限制已有实现 | 审计配置、Skills、工具及历史继承 |
+| TR-03 | 有受限输出拒绝和脱敏规则 | 新错误路径不得回显原文 |
+| TR-04 | Core 有 reparse/junction 拒绝 | 候选消费与压缩入口另验 |
+| LC-01 | 尚无真实激活 | Phase 9 并发迁移 |
+| LC-02 | 尚无真实安装事务 | Phase 9 中断一致性 |
+| LC-03 | 尚无真实回滚事务 | Phase 9 撤销目标拒绝 |
+| LC-04 | 快照规则已有计划 | Phase 9 运行中切换验收 |
+| ST-01 | 已修复指标维度取样 | 题内重复不能当独立家族 |
+| ST-02 | synthetic suite 保留失败格 | 真实批次按预注册分母记账 |
+| ST-03 | 有非 Skill 轴相等检查 | 新 harness 不沿用不同比较条件 |
+| ST-04 | 有来源/lineage 记录 | 验收题暴露后不能再称未见 |
+| ST-05 | 无正式多候选序贯验收 | Phase 8 查询预算与选择规则 |
+| ST-06 | 资源 guardrail 已有合同 | 模型会话含主控/worker/汇总成本 |
+| MM-01 | 有 scope/禁用条件 | 适用性优先于相似度需贯通验证 |
+| MM-02 | 有召回与失效规则基础 | 无适用经验不得强制应用 |
+| PK-01 | archive 安装与仓库外导入已有 Gate | 冻结 wheel 再安装另验 |
+| PK-02 | Core 路径安全已有覆盖 | 中文/空格公共入口全流程另验 |
+| CI-01 | contents:read、无持久凭据、无 pull_request_target | 保留 workflow contract Gate |
+
+### 本批顺序及权限
+
+1. PR-A：五份状态文件同步与本表，只登记可追溯事实；经用户授权，增加 `tests/unit/test_source_provenance.py` 为第六文件，仅同步来源分类的两条计数断言。
+2. PR-B：compare_suite 完整 Candidate pin 校验；直接入口与编排入口回归。
+3. PR-C：两个 Codex 事件解析器收敛；稳定诊断、冲突终态、非对象/重复 key/
+   深度/行长异常与正常可扩展事件的 deterministic tests。
+4. PR-D：stdout/stderr 执行期有界采集、有界最终输出读取、进程树清理；
+   超限/超时首因与 cleanup 结果同时保留。先完成字段映射，不修改冻结 schema。
+5. 严格五文件状态收口，记录各 merge SHA 和精确 main CI。
+
+每项依次 local validation、commit、exact archive Python 3.12/3.14 Gate、
+clean-archive install、既有本机 CUDA regression、Ready PR、merge commit、
+精确 main CI；任何 required check 失败或 main/head/diff 漂移立即停止。
+本批只运行 deterministic 工程验证，不消费真实会话、不安装/激活 Skill、
+不接收参与者材料、不实施 Hidden Evaluator/Promotion、不触碰 skills/staging。
+
+后续分开批准 P7F3B 全新真实协作 smoke、P7F4 窗口级协作策略实验、Candidate
+独立 forward acceptance 和三组经验提炼机制实验。既有 reviewer/A/B evidence
+先核验可比性再决定是否复用；公开模型审查不等于外部人工独立审查。Phase 7
+仅在全部 Gate 满足后可到 READY_FOR_PRIVATE_REVIEW；当前仍为 HOLD。
+
 ## 4. 横向工作流
 
 ### 4.1 每个 Phase 的固定节奏
@@ -820,9 +902,8 @@ Issue/Contract
 → Review + CI
 → Merge
 → Clean checkout acceptance
-→ Annotated Tag
-→ Tag push
-→ GitHub Release
+→ 状态收口
+→ 单独授权的 Release Gate（如需要：annotated tag、tag push、GitHub Release）
 → 可选部署/Promotion（独立批准）
 ```
 
