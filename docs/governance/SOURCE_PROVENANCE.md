@@ -343,6 +343,15 @@ payload is added. Reviewer-v4 records model-assisted session separation, not
 external human identity verification. Protocol-v3 remains on HOLD because no
 Candidate gain was observed. Historical attempts remain unchanged.
 
+PR-C adds two independently authored files: the shared `_codex_jsonl` Module
+and its deterministic event-contract tests. Its proposed inventory is 1188
+files (991 independently_authored, 118 generated, 77 design_inspired, two
+third_party_reused, zero unknown), based on main
+`6f1e9c38333edea1a17a39622246dc5a243196a4`. Official Codex JSONL interface facts
+are referenced in ADR-0028; no documentation expression, model transcript,
+external source, schema, or payload is copied. Single-turn ordering and
+resource bounds are repository policy, not an upstream compatibility promise.
+
 Every PR that adds or changes an external source, generated artifact family,
 compatibility fixture, template, substantial quotation, or vendored dependency
 must update both provenance files. Unknown or unlicensed inputs fail closed:
