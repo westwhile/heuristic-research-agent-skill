@@ -80,6 +80,34 @@ final-message 文件；文件存在或进程退出并不替代终态证据。
 不修改既有 schema，不回填历史记录；本次只执行 deterministic 验证。运行期间的管道
 内存边界与 final 文件有界读取由独立 PR-D 处理，解析器的事后上限不冒充执行隔离。
 
+## PR-D：执行期有界采集与首因保留
+
+`run_process_contained` 是两个本地进程 Adapter 共用的生命周期 Module。stdout 与
+stderr 各有独立有限缓冲（默认各 4 MiB，Adapter 绑定既有 trace budget），多读一个
+探测字节即停止并回收 owned process tree；stdin、两个输出管道与父进程分开处理。
+父进程完成后也清理遗留进程，随后在有限期限内等待管道线程结束。Windows 后代清理
+共用一次 deadline，不对每个 PID 重置预算。管道线程未结束不能宣称 cleanup verified。
+
+字段映射无需 successor：
+
+| 事实 | 现有字段/处理 |
+| --- | --- |
+| 超时或管道超限首因 | 内部 `failure_code`；forward attempt 的 error_class/detail，worker 的 failure.code |
+| 超限后成功清理 | executor_failed / verified；不是成功执行 |
+| 首因后清理失败 | cleanup_failed / failed，同时保留原 failure_code |
+| 捕获的有限字节 | transcript/trace/stderr SHA 只 pin 已捕获字节，不代表完整底层流 |
+| 执行期失败 | turn_completed=false，usage 不闭合，后续 ticket 不派发 |
+| 超限最终文件 | fstat 的观测 size；不读取全部内容，不伪造完整 output SHA |
+
+`read_output_bounded` 只接收普通、读取期间稳定的 final 文件，最多读取上限加一个字节；
+缺失、不可读、变动、链接或非普通文件均拒绝。POSIX 非阻塞打开避免 FIFO 挂起。
+这不是对恶意并发文件替换、逃逸进程、文件系统/网络权限隔离的证明，也不替代 sandbox。
+已有失败允许保留超预算的实际观测量并生成失败 receipt；成功结果仍受原预算约束。
+失败成本和缺失不从分母或账本删除，不改变统计规则或历史记录。
+
+所有原始 stdout/stderr/最终文件内容仍不写入 receipt。测试仅使用有限合成输出、
+fake launcher 与 owned fixture process tree；没有真实模型会话或 Skill 安装。
+
 ## 拒绝的替代方案
 
 - 修改 v1 adapter 常量或追加字段：违反 immutable schema policy。

@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-09-05",
-  "baseline_commit": "6f1e9c38333edea1a17a39622246dc5a243196a4",
-  "inventory_scope": "The 1186 tracked files at main commit 6f1e9c38333edea1a17a39622246dc5a243196a4 plus two independently authored PR-C files form a proposed 1188-file inventory. The shared Codex JSONL module and deterministic contract tests implement repository acceptance policy using official interface facts, without copying documentation expression or external payload. Five status files remain design_inspired by the excluded user-provided post-merge review plan. The math-research-solve v8/1.0.1 baseline and historical evidence remain immutable.",
+  "baseline_commit": "b22b8a45693a3926b2b91dc2e71cfc92430e0858",
+  "inventory_scope": "The 1188 tracked files at main commit b22b8a45693a3926b2b91dc2e71cfc92430e0858 include the merged shared Codex JSONL contract. PR-D independently implements bounded pipe/final-file I/O and primary-failure preservation in existing files, with synthetic process and consumer regression tests; the file count is unchanged. No external expression, transcript, schema or payload is copied. Five status files remain design_inspired by the excluded user-provided post-merge review plan. The math-research-solve v8/1.0.1 baseline and historical evidence remain immutable.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",

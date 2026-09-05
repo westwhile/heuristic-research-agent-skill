@@ -592,6 +592,24 @@ class CollaborationWindowTests(unittest.TestCase):
             run_collaboration_window(replace(_plan(), routes=tuple(routes)), adapter)
         self.assertEqual(adapter.requests, ())
 
+    def test_failed_over_budget_receipt_does_not_relax_success_budget(self) -> None:
+        over = replace(_observation("route-a", "explorer_a"), resource_usage={
+            "runtime_seconds": 31, "tool_calls": 4, "output_bytes": 4097,
+            "extra_budget_extensions": 0,
+        })
+        adapter = DeterministicCollaborationAdapter({"route-a": over})
+        with self.assertRaisesRegex(CollaborationWindowError, "resource usage exceeds"):
+            run_collaboration_window(_plan(), adapter)
+        failed = replace(over, status="failed", candidate_artifacts=(),
+                         failure={"stage": "resource_validation", "code": "budget_exceeded"})
+        outcome = run_collaboration_window(
+            _plan(), DeterministicCollaborationAdapter({"route-a": failed})
+        )
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(len(outcome.worker_outcomes), 1)
+        self.assertEqual(outcome.worker_outcomes[0].data["resource_usage"], over.resource_usage)
+        self.assertEqual(outcome.worker_outcomes[0].data["failure"]["code"], "budget_exceeded")
+
     def test_hard_budget_fails_before_adapter_execution(self) -> None:
         adapter = _adapter()
         with self.assertRaisesRegex(CollaborationWindowError, "hard budget"):

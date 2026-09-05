@@ -6,6 +6,7 @@ import json
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -26,13 +27,13 @@ def _completed(trace: bytes) -> ContainedProcessResult:
                                   "completed", "not_required", True)
 
 
-def _agent(trace: bytes):
+def _agent(trace: bytes, *, contained=None, final_bytes=b'{"answer":42}'):
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp)
         launcher = root / "codex-cli.ps1"
         launcher.write_text("# deterministic mock only", encoding="utf-8")
         final = root / "final.json"
-        final.write_text('{"answer":42}', encoding="utf-8")
+        final.write_bytes(final_bytes)
         request = AgentForwardExecutionRequest(
             trial_id="event-contract", arm="baseline", workspace=root,
             prompt="synthetic", output_schema_path=root / "schema.json",
@@ -44,11 +45,11 @@ def _agent(trace: bytes):
             model="fixture", reasoning_effort="xhigh",
         )
         with patch("research_evolution.evolution.agent_forward_trial.run_process_contained",
-                   return_value=_completed(trace)):
+                   return_value=contained or _completed(trace)):
             return adapter.execute(request, Envelope(timeout_ms=1000, max_output_bytes=1024))
 
 
-def _collaboration(trace: bytes):
+def _collaboration(trace: bytes, *, contained=None, final_bytes=None):
     adapter = collaboration_tests.CollaborationWindowTests()._process_adapter("deterministic-fake-model")
 
     def fake_run(command, **kwargs):
@@ -63,8 +64,10 @@ def _collaboration(trace: bytes):
                                       "evidence_sha256": ""},
             "cannot_imply": ["No research claim"], "reopen_conditions": ["New evidence"],
         }
-        (root / "worker-output.json").write_text(json.dumps(output), encoding="utf-8")
-        return _completed(trace)
+        (root / "worker-output.json").write_bytes(
+            json.dumps(output).encode() if final_bytes is None else final_bytes
+        )
+        return contained or _completed(trace)
 
     with patch("research_evolution.evolution.collaboration_window.run_process_contained",
                side_effect=fake_run):
@@ -169,6 +172,54 @@ class CodexTraceContractTest(unittest.TestCase):
         self.assertEqual(self.parse(START + DONE + end).error_code, "invalid_event_order")
         self.assertEqual(self.parse(START + b'{"type":"item.completed"}\n' + DONE).error_code,
                          "invalid_item_event")
+
+
+class BoundedExecutionConsumerTest(unittest.TestCase):
+    def test_primary_cause_survives_cleanup_failure_in_both_consumers(self) -> None:
+        for code in ("timeout", "stdout_limit_exceeded", "stderr_limit_exceeded"):
+            for clean in (True, False):
+                with self.subTest(code=code, clean=clean):
+                    contained = replace(
+                        _completed(START + DONE), returncode=1, failure_code=code,
+                        execution_status=("timeout" if code == "timeout" else "executor_failed")
+                        if clean else "cleanup_failed",
+                        process_cleanup_status="verified" if clean else "failed",
+                        process_tree_cleanup_verified=clean,
+                    )
+                    observed = _agent(START + DONE, contained=contained)
+                    self.assertEqual(observed.replay.error_class,
+                                     "timeout" if code == "timeout" else "output_limit")
+                    self.assertIn(code, observed.replay.error_detail)
+                    self.assertFalse(observed.agent_turn_completed)
+                    self.assertEqual(observed.usage, {})
+                    self.assertEqual(observed.process_tree_cleanup_verified, clean)
+                    outcome = _collaboration(START + DONE, contained=contained)
+                    self.assertEqual(outcome.status, "failed_closed")
+                    self.assertEqual(len(outcome.worker_outcomes), 1)
+                    record = outcome.worker_outcomes[0]
+                    self.assertEqual(record.data["failure"]["code"], code)
+                    self.assertFalse(record.data["execution"]["agent_turn_completed"])
+                    self.assertFalse(record.data["execution"]["usage"]["usage_closed"])
+                    self.assertEqual(record.data["execution"]["process_tree_cleanup_verified"], clean)
+                    self.assertNotIn(b"private-fixture", record.canonical_bytes)
+
+    def test_oversized_final_files_fail_without_unbounded_read(self) -> None:
+        original = Path.read_bytes
+
+        def forbid_final_read(path):
+            if path.name in {"final.json", "worker-output.json"}:
+                raise AssertionError("final output must use bounded shared reader")
+            return original(path)
+
+        with patch.object(Path, "read_bytes", forbid_final_read):
+            observed = _agent(START + DONE, final_bytes=b"x" * 1025)
+            self.assertEqual(observed.replay.error_class, "output_limit")
+            self.assertIsNone(observed.replay.output_sha256)
+            outcome = _collaboration(START + DONE, final_bytes=b"x" * (5 << 20))
+            self.assertEqual(outcome.status, "failed_closed")
+            record = outcome.worker_outcomes[0]
+            self.assertEqual(record.data["failure"]["code"], "output_missing_or_oversized")
+            self.assertEqual(record.data["resource_usage"]["output_bytes"], 5 << 20)
 
 
 if __name__ == "__main__":
