@@ -352,6 +352,12 @@ are referenced in ADR-0028; no documentation expression, model transcript,
 external source, schema, or payload is copied. Single-turn ordering and
 resource bounds are repository policy, not an upstream compatibility promise.
 
+PR-D starts from PR-C merge `b22b8a45693a3926b2b91dc2e71cfc92430e0858`.
+Its bounded pipe/final-file implementation, synthetic process fixture extension
+and failure-receipt regressions are independently authored changes to existing
+files. The 1188-file counts above remain unchanged. No external payload, raw
+execution evidence, new schema or vendored dependency is introduced.
+
 Every PR that adds or changes an external source, generated artifact family,
 compatibility fixture, template, substantial quotation, or vendored dependency
 must update both provenance files. Unknown or unlicensed inputs fail closed:

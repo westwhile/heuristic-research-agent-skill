@@ -34,7 +34,11 @@ from research_evolution.evaluation.pipeline import (
 from research_evolution.evaluation.runner import ReplayResult
 
 from ._codex_jsonl import parse_codex_trace
-from ._process_containment import process_facts_are_valid, run_process_contained
+from ._process_containment import (
+    process_facts_are_valid,
+    read_output_bounded,
+    run_process_contained,
+)
 from .skill_forward_test import (
     SkillForwardTestError,
     SkillForwardTestPlan,
@@ -438,6 +442,8 @@ class CodexCliAgentAdapter:
             env=_filtered_codex_environment(),
             input_bytes=request.prompt.encode("utf-8"),
             timeout_seconds=envelope.timeout_ms / 1000,
+            stdout_max_bytes=self._trace_max_bytes,
+            stderr_max_bytes=self._trace_max_bytes,
         )
         trace = completed.stdout
         stderr = completed.stderr
@@ -445,6 +451,25 @@ class CodexCliAgentAdapter:
         session_id, turn_completed, usage = facts.session_id, facts.turn_completed, facts.usage
         trace_sha_optional = hashlib.sha256(trace).hexdigest() if trace else None
         stderr_sha_optional = hashlib.sha256(stderr).hexdigest() if stderr else None
+        if completed.failure_code is not None:
+            # A captured prefix (even one containing completed) cannot attest
+            # a complete turn/usage after execution-time truncation or timeout.
+            code = completed.failure_code
+            error_class = ("timeout" if code == "timeout" else "output_limit"
+                           if code in {"stdout_limit_exceeded", "stderr_limit_exceeded"}
+                           else "runner_error")
+            return AgentExecutionObservation(
+                replay=ReplayResult(False, None, None, error_class,
+                                    f"Codex CLI execution stopped: {code}", 1),
+                launcher_process_started=completed.process_started,
+                agent_session_started=session_id is not None, agent_turn_completed=False,
+                session_id=session_id, runtime_loaded=False,
+                observed_skill_name=None, observed_skill_sha256=None,
+                transcript_sha256=trace_sha_optional, stderr_sha256=stderr_sha_optional,
+                usage={}, execution_status=completed.execution_status,
+                process_cleanup_status=completed.process_cleanup_status,
+                process_tree_cleanup_verified=completed.process_tree_cleanup_verified,
+            )
         if completed.execution_status == "cleanup_failed":
             return AgentExecutionObservation(
                 replay=ReplayResult(
@@ -554,6 +579,9 @@ class CodexCliAgentAdapter:
                 f"Codex CLI exited with code {completed.returncode}",
                 1,
             )
+        elif not completed.process_tree_cleanup_verified:
+            replay = ReplayResult(False, None, None, "runner_error",
+                                  "Codex CLI process-tree cleanup failed", 1)
         elif facts.error_code is not None:
             replay = ReplayResult(
                 False, None, None, "parse_error",
@@ -569,8 +597,9 @@ class CodexCliAgentAdapter:
                 1,
             )
         else:
-            output = request.final_output_path.read_bytes()
-            if len(output) > envelope.max_output_bytes:
+            final = read_output_bounded(request.final_output_path, envelope.max_output_bytes)
+            output = final.data
+            if final.error_code == "output_limit":
                 replay = ReplayResult(
                     False,
                     None,
@@ -579,6 +608,9 @@ class CodexCliAgentAdapter:
                     "Codex final output exceeded the frozen byte budget",
                     1,
                 )
+            elif final.error_code is not None:
+                replay = ReplayResult(False, None, None, "runner_error",
+                                      f"Codex final output rejected: {final.error_code}", 1)
             else:
                 try:
                     canonical = canonical_bytes(load_strict_json(output))

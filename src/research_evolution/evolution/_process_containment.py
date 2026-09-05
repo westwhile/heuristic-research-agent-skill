@@ -8,14 +8,17 @@ does not interpret model output and is intentionally private to ``evolution``.
 from __future__ import annotations
 
 import ctypes
+import math
 import os
 import signal
+import stat
 import subprocess
+import threading
 import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 _STATUS_PAIRS = frozenset(
     {
@@ -27,6 +30,7 @@ _STATUS_PAIRS = frozenset(
         ("launch_failed", "not_started"),
         ("cleanup_failed", "failed"),
         ("executor_failed", "unverified"),
+        ("executor_failed", "verified"),
     }
 )
 _VERIFIED_CLEANUP_STATUSES = frozenset(
@@ -45,6 +49,9 @@ class ContainedProcessResult:
     execution_status: str
     process_cleanup_status: str
     process_tree_cleanup_verified: bool
+    # Primary execution failure survives a later cleanup failure. Hashes in
+    # consumers refer to captured bytes, never to an unobserved complete stream.
+    failure_code: str | None = None
 
 
 def process_facts_are_valid(
@@ -63,12 +70,46 @@ def process_facts_are_valid(
     )
 
 
-def _as_bytes(value: bytes | str | None) -> bytes:
-    if isinstance(value, bytes):
-        return value
-    if isinstance(value, str):
-        return value.encode("utf-8", errors="replace")
-    return b""
+@dataclass(frozen=True)
+class BoundedOutput:
+    data: bytes
+    size_bytes: int
+    error_code: str | None = None
+
+
+def read_output_bounded(path: Path, max_bytes: int) -> BoundedOutput:
+    """Read only a regular, stable final file, with at most limit + 1 bytes.
+
+    Oversized files have an observed size but no payload or purported full hash.
+    Nonblocking open prevents a substituted POSIX FIFO from hanging the caller.
+    This is bounded I/O, not a filesystem isolation or adversarial snapshot claim.
+    """
+    if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or max_bytes < 1:
+        raise ValueError("max_bytes must be a positive integer")
+    try:
+        if path.is_symlink() or path.is_junction():
+            return BoundedOutput(b"", 0, "output_not_regular")
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NONBLOCK", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(path, flags)
+        with os.fdopen(descriptor, "rb") as handle:
+            before = os.fstat(handle.fileno())
+            if not stat.S_ISREG(before.st_mode):
+                return BoundedOutput(b"", 0, "output_not_regular")
+            if before.st_size > max_bytes:
+                return BoundedOutput(b"", before.st_size, "output_limit")
+            data = handle.read(max_bytes + 1)
+            after = os.fstat(handle.fileno())
+            if len(data) > max_bytes:
+                return BoundedOutput(b"", max(after.st_size, len(data)), "output_limit")
+            if (before.st_size != after.st_size or len(data) != after.st_size
+                    or before.st_mtime_ns != after.st_mtime_ns):
+                return BoundedOutput(b"", after.st_size, "output_changed")
+            return BoundedOutput(data, len(data))
+    except FileNotFoundError:
+        return BoundedOutput(b"", 0, "output_missing")
+    except OSError:
+        return BoundedOutput(b"", 0, "output_unreadable")
 
 
 def _windows_kernel32() -> Any | None:
@@ -143,6 +184,7 @@ def _terminate_posix_process_tree(
 def _terminate_windows_process_tree(
     process: subprocess.Popen[bytes], cleanup_grace_seconds: float
 ) -> bool:
+    deadline = time.monotonic() + cleanup_grace_seconds
     descendants = _windows_descendant_pids(process.pid)
     if descendants is None:
         return False
@@ -152,7 +194,7 @@ def _terminate_windows_process_tree(
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
-            timeout=cleanup_grace_seconds,
+            timeout=max(0.001, deadline - time.monotonic()),
             check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
@@ -161,25 +203,29 @@ def _terminate_windows_process_tree(
         running = _windows_pid_running(pid)
         if running is False:
             continue
+        if time.monotonic() >= deadline:
+            return False
         try:
             subprocess.run(
                 ["taskkill", "/PID", str(pid), "/T", "/F"],
                 stdin=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
-                timeout=cleanup_grace_seconds,
+                timeout=max(0.001, deadline - time.monotonic()),
                 check=False,
             )
         except (OSError, subprocess.TimeoutExpired):
             pass
-        if _windows_pid_running(pid) is not False and not _windows_terminate_pid(pid):
+        if _windows_pid_running(pid) is not False and not _windows_terminate_pid(
+            pid, max(0, int((deadline - time.monotonic()) * 1000))
+        ):
             return False
     try:
-        process.wait(timeout=cleanup_grace_seconds)
+        process.wait(timeout=max(0.001, deadline - time.monotonic()))
     except subprocess.TimeoutExpired:
         try:
             process.kill()
-            process.wait(timeout=cleanup_grace_seconds)
+            process.wait(timeout=max(0.001, deadline - time.monotonic()))
         except (OSError, subprocess.TimeoutExpired):
             return False
     return process.poll() is not None and all(
@@ -213,7 +259,7 @@ def _windows_pid_running(pid: int) -> bool | None:
         kernel32.CloseHandle(handle)
 
 
-def _windows_terminate_pid(pid: int) -> bool:
+def _windows_terminate_pid(pid: int, wait_ms: int = 2000) -> bool:
     process_terminate = 0x0001
     synchronize = 0x00100000
     wait_object_0 = 0
@@ -233,7 +279,7 @@ def _windows_terminate_pid(pid: int) -> bool:
     try:
         if not kernel32.TerminateProcess(handle, 1):
             return _windows_pid_running(pid) is False
-        return kernel32.WaitForSingleObject(handle, 2_000) == wait_object_0
+        return kernel32.WaitForSingleObject(handle, min(2000, wait_ms)) == wait_object_0
     finally:
         kernel32.CloseHandle(handle)
 
@@ -325,13 +371,28 @@ def run_process_contained(
     input_bytes: bytes,
     timeout_seconds: float,
     cleanup_grace_seconds: float = 5.0,
+    stdout_max_bytes: int = 4 << 20,
+    stderr_max_bytes: int = 4 << 20,
 ) -> ContainedProcessResult:
-    """Run one command and fail closed unless a timed-out tree is fully reaped."""
+    """Bound pipe capture while running; preserve primary cause and cleanup facts.
+
+    Readers retain at most their cap and one probe byte, not unbounded communicate
+    buffers. Owned tree cleanup precedes bounded joins; unresolved pipe workers
+    also invalidate cleanup. This does not constrain files, network or escaped
+    processes: the caller's sandbox remains a separate policy.
+    """
 
     if not command or any(not isinstance(part, str) or not part for part in command):
         raise ValueError("command must contain non-empty strings")
-    if timeout_seconds <= 0 or cleanup_grace_seconds <= 0:
+    if any(isinstance(value, bool) or not isinstance(value, (int, float))
+           or not math.isfinite(value) or value <= 0
+           for value in (timeout_seconds, cleanup_grace_seconds)):
         raise ValueError("execution and cleanup timeouts must be positive")
+    if any(isinstance(value, bool) or not isinstance(value, int) or value < 1
+           for value in (stdout_max_bytes, stderr_max_bytes)):
+        raise ValueError("pipe byte limits must be positive integers")
+    if not isinstance(input_bytes, bytes):
+        raise TypeError("input_bytes must be bytes")
     try:
         if os.name == "nt":
             process = subprocess.Popen(
@@ -364,43 +425,114 @@ def run_process_contained(
             process_tree_cleanup_verified=True,
         )
 
-    try:
-        stdout, stderr = process.communicate(input=input_bytes, timeout=timeout_seconds)
-    except subprocess.TimeoutExpired as exc:
-        partial_stdout = _as_bytes(exc.stdout)
-        partial_stderr = _as_bytes(exc.stderr)
-        cleanup_verified = _terminate_process_tree(process, cleanup_grace_seconds)
-        if not cleanup_verified:
+    stdout = bytearray()
+    stderr = bytearray()
+    lock = threading.Lock()
+    failed = threading.Event()
+    causes: list[str] = []
+
+    def reject(code: str) -> None:
+        with lock:
+            if not causes:
+                causes.append(code)
+        failed.set()
+
+    def drain(stream: BinaryIO, buffer: bytearray, limit: int, name: str) -> None:
+        try:
+            while True:
+                chunk = stream.read1(min(65536, limit + 1 - len(buffer)))  # type: ignore[attr-defined]
+                if not chunk:
+                    break
+                with lock:
+                    remaining = limit - len(buffer)
+                    buffer.extend(chunk[:remaining])
+                if len(chunk) > remaining:
+                    reject(f"{name}_limit_exceeded")
+                    break
+        except (OSError, ValueError):
+            reject(f"{name}_read_failed")
+        finally:
             try:
-                process.kill()
+                stream.close()
+            except OSError:
+                reject(f"{name}_close_failed")
+
+    def feed(stream: BinaryIO) -> None:
+        try:
+            stream.write(input_bytes)
+            stream.flush()
+        except BrokenPipeError:
+            # A launcher may exit without consuming stdin; preserve its exit.
+            pass
+        except OSError:
+            reject("stdin_write_failed")
+        finally:
+            try:
+                stream.close()
             except OSError:
                 pass
-        try:
-            stdout, stderr = process.communicate(timeout=cleanup_grace_seconds)
-        except (OSError, subprocess.TimeoutExpired):
-            stdout, stderr = partial_stdout, partial_stderr
-            cleanup_verified = False
-        return ContainedProcessResult(
-            returncode=process.returncode,
-            stdout=_as_bytes(stdout) or partial_stdout,
-            stderr=_as_bytes(stderr) or partial_stderr,
-            process_started=True,
-            execution_status="timeout" if cleanup_verified else "cleanup_failed",
-            process_cleanup_status="verified" if cleanup_verified else "failed",
-            process_tree_cleanup_verified=cleanup_verified,
-        )
 
-    cleanup_status, cleanup_verified = _cleanup_after_completed_parent(
-        process, cleanup_grace_seconds
-    )
+    assert process.stdout is not None and process.stderr is not None and process.stdin is not None
+    workers = [
+        threading.Thread(target=drain, args=(process.stdout, stdout, stdout_max_bytes, "stdout"),
+                         daemon=True, name="contained-stdout"),
+        threading.Thread(target=drain, args=(process.stderr, stderr, stderr_max_bytes, "stderr"),
+                         daemon=True, name="contained-stderr"),
+        threading.Thread(target=feed, args=(process.stdin,), daemon=True, name="contained-stdin"),
+    ]
+    deadline = time.monotonic() + timeout_seconds
+    cleanup_status, cleanup_verified = "failed", False
+    try:
+        for worker in workers:
+            worker.start()
+        while not failed.is_set() and process.poll() is None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                reject("timeout")
+                break
+            failed.wait(min(0.01, remaining))
+    finally:
+        # Also executed for cancellation or an unexpected caller-side exception.
+        if process.poll() is None:
+            cleanup_verified = _terminate_process_tree(process, cleanup_grace_seconds)
+            cleanup_status = "verified" if cleanup_verified else "failed"
+            if not cleanup_verified:
+                try:
+                    process.kill()
+                    process.wait(timeout=cleanup_grace_seconds)
+                except (OSError, subprocess.TimeoutExpired):
+                    pass
+        else:
+            cleanup_status, cleanup_verified = _cleanup_after_completed_parent(
+                process, cleanup_grace_seconds
+            )
+        join_deadline = time.monotonic() + cleanup_grace_seconds
+        for worker in workers:
+            if worker.ident is not None:
+                worker.join(timeout=max(0, join_deadline - time.monotonic()))
+        if any(worker.is_alive() for worker in workers):
+            reject("pipe_cleanup_failed")
+            cleanup_status, cleanup_verified = "failed", False
+    with lock:
+        cause = causes[0] if causes else None
+        captured_stdout, captured_stderr = bytes(stdout), bytes(stderr)
+    status = "completed"
+    if cause is not None:
+        status = (
+            ("timeout" if cause == "timeout" else "executor_failed")
+            if cleanup_verified else "cleanup_failed"
+        )
+        if cleanup_verified:
+            cleanup_status = "verified"
     return ContainedProcessResult(
         returncode=process.returncode,
-        stdout=_as_bytes(stdout),
-        stderr=_as_bytes(stderr),
+        stdout=captured_stdout,
+        stderr=captured_stderr,
         process_started=True,
-        execution_status="completed",
+        execution_status=status,
         process_cleanup_status=cleanup_status,
         process_tree_cleanup_verified=cleanup_verified,
+        failure_code=cause,
     )
 
 

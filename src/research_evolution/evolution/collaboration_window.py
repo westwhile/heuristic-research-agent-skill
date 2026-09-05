@@ -31,7 +31,11 @@ from research_evolution.core import CoreError, Record, canonical_bytes, load_rec
 from research_evolution.core._restricted import scan_value_for_restricted
 
 from ._codex_jsonl import parse_codex_trace
-from ._process_containment import process_facts_are_valid, run_process_contained
+from ._process_containment import (
+    process_facts_are_valid,
+    read_output_bounded,
+    run_process_contained,
+)
 
 _PLAN_SCHEMA = "collaboration-window-plan/v1"
 _TICKET_SCHEMA = "collaboration-ticket/v1"
@@ -54,6 +58,8 @@ _LIMITATIONS = (
 )
 _PROCESS_LIMITATIONS = (
     "The adapter proves only bounded local-process execution and sanitized structural facts.",
+    "Stream hashes bind captured bytes, not a complete stream after execution failure.",
+    "Failed over-budget measurements remain evidence, never successful budget acceptance.",
     "Neutral worker labels do not verify separate human, model, or account identities.",
     "Fake-launcher evidence is synthetic and authenticated CLI evidence is not semantic review.",
     "No independent review, publication, installation, activation, or promotion is authorized.",
@@ -584,6 +590,8 @@ class CodexCliCollaborationAdapter:
                 env=_collaboration_environment(),
                 input_bytes=prompt.encode("utf-8"),
                 timeout_seconds=timeout,
+                stdout_max_bytes=self._trace_max_bytes,
+                stderr_max_bytes=self._trace_max_bytes,
             )
             runtime_seconds = max(0, math.ceil(time.monotonic() - started))
             trace = completed.stdout
@@ -591,8 +599,13 @@ class CodexCliCollaborationAdapter:
             facts = parse_codex_trace(trace, max_bytes=self._trace_max_bytes)
             session_id, turn_completed = facts.session_id, facts.turn_completed
             raw_usage, tool_calls = facts.usage, facts.tool_calls
+            if completed.failure_code is not None:
+                turn_completed, raw_usage = False, {}
             usage = _closed_usage(raw_usage)
-            output_bytes = final_output.read_bytes() if final_output.is_file() else b""
+            final = read_output_bounded(
+                final_output, int(request.ticket.data["budget"]["base"]["max_output_bytes"])
+            )
+            output_bytes = final.data
             output_sha = hashlib.sha256(output_bytes).hexdigest() if output_bytes else None
             execution: dict[str, Any] = {
                 "launcher_process_started": completed.process_started,
@@ -609,7 +622,9 @@ class CodexCliCollaborationAdapter:
             }
             failure: dict[str, str] | None = None
             parsed: dict[str, Any] = {}
-            if (
+            if completed.failure_code is not None:
+                failure = {"stage": "adapter_execution", "code": completed.failure_code}
+            elif (
                 not process_facts_are_valid(
                     completed.execution_status,
                     completed.process_cleanup_status,
@@ -637,9 +652,11 @@ class CodexCliCollaborationAdapter:
                 }
             elif not usage["usage_closed"]:
                 failure = {"stage": "usage_validation", "code": "usage_incomplete_or_inconsistent"}
-            elif not output_bytes or len(output_bytes) > int(
-                request.ticket.data["budget"]["base"]["max_output_bytes"]
-            ):
+            elif final.error_code in {"output_missing", "output_limit"}:
+                failure = {"stage": "output_validation", "code": "output_missing_or_oversized"}
+            elif final.error_code is not None:
+                failure = {"stage": "output_validation", "code": final.error_code}
+            elif not output_bytes:
                 failure = {"stage": "output_validation", "code": "output_missing_or_oversized"}
             else:
                 try:
@@ -714,7 +731,7 @@ class CodexCliCollaborationAdapter:
                 resource_usage={
                     "runtime_seconds": runtime_seconds,
                     "tool_calls": tool_calls,
-                    "output_bytes": len(output_bytes),
+                    "output_bytes": final.size_bytes,
                     "extra_budget_extensions": 0,
                 },
                 scope_compliance={
@@ -950,7 +967,12 @@ def _validate_observation(
         limit = int(ticket_budget["base"][budget_field])
         if extensions == 1:
             limit += int(ticket_budget["extension_reserve"][budget_field])
-        if int(observation.resource_usage.get(usage_field, -1)) > limit:
+        if int(observation.resource_usage.get(usage_field, -1)) > limit and not (
+            observation.status == "failed" and observation.failure is not None
+        ):
+            # Already-failed executions must retain their actual over-budget
+            # measurements and primary cause in a receipt. They never qualify
+            # for later dispatch or success; do not erase the failure by raising.
             raise CollaborationWindowError(
                 f"resource usage exceeds ticket budget for {usage_field}"
             )
