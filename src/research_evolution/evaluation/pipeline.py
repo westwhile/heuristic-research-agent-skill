@@ -19,10 +19,14 @@ Two contract facts shape the assembly:
   output hash or score is fabricated. A result exists only when a complete
   output was scored. ``run_payload`` remains the compatibility projection
   for legacy pass/fail consumers and is otherwise ``None``.
-- **Dual hash tracks**: ``candidate.sha256`` pins the raw artifact bytes;
-  ``output.output_sha256`` binds the canonical re-serialization the
-  scorer consumed (E3). For a non-canonical artifact the two visibly
-  differ — both tracks are recorded, neither masquerades as the other.
+- **Separate candidate and output tracks**: ``candidate.sha256`` echoes
+  the caller's immutable candidate descriptor; legacy per-case replay may
+  use the raw output artifact as that descriptor. Suite comparison instead
+  requires a stable candidate artifact/manifest across the whole arm. The
+  caller binds any manifest to its raw replay members, whose bytes are
+  verified by ``run_replay(artifact, artifact_sha256, ...)``. The record's
+  ``output.output_sha256`` binds the canonical bytes the scorer consumed.
+  Historical per-output descriptors are not rewritten into manifest pins.
 
 Calibration evidence is single-sourced: one ``calibration_sha256`` feeds
 both :func:`~.scorers.package_judge_scores` and

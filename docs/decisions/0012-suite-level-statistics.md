@@ -25,6 +25,20 @@ CR5 只修复可直接复现的统计合同缺陷。它不接入真实 Agent run
 
 ## 后果
 
+### 合并后 PR-B 加固（2026-09-05）
+
+公开 `compare_suite()` 入口现在必须先验证每侧所有 run 的
+`(candidate_id, sha256)` 完全相等，再核对报告提供的引用；仅 ID 相同不足以比较。
+任一摘要混入、整组摘要替换或缺失 pin 都在统计计算前拒绝。上层 forward-suite
+已有的引用校验不能替代直接入口自己的合同；两者必须给出一致结果。
+
+旧 per-case replay 把单题输出用作 candidate artifact，与 suite manifest 是不同
+对象。历史记录不修改；此类混合输出引用不能继续构造新的 suite comparison。
+公开 synthetic benchmark 的新运行改为 pin 既有完整 manifest，先验证 manifest 的
+case→raw-output 摘要映射，再交给 replay 验证实际输入字节，评分输出仍单独保留
+canonical hash。没有改变题目、答案、scorer、统计方法、冻结 schema 或历史 fixture。
+这只补齐比较对象绑定，不证明 Candidate 改善、独立性或科研有效性。
+
 优点：样本量终于对应可审计的运行对；不同量纲指标不会再被拼接；候选以外的比较轴被冻结；小样本、单位漂移、coverage 漂移和 metric 漂移都会显式失败或 abstain。
 
 代价：调用方必须提供完整 suite grid 和候选 manifest descriptor；历史 `compare()` 调用必须迁移；当前公开 benchmark 因只有 12 对而不会给出 improvement 结论；后续仍需完整 ArtifactRef closure、真实执行器和独立 evaluator。

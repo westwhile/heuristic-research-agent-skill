@@ -146,13 +146,15 @@ def _state() -> dict:
         for cand in CANDIDATES:
             for cid in _case_ids(domain):
                 artifact = artifacts[(domain, cand, cid)]
+                if candidate_docs[cand]["outputs"][cid] != _sha(artifact):
+                    raise ValueError("candidate manifest does not bind replay artifact")
                 outcome = evaluate_case(
                     run_id=f"{cid.lower()}-{cand}",
                     case=cases[domain][cid],
                     suite=suites[domain],
                     candidate={
                         "candidate_id": candidate_docs[cand]["candidate_id"],
-                        "sha256": _sha(artifact),
+                        "sha256": canonical_sha256(candidate_docs[cand]),
                     },
                     artifact=artifact,
                     artifact_sha256=_sha(artifact),
@@ -301,6 +303,24 @@ class TreeIntegrityTest(unittest.TestCase):
 class PublicBenchmarkPipelineTest(unittest.TestCase):
     """Both domains x both candidates x 12 cases through evaluate_case."""
 
+    def test_every_run_pins_manifest_separately_from_scored_output(self) -> None:
+        state = _state()
+        for (domain, candidate, case_id), outcome in state["outcomes"].items():
+            with self.subTest(domain=domain, candidate=candidate, case=case_id):
+                run = outcome.run_payload
+                self.assertIsNotNone(run)
+                self.assertEqual(
+                    run["candidate"], state["reports"][domain][candidate]
+                )
+                artifact = state["artifacts"][(domain, candidate, case_id)]
+                self.assertEqual(
+                    state["candidates"][candidate]["outputs"][case_id], _sha(artifact)
+                )
+                self.assertEqual(
+                    run["output"]["output_sha256"],
+                    canonical_sha256(load_strict_json(artifact)),
+                )
+
     def test_champion_passes_all_cases(self) -> None:
         outcomes = _state()["outcomes"]
         for domain in DOMAINS:
@@ -338,7 +358,10 @@ class PublicBenchmarkPipelineTest(unittest.TestCase):
                 run_id=f"{cid.lower()}-champion",
                 case=state["cases"][domain][cid],
                 suite=state["suites"][domain],
-                candidate={"candidate_id": "champion-v1", "sha256": _sha(artifact)},
+                candidate={
+                    "candidate_id": "champion-v1",
+                    "sha256": canonical_sha256(state["candidates"]["champion"]),
+                },
                 artifact=artifact,
                 artifact_sha256=_sha(artifact),
                 envelope=ENVELOPE,
