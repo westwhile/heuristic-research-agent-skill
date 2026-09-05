@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import ctypes
 import os
+import signal
 import subprocess
 import sys
 import tempfile
@@ -45,14 +46,30 @@ def _pid_is_running(pid: int) -> bool:
         kernel32.CloseHandle(handle)
 
 
+def _stop_fixture_pid(pid: int) -> None:
+    if not _pid_is_running(pid):
+        return
+    if os.name == "nt":
+        subprocess.run(
+            ["taskkill", "/PID", str(pid), "/T", "/F"],
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    else:
+        os.kill(pid, signal.SIGKILL)
+
+
 class ProcessContainmentTest(unittest.TestCase):
     def test_execution_cleanup_fact_mutations_fail_closed(self) -> None:
         self.assertTrue(process_facts_are_valid("timeout", "verified", True))
+        self.assertTrue(process_facts_are_valid("completed", "verified", True))
+        self.assertTrue(process_facts_are_valid("completed", "failed", False))
         self.assertTrue(process_facts_are_valid("cleanup_failed", "failed", False))
         for mutated in (
             ("timeout", "failed", False),
             ("cleanup_failed", "verified", True),
-            ("completed", "failed", False),
             ("launch_failed", "not_required", True),
             ("unknown", "unverified", False),
         ):
@@ -79,6 +96,65 @@ class ProcessContainmentTest(unittest.TestCase):
             self.assertEqual(len(pid_files), 3)
             pids = [int(path.read_text(encoding="ascii")) for path in pid_files]
             self.assertTrue(all(not _pid_is_running(pid) for pid in pids))
+
+    def test_completed_parent_reaps_orphaned_descendant_before_return(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            marker_root = root / "pids"
+            child_pid = None
+            try:
+                result = run_process_contained(
+                    [
+                        PYTHON_EXECUTABLE,
+                        str(FIXTURE),
+                        str(marker_root),
+                        "1",
+                        "orphan-parent",
+                    ],
+                    cwd=root,
+                    env=dict(os.environ),
+                    input_bytes=b"",
+                    timeout_seconds=5.0,
+                    cleanup_grace_seconds=3.0,
+                )
+                child_pid = int((marker_root / "depth-0.pid").read_text(encoding="ascii"))
+
+                self.assertEqual(result.execution_status, "completed")
+                self.assertEqual(result.process_cleanup_status, "verified")
+                self.assertTrue(result.process_tree_cleanup_verified)
+                self.assertFalse(_pid_is_running(child_pid))
+            finally:
+                if child_pid is not None:
+                    _stop_fixture_pid(child_pid)
+
+    def test_completed_parent_cleanup_failure_preserves_execution_fact(self) -> None:
+        process = Mock()
+        process.pid = 12345
+        process.returncode = 17
+        process.communicate.return_value = (b"trace", b"private")
+        with (
+            patch(
+                "research_evolution.evolution._process_containment.subprocess.Popen",
+                return_value=process,
+            ),
+            patch(
+                "research_evolution.evolution._process_containment._cleanup_after_completed_parent",
+                return_value=("failed", False),
+            ),
+        ):
+            result = run_process_contained(
+                ["fixture"],
+                cwd=Path.cwd(),
+                env={},
+                input_bytes=b"input",
+                timeout_seconds=1.0,
+                cleanup_grace_seconds=0.01,
+            )
+
+        self.assertEqual(result.returncode, 17)
+        self.assertEqual(result.execution_status, "completed")
+        self.assertEqual(result.process_cleanup_status, "failed")
+        self.assertFalse(result.process_tree_cleanup_verified)
 
     def test_cleanup_failure_is_distinct_from_timeout(self) -> None:
         process = Mock()

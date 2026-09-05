@@ -481,7 +481,18 @@ def _worker_payload_is_valid(payload: Mapping[str, Any]) -> bool:
 
 
 def _remove_workspace(root: Path) -> bool:
-    shutil.rmtree(root, ignore_errors=True)
+    for attempt in range(8):
+        try:
+            shutil.rmtree(root)
+        except FileNotFoundError:
+            return True
+        except OSError:
+            if not root.exists():
+                return True
+        else:
+            return not root.exists()
+        if attempt < 7:
+            time.sleep(min(0.05 * (2**attempt), 0.5))
     return not root.exists()
 
 
@@ -639,9 +650,18 @@ class CodexCliCollaborationAdapter:
                     completed.process_tree_cleanup_verified,
                 )
                 or completed.execution_status != "completed"
-                or completed.returncode != 0
             ):
                 failure = {"stage": "adapter_execution", "code": completed.execution_status}
+            elif completed.returncode != 0:
+                failure = {
+                    "stage": "adapter_execution",
+                    "code": "launcher_exit_nonzero",
+                }
+            elif not completed.process_tree_cleanup_verified:
+                failure = {
+                    "stage": "adapter_execution",
+                    "code": "cleanup_failed",
+                }
             elif session_id is None or not turn_completed:
                 failure = {
                     "stage": "adapter_execution",
@@ -748,6 +768,7 @@ class CodexCliCollaborationAdapter:
         if observation is None:
             raise CollaborationWindowError("adapter produced no observation")
         if not workspace_clean:
+            primary_failure = observation.failure
             observation = replace(
                 observation,
                 status="failed",
@@ -757,7 +778,8 @@ class CodexCliCollaborationAdapter:
                 opportunity_chain=(),
                 cannot_imply=(),
                 reopen_conditions=(),
-                failure={
+                failure=primary_failure
+                or {
                     "stage": "workspace_cleanup",
                     "code": "workspace_cleanup_failed",
                 },

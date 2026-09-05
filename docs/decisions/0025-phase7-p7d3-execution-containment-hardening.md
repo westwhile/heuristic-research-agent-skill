@@ -29,12 +29,18 @@ P7D3 的一个 Windows 校准会话在冻结的 1800 秒执行上限到达后，
    | --- | --- | --- |
    | `not_applicable` | `not_applicable` | true |
    | `completed` | `not_required` | true |
+   | `completed` | `verified` | true |
+   | `completed` | `failed` | false |
    | `timeout` | `verified` | true |
    | `launch_failed` | `not_started` | true |
    | `cleanup_failed` | `failed` | false |
    | `executor_failed` | `unverified` | false |
 
-   任何交叉组合均 fail closed。
+   `completed / verified` 仅表示 owned parent 已完成，但 Module 发现并成功清理了仍存活的
+   descendant/process-group member；它不是自然退出，也不把非零 launcher return code
+   变成成功。`completed / failed` 保留 parent 已完成这一原始执行事实，同时独立记录
+   descendant/process-group cleanup 未闭合；上层必须 fail closed，但不得因此覆盖更早的
+   非零 launcher 失败。任何其他交叉组合均 fail closed。
 5. timeout 只有在整个进程树清理已验证时才映射为现有 `timeout`；清理不能闭合时，
    以现有 schema 合法的 `runner_error` 留档，并使用固定、脱敏诊断
    `Codex CLI process-tree cleanup failed`。不得把 cleanup failure 降级为普通模型超时。
@@ -59,6 +65,8 @@ Codex 解题质量、科研有效性、独立审查、Skill 改善、hidden eval
 
 - Windows/Ubuntu 父→子→孙三层真实进程树超时后全部 PID 消失；
 - 直接 launcher 退出或 `taskkill` 不完整时，已固定 descendants 仍被逐一清理；
+- launcher parent 在 timeout 前完成后仍重新核验 process tree；孤儿 descendant 必须被
+  清理并记录为 `completed / verified`，不能误记为 `not_required`；
 - cleanup failure 与 timeout 的语义、诊断和 blocker 不可互换；
 - 矛盾 execution/cleanup facts 被 mutation tests 拒绝；
 - P7D1A 不生成 qualified failure，P7D1B 不生成 Candidate；
