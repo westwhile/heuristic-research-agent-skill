@@ -2,8 +2,8 @@
   "schema": "research-evolution-source-provenance/v1",
   "status": "active",
   "reviewed_at": "2026-09-05",
-  "baseline_commit": "b22b8a45693a3926b2b91dc2e71cfc92430e0858",
-  "inventory_scope": "The 1188 tracked files at main commit b22b8a45693a3926b2b91dc2e71cfc92430e0858 include the merged shared Codex JSONL contract. PR-D independently implements bounded pipe/final-file I/O and primary-failure preservation in existing files, with synthetic process and consumer regression tests; the file count is unchanged. No external expression, transcript, schema or payload is copied. Five status files remain design_inspired by the excluded user-provided post-merge review plan. The math-research-solve v8/1.0.1 baseline and historical evidence remain immutable.",
+  "baseline_commit": "78c0e321c053aea947548ef4143fcb86db83e41d",
+  "inventory_scope": "The 1188 tracked files at verified main commit 78c0e321c053aea947548ef4143fcb86db83e41d include PR-A through PR-D and the separately authorized Windows orphan cleanup fix (#69-#73). PR-C adds two independently authored files; PR-D and #73 modify only existing implementation, synthetic tests/fixture and ADR paths. This final synchronization changes exactly five existing status files and adds no payload. Counts remain 991 independently_authored, 118 generated, 77 design_inspired, 2 third_party_reused and 0 unknown. No external expression, transcript, schema or payload is copied. Five status files remain design_inspired by the excluded user-provided post-merge review plan. The math-research-solve v8/1.0.1 baseline and historical evidence remain immutable.",
   "project_license": {
     "spdx": "Apache-2.0",
     "license_file": "LICENSE",

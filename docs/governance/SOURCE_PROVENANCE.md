@@ -1,7 +1,7 @@
 # Source provenance and rights boundary
 
 - Status: `OSS-R0 / APACHE-2.0_SELECTED / RIGHTS_CONFIRMED / UNKNOWN_ZERO`
-- Baseline commit: `46651d0454e13658e27d80b20f0c0b29a76b3f7b`
+- Baseline commit: `78c0e321c053aea947548ef4143fcb86db83e41d`
 - Review date: 2026-09-05
 - Machine-readable source: [`SOURCE_PROVENANCE.json`](SOURCE_PROVENANCE.json)
 
@@ -203,9 +203,9 @@ evidence:
 
 | Source class | Count | Boundary |
 |---|---:|---|
-| `independently_authored` | 994 | Repository-native material covered by the maintainer confirmation, including P7B4 protocol, P7C1 execution-seam, P7C2 suite-orchestration, P7C3 real-Agent smoke, P7D1 failure/proposal, and P7D3 containment files |
+| `independently_authored` | 991 | Repository-native material covered by the maintainer confirmation, including the shared JSONL Module and deterministic event-contract tests |
 | `generated` | 118 | Deterministic baseline, benchmark, report, and research-memory outputs |
-| `design_inspired` | 72 | Independently implemented v8 compatibility, P7B2/P7B3 Skill contracts, and P7F collaboration-autonomy contracts/tests/fixtures |
+| `design_inspired` | 77 | Independently implemented v8 compatibility, P7B2/P7B3 Skill contracts, P7F collaboration-autonomy contracts/tests/fixtures, and five post-merge status files |
 | `third_party_reused` | 2 | Canonical Apache-2.0 license text and adapted Contributor Covenant 3.0 text |
 | `unknown` | 0 | No unresolved tracked file |
 
@@ -214,7 +214,7 @@ generated and design-inspired exceptions take priority over repository-wide
 authorship rules. `scripts/verify_source_provenance.py` fails if any tracked or
 proposed tracked file is uncovered, any count drifts, or `unknown` becomes non-zero.
 
-The resulting counts are 994 `independently_authored`, 118 `generated`, 72
+The current 1188-file counts are 991 `independently_authored`, 118 `generated`, 77
 `design_inspired`, 2 `third_party_reused`, and 0 `unknown`. CR1—CR4 add no
 external payloads, vendored dependencies, or third-party expression; CR5 has
 the same boundary, as does CR6. CR7 adds only non-vendored development-tool
@@ -336,15 +336,15 @@ categories as design input, then independently inspect and reproduce behavior.
 No archive text, task template, or payload is copied into the repository.
 The five status files are conservatively classified as design_inspired.
 
-The baseline inventory contains 1186 tracked files, including P7F3A from #67
+The PR-A starting inventory contained 1186 tracked files, including P7F3A from #67
 and the seven-file cleanup/diagnostic change in #68. Reconciliation reads only
 existing sanitized review and A/B receipts; no raw model output or Candidate
 payload is added. Reviewer-v4 records model-assisted session separation, not
 external human identity verification. Protocol-v3 remains on HOLD because no
 Candidate gain was observed. Historical attempts remain unchanged.
 
-PR-C adds two independently authored files: the shared `_codex_jsonl` Module
-and its deterministic event-contract tests. Its proposed inventory is 1188
+PR-C (#71) added two independently authored files: the shared `_codex_jsonl` Module
+and its deterministic event-contract tests. Its merged inventory is 1188
 files (991 independently_authored, 118 generated, 77 design_inspired, two
 third_party_reused, zero unknown), based on main
 `6f1e9c38333edea1a17a39622246dc5a243196a4`. Official Codex JSONL interface facts
@@ -357,6 +357,16 @@ Its bounded pipe/final-file implementation, synthetic process fixture extension
 and failure-receipt regressions are independently authored changes to existing
 files. The 1188-file counts above remain unchanged. No external payload, raw
 execution evidence, new schema or vendored dependency is introduced.
+
+PR-A through PR-D merged as #69-#72. PR-D main run `33945107813` failed its
+Windows 3.12 orphan-cleanup test and remains preserved. The separately authorized
+three-file fix #73 merged as `78c0e321c053aea947548ef4143fcb86db83e41d`;
+[exact main CI](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33946492615)
+passed all four jobs and both Windows governance steps. It changes only existing
+repository-native process code, deterministic tests and ADR; counts do not change.
+The strict five-file status synchronization reconciles current counts and records
+these engineering facts, without adding external bytes or revising old receipts.
+No new real model sessions were run. Phase 7 scientific acceptance remains HOLD.
 
 Every PR that adds or changes an external source, generated artifact family,
 compatibility fixture, template, substantial quotation, or vendored dependency

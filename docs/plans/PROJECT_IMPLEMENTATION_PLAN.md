@@ -809,13 +809,41 @@ P7D6 Candidate 合同与提案终态（2026-08-30）：Ready PR #64 的 final he
 ## 合并后验收与收敛批次（2026-09-05）
 
 本节是当前增量状态；上文 P7D6 及更早的零计数保留为阶段快照。
-审计基线为 `46651d0454e13658e27d80b20f0c0b29a76b3f7b`，tree 为
+本批起始审计基线为 `46651d0454e13658e27d80b20f0c0b29a76b3f7b`，tree 为
 `f5b2724380eaa06f5958f0561704cc53af8b279a`。#67 合入 P7F3A，#68
 合入 cleanup/diagnostic 修复；main run `33937938857` 四项矩阵与两个
 Windows governance 步骤成功。现有安装 Gate 已在隔离环境安装 archive
 source 并从仓库外验证导入和 demo；独立冻结 wheel 的再安装验收仍待实施。
 
-仓库外证据重新核对：reviewer-v4 的 semantic receipt SHA-256 为
+当前工程验收基线为 `78c0e321c053aea947548ef4143fcb86db83e41d`，tree 为
+`4fb0085ea0a85da2befb7c8dbd74e8c71865ace8`。本批合并与精确 main CI 如下；
+旧失败不删除、不重跑，也不使用另一提交的绿灯替代它。
+
+| 批次 | PR / merge SHA | 精确 main CI | 结果 |
+| --- | --- | --- | --- |
+| PR-A 六文件基线 | #69 / `e17e1f7a6127e2aaa3edfa2865ccd1af0e5e39c7` | [33940849261](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33940849261) | 四项 job、两项 Windows governance 成功 |
+| PR-B Candidate pin | #70 / `6f1e9c38333edea1a17a39622246dc5a243196a4` | [33942190249](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33942190249) | 四项 job、两项 Windows governance 成功 |
+| PR-C JSONL 合同 | #71 / `b22b8a45693a3926b2b91dc2e71cfc92430e0858` | [33943585135](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33943585135) | 四项 job、两项 Windows governance 成功 |
+| PR-D 有界采集 | #72 / `059b05692b4a193ac26a8395f04087660d751ea1` | [33945107813](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33945107813) | Windows 3.12 Core deletion 孤儿清理失败；其余三项成功，失败保留 |
+| 单独 Windows 修复 | #73 / `78c0e321c053aea947548ef4143fcb86db83e41d` | [33946492615](https://github.com/westwhile/heuristic-research-agent-skill/actions/runs/33946492615) | 四项 job、两项 Windows governance 成功 |
+
+修复提交 `9e0eda4f8915d91a4f351f9e885de2b32b084c65` 的本地完整套件为
+1216 tests / 6 个预期 skip，branch coverage 81%；exact git archive 的 Python
+3.12.13 与 3.14.5 各为 1216 tests / 7 个预期 skip，额外一项为 Git tracking。
+两个解释器 clean-archive install、原 Windows 3.12 Core deletion 路径、Ruff、
+mypy（41 files）、来源 Gate（1188 files，unknown=0）和 diff 检查均通过。
+本地 governance 为 6 cases / 33 assertions；既有 CUDA 回归通过，archive SHA-256
+`d92d6e748cca3bce4cc6fac186c6977f4cc03578d65e0414cc65a62b72127c23`，stable SHA-256
+`cbbd2325cc27e7616f99ba8ad686309996df1319a617ae44427a20032f96383b`，未写 receipt 文件。
+本地一次 mypy 缓存参数错误曾使来源检查和全套失败；本次产生的缓存安全移出后，
+调用已纠正并完整重跑通过，不把失败的初次调用算作通过证据。
+
+无注入的孤儿路径 20 次复跑通过；注入已退出 root 的慢 taskkill 后稳定复现预算耗尽，
+修复后同一回归 20 次通过。仅跳过已确认退出 root 的无效 taskkill，保留后代清理、
+原 deadline、管道等待、首因和 fail-closed 语义；旧 CI 没有分阶段时序，不能事后
+断言其内部恰是这一时序。完整限制与字段映射见 [ADR-0028](../decisions/0028-phase7-p7f3a-real-collaboration-adapter.md)。
+
+PR-A 已核对的仓库外证据保持不变：reviewer-v4 的 semantic receipt SHA-256 为
 `abdf7d348ed6fe4c28ec0a931c34e5869e576b0fad37ac2545814195dbf9f883`，
 其记录 `semantic_review_passed`、hash Gate 成功、27043 个不重叠 token，
 仅证明记录中的 session-independent model-assisted review，不证明外部人工
@@ -823,11 +851,11 @@ source 并从仓库外验证导入和 demo；独立冻结 wheel 的再安装验�
 `d308018250da08397109b73e37c3350362c3d2469df80d2666bf7c1e9df29810`，
 终态 `HOLD_PHASE7_FINAL_GATE`，blocker `no_observed_candidate_gain`，禁止重试。
 P7F3B 原批次首个 Math outcome 为 workspace cleanup failed；不重试旧槽位。
-本次只是核对既有脱敏 receipt，未重新评分、运行模型或改写证据。
+本批未重新评分、运行模型或改写证据；后续工程绿灯不改变这些历史终态。
 
 ### 验收登记
 
-下表是基线上的覆盖与待办登记，不是 34 项全部通过的声明。每项结案须绑定
+下表按当前工程基线核销已验证的具体缺口，不是 34 项全部通过的声明。每项结案须绑定
 相同合同的测试命令、代码 SHA、平台、结果与限制；测试名存在不能单独结案。
 
 | ID | 当前依据或范围 | 待办/结案条件 |
@@ -837,15 +865,15 @@ P7F3B 原批次首个 Math outcome 为 workspace cleanup failed；不重试旧�
 | MG-03 | 多个消费者已有记录合同 | 新诊断贯穿 Adapter 和 receipt |
 | MG-04 | 既有 archive 有预期 skip | 审查 skip/coverage/CI 容错差异 |
 | RT-01 | 进程树测试与双平台 main CI | 保留父子孙及管道回归 |
-| RT-02 | stdout/stderr 收集后才限长 | PR-D 执行期有界采集 |
+| RT-02 | PR-D + #73 已验证执行期独立管道上限及有界 final 读取 | 本批缺口结案；不冒充完整 sandbox/恶意文件替换隔离 |
 | RT-03 | 缺 session/turn 会拒绝 | 与冲突终态合并回归 |
-| RT-04 | 冲突/截断事件仍被解析为完成 | PR-C 严格解析并稳定拒绝 |
-| RT-05 | 当前会跳过无法解析行 | 明确可扩展事件与关键事件策略 |
+| RT-04 | PR-C 已稳定拒绝冲突、截断、非对象及重复键 | 本批解析缺口结案；冻结单会话/终态合同 |
+| RT-05 | PR-C 允许未知非关键 metadata，拒绝未知关键 thread/turn | 本批策略结案；新 CLI 版本须独立兼容性核验 |
 | RT-06 | cleanup 已有回归；取消未全面验收 | 首因与 cleanup 分开；取消另审 |
 | RT-07 | 可发布终态 attempt 不等于启动持久化 | 故障恢复合同单独设计 |
 | RT-08 | 无 Web 仍有模型服务通信 | 远端执行不明不得自动重试 |
 | EV-01 | 有 byte/envelope closure | 补消费者读取时的变更测试 |
-| EV-02 | compare_suite 直接入口容许混合摘要 | PR-B 核对完整 Candidate 引用 |
+| EV-02 | PR-B 在直接比较与报告入口逐 run 核验完整 Candidate id + sha | 混合摘要缺口结案；raw output hash 不替代 Candidate manifest pin |
 | EV-03 | Core append-only/图验证已有覆盖 | 新记录不可改写旧记录 |
 | TR-01 | 未实施 Hidden 权限域 | Phase 8 通道隔离验收 |
 | TR-02 | 启动参数限制已有实现 | 审计配置、Skills、工具及历史继承 |
@@ -875,7 +903,8 @@ P7F3B 原批次首个 Math outcome 为 workspace cleanup failed；不重试旧�
    深度/行长异常与正常可扩展事件的 deterministic tests。
 4. PR-D：stdout/stderr 执行期有界采集、有界最终输出读取、进程树清理；
    超限/超时首因与 cleanup 结果同时保留。先完成字段映射，不修改冻结 schema。
-5. 严格五文件状态收口，记录各 merge SHA 和精确 main CI。
+5. PR-D main CI 失败后按停止条件暂停；经单独授权，由 #73 完成最小 Windows 清理修复及全部 Gates。
+6. 严格五文件状态收口：仅 README、DL_SUPPORT_MATRIX、SOURCE_PROVENANCE JSON/Markdown、本计划，登记上述 merge SHA、精确 main CI、已核销问题和保留的 HOLD；自身也须完成全部原 Gate。
 
 每项依次 local validation、commit、exact archive Python 3.12/3.14 Gate、
 clean-archive install、既有本机 CUDA regression、Ready PR、merge commit、

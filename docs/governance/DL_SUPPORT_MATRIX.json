@@ -2,11 +2,30 @@
   "schema": "research-evolution-dl-support-matrix/v1",
   "reviewed_at": "2026-09-05",
   "post_merge_reconciliation": {
-    "baseline_commit": "46651d0454e13658e27d80b20f0c0b29a76b3f7b",
-    "main_ci_run": "33937938857",
+    "baseline_commit": "78c0e321c053aea947548ef4143fcb86db83e41d",
+    "baseline_tree": "4fb0085ea0a85da2befb7c8dbd74e8c71865ace8",
+    "main_ci_run": "33946492615",
     "required_jobs_success": 4,
     "windows_governance_success": 2,
-    "p7f3_engineering": "merged_cleanup_and_diagnostics_only",
+    "p7f3_engineering": "merged_candidate_pin_strict_jsonl_bounded_io_and_windows_orphan_cleanup_deterministic_only",
+    "acceptance_prs": [69, 70, 71, 72, 73],
+    "preserved_failed_main_ci": {
+      "run": "33945107813",
+      "head_sha": "059b05692b4a193ac26a8395f04087660d751ea1",
+      "failure": "windows_3_12_core_deletion_orphan_cleanup",
+      "rerun": false
+    },
+    "cleanup_fix_exact_archive": {
+      "commit": "9e0eda4f8915d91a4f351f9e885de2b32b084c65",
+      "python_versions": ["3.12.13", "3.14.5"],
+      "tests_per_interpreter": 1216,
+      "expected_skips_per_interpreter": 7,
+      "clean_install_both_passed": true,
+      "single_host_cuda_regression_passed": true,
+      "cuda_archive_sha256": "d92d6e748cca3bce4cc6fac186c6977f4cc03578d65e0414cc65a62b72127c23",
+      "cuda_stable_sha256": "cbbd2325cc27e7616f99ba8ad686309996df1319a617ae44427a20032f96383b",
+      "receipt_file_written": false
+    },
     "reviewer_v4_recorded_outcome": "semantic_review_passed",
     "reviewer_v4_scope": "session_independent_model_assisted_review_not_external_human_review",
     "reviewer_v4_receipt_sha256": "abdf7d348ed6fe4c28ec0a931c34e5869e576b0fad37ac2545814195dbf9f883",
