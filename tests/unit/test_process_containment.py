@@ -16,6 +16,7 @@ from unittest.mock import Mock, patch
 
 from research_evolution.evolution._process_containment import (
     _terminate_windows_process_tree,
+    _windows_pid_running,
     process_facts_are_valid,
     read_output_bounded,
     run_process_contained,
@@ -37,13 +38,20 @@ def _pid_is_running(pid: int) -> bool:
     process_query_limited_information = 0x1000
     still_active = 259
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.argtypes = [ctypes.c_ulong, ctypes.c_int, ctypes.c_ulong]
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    kernel32.GetExitCodeProcess.argtypes = [ctypes.c_void_p, ctypes.POINTER(ctypes.c_ulong)]
+    kernel32.GetExitCodeProcess.restype = ctypes.c_int
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
     handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
     if not handle:
-        return False
+        if ctypes.get_last_error() == 87:
+            return False
+        raise AssertionError("fixture process exit could not be verified")
     try:
         exit_code = ctypes.c_ulong()
         if not kernel32.GetExitCodeProcess(handle, ctypes.byref(exit_code)):
-            return False
+            raise AssertionError("fixture process exit could not be queried")
         return exit_code.value == still_active
     finally:
         kernel32.CloseHandle(handle)
@@ -120,6 +128,38 @@ class ProcessContainmentTest(unittest.TestCase):
         for mode in ("orphan-parent", "orphan-inherited"):
             with self.subTest(mode=mode):
                 self._assert_orphan_cleanup(mode)
+
+    @unittest.skipUnless(os.name == "nt", "Windows taskkill deadline contract")
+    def test_completed_parent_does_not_spend_cleanup_budget_on_dead_root(self) -> None:
+        original_run = subprocess.run
+
+        def stalled_taskkill(command, **kwargs):
+            if command[0] == "taskkill":
+                # Inject a slow external taskkill only for a root already known
+                # to have exited. Live descendant cleanup must retain its budget.
+                if _windows_pid_running(int(command[2])) is False:
+                    time.sleep(kwargs["timeout"] + 0.05)
+                    raise subprocess.TimeoutExpired(command, kwargs["timeout"])
+            return original_run(command, **kwargs)
+
+        with patch(
+            "research_evolution.evolution._process_containment.subprocess.run",
+            side_effect=stalled_taskkill,
+        ):
+            self._assert_orphan_cleanup("orphan-parent")
+
+    @unittest.skipUnless(os.name == "nt", "Windows handle width contract")
+    def test_fixture_probe_distinguishes_live_and_exited_process(self) -> None:
+        process = subprocess.Popen(
+            [PYTHON_EXECUTABLE, "-c", "import time; time.sleep(60)"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        try:
+            self.assertTrue(_pid_is_running(process.pid))
+        finally:
+            process.kill()
+            process.wait(timeout=5)
+        self.assertFalse(_pid_is_running(process.pid))
 
     def _assert_orphan_cleanup(self, mode: str) -> None:
         with tempfile.TemporaryDirectory() as tmp:

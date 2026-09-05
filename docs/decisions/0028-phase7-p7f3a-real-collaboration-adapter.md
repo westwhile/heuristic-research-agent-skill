@@ -108,6 +108,23 @@ stderr 各有独立有限缓冲（默认各 4 MiB，Adapter 绑定既有 trace b
 所有原始 stdout/stderr/最终文件内容仍不写入 receipt。测试仅使用有限合成输出、
 fake launcher 与 owned fixture process tree；没有真实模型会话或 Skill 安装。
 
+## Windows 已退出父进程的清理预算修复
+
+PR-D 合入后的 main CI `33945107813` 在 Windows 3.12 的 Core deletion 子套件中，
+出现 `orphan-parent` 清理状态为 failed；其他三个 job 通过。该失败记录保留，不重跑或
+改写。无注入的本地 20 次复跑通过，不能据此核销远端失败。
+
+最小 deterministic 回归对已退出父进程的外部 taskkill 注入超过剩余期限的延迟，
+通过真实 orphan fixture 重现 failed：无效的 root taskkill 消耗了后代共用的预算。
+修复仅在 Popen 已确认 root 退出时跳过 root taskkill，仍清理已枚举后代、核验退出、
+等待管道线程，且不增大 deadline、不把未知状态当作退出。相同回归转绿。远端旧日志
+缺少分阶段时序，因此这是已验证的失败机制，而非对那一次 CI 内部时序的事后断言。
+
+测试用独立 Windows PID 探针补齐 pointer-width ctypes 声明，并验证 live/exited 两态；
+查询错误不能冒充进程已退出。没有变更公共 interface、schema、历史 receipt、评分或
+真实会话授权。修复必须重新通过 exact archive 双解释器、安装、CUDA、PR checks 和
+精确 merge SHA main CI，之后才允许五文件状态收口。
+
 ## 拒绝的替代方案
 
 - 修改 v1 adapter 常量或追加字段：违反 immutable schema policy。
