@@ -40,6 +40,13 @@ schema 的字节合同，因此需要 successor。
    受限输出被 hash 后丢弃并生成 `output_validation/restricted_output`。
 7. 任一 execution、cleanup、usage、binding、结构或隐私失败都生成一个 v2 失败 receipt
    并停止后续 ticket；不能因异常而丢掉最需要审计的失败尝试。
+8. P7F3B 首次真实 seam smoke 暴露两个实现缺口：launcher parent 非零退出后仍有 owned
+   Codex descendant 存活，且 workspace cleanup failure 覆盖了较早的启动失败。修复后，
+   containment 在 parent 完成后再次核验并清理 process tree；workspace 删除使用有限次
+   指数退避。`failure` 始终保留最先出现的可行动失败（非零退出稳定映射为
+   `launcher_exit_nonzero`），而 `execution.process_cleanup_status=failed` 和
+   `execution.workspace_cleanup_verified=false` 独立记录随后两层清理失败。只有没有更早
+   失败时，cleanup 才成为主 `failure`。
 
 ## Deep Module 边界
 
@@ -68,6 +75,8 @@ P7F3A 工程测试证明同一 seam 能承载受约束的本地进程，并能�
 - Math/Quant 通过同一公共 interface 与 deterministic fake launcher；
 - success、ticket-binding mutation、required-field deletion、usage 缺失、受限输出、
   execution/cleanup failure 均有 contract/mutation/deletion/fail-closed 测试；
+- completed parent 遗留的真实测试子进程必须被回收；瞬态目录句柄错误必须经有界重试
+  恢复，双失败必须同时保留 primary failure 与 workspace cleanup fact；
 - fake evidence 的真实执行 claim 恒为 false，原始敏感值与本机路径不进入 receipt；
 - v2 schema 有 valid/invalid fixtures、canonical fixture pin、schema byte pin、family graph
   与 publication restricted scan；

@@ -17,14 +17,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-_STATUS_PAIRS = {
-    "not_applicable": "not_applicable",
-    "completed": "not_required",
-    "timeout": "verified",
-    "launch_failed": "not_started",
-    "cleanup_failed": "failed",
-    "executor_failed": "unverified",
-}
+_STATUS_PAIRS = frozenset(
+    {
+        ("not_applicable", "not_applicable"),
+        ("completed", "not_required"),
+        ("completed", "verified"),
+        ("completed", "failed"),
+        ("timeout", "verified"),
+        ("launch_failed", "not_started"),
+        ("cleanup_failed", "failed"),
+        ("executor_failed", "unverified"),
+    }
+)
 _VERIFIED_CLEANUP_STATUSES = frozenset(
     {"not_applicable", "not_required", "not_started", "verified"}
 )
@@ -54,9 +58,8 @@ def process_facts_are_valid(
         isinstance(execution_status, str)
         and isinstance(process_cleanup_status, str)
         and isinstance(process_tree_cleanup_verified, bool)
-        and _STATUS_PAIRS.get(execution_status) == process_cleanup_status
-        and process_tree_cleanup_verified
-        is (process_cleanup_status in _VERIFIED_CLEANUP_STATUSES)
+        and (execution_status, process_cleanup_status) in _STATUS_PAIRS
+        and process_tree_cleanup_verified is (process_cleanup_status in _VERIFIED_CLEANUP_STATUSES)
     )
 
 
@@ -289,12 +292,29 @@ def _windows_descendant_pids(root_pid: int) -> list[int] | None:
     return descendants
 
 
-def _terminate_process_tree(
-    process: subprocess.Popen[bytes], cleanup_grace_seconds: float
-) -> bool:
+def _terminate_process_tree(process: subprocess.Popen[bytes], cleanup_grace_seconds: float) -> bool:
     if os.name == "nt":
         return _terminate_windows_process_tree(process, cleanup_grace_seconds)
     return _terminate_posix_process_tree(process, cleanup_grace_seconds)
+
+
+def _cleanup_after_completed_parent(
+    process: subprocess.Popen[bytes], cleanup_grace_seconds: float
+) -> tuple[str, bool]:
+    """Verify that a completed parent left no descendant or process-group member."""
+
+    if os.name == "nt":
+        descendants = _windows_descendant_pids(process.pid)
+        if descendants is None:
+            return "failed", False
+        cleanup_required = bool(descendants)
+    else:
+        cleanup_required = _process_group_exists(process.pid)
+    if not cleanup_required:
+        return "not_required", True
+    if _terminate_process_tree(process, cleanup_grace_seconds):
+        return "verified", True
+    return "failed", False
 
 
 def run_process_contained(
@@ -370,14 +390,17 @@ def run_process_contained(
             process_tree_cleanup_verified=cleanup_verified,
         )
 
+    cleanup_status, cleanup_verified = _cleanup_after_completed_parent(
+        process, cleanup_grace_seconds
+    )
     return ContainedProcessResult(
         returncode=process.returncode,
         stdout=_as_bytes(stdout),
         stderr=_as_bytes(stderr),
         process_started=True,
         execution_status="completed",
-        process_cleanup_status="not_required",
-        process_tree_cleanup_verified=True,
+        process_cleanup_status=cleanup_status,
+        process_tree_cleanup_verified=cleanup_verified,
     )
 
 

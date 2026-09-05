@@ -376,19 +376,122 @@ class CollaborationWindowTests(unittest.TestCase):
         self.assertEqual(outcome.blockers, ("route-a:session_or_turn_incomplete",))
 
     def test_workspace_cleanup_failure_is_a_hard_blocker(self) -> None:
-        with patch(
-            "research_evolution.evolution.collaboration_window._remove_workspace",
-            return_value=False,
-        ):
-            outcome = run_collaboration_window(
-                _plan(), self._process_adapter("deterministic-fake-model")
-            )
+        with tempfile.TemporaryDirectory(prefix="p7f3-test-cleanup-") as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            with (
+                patch(
+                    "research_evolution.evolution.collaboration_window.tempfile.mkdtemp",
+                    return_value=str(workspace),
+                ),
+                patch(
+                    "research_evolution.evolution.collaboration_window._remove_workspace",
+                    return_value=False,
+                ),
+            ):
+                outcome = run_collaboration_window(
+                    _plan(), self._process_adapter("deterministic-fake-model")
+                )
         self.assertEqual(outcome.status, "failed_closed")
         self.assertEqual(outcome.blockers, ("route-a:workspace_cleanup_failed",))
         self.assertEqual(
             outcome.worker_outcomes[0].data["failure"],
             {"stage": "workspace_cleanup", "code": "workspace_cleanup_failed"},
         )
+
+    def test_transient_workspace_delete_failure_is_retried_before_success(self) -> None:
+        original_rmtree = shutil.rmtree
+        calls = 0
+
+        def transient_failure_then_remove(path: Any, *args: Any, **kwargs: Any) -> None:
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise PermissionError("simulated transient directory handle")
+            original_rmtree(path, *args, **kwargs)
+
+        with (
+            patch(
+                "research_evolution.evolution.collaboration_window.shutil.rmtree",
+                side_effect=transient_failure_then_remove,
+            ),
+            patch("research_evolution.evolution.collaboration_window.time.sleep"),
+        ):
+            outcome = run_collaboration_window(
+                _plan(), self._process_adapter("deterministic-fake-model")
+            )
+
+        self.assertEqual(outcome.status, "window_completed")
+        self.assertGreaterEqual(calls, 2)
+
+    def test_primary_launcher_failure_survives_workspace_cleanup_failure(self) -> None:
+        contained = ContainedProcessResult(
+            returncode=17,
+            stdout=b"",
+            stderr=b"sensitive launcher detail",
+            process_started=True,
+            execution_status="completed",
+            process_cleanup_status="failed",
+            process_tree_cleanup_verified=False,
+        )
+        with tempfile.TemporaryDirectory(prefix="p7f3-test-cleanup-") as tmp:
+            workspace = Path(tmp) / "workspace"
+            workspace.mkdir()
+            with (
+                patch(
+                    "research_evolution.evolution.collaboration_window.tempfile.mkdtemp",
+                    return_value=str(workspace),
+                ),
+                patch(
+                    "research_evolution.evolution.collaboration_window.run_process_contained",
+                    return_value=contained,
+                ),
+                patch(
+                    "research_evolution.evolution.collaboration_window._remove_workspace",
+                    return_value=False,
+                ),
+            ):
+                outcome = run_collaboration_window(
+                    _plan(), self._process_adapter("deterministic-fake-model")
+                )
+
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:launcher_exit_nonzero",))
+        record = outcome.worker_outcomes[0]
+        self.assertEqual(
+            record.data["failure"],
+            {"stage": "adapter_execution", "code": "launcher_exit_nonzero"},
+        )
+        self.assertFalse(record.data["execution"]["workspace_cleanup_verified"])
+        self.assertNotIn("sensitive launcher detail", record.canonical_bytes.decode("utf-8"))
+
+    def test_process_cleanup_failure_blocks_a_zero_exit_launcher(self) -> None:
+        contained = ContainedProcessResult(
+            returncode=0,
+            stdout=b"",
+            stderr=b"sensitive cleanup detail",
+            process_started=True,
+            execution_status="completed",
+            process_cleanup_status="failed",
+            process_tree_cleanup_verified=False,
+        )
+        with patch(
+            "research_evolution.evolution.collaboration_window.run_process_contained",
+            return_value=contained,
+        ):
+            outcome = run_collaboration_window(
+                _plan(), self._process_adapter("deterministic-fake-model")
+            )
+
+        self.assertEqual(outcome.status, "failed_closed")
+        self.assertEqual(outcome.blockers, ("route-a:cleanup_failed",))
+        record = outcome.worker_outcomes[0]
+        self.assertEqual(
+            record.data["failure"],
+            {"stage": "adapter_execution", "code": "cleanup_failed"},
+        )
+        self.assertFalse(record.data["execution"]["process_tree_cleanup_verified"])
+        self.assertNotIn("sensitive cleanup detail", record.canonical_bytes.decode("utf-8"))
 
     def test_process_worker_can_propose_but_not_activate_a_future_route(self) -> None:
         outcome = run_collaboration_window(_plan(), self._process_adapter("fake-future-proposal"))
